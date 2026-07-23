@@ -1,0 +1,152 @@
+/* ============================================================================
+   Aroma — buttons
+   .btn-aroma / .btn-aroma-outline base styles live in ../aroma.css; this file
+   adds the full system: focus states, secondary/success/danger/ghost
+   variants, sizes, disabled, and loading states.
+   ========================================================================== */
+
+.btn-aroma,
+.btn-aroma-outline,
+.btn-aroma-secondary,
+.btn-aroma-success,
+.btn-aroma-danger,
+.btn-aroma-ghost {
+  letter-spacing: 0.02em;
+  font-family: var(--aroma-body-en);
+  transition: background-color var(--aroma-transition), border-color var(--aroma-transition),
+    color var(--aroma-transition), transform var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
+}
+html[lang="ar"] .btn-aroma,
+html[lang="ar"] .btn-aroma-outline,
+html[lang="ar"] .btn-aroma-secondary,
+html[lang="ar"] .btn-aroma-success,
+html[lang="ar"] .btn-aroma-danger,
+html[lang="ar"] .btn-aroma-ghost {
+  font-family: var(--aroma-body-ar);
+  letter-spacing: normal;
+}
+
+.btn-aroma:active,
+.btn-aroma-outline:active,
+.btn-aroma-secondary:active,
+.btn-aroma-success:active,
+.btn-aroma-danger:active {
+  transform: translateY(1px);
+}
+
+.btn-aroma:focus-visible,
+.btn-aroma-outline:focus-visible,
+.btn-aroma-secondary:focus-visible,
+.btn-aroma-success:focus-visible,
+.btn-aroma-danger:focus-visible,
+.btn-aroma-ghost:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.25);
+}
+
+/* --- Secondary (soft accent) ------------------------------------------------ */
+.btn-aroma-secondary {
+  background-color: var(--aroma-skin);
+  border: 1px solid var(--aroma-light-brown);
+  color: var(--aroma-brown);
+  border-radius: 999px;
+  padding: 0.65rem 1.6rem;
+  font-weight: 600;
+}
+.btn-aroma-secondary:hover {
+  background-color: var(--aroma-light-brown);
+  border-color: var(--aroma-light-brown);
+  color: #fff;
+}
+
+/* --- Semantic (success / danger) -------------------------------------------- */
+.btn-aroma-success,
+.btn-aroma-danger {
+  border-radius: 999px;
+  padding: 0.65rem 1.6rem;
+  font-weight: 600;
+  color: #fff;
+}
+.btn-aroma-success { background-color: var(--aroma-success); border: 1px solid var(--aroma-success); }
+.btn-aroma-success:hover { filter: brightness(0.92); color: #fff; }
+.btn-aroma-danger { background-color: var(--aroma-danger); border: 1px solid var(--aroma-danger); }
+.btn-aroma-danger:hover { filter: brightness(0.92); color: #fff; }
+
+/* --- Light (for use on dark/colored backgrounds — hero, newsletter) ----------- */
+.btn-aroma-light {
+  background-color: #fff;
+  border: 1px solid #fff;
+  color: var(--aroma-brown);
+  border-radius: 999px;
+  padding: 0.65rem 1.6rem;
+  font-weight: 600;
+}
+.btn-aroma-light:hover {
+  background-color: var(--aroma-skin);
+  border-color: var(--aroma-skin);
+  color: var(--aroma-brown);
+}
+
+/* --- Ghost / text button ----------------------------------------------------- */
+.btn-aroma-ghost {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--aroma-brown);
+  font-weight: 600;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+}
+.btn-aroma-ghost:hover { background-color: var(--aroma-skin); }
+
+/* --- Sizes -------------------------------------------------------------------- */
+.btn-aroma.btn-sm, .btn-aroma-outline.btn-sm, .btn-aroma-secondary.btn-sm,
+.btn-aroma-success.btn-sm, .btn-aroma-danger.btn-sm, .btn-aroma-ghost.btn-sm {
+  padding: 0.4rem 1.1rem;
+  font-size: 0.85rem;
+}
+.btn-aroma.btn-lg, .btn-aroma-outline.btn-lg, .btn-aroma-secondary.btn-lg,
+.btn-aroma-success.btn-lg, .btn-aroma-danger.btn-lg {
+  padding: 0.85rem 2.2rem;
+  font-size: 1.05rem;
+}
+
+/* --- Disabled ------------------------------------------------------------------ */
+.btn-aroma:disabled, .btn-aroma.disabled,
+.btn-aroma-outline:disabled, .btn-aroma-outline.disabled,
+.btn-aroma-secondary:disabled, .btn-aroma-secondary.disabled {
+  background-color: var(--aroma-disabled-bg);
+  border-color: var(--aroma-disabled-bg);
+  color: var(--aroma-disabled-text);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Loading state -------------------------------------------------------------
+   Usage: JS toggles the "is-loading" class on submit; button text is hidden
+   and a spinner is centered via ::after. Markup/text stays untouched. */
+.btn-aroma.is-loading, .btn-aroma-outline.is-loading, .btn-aroma-secondary.is-loading {
+  color: transparent !important;
+  pointer-events: none;
+  position: relative;
+}
+.btn-aroma.is-loading::after, .btn-aroma-outline.is-loading::after, .btn-aroma-secondary.is-loading::after {
+  content: "";
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  top: 50%;
+  left: 50%;
+  margin: -0.5rem 0 0 -0.5rem;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: aroma-spin 0.6s linear infinite;
+}
+.btn-aroma.is-loading::after { color: #fff; }
+.btn-aroma-outline.is-loading::after,
+.btn-aroma-secondary.is-loading::after { color: var(--aroma-brown); }
+
+@keyframes aroma-spin {
+  to { transform: rotate(360deg); }
+}

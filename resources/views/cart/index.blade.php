@@ -10,7 +10,7 @@
     @if (empty($rows))
         <div class="aroma-trust p-5 text-center">
             <i class="bi bi-bag fs-1 d-block mb-3" style="color:var(--aroma-light-brown)"></i>
-            <p class="text-muted">{{ __('cart.empty') }}</p>
+            <p class="text-aroma-muted">{{ __('cart.empty') }}</p>
             <a href="{{ route('home', $locale) }}" class="btn btn-aroma">{{ __('cart.empty_cta') }}</a>
         </div>
     @else
@@ -19,7 +19,7 @@
                 <div class="aroma-trust p-3">
                     <table class="table align-middle mb-0">
                         <thead>
-                            <tr class="small text-muted">
+                            <tr class="small text-aroma-muted">
                                 <th>{{ __('cart.product') }}</th>
                                 <th>{{ __('cart.price') }}</th>
                                 <th style="width:130px">{{ __('cart.qty') }}</th>
@@ -40,7 +40,7 @@
                                                     {{ $row['name'][$locale] ?? reset($row['name']) }}
                                                 </a>
                                                 @if (!empty($row['variant']))
-                                                    <div class="small text-muted">{{ $row['variant'][$locale] ?? reset($row['variant']) }}</div>
+                                                    <div class="small text-aroma-muted">{{ $row['variant'][$locale] ?? reset($row['variant']) }}</div>
                                                 @endif
                                             </div>
                                         </div>
@@ -73,7 +73,7 @@
                 <form method="post" action="{{ route('cart.clear') }}" class="mt-2">
                     @csrf
                     @method('DELETE')
-                    <button class="btn btn-sm btn-link text-muted" type="submit">{{ __('cart.clear') }}</button>
+                    <button class="btn btn-sm btn-link text-aroma-muted" type="submit">{{ __('cart.clear') }}</button>
                 </form>
             </div>
 
@@ -84,9 +84,9 @@
                         <span>{{ __('cart.subtotal') }}</span>
                         <span class="fw-bold" style="color:var(--aroma-brown)">{{ $subtotal }}</span>
                     </div>
-                    <a href="#" class="btn btn-aroma w-100 mb-2">{{ __('cart.checkout') }}</a>
+                    <a href="{{ route('checkout.review') }}" class="btn btn-aroma w-100 mb-2">{{ __('cart.checkout') }}</a>
                     <a href="{{ route('home', $locale) }}" class="btn btn-aroma-outline w-100">{{ __('cart.continue') }}</a>
-                    <p class="small text-muted mt-3 mb-0"><i class="bi bi-wallet2 me-1"></i>{{ __('cart.bnpl') }}</p>
+                    <p class="small text-aroma-muted mt-3 mb-0"><i class="bi bi-wallet2 me-1"></i>{{ __('cart.bnpl') }}</p>
                 </div>
             </div>
         </div>

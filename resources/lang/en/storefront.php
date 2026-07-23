@@ -14,6 +14,7 @@ return [
         'wishlist'    => 'Wishlist',
         'cart'        => 'Cart',
         'search'      => 'Search for products…',
+        'menu'        => 'Menu',
     ],
 
     'hero' => [

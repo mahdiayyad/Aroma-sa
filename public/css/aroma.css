@@ -44,15 +44,17 @@
 
   --aroma-gradient: linear-gradient(135deg, #704f2f 0%, #d3a17a 55%, #ffe5ca 100%);
 
-  /* Font stacks with graceful fallbacks.
-     Luxury is the primary display/heading typeface for both locales (per brand
-     direction); Manier/Playfair remain as Latin fallbacks until the licensed
-     Luxury web font is dropped into public/fonts/. */
-  --aroma-heading-en: "Luxury", "Manier", "Playfair Display", Georgia, serif;
-  --aroma-body-en: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --aroma-script: "Snell Roundhand", "Brush Script MT", cursive;
-  --aroma-heading-ar: "Luxury", "Amiri", "Traditional Arabic", serif;
-  --aroma-body-ar: "HelveticaNeueLTArabic", "Segoe UI", "Tahoma", sans-serif;
+  /* Font stacks — per Aroma Brand Guidelines (2024), p.15-19:
+       Manier  = English headings/display    Helvetica Neue = English body/UI
+       Luxury  = Arabic headings/display      Helvetica Neue LT Arabic = Arabic body/UI
+     The licensed files aren't in the repo yet (see public/fonts/README.md), so
+     each stack falls back to a free Google Font chosen to match that role's
+     character — never to each other's role. */
+  --aroma-heading-en: "Manier", "Playfair Display", Georgia, serif;
+  --aroma-body-en: "Helvetica Neue", "Inter", Helvetica, Arial, sans-serif;
+  --aroma-script: "Snell Roundhand", "Tangerine", "Brush Script MT", cursive;
+  --aroma-heading-ar: "Luxury", "El Messiri", "Amiri", "Traditional Arabic", serif;
+  --aroma-body-ar: "HelveticaNeueLTArabic", "IBM Plex Sans Arabic", "Tajawal", "Tahoma", sans-serif;
 
   /* Map Bootstrap theme colour to the Aroma brown */
   --bs-primary: #704f2f;
@@ -139,6 +141,41 @@ a:hover {
 .aroma-topbar a {
   color: var(--aroma-skin);
 }
+/* Language switcher lives in the dark topbar; .aroma-icon-link's brown text
+   (correct on the white navbar) would be invisible here, so override it. */
+.aroma-topbar .aroma-icon-link {
+  color: var(--aroma-skin);
+}
+.aroma-topbar .aroma-icon-link:hover,
+.aroma-topbar .aroma-icon-link:focus,
+.aroma-topbar .aroma-icon-link.show {
+  color: #fff;
+}
+.aroma-topbar .dropdown-menu {
+  /* .aroma-navbar is sticky-top (Bootstrap z-index: 1020), which sits directly
+     below the topbar and outranks the dropdown's default z-index (1000) —
+     without this the open menu renders underneath the navbar. */
+  z-index: 1030;
+  border: none;
+  border-radius: var(--aroma-radius);
+  box-shadow: var(--aroma-shadow);
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+.aroma-topbar .dropdown-item {
+  color: var(--aroma-ink);
+  font-size: 0.9rem;
+  padding: 0.5rem 1.1rem;
+}
+.aroma-topbar .dropdown-item:hover,
+.aroma-topbar .dropdown-item:focus {
+  background: var(--aroma-skin);
+  color: var(--aroma-brown);
+}
+.aroma-topbar .dropdown-item.active {
+  background: var(--aroma-brown);
+  color: #fff;
+}
 .aroma-navbar {
   background: var(--aroma-white);
   border-bottom: 1px solid rgba(112, 79, 47, 0.12);
@@ -171,6 +208,39 @@ a:hover {
   padding: 0 6px;
   line-height: 1.5;
 }
+.aroma-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  background: var(--aroma-brown);
+  flex-shrink: 0;
+}
+
+/* --- Auth shell (login/register/password pages) ---------------------------- */
+.aroma-auth-shell {
+  background: var(--aroma-gradient);
+  min-height: 100vh;
+}
+.aroma-auth-brand {
+  color: #fff;
+}
+.aroma-auth-tagline {
+  color: var(--aroma-skin);
+}
+.aroma-auth-locale-link {
+  color: #fff;
+}
+.aroma-auth-card {
+  background: #fff;
+  border: none;
+  border-radius: var(--aroma-radius-lg);
+  box-shadow: var(--aroma-shadow-lg);
+}
 
 /* --- Hero ------------------------------------------------------------------ */
 .aroma-hero {
@@ -189,6 +259,10 @@ a:hover {
   font-family: var(--aroma-script);
   font-size: clamp(1.6rem, 4vw, 2.6rem);
   color: var(--aroma-skin);
+}
+.aroma-hero .aroma-hero-lead {
+  max-width: 640px;
+  margin-inline: auto;
 }
 
 /* --- Cards / sections ------------------------------------------------------ */
@@ -239,6 +313,9 @@ a:hover {
   color: var(--aroma-skin);
   border-radius: var(--aroma-radius);
 }
+.aroma-newsletter h2 {
+  color: var(--aroma-skin);
+}
 .aroma-newsletter .form-control {
   border-radius: 999px;
 }
@@ -250,9 +327,26 @@ a:hover {
 }
 .aroma-footer a {
   color: rgba(255, 243, 226, 0.7);
+  transition: color 0.2s ease;
 }
 .aroma-footer a:hover {
   color: var(--aroma-skin);
+}
+.aroma-footer h6 {
+  color: var(--aroma-skin);
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+}
+.aroma-footer hr {
+  border-color: rgba(255, 243, 226, 0.15);
+}
+.aroma-footer .form-control {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 243, 226, 0.2);
+  color: var(--aroma-skin);
+}
+.aroma-footer .form-control::placeholder {
+  color: rgba(255, 243, 226, 0.5);
 }
 .aroma-footer .aroma-footer-brand {
   font-family: var(--aroma-script);

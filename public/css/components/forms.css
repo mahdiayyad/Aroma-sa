@@ -1,0 +1,113 @@
+/* ============================================================================
+   Aroma — form inputs, textareas, checkboxes, radios, validation states
+   ========================================================================== */
+
+.form-control,
+.form-select {
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm);
+  padding: 0.65rem 1rem;
+  min-height: 3rem;
+  font-family: var(--aroma-body-en);
+  color: var(--aroma-ink);
+  background-color: #fff;
+  transition: border-color var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
+}
+html[lang="ar"] .form-control,
+html[lang="ar"] .form-select {
+  font-family: var(--aroma-body-ar);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--aroma-light-brown);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
+}
+
+textarea.form-control {
+  min-height: 8rem;
+  padding-top: 0.75rem;
+  line-height: 1.6;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--aroma-ink);
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+}
+.form-label .aroma-required {
+  color: var(--aroma-danger);
+  margin-inline-start: 0.2rem;
+}
+
+.form-text { color: var(--aroma-muted); font-size: 0.825rem; }
+
+/* --- Validation states -------------------------------------------------------- */
+.form-control.is-valid, .form-select.is-valid {
+  border-color: var(--aroma-success);
+  background-image: none;
+}
+.form-control.is-valid:focus, .form-select.is-valid:focus {
+  box-shadow: 0 0 0 3px rgba(91, 122, 74, 0.2);
+}
+.form-control.is-invalid, .form-select.is-invalid {
+  border-color: var(--aroma-danger);
+  background-image: none;
+}
+.form-control.is-invalid:focus, .form-select.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(166, 67, 43, 0.2);
+}
+.valid-feedback {
+  color: var(--aroma-success);
+  font-size: 0.825rem;
+  font-weight: 500;
+}
+.invalid-feedback {
+  color: var(--aroma-danger);
+  font-size: 0.825rem;
+  font-weight: 500;
+}
+
+/* --- Disabled ------------------------------------------------------------------ */
+.form-control:disabled, .form-select:disabled {
+  background-color: var(--aroma-disabled-bg);
+  color: var(--aroma-disabled-text);
+  cursor: not-allowed;
+}
+
+/* --- Checkboxes & radios — brand-colored custom controls ---------------------- */
+.form-check-input {
+  width: 1.15em;
+  height: 1.15em;
+  border: 1.5px solid var(--aroma-border-strong);
+  margin-top: 0.2em;
+  cursor: pointer;
+  transition: background-color var(--aroma-transition-fast), border-color var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
+}
+.form-check-input:checked {
+  background-color: var(--aroma-brown);
+  border-color: var(--aroma-brown);
+}
+.form-check-input:focus {
+  border-color: var(--aroma-light-brown);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
+}
+.form-check-label {
+  cursor: pointer;
+  padding-inline-start: 0.25rem;
+}
+
+/* --- Input groups --------------------------------------------------------------- */
+.input-group .form-control,
+.input-group .form-select {
+  border-radius: var(--aroma-radius-sm);
+}
+
+/* --- Touch-friendly minimum size on small screens ------------------------------- */
+@media (max-width: 576px) {
+  .form-control, .form-select, .btn-aroma, .btn-aroma-outline, .btn-aroma-secondary {
+    min-height: 44px;
+  }
+}

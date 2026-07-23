@@ -1,0 +1,102 @@
+/* ============================================================================
+   Aroma — breadcrumbs, pagination, dropdowns, search
+   Topbar-specific dropdown rules live in ../aroma.css; this file covers the
+   generic/global cases (nav dropdowns, account menu, filters, etc).
+   ========================================================================== */
+
+/* --- Breadcrumbs --------------------------------------------------------------- */
+.breadcrumb {
+  --bs-breadcrumb-divider: '/';
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+.breadcrumb-item a { color: var(--aroma-muted); transition: color var(--aroma-transition-fast); }
+.breadcrumb-item a:hover { color: var(--aroma-brown); }
+.breadcrumb-item.active { color: var(--aroma-brown); font-weight: 600; }
+.breadcrumb-item + .breadcrumb-item::before { color: var(--aroma-light-brown); }
+
+/* --- Pagination ------------------------------------------------------------------ */
+.pagination { gap: 0.35rem; flex-wrap: wrap; }
+.page-link {
+  border: none;
+  border-radius: var(--aroma-radius-sm) !important;
+  color: var(--aroma-brown);
+  font-weight: 600;
+  min-width: 2.5rem;
+  text-align: center;
+  transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
+}
+.page-link:hover { background: var(--aroma-skin); color: var(--aroma-brown); }
+.page-item.active .page-link { background: var(--aroma-brown); color: #fff; }
+.page-item.disabled .page-link { color: var(--aroma-disabled-text); background: transparent; }
+
+/* --- Dropdowns (global) ----------------------------------------------------------- */
+.dropdown-menu {
+  border: none;
+  border-radius: var(--aroma-radius-sm);
+  box-shadow: var(--aroma-shadow);
+  padding: 0.5rem;
+}
+.dropdown-item {
+  border-radius: calc(var(--aroma-radius-sm) - 0.15rem);
+  padding: 0.55rem 0.9rem;
+  font-size: 0.9rem;
+  transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
+}
+.dropdown-item:hover, .dropdown-item:focus { background: var(--aroma-skin); color: var(--aroma-brown); }
+.dropdown-item.active, .dropdown-item:active { background: var(--aroma-brown); color: #fff; }
+
+/* --- Search bar (extends .aroma-search in ../aroma.css) --------------------------- */
+.aroma-search .form-control:focus { box-shadow: none; border-color: var(--aroma-brown); }
+.aroma-search .btn-aroma { border-radius: 0 999px 999px 0; }
+[dir="rtl"] .aroma-search .btn-aroma { border-radius: 999px 0 0 999px; }
+
+/* --- Nav links --------------------------------------------------------------------- */
+.nav-link {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color var(--aroma-transition-fast);
+}
+.aroma-navbar .nav-link {
+  position: relative;
+  color: var(--aroma-ink);
+}
+.aroma-navbar .nav-link:hover { color: var(--aroma-brown); }
+.aroma-navbar .nav-link.active {
+  color: var(--aroma-brown);
+  font-weight: 700;
+}
+.aroma-navbar .nav-link.active::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0.75rem;
+  bottom: 0;
+  height: 2px;
+  background: var(--aroma-light-brown);
+  border-radius: 2px;
+}
+
+/* --- Mobile offcanvas nav ------------------------------------------------------------ */
+.offcanvas {
+  background: var(--aroma-white);
+}
+.aroma-mobile-nav-link {
+  padding: 0.85rem 1rem;
+  border-radius: var(--aroma-radius-sm);
+  color: var(--aroma-ink);
+  font-weight: 600;
+  transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
+}
+.aroma-mobile-nav-link:hover { background: var(--aroma-skin); color: var(--aroma-brown); }
+.aroma-mobile-nav-link.active { background: var(--aroma-skin); color: var(--aroma-brown); }
+
+/* --- Account sidebar nav ------------------------------------------------------------- */
+.aroma-account-nav-link {
+  color: var(--aroma-ink);
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--aroma-radius-sm);
+  font-weight: 500;
+  transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
+}
+.aroma-account-nav-link:hover { background: var(--aroma-skin); color: var(--aroma-brown); }
+.aroma-account-nav-link.active { background: var(--aroma-brown); color: #fff; }

@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -86,17 +85,7 @@ class Product extends Model
     {
         $image = $this->images->firstWhere('is_primary', true) ?? $this->images->first();
 
-        if (! $image) {
-            return asset('images/placeholder.svg');
-        }
-
-        // Absolute URLs and root-relative paths (e.g. the seeded placeholder)
-        // are returned as-is; everything else resolves against its storage disk.
-        if (preg_match('#^(https?:)?/#', $image->path)) {
-            return $image->path;
-        }
-
-        return Storage::disk($image->disk)->url($image->path);
+        return $image ? $image->url() : asset('images/placeholder.svg');
     }
 
     public function isOnSale(): bool
@@ -122,5 +111,17 @@ class Product extends Model
     public function compareAtLabel(): ?string
     {
         return $this->isOnSale() ? Money::format($this->compare_at_price) : null;
+    }
+
+    public function discountPercent(): ?int
+    {
+        if (!$this->isOnSale()) {
+            return null;
+        }
+
+        $compareAt = (float) $this->compare_at_price;
+        $base = (float) $this->base_price;
+
+        return (int) round((($compareAt - $base) / $compareAt) * 100);
     }
 }

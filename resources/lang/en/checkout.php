@@ -1,0 +1,111 @@
+<?php
+
+return [
+    'title' => 'Checkout',
+    'review' => 'Order Review',
+    'address' => 'Shipping Address',
+    'payment' => 'Payment Method',
+    'confirmation' => 'Order Confirmation',
+
+    'steps' => [
+        'review' => 'Review Cart',
+        'account' => 'Account',
+        'address' => 'Shipping Address',
+        'payment' => 'Payment',
+    ],
+
+    'auth' => [
+        'title' => 'How would you like to check out?',
+        'subtitle' => 'Sign in for a faster checkout, or continue as a guest.',
+        'login_title' => 'Sign In',
+        'login_desc' => 'Already have an Aroma account? Sign in to use your saved details.',
+        'register_title' => 'Create an Account',
+        'register_desc' => 'New to Aroma? Create an account to track orders and checkout faster next time.',
+        'continue_as_guest' => 'Continue as guest',
+        'benefit_tracking' => 'Track your orders',
+        'benefit_faster' => 'Faster checkout next time',
+        'benefit_addresses' => 'Save your addresses',
+    ],
+
+    'recipient_name' => 'Full Name',
+    'phone' => 'Phone Number',
+    'street_address' => 'Street Address',
+    'city' => 'City',
+    'region' => 'Region',
+    'postal_code' => 'Postal Code',
+    'email' => 'Email Address',
+
+    'use_shipping_for_billing' => 'Use shipping address for billing',
+    'customer_notes' => 'Special Instructions (optional)',
+    'coupon_code' => 'Coupon Code',
+    'shipping_method' => 'Shipping Method',
+
+    'payment_gateway' => 'Payment Gateway',
+    'payment_method' => 'Payment Method',
+
+    'subtotal' => 'Subtotal',
+    'discount' => 'Discount',
+    'tax' => 'Tax',
+    'shipping' => 'Shipping',
+    'total' => 'Total',
+    'total_amount' => 'Total Amount',
+    'product' => 'Product',
+    'quantity' => 'Quantity',
+    'price' => 'Price',
+    'review_order' => 'Review Your Order',
+    'back_to_cart' => 'Back to Cart',
+    'proceed_to_checkout' => 'Proceed to Checkout',
+    'secure_checkout' => 'Secure checkout — your information is protected',
+
+    'buttons' => [
+        'continue' => 'Continue',
+        'back' => 'Back',
+        'place_order' => 'Place Order',
+        'confirm_order' => 'Confirm Order',
+    ],
+
+    'success' => [
+        'order_created' => 'Order :order_number created successfully!',
+        'payment_confirmed' => 'Payment confirmed.',
+    ],
+
+    'errors' => [
+        'cart_empty' => 'Your cart is empty.',
+        'product_out_of_stock' => 'Product ":name" is out of stock.',
+        'insufficient_stock' => 'Insufficient stock for this product.',
+        'payment_failed' => 'Payment processing failed. Please try again.',
+        'invalid_address' => 'Please provide a valid shipping address.',
+    ],
+
+    'payment_methods' => [
+        'mada' => 'Mada Card',
+        'applepay' => 'Apple Pay',
+        'visa' => 'Visa Card',
+        'mastercard' => 'Mastercard',
+        'tabby' => 'Tabby (Buy Now, Pay Later)',
+        'tamara' => 'Tamara (Buy Now, Pay Later)',
+    ],
+
+    'order_number' => 'Order Number',
+    'order_date' => 'Order Date',
+    'status' => 'Status',
+    'email_confirmation' => 'A confirmation email has been sent to your email address.',
+    'thank_you' => 'Thank You!',
+    'order_confirmed' => 'Your order has been confirmed and is being processed.',
+    'shipping_address_label' => 'Shipping Address',
+    'order_items' => 'Order Items',
+    'order_summary' => 'Order Summary',
+    'view_order' => 'View Order',
+    'continue_shopping' => 'Continue Shopping',
+    'back' => 'Back',
+    'agree_terms' => 'I agree to the <a href=":link">terms and conditions</a>',
+    'placeholder' => 'Payment form for :gateway will be shown here',
+    'payment_gateway_placeholder' => 'Payment form placeholder',
+    'shipping_methods' => [
+        'standard' => 'Standard Shipping',
+    ],
+    'shipping_days' => [
+        'standard' => '3-5 business days',
+    ],
+    'saved_addresses' => 'Saved Addresses',
+];

@@ -11,12 +11,20 @@
 <nav class="aroma-navbar sticky-top">
     <div class="container">
         <div class="d-flex align-items-center justify-content-between py-3 gap-3">
-            {{-- Brand --}}
-            <a href="{{ route('home', $locale) }}" class="aroma-logo text-decoration-none">
-                {{ $brand['name'] }}
-            </a>
+            <div class="d-flex align-items-center gap-2">
+                {{-- Mobile menu toggle (search + categories live in the offcanvas below lg) --}}
+                <button class="btn d-lg-none aroma-icon-link border-0 bg-transparent p-1" type="button"
+                        data-bs-toggle="offcanvas" data-bs-target="#aromaMobileNav" aria-controls="aromaMobileNav"
+                        aria-label="{{ __('storefront.nav.menu') }}">
+                    <i class="bi bi-list fs-2"></i>
+                </button>
 
-            {{-- Search --}}
+                <a href="{{ route('home', $locale) }}" class="aroma-logo text-decoration-none">
+                    {{ $brand['name'] }}
+                </a>
+            </div>
+
+            {{-- Search (desktop) --}}
             <form class="aroma-search flex-grow-1 d-none d-lg-block" role="search"
                   action="{{ route('home', $locale) }}" method="get">
                 <div class="input-group">
@@ -63,13 +71,40 @@
             </div>
         </div>
 
-        {{-- Category nav --}}
-        <ul class="nav justify-content-center pb-2 flex-wrap">
+        {{-- Category nav (desktop) --}}
+        <ul class="nav justify-content-center pb-2 d-none d-lg-flex">
             @foreach (['perfumes', 'flowers', 'beauty', 'abayas', 'accessories', 'seasonal'] as $cat)
                 <li class="nav-item">
-                    <a class="nav-link px-3" href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>
+                    <a class="nav-link px-3 {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
+                       href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>
                 </li>
             @endforeach
         </ul>
     </div>
 </nav>
+
+{{-- Mobile offcanvas: search + categories --}}
+<div class="offcanvas offcanvas-start" tabindex="-1" id="aromaMobileNav" aria-labelledby="aromaMobileNavLabel">
+    <div class="offcanvas-header">
+        <span class="aroma-logo" id="aromaMobileNavLabel">{{ $brand['name'] }}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+        <form class="aroma-search mb-4" role="search" action="{{ route('home', $locale) }}" method="get">
+            <div class="input-group">
+                <input type="search" name="q" class="form-control"
+                       placeholder="{{ __('storefront.nav.search') }}"
+                       aria-label="{{ __('storefront.nav.search') }}">
+                <button class="btn btn-aroma" type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+        <ul class="nav flex-column gap-1">
+            @foreach (['perfumes', 'flowers', 'beauty', 'abayas', 'accessories', 'seasonal'] as $cat)
+                <li class="nav-item">
+                    <a class="nav-link aroma-mobile-nav-link {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
+                       href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+</div>

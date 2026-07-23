@@ -26,10 +26,10 @@
   --aroma-gradient: linear-gradient(135deg, #{$aroma-brown} 0%, #{$aroma-light-brown} 55%, #{$aroma-skin} 100%);
 }
 
-html[lang="ar"] body { font-family: "HelveticaNeueLTArabic", "Segoe UI", Tahoma, sans-serif; }
+html[lang="ar"] body { font-family: "HelveticaNeueLTArabic", "IBM Plex Sans Arabic", "Tajawal", Tahoma, sans-serif; }
 html[lang="ar"] h1,
 html[lang="ar"] h2,
-html[lang="ar"] h3 { font-family: "Luxury", "Amiri", serif; }
+html[lang="ar"] h3 { font-family: "Luxury", "El Messiri", "Amiri", serif; }
 
 .btn-aroma {
   @extend .btn, .btn-primary;

@@ -11,7 +11,7 @@
         </div>
         <div class="col-lg-9">
             @if ($products->isEmpty())
-                <div class="aroma-trust p-5 text-center text-muted">{{ __('account.wishlist.empty') }}</div>
+                <div class="aroma-trust p-5 text-center text-aroma-muted">{{ __('account.wishlist.empty') }}</div>
             @else
                 <div class="row g-4">
                     @foreach ($products as $product)

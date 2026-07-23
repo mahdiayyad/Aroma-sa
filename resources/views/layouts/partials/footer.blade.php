@@ -15,7 +15,7 @@
             </div>
 
             <div class="col-6 col-lg-2">
-                <h6 class="text-uppercase mb-3" style="color:var(--aroma-skin)">{{ __('storefront.footer.about') }}</h6>
+                <h6 class="text-uppercase mb-3">{{ __('storefront.footer.about') }}</h6>
                 <ul class="list-unstyled small">
                     <li class="mb-2"><a href="#">{{ __('storefront.sections.brands') }}</a></li>
                     <li class="mb-2"><a href="#">{{ __('storefront.footer.contact') }}</a></li>
@@ -23,7 +23,7 @@
             </div>
 
             <div class="col-6 col-lg-2">
-                <h6 class="text-uppercase mb-3" style="color:var(--aroma-skin)">{{ __('storefront.footer.help') }}</h6>
+                <h6 class="text-uppercase mb-3">{{ __('storefront.footer.help') }}</h6>
                 <ul class="list-unstyled small">
                     <li class="mb-2"><a href="#">{{ __('storefront.nav.account') }}</a></li>
                     <li class="mb-2"><a href="#">{{ __('storefront.footer.policies') }}</a></li>
@@ -31,7 +31,7 @@
             </div>
 
             <div class="col-lg-4">
-                <h6 class="text-uppercase mb-3" style="color:var(--aroma-skin)">{{ __('storefront.newsletter.title') }}</h6>
+                <h6 class="text-uppercase mb-3">{{ __('storefront.newsletter.title') }}</h6>
                 <form class="d-flex gap-2" action="#" method="post">
                     @csrf
                     <input type="email" class="form-control" placeholder="{{ __('storefront.newsletter.placeholder') }}">
@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <hr class="mt-4" style="border-color:rgba(255,243,226,.15)">
+        <hr class="mt-4">
         <div class="d-flex flex-wrap justify-content-between small">
             <span>© {{ date('Y') }} {{ $brand['name'] }}. {{ __('storefront.footer.rights') }}</span>
             <span class="aroma-script">{{ __('storefront.footer.tagline') }}</span>

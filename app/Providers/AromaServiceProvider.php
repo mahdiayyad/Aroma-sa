@@ -29,6 +29,11 @@ class AromaServiceProvider extends ServiceProvider
         // so it renders correctly against the CDN stylesheet.
         Paginator::useBootstrap();
 
+        // Branded pagination (resources/views/vendor/pagination/aroma.blade.php)
+        // applies automatically to every existing ->links() call site-wide.
+        Paginator::defaultView('vendor.pagination.aroma');
+        Paginator::defaultSimpleView('vendor.pagination.aroma');
+
         View::share('brand', config('aroma.brand'));
         View::share('aromaColors', config('aroma.colors'));
         View::share('locales', config('aroma.locales'));

@@ -1,0 +1,41 @@
+/* ============================================================================
+   Aroma — badges & alerts
+   Replaces raw Bootstrap `badge bg-*` / `alert-*` with brand-toned equivalents.
+   ========================================================================== */
+
+.aroma-badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.aroma-badge-success { background: var(--aroma-success-bg); color: var(--aroma-success); }
+.aroma-badge-danger  { background: var(--aroma-danger-bg);  color: var(--aroma-danger); }
+.aroma-badge-warning { background: var(--aroma-warning-bg); color: var(--aroma-warning); }
+.aroma-badge-info    { background: var(--aroma-info-bg);    color: var(--aroma-info); }
+.aroma-badge-neutral { background: var(--aroma-disabled-bg); color: var(--aroma-muted); }
+
+.aroma-alert {
+  border: none;
+  border-radius: var(--aroma-radius-sm);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.925rem;
+}
+.aroma-alert i { font-size: 1.1rem; margin-top: 0.1rem; flex-shrink: 0; }
+.aroma-alert .btn-close { margin-inline-start: auto; }
+
+.aroma-alert-success { background: var(--aroma-success-bg); color: #3e5230; }
+.aroma-alert-success i { color: var(--aroma-success); }
+.aroma-alert-danger { background: var(--aroma-danger-bg); color: #6e2e1d; }
+.aroma-alert-danger i { color: var(--aroma-danger); }
+.aroma-alert-warning { background: var(--aroma-warning-bg); color: #6b4e22; }
+.aroma-alert-warning i { color: var(--aroma-warning); }
+.aroma-alert-info { background: var(--aroma-info-bg); color: var(--aroma-brown); }
+.aroma-alert-info i { color: var(--aroma-brown); }

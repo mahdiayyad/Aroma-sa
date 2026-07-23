@@ -1,0 +1,24 @@
+/* ============================================================================
+   Aroma — motion system
+   Subtle, consistent hover/entrance effects. Respects prefers-reduced-motion.
+   ========================================================================== */
+
+@keyframes aroma-fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.aroma-animate-in { animation: aroma-fade-in-up 0.5s var(--aroma-ease) both; }
+
+.aroma-hover-lift {
+  transition: transform var(--aroma-transition), box-shadow var(--aroma-transition);
+}
+.aroma-hover-lift:hover { transform: translateY(-4px); box-shadow: var(--aroma-shadow); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

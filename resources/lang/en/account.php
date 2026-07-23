@@ -18,6 +18,10 @@ return [
     ],
     'recent_orders' => 'Recent orders',
     'no_orders'     => 'You have no orders yet.',
+    'no_orders_message' => 'When you make your first purchase, your order will appear here.',
+    'orders' => 'My Orders',
+    'back_to_orders' => 'Back to Orders',
+    'start_shopping' => 'Start shopping',
     'profile' => [
         'title'  => 'Profile & Security',
         'name'   => 'Full name',

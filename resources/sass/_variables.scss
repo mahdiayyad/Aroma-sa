@@ -18,9 +18,12 @@ $dark:       $aroma-ink;
 $body-bg:    $aroma-white;
 $body-color: $aroma-ink;
 
-// Typography
-$font-family-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
-$headings-font-family:   "Luxury", "Manier", "Playfair Display", Georgia, serif;
+// Typography — Manier is the English heading font, Luxury is Arabic-only
+// (Brand Guidelines p.15-19). See public/css/aroma.css for the full
+// role-correct fallback chains (Playfair Display / Inter / El Messiri / IBM
+// Plex Sans Arabic) applied per-locale in aroma-theme.scss below.
+$font-family-sans-serif: "Helvetica Neue", "Inter", Helvetica, Arial, sans-serif;
+$headings-font-family:   "Manier", "Playfair Display", Georgia, serif;
 $headings-color:         $aroma-brown;
 
 // Shape

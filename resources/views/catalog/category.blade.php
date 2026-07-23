@@ -15,59 +15,71 @@
     </nav>
 
     <h1 class="aroma-section-title">{{ $category->name }}</h1>
-    <p class="text-muted">{{ $category->translate('description') }}</p>
+    <p class="text-aroma-muted">{{ $category->translate('description') }}</p>
 
     <div class="row g-4 mt-1">
-        {{-- Filters sidebar --}}
-        <aside class="col-lg-3">
-            <form method="get" class="aroma-trust p-3">
-                <h6 class="fw-bold mb-3">{{ __('storefront.catalog.filters') }}</h6>
+        {{-- Mobile filter trigger --}}
+        <div class="col-12 d-lg-none">
+            <button class="btn btn-aroma-outline w-100" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#categoryFilters" aria-controls="categoryFilters">
+                <i class="bi bi-sliders me-2"></i>{{ __('storefront.catalog.filters') }}
+            </button>
+        </div>
 
-                {{-- Brands --}}
-                <div class="mb-3">
-                    <label class="form-label small text-uppercase">{{ __('storefront.catalog.brands') }}</label>
-                    <select name="brand" class="form-select form-select-sm">
-                        <option value="">—</option>
-                        @foreach ($brands as $b)
-                            <option value="{{ $b->slug }}" @selected(($filters['brand'] ?? '') === $b->slug)>{{ $b->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Price range --}}
-                <div class="mb-3">
-                    <label class="form-label small text-uppercase">{{ __('storefront.catalog.price') }}</label>
-                    <div class="d-flex gap-2">
-                        <input type="number" min="0" name="price_min" class="form-control form-control-sm"
-                               placeholder="{{ __('storefront.catalog.min') }}" value="{{ $filters['price_min'] ?? '' }}">
-                        <input type="number" min="0" name="price_max" class="form-control form-control-sm"
-                               placeholder="{{ __('storefront.catalog.max') }}" value="{{ $filters['price_max'] ?? '' }}">
+        {{-- Filters sidebar (static on desktop, slide-out drawer below lg) --}}
+        <aside class="col-lg-3 offcanvas-lg offcanvas-start" tabindex="-1" id="categoryFilters" aria-labelledby="categoryFiltersLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="categoryFiltersLabel">{{ __('storefront.catalog.filters') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#categoryFilters" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <form method="get" class="aroma-trust p-3">
+                    {{-- Brands --}}
+                    <div class="mb-3">
+                        <label class="form-label small text-uppercase">{{ __('storefront.catalog.brands') }}</label>
+                        <select name="brand" class="form-select form-select-sm">
+                            <option value="">—</option>
+                            @foreach ($brands as $b)
+                                <option value="{{ $b->slug }}" @selected(($filters['brand'] ?? '') === $b->slug)>{{ $b->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
 
-                {{-- Sort --}}
-                <div class="mb-3">
-                    <label class="form-label small text-uppercase">{{ __('storefront.catalog.sort') }}</label>
-                    <select name="sort" class="form-select form-select-sm">
-                        <option value="newest" @selected(($filters['sort'] ?? '') === 'newest')>{{ __('storefront.catalog.sort_newest') }}</option>
-                        <option value="price_asc" @selected(($filters['sort'] ?? '') === 'price_asc')>{{ __('storefront.catalog.sort_price_asc') }}</option>
-                        <option value="price_desc" @selected(($filters['sort'] ?? '') === 'price_desc')>{{ __('storefront.catalog.sort_price_desc') }}</option>
-                    </select>
-                </div>
+                    {{-- Price range --}}
+                    <div class="mb-3">
+                        <label class="form-label small text-uppercase">{{ __('storefront.catalog.price') }}</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" min="0" name="price_min" class="form-control form-control-sm"
+                                   placeholder="{{ __('storefront.catalog.min') }}" value="{{ $filters['price_min'] ?? '' }}">
+                            <input type="number" min="0" name="price_max" class="form-control form-control-sm"
+                                   placeholder="{{ __('storefront.catalog.max') }}" value="{{ $filters['price_max'] ?? '' }}">
+                        </div>
+                    </div>
 
-                <div class="d-grid gap-2">
-                    <button class="btn btn-aroma btn-sm" type="submit">{{ __('storefront.catalog.apply') }}</button>
-                    <a class="btn btn-aroma-outline btn-sm" href="{{ route('category.show', [$locale, $category->slug]) }}">{{ __('storefront.catalog.clear') }}</a>
-                </div>
-            </form>
+                    {{-- Sort --}}
+                    <div class="mb-3">
+                        <label class="form-label small text-uppercase">{{ __('storefront.catalog.sort') }}</label>
+                        <select name="sort" class="form-select form-select-sm">
+                            <option value="newest" @selected(($filters['sort'] ?? '') === 'newest')>{{ __('storefront.catalog.sort_newest') }}</option>
+                            <option value="price_asc" @selected(($filters['sort'] ?? '') === 'price_asc')>{{ __('storefront.catalog.sort_price_asc') }}</option>
+                            <option value="price_desc" @selected(($filters['sort'] ?? '') === 'price_desc')>{{ __('storefront.catalog.sort_price_desc') }}</option>
+                        </select>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-aroma btn-sm" type="submit">{{ __('storefront.catalog.apply') }}</button>
+                        <a class="btn btn-aroma-outline btn-sm" href="{{ route('category.show', [$locale, $category->slug]) }}">{{ __('storefront.catalog.clear') }}</a>
+                    </div>
+                </form>
+            </div>
         </aside>
 
         {{-- Product grid --}}
         <div class="col-lg-9">
-            <p class="text-muted small">{{ __('storefront.catalog.results', ['count' => $products->total()]) }}</p>
+            <p class="text-aroma-muted small">{{ __('storefront.catalog.results', ['count' => $products->total()]) }}</p>
 
             @if ($products->isEmpty())
-                <div class="aroma-trust p-5 text-center text-muted">{{ __('storefront.catalog.empty') }}</div>
+                <div class="aroma-trust p-5 text-center text-aroma-muted">{{ __('storefront.catalog.empty') }}</div>
             @else
                 <div class="row g-4">
                     @foreach ($products as $product)

@@ -36,7 +36,7 @@ class RegisterController extends Controller
         $request->session()->regenerate();
 
         return redirect()
-            ->route('account.dashboard')
+            ->intended(route('account.dashboard'))
             ->with('status', __('auth_ui.flash.registered'));
     }
 }

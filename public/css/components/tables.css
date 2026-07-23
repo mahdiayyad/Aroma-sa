@@ -1,0 +1,50 @@
+/* ============================================================================
+   Aroma — tables
+   ========================================================================== */
+
+.aroma-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border-radius: var(--aroma-radius);
+  overflow: hidden;
+}
+.aroma-table thead th {
+  background: var(--aroma-skin);
+  color: var(--aroma-brown);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.9rem 1.1rem;
+  border: none;
+  white-space: nowrap;
+}
+.aroma-table tbody td {
+  padding: 0.9rem 1.1rem;
+  border-top: 1px solid var(--aroma-border);
+  vertical-align: middle;
+}
+.aroma-table tbody tr {
+  transition: background-color var(--aroma-transition-fast);
+}
+.aroma-table tbody tr:hover { background: rgba(255, 229, 202, 0.35); }
+.aroma-table tbody tr:first-child td { border-top: none; }
+
+.aroma-table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--aroma-radius);
+  box-shadow: var(--aroma-shadow-sm);
+}
+.aroma-table-responsive .aroma-table { box-shadow: none; }
+
+.aroma-order-item-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--aroma-radius-sm);
+  flex-shrink: 0;
+  background: var(--aroma-skin);
+}

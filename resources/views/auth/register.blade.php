@@ -4,7 +4,7 @@
 
 @section('content')
     <h1 class="h3 mb-1">{{ __('auth_ui.register.title') }}</h1>
-    <p class="text-muted mb-4">{{ __('auth_ui.register.subtitle') }}</p>
+    <p class="text-aroma-muted mb-4">{{ __('auth_ui.register.subtitle') }}</p>
 
     <form method="post" action="{{ route('register.store') }}">
         @csrf

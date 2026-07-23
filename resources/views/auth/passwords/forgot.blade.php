@@ -4,7 +4,7 @@
 
 @section('content')
     <h1 class="h3 mb-1">{{ __('auth_ui.password.forgot_title') }}</h1>
-    <p class="text-muted mb-4">{{ __('auth_ui.password.forgot_subtitle') }}</p>
+    <p class="text-aroma-muted mb-4">{{ __('auth_ui.password.forgot_subtitle') }}</p>
 
     <form method="post" action="{{ route('password.email') }}">
         @csrf

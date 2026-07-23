@@ -10,9 +10,12 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Webhooks\MoyasarWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,6 +83,27 @@ Route::prefix('cart')->group(function () {
     Route::delete('{rowId}', [CartController::class, 'remove'])->name('cart.remove');
 });
 
+/* Checkout (guests welcome, but prompted to sign in first) ---------------- */
+Route::prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('review', [CheckoutController::class, 'review'])->name('review');
+    Route::get('start', [CheckoutController::class, 'start'])->name('start');
+    Route::get('login', [CheckoutController::class, 'redirectToLogin'])->name('login');
+    Route::get('register', [CheckoutController::class, 'redirectToRegister'])->name('register');
+    Route::get('address', [CheckoutController::class, 'showAddressForm'])->name('address');
+    Route::post('address', [CheckoutController::class, 'storeAddress'])->name('address.store');
+    Route::get('payment', [CheckoutController::class, 'showPaymentForm'])->name('payment');
+    Route::post('payment', [CheckoutController::class, 'storePayment'])->name('payment.store');
+});
+
+Route::get('order/{order}/confirmation', [CheckoutController::class, 'confirmation'])
+    ->name('order.confirmation');
+
+/* Orders (authenticated) ------------------------------------------------- */
+Route::middleware('auth')->prefix('orders')->name('order.')->group(function () {
+    Route::get('/', [OrderController::class, 'index'])->name('index');
+    Route::get('{order}', [OrderController::class, 'show'])->name('show');
+});
+
 /* Storefront (bilingual) --------------------------------------------------- */
 Route::prefix('{locale}')
     ->where(['locale' => 'ar|en'])
@@ -88,3 +112,7 @@ Route::prefix('{locale}')
         Route::get('category/{category}', [CategoryController::class, 'show'])->name('category.show');
         Route::get('product/{product}', [ProductController::class, 'show'])->name('product.show');
     });
+
+/* Webhooks (unauthenticated but verified) -------------------------------- */
+Route::post('webhooks/moyasar', [MoyasarWebhookController::class, 'handle'])->name('payment.webhook');
+Route::get('payment/callback', [CheckoutController::class, 'paymentCallback'])->name('payment.callback');

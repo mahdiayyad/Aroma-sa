@@ -46,13 +46,14 @@ return [
     | then the CSS falls back to the stacks defined below.
     */
     'fonts' => [
-        // Luxury is the primary display/heading typeface for both locales.
+        // Luxury is the primary display/heading typeface for English.
+        // Tajwal is an elegant modern Arabic typeface (Google Fonts).
         'heading_en' => 'Luxury',
         'heading_en_fallback' => 'Manier',
         'body_en'    => 'Helvetica Neue',
         'script'     => 'Snell Roundhand', // tagline accent only
-        'heading_ar' => 'Luxury',
-        'body_ar'    => 'Helvetica Neue LT Arabic',
+        'heading_ar' => 'Tajwal',
+        'body_ar'    => 'Tajwal',
     ],
 
     /*
