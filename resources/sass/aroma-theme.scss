@@ -1,0 +1,47 @@
+// ===========================================================================
+// Aroma theme entry point (production build)
+//
+//   1. Brand variable overrides
+//   2. Bootstrap 5.3 (LTR)   -> compiled to public/css/app.css
+//      Bootstrap 5.3 (RTL)   -> compiled separately (see webpack.mix.js)
+//   3. Brand component layer
+//
+// Build:  npm install && npm run prod
+// The hand-authored public/css/aroma.css mirrors the component layer for
+// environments without a Node build step.
+// ===========================================================================
+
+@import "variables";
+
+// Bootstrap (installed via npm — see package.json)
+@import "~bootstrap/scss/bootstrap";
+
+// Brand component layer -----------------------------------------------------
+:root {
+  --aroma-brown: #{$aroma-brown};
+  --aroma-light-brown: #{$aroma-light-brown};
+  --aroma-skin: #{$aroma-skin};
+  --aroma-white: #{$aroma-white};
+  --aroma-ink: #{$aroma-ink};
+  --aroma-gradient: linear-gradient(135deg, #{$aroma-brown} 0%, #{$aroma-light-brown} 55%, #{$aroma-skin} 100%);
+}
+
+html[lang="ar"] body { font-family: "HelveticaNeueLTArabic", "Segoe UI", Tahoma, sans-serif; }
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3 { font-family: "Luxury", "Amiri", serif; }
+
+.btn-aroma {
+  @extend .btn, .btn-primary;
+  border-radius: 999px;
+}
+
+.aroma-hero {
+  background: var(--aroma-gradient);
+  color: #fff;
+  border-radius: $border-radius-lg;
+}
+.aroma-hero-tagline { font-family: "Snell Roundhand", cursive; color: $aroma-skin; }
+
+// The remaining component styles live in public/css/aroma.css and can be
+// migrated into partials here as the design system grows.

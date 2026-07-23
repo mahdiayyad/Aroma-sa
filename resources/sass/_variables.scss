@@ -1,0 +1,33 @@
+// ===========================================================================
+// Aroma — Bootstrap variable overrides (Brand Guidelines)
+// Imported before Bootstrap so the framework compiles in the brand palette.
+// ===========================================================================
+
+// Palette (p.14)
+$aroma-brown:       #704F2F;
+$aroma-light-brown: #D3A17A;
+$aroma-skin:        #FFE5CA;
+$aroma-white:       #FFF3E2;
+$aroma-ink:         #2B2016;
+
+// Map onto Bootstrap theming
+$primary:    $aroma-brown;
+$secondary:  $aroma-light-brown;
+$light:      $aroma-white;
+$dark:       $aroma-ink;
+$body-bg:    $aroma-white;
+$body-color: $aroma-ink;
+
+// Typography
+$font-family-sans-serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+$headings-font-family:   "Luxury", "Manier", "Playfair Display", Georgia, serif;
+$headings-color:         $aroma-brown;
+
+// Shape
+$border-radius:    0.85rem;
+$border-radius-lg: 1.1rem;
+$btn-border-radius: 999px;
+
+$link-color:            $aroma-brown;
+$link-hover-color:      darken($aroma-brown, 8%);
+$link-decoration:       none;

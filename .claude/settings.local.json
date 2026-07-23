@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(curl -s http://127.0.0.1:8125/en -o /tmp/h.html -w \"http=%{http_code}\\\\n\")",
+      "Read(//tmp/**)",
+      "Bash(curl -s \"http://127.0.0.1:8125/en/category/perfumes\" -o /tmp/c.html -w \"http=%{http_code}\\\\n\")",
+      "Bash(curl -s \"http://127.0.0.1:8125/en/category/perfumes?price_min=300&sort=price_desc\" -o /tmp/cf.html -w \"http=%{http_code}\\\\n\")",
+      "Bash(curl -s \"http://127.0.0.1:8125/ar/category/perfumes\" -o /tmp/car.html -w \"http=%{http_code}\\\\n\")",
+      "Bash(curl -s -o /dev/null -w \"http=%{http_code}\\\\n\" \"http://127.0.0.1:8125/en/category/nope\")",
+      "Bash(pkill -f \"artisan serve\")",
+      "Bash(cd \"c:/Users/Administrator/Desktop/Project/aroma-sa\" *)"
+    ]
+  }
+}

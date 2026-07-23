@@ -1,0 +1,268 @@
+/* ============================================================================
+   Aroma — brand theme
+   Layered on top of Bootstrap 5.3. Implements the Brand Guidelines palette and
+   typography as CSS custom properties, plus RTL-aware component styling.
+
+   This file is the immediately-usable, hand-authored theme. The equivalent
+   SCSS source (resources/sass/) drives the production build once Node is
+   available (see webpack.mix.js).
+   ========================================================================== */
+
+/* --- Brand fonts -----------------------------------------------------------
+   The licensed brand fonts are proprietary. Drop the font files into
+   public/fonts/ and these @font-face rules pick them up automatically; until
+   then the stacks below fall back to elegant, widely-available faces. */
+@font-face {
+  font-family: "Manier";
+  src: url("/fonts/manier.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Luxury";
+  src: url("/fonts/luxury.woff2") format("woff2"),
+       url("/fonts/luxury.woff") format("woff"),
+       url("/fonts/luxury.ttf") format("truetype"),
+       url("/fonts/luxury.otf") format("opentype");
+  font-weight: 400 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "HelveticaNeueLTArabic";
+  src: url("/fonts/helvetica-neue-lt-arabic.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  /* Palette — Brand Guidelines p.14 */
+  --aroma-brown: #704f2f;
+  --aroma-light-brown: #d3a17a;
+  --aroma-skin: #ffe5ca;
+  --aroma-white: #fff3e2;
+  --aroma-ink: #2b2016;
+
+  --aroma-gradient: linear-gradient(135deg, #704f2f 0%, #d3a17a 55%, #ffe5ca 100%);
+
+  /* Font stacks with graceful fallbacks.
+     Luxury is the primary display/heading typeface for both locales (per brand
+     direction); Manier/Playfair remain as Latin fallbacks until the licensed
+     Luxury web font is dropped into public/fonts/. */
+  --aroma-heading-en: "Luxury", "Manier", "Playfair Display", Georgia, serif;
+  --aroma-body-en: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --aroma-script: "Snell Roundhand", "Brush Script MT", cursive;
+  --aroma-heading-ar: "Luxury", "Amiri", "Traditional Arabic", serif;
+  --aroma-body-ar: "HelveticaNeueLTArabic", "Segoe UI", "Tahoma", sans-serif;
+
+  /* Map Bootstrap theme colour to the Aroma brown */
+  --bs-primary: #704f2f;
+  --bs-primary-rgb: 112, 79, 47;
+
+  --aroma-radius: 0.85rem;
+  --aroma-shadow: 0 10px 30px rgba(112, 79, 47, 0.12);
+}
+
+/* --- Base ------------------------------------------------------------------ */
+body {
+  background-color: var(--aroma-white);
+  color: var(--aroma-ink);
+  font-family: var(--aroma-body-en);
+  -webkit-font-smoothing: antialiased;
+}
+
+html[lang="ar"] body {
+  font-family: var(--aroma-body-ar);
+}
+
+h1, h2, h3, h4, h5, .aroma-heading {
+  font-family: var(--aroma-heading-en);
+  color: var(--aroma-brown);
+  letter-spacing: 0.2px;
+}
+
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3,
+html[lang="ar"] h4,
+html[lang="ar"] h5,
+html[lang="ar"] .aroma-heading {
+  font-family: var(--aroma-heading-ar);
+}
+
+a {
+  color: var(--aroma-brown);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--aroma-light-brown);
+}
+
+.aroma-script {
+  font-family: var(--aroma-script);
+  font-weight: 400;
+}
+
+/* --- Buttons --------------------------------------------------------------- */
+.btn-aroma {
+  background-color: var(--aroma-brown);
+  border: 1px solid var(--aroma-brown);
+  color: var(--aroma-white);
+  border-radius: 999px;
+  padding: 0.65rem 1.6rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.btn-aroma:hover {
+  background-color: #5c3f24;
+  border-color: #5c3f24;
+  color: #fff;
+}
+.btn-aroma-outline {
+  background-color: transparent;
+  border: 1px solid var(--aroma-brown);
+  color: var(--aroma-brown);
+  border-radius: 999px;
+  padding: 0.65rem 1.6rem;
+  font-weight: 600;
+}
+.btn-aroma-outline:hover {
+  background-color: var(--aroma-brown);
+  color: var(--aroma-white);
+}
+
+/* --- Navbar ---------------------------------------------------------------- */
+.aroma-topbar {
+  background: var(--aroma-brown);
+  color: var(--aroma-skin);
+  font-size: 0.85rem;
+}
+.aroma-topbar a {
+  color: var(--aroma-skin);
+}
+.aroma-navbar {
+  background: var(--aroma-white);
+  border-bottom: 1px solid rgba(112, 79, 47, 0.12);
+}
+.aroma-logo {
+  font-family: var(--aroma-heading-en);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--aroma-brown);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.aroma-search .form-control {
+  border-radius: 999px;
+  border-color: rgba(112, 79, 47, 0.25);
+  background: #fff;
+}
+.aroma-icon-link {
+  color: var(--aroma-brown);
+  position: relative;
+}
+.aroma-badge {
+  position: absolute;
+  top: -8px;
+  inset-inline-end: -10px;
+  background: var(--aroma-light-brown);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  padding: 0 6px;
+  line-height: 1.5;
+}
+
+/* --- Hero ------------------------------------------------------------------ */
+.aroma-hero {
+  background: var(--aroma-gradient);
+  color: #fff;
+  border-radius: var(--aroma-radius);
+  padding: clamp(2.5rem, 6vw, 5rem);
+  position: relative;
+  overflow: hidden;
+}
+.aroma-hero h1 {
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+}
+.aroma-hero .aroma-hero-tagline {
+  font-family: var(--aroma-script);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  color: var(--aroma-skin);
+}
+
+/* --- Cards / sections ------------------------------------------------------ */
+.aroma-section-title {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 1.75rem;
+}
+.aroma-section-title::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 3px;
+  background: var(--aroma-light-brown);
+  margin-top: 0.5rem;
+}
+.aroma-category-card,
+.aroma-product-card {
+  background: #fff;
+  border: 1px solid rgba(112, 79, 47, 0.08);
+  border-radius: var(--aroma-radius);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 100%;
+}
+.aroma-category-card:hover,
+.aroma-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--aroma-shadow);
+}
+.aroma-category-card .card-body {
+  background: var(--aroma-skin);
+}
+
+/* --- Trust badges ---------------------------------------------------------- */
+.aroma-trust {
+  background: #fff;
+  border-radius: var(--aroma-radius);
+  border: 1px solid rgba(112, 79, 47, 0.08);
+}
+.aroma-trust .aroma-trust-item {
+  padding: 1.25rem;
+}
+
+/* --- Newsletter ------------------------------------------------------------ */
+.aroma-newsletter {
+  background: var(--aroma-brown);
+  color: var(--aroma-skin);
+  border-radius: var(--aroma-radius);
+}
+.aroma-newsletter .form-control {
+  border-radius: 999px;
+}
+
+/* --- Footer ---------------------------------------------------------------- */
+.aroma-footer {
+  background: var(--aroma-ink);
+  color: rgba(255, 243, 226, 0.85);
+}
+.aroma-footer a {
+  color: rgba(255, 243, 226, 0.7);
+}
+.aroma-footer a:hover {
+  color: var(--aroma-skin);
+}
+.aroma-footer .aroma-footer-brand {
+  font-family: var(--aroma-script);
+  color: var(--aroma-skin);
+  font-size: 1.6rem;
+}
+
+/* --- RTL fine-tuning -------------------------------------------------------
+   Most spacing uses logical properties so it mirrors automatically. Keep any
+   directional overrides here. */
+[dir="rtl"] .aroma-logo {
+  letter-spacing: 0;
+}

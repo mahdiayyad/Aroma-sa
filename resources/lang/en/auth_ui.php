@@ -1,0 +1,62 @@
+<?php
+
+return [
+    'login' => [
+        'title'    => 'Welcome back',
+        'subtitle' => 'Sign in to continue to Aroma.',
+        'login'    => 'Email or phone',
+        'password' => 'Password',
+        'remember' => 'Remember me',
+        'submit'   => 'Sign in',
+        'no_account' => "Don't have an account?",
+        'register_link' => 'Create one',
+        'forgot'   => 'Forgot password?',
+    ],
+    'register' => [
+        'title'    => 'Create your account',
+        'subtitle' => 'Join Aroma and awaken your senses.',
+        'name'     => 'Full name',
+        'email'    => 'Email (optional if phone provided)',
+        'phone'    => 'Mobile number',
+        'phone_hint' => 'Format: 05XXXXXXXX or +9665XXXXXXXX',
+        'password' => 'Password',
+        'confirm'  => 'Confirm password',
+        'gender'   => 'Gender',
+        'female'   => 'Female',
+        'male'     => 'Male',
+        'unspecified' => 'Prefer not to say',
+        'submit'   => 'Create account',
+        'have_account' => 'Already have an account?',
+        'login_link' => 'Sign in',
+    ],
+    'social' => [
+        'or'     => 'or continue with',
+        'google' => 'Continue with Google',
+        'apple'  => 'Continue with Apple',
+        'unavailable' => 'This sign-in method is not configured yet.',
+        'failed' => 'We could not sign you in with that provider. Please try again.',
+    ],
+    'password' => [
+        'forgot_title' => 'Reset your password',
+        'forgot_subtitle' => 'Enter your email and we will send you a reset link.',
+        'email'  => 'Email address',
+        'send'   => 'Send reset link',
+        'reset_title' => 'Choose a new password',
+        'new'    => 'New password',
+        'confirm' => 'Confirm new password',
+        'reset_submit' => 'Reset password',
+        'back_to_login' => 'Back to sign in',
+    ],
+    'validation' => [
+        'phone' => 'Enter a valid Saudi mobile number (05XXXXXXXX or +9665XXXXXXXX).',
+    ],
+    'errors' => [
+        'invalid' => 'These credentials do not match our records.',
+    ],
+    'flash' => [
+        'registered' => 'Welcome to Aroma! Your account has been created.',
+        'logged_in'  => 'Signed in successfully.',
+        'logged_out' => 'You have been signed out.',
+    ],
+    'logout' => 'Sign out',
+];
