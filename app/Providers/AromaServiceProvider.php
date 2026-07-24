@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Contracts\ChatAssistant;
+use App\Services\Ai\GeminiAssistant;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
@@ -19,7 +21,8 @@ class AromaServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Swap this binding to change AI provider — nothing else needs to know.
+        $this->app->bind(ChatAssistant::class, GeminiAssistant::class);
     }
 
     public function boot(): void

@@ -41,4 +41,6 @@ return [
         'wishlist_added'   => 'Added to your wishlist.',
         'wishlist_removed' => 'Removed from your wishlist.',
     ],
+
+    'continue_shopping' => 'Continue shopping'
 ];

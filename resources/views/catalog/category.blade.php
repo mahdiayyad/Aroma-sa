@@ -40,7 +40,7 @@
                         <select name="brand" class="form-select form-select-sm">
                             <option value="">—</option>
                             @foreach ($brands as $b)
-                                <option value="{{ $b->slug }}" @selected(($filters['brand'] ?? '') === $b->slug)>{{ $b->name }}</option>
+                                <option value="{{ $b->slug }}" {{ ($filters['brand'] ?? '') === $b->slug ? 'selected' : '' }}>{{ $b->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -60,9 +60,9 @@
                     <div class="mb-3">
                         <label class="form-label small text-uppercase">{{ __('storefront.catalog.sort') }}</label>
                         <select name="sort" class="form-select form-select-sm">
-                            <option value="newest" @selected(($filters['sort'] ?? '') === 'newest')>{{ __('storefront.catalog.sort_newest') }}</option>
-                            <option value="price_asc" @selected(($filters['sort'] ?? '') === 'price_asc')>{{ __('storefront.catalog.sort_price_asc') }}</option>
-                            <option value="price_desc" @selected(($filters['sort'] ?? '') === 'price_desc')>{{ __('storefront.catalog.sort_price_desc') }}</option>
+                            <option value="newest" {{ ($filters['sort'] ?? '') === 'newest' ? 'selected' : '' }}>{{ __('storefront.catalog.sort_newest') }}</option>
+                            <option value="price_asc" {{ ($filters['sort'] ?? '') === 'price_asc' ? 'selected' : '' }}>{{ __('storefront.catalog.sort_price_asc') }}</option>
+                            <option value="price_desc" {{ ($filters['sort'] ?? '') === 'price_desc' ? 'selected' : '' }}>{{ __('storefront.catalog.sort_price_desc') }}</option>
                         </select>
                     </div>
 

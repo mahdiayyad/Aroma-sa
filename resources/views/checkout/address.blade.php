@@ -4,30 +4,19 @@
 
 @section('content')
 @php($locale = app()->getLocale())
-<div class="container my-5">
+<div class="container checkout-page my-4 my-lg-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            {{-- Progress Indicator --}}
-            <div class="mb-5">
-                <div class="d-flex justify-content-between text-center text-aroma-muted small mb-3">
-                    <span class="text-success"><i class="bi bi-check-circle"></i> {{ __('checkout.steps.review') }}</span>
-                    <span class="text-success"><i class="bi bi-check-circle"></i> {{ __('checkout.steps.account') }}</span>
-                    <span class="fw-bold" style="color:var(--aroma-brown)"><i class="bi bi-geo-alt"></i> {{ __('checkout.steps.address') }}</span>
-                    <span>{{ __('checkout.steps.payment') }}</span>
-                </div>
-                <div class="progress" style="height:4px">
-                    <div class="progress-bar" style="width:75%;background:var(--aroma-brown)"></div>
-                </div>
-            </div>
+        <div class="col-lg-9">
+            @include('checkout.partials.stepper', ['step' => 3])
 
-            <h2 class="aroma-section-title mb-4">{{ __('checkout.address') }}</h2>
+            <h2 class="aroma-section-title">{{ __('checkout.address') }}</h2>
 
             <form method="POST" action="{{ route('checkout.address.store') }}" class="needs-validation">
                 @csrf
 
                 <div class="aroma-card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3" style="color:var(--aroma-brown)">{{ __('checkout.address') }}</h5>
+                    <div class="card-body p-4">
+                        <h5 class="card-title">{{ __('checkout.address') }}</h5>
 
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -44,6 +33,18 @@
                                 <input type="tel" name="billing_address[phone]" class="form-control @error('billing_address.phone') is-invalid @enderror"
                                        value="{{ old('billing_address.phone', optional(auth()->user())->phone) }}" required>
                                 @error('billing_address.phone')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">
+                                    {{ __('checkout.email') }}
+                                    @guest <span class="text-danger">*</span> @endguest
+                                </label>
+                                <input type="email" name="billing_address[email]" class="form-control @error('billing_address.email') is-invalid @enderror"
+                                       value="{{ old('billing_address.email', optional(auth()->user())->email) }}" @guest required @endguest>
+                                @error('billing_address.email')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -93,7 +94,7 @@
                 @if(auth()->check() && $addresses->count() > 0)
                     <div class="aroma-card mb-4">
                         <div class="card-body">
-                            <h5 class="card-title mb-3" style="color:var(--aroma-brown)">{{ __('account.saved_addresses') }}</h5>
+                            <h5 class="card-title">{{ __('account.saved_addresses') }}</h5>
 
                             <div class="list-group list-group-flush">
                                 @foreach($addresses as $address)
@@ -114,7 +115,7 @@
                 @endif
 
                 {{-- Action Buttons --}}
-                <div class="d-flex gap-3 justify-content-between">
+                <div class="d-flex gap-3 justify-content-between aroma-actions-stack">
                     <a href="{{ route('checkout.review') }}" class="btn btn-aroma-outline">
                         <i class="bi {{ $locale === 'ar' ? 'bi-chevron-right' : 'bi-chevron-left' }} me-2"></i>{{ __('checkout.buttons.back') }}
                     </a>

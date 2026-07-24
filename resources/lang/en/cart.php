@@ -11,6 +11,8 @@ return [
     'remove'   => 'Remove',
     'update'   => 'Update',
     'clear'    => 'Clear cart',
+    'view'     => 'View cart',
+    'error'    => 'Sorry, we couldn’t add that. Please try again.',
     'summary'  => 'Order summary',
     'subtotal' => 'Subtotal',
     'checkout' => 'Proceed to checkout',

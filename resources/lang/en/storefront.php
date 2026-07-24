@@ -2,6 +2,17 @@
 
 return [
 
+    'admin_no_shop' => 'Admin accounts manage the store and cannot place orders.',
+
+    'packaging' => [
+        'eyebrow'  => 'The Aroma Experience',
+        'title'    => 'Wrapped with Care',
+        'subtitle' => 'Every order is presented in our signature packaging — the Aroma gift bag, patterned tissue, and a handwritten-style thank-you card — so the moment it arrives feels like a gift worth savouring.',
+        'bags'     => 'Signature Aroma bags',
+        'gift'     => 'Gift-wrapped with patterned tissue',
+        'card'     => 'A thank-you card with every order',
+    ],
+
     'nav' => [
         'home'        => 'Home',
         'perfumes'    => 'Perfumes',
@@ -66,6 +77,7 @@ return [
         'add_to_cart'  => 'Add to cart',
         'sold_out'     => 'Sold out',
         'in_stock'     => 'In stock',
+        'total'        => 'Total',
         'sale'         => 'Sale',
         'brand'        => 'Brand',
         'sku'          => 'SKU',

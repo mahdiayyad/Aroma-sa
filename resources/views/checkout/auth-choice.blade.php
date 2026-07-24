@@ -4,25 +4,14 @@
 
 @section('content')
 @php($locale = app()->getLocale())
-<div class="container my-5">
+<div class="container checkout-page my-4 my-lg-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            {{-- Progress Indicator --}}
-            <div class="mb-5">
-                <div class="d-flex justify-content-between text-center text-aroma-muted small mb-3">
-                    <span class="text-success"><i class="bi bi-check-circle"></i> {{ __('checkout.steps.review') }}</span>
-                    <span class="fw-bold" style="color:var(--aroma-brown)"><i class="bi bi-person"></i> {{ __('checkout.steps.account') }}</span>
-                    <span>{{ __('checkout.steps.address') }}</span>
-                    <span>{{ __('checkout.steps.payment') }}</span>
-                </div>
-                <div class="progress" style="height:4px">
-                    <div class="progress-bar" style="width:50%;background:var(--aroma-brown)"></div>
-                </div>
-            </div>
+        <div class="col-lg-9">
+            @include('checkout.partials.stepper', ['step' => 2])
 
-            <div class="text-center mb-5">
+            <div class="text-center mb-4">
                 <h2 class="aroma-section-title">{{ __('checkout.auth.title') }}</h2>
-                <p class="text-aroma-muted">{{ __('checkout.auth.subtitle') }}</p>
+                <p class="text-aroma-muted mb-0">{{ __('checkout.auth.subtitle') }}</p>
             </div>
 
             <div class="row g-4 mb-4">

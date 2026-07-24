@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\ProfileController;
+use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
+use App\Http\Controllers\Admin\BrandController as AdminBrandController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -37,12 +45,35 @@ Route::get('/', function () {
 })->name('root');
 
 Route::get('locale/{locale}', function (string $locale) {
-    if (array_key_exists($locale, config('aroma.locales', []))) {
-        session(['locale' => $locale]);
-        app()->setLocale($locale);
+    $supported = array_keys(config('aroma.locales', []));
+
+    if (! in_array($locale, $supported, true)) {
+        return redirect()->back();
     }
 
-    return redirect(url()->previous() !== url()->current() ? url()->previous() : "/{$locale}");
+    session(['locale' => $locale]);
+    app()->setLocale($locale);
+
+    // Return to the page the visitor came from — but if that URL is a storefront
+    // page under a /{locale} prefix, swap the prefix so the switch actually
+    // takes effect (the route prefix otherwise wins over the session choice).
+    $previous = url()->previous();
+
+    if ($previous && $previous !== url()->current()) {
+        $path     = trim((string) parse_url($previous, PHP_URL_PATH), '/');
+        $query    = parse_url($previous, PHP_URL_QUERY);
+        $segments = $path === '' ? [] : explode('/', $path);
+
+        if (isset($segments[0]) && in_array($segments[0], $supported, true)) {
+            $segments[0] = $locale;
+
+            return redirect(url(implode('/', $segments)).($query ? '?'.$query : ''));
+        }
+
+        return redirect($previous);
+    }
+
+    return redirect("/{$locale}");
 })->name('locale.switch');
 
 /* Authentication ----------------------------------------------------------- */
@@ -74,8 +105,8 @@ Route::middleware('auth')->prefix('account')->group(function () {
 
 Route::post('wishlist/{product}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.toggle');
 
-/* Cart (session — guests welcome) ----------------------------------------- */
-Route::prefix('cart')->group(function () {
+/* Cart (session — guests welcome; admins can't shop) ---------------------- */
+Route::prefix('cart')->middleware('not_admin')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
     Route::post('/', [CartController::class, 'store'])->name('cart.store');
     Route::patch('{rowId}', [CartController::class, 'update'])->name('cart.update');
@@ -84,7 +115,7 @@ Route::prefix('cart')->group(function () {
 });
 
 /* Checkout (guests welcome, but prompted to sign in first) ---------------- */
-Route::prefix('checkout')->name('checkout.')->group(function () {
+Route::prefix('checkout')->name('checkout.')->middleware('not_admin')->group(function () {
     Route::get('review', [CheckoutController::class, 'review'])->name('review');
     Route::get('start', [CheckoutController::class, 'start'])->name('start');
     Route::get('login', [CheckoutController::class, 'redirectToLogin'])->name('login');
@@ -98,10 +129,44 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
 Route::get('order/{order}/confirmation', [CheckoutController::class, 'confirmation'])
     ->name('order.confirmation');
 
+/* Legal / static pages ----------------------------------------------------- */
+Route::view('terms', 'pages.terms')->name('terms');
+
+/* AI concierge ------------------------------------------------------------- */
+Route::prefix('assistant')->name('assistant.')->middleware('throttle:20,1')->group(function () {
+    Route::post('chat', [AssistantController::class, 'chat'])->name('chat');
+    Route::post('reset', [AssistantController::class, 'reset'])->name('reset');
+});
+
 /* Orders (authenticated) ------------------------------------------------- */
 Route::middleware('auth')->prefix('orders')->name('order.')->group(function () {
     Route::get('/', [OrderController::class, 'index'])->name('index');
     Route::get('{order}', [OrderController::class, 'show'])->name('show');
+});
+
+/* Admin back-office UI (Blade) --------------------------------------------- */
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('guest')->group(function () {
+        Route::get('login', [AdminLoginController::class, 'show'])->name('login');
+        Route::post('login', [AdminLoginController::class, 'login'])->name('login.attempt');
+    });
+    Route::post('logout', [AdminLoginController::class, 'logout'])->name('logout');
+
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::resource('products', AdminProductController::class);
+        Route::resource('categories', AdminCategoryController::class)->except('show');
+        Route::resource('brands', AdminBrandController::class)->except('show');
+
+        Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+
+        Route::get('customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+        Route::get('customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
+        Route::patch('customers/{customer}', [AdminCustomerController::class, 'update'])->name('customers.update');
+    });
 });
 
 /* Storefront (bilingual) --------------------------------------------------- */

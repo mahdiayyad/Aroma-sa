@@ -3,7 +3,7 @@
 @section('title', __('checkout.confirmation').' — '.$brand['name'])
 
 @section('content')
-<div class="container my-5">
+<div class="container checkout-page my-4 my-lg-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             {{-- Success Message --}}
@@ -71,8 +71,8 @@
                                         <tr class="small">
                                             <td>
                                                 <strong>{{ $item->product_data['name'] ?? 'Product' }}</strong>
-                                                @if($item->variant_data)
-                                                    <div class="text-aroma-muted small">{{ $item->variant_data['name'] ?? '' }}</div>
+                                                @if(!empty($item->variant_data))
+                                                    <div class="text-aroma-muted small">{{ $item->variant_data[app()->getLocale()] ?? reset($item->variant_data) }}</div>
                                                 @endif
                                             </td>
                                             <td class="text-end">{{ $item->priceLabel() }}</td>

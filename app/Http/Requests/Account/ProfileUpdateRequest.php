@@ -22,7 +22,7 @@ class ProfileUpdateRequest extends FormRequest
             'name'   => ['required', 'string', 'max:255'],
             'email'  => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
             'phone'  => ['nullable', 'string', 'regex:/^(\+9665|05)\d{8}$/', Rule::unique('users', 'phone')->ignore($id)],
-            'gender' => ['nullable', 'in:female,male,unspecified'],
+            'gender' => ['nullable', 'in:female,male'],
             'dob'    => ['nullable', 'date', 'before:today'],
             'locale' => ['nullable', 'in:ar,en'],
         ];

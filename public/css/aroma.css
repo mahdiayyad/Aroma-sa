@@ -9,28 +9,94 @@
    ========================================================================== */
 
 /* --- Brand fonts -----------------------------------------------------------
-   The licensed brand fonts are proprietary. Drop the font files into
-   public/fonts/ and these @font-face rules pick them up automatically; until
-   then the stacks below fall back to elegant, widely-available faces. */
+   The licensed brand fonts now live in public/fonts/. Each family is declared
+   once per weight so `font-weight` resolves to the correct file; the browser
+   synthesises italics/intermediate weights only if a real face is missing.
+     Manier         → English display / headings (Brand Guidelines pp.15-19)
+     AligarhArabic  → Arabic display, headings & body
+   The Google-Fonts stand-ins (Playfair Display, El Messiri, …) remain as
+   fallbacks in the stacks below, so the UI degrades gracefully if a file 404s. */
+
+/* Manier — English display serif */
 @font-face {
   font-family: "Manier";
-  src: url("/fonts/manier.woff2") format("woff2");
-  font-weight: 400 700;
+  src: url("../fonts/Manier-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Luxury";
-  src: url("/fonts/luxury.woff2") format("woff2"),
-       url("/fonts/luxury.woff") format("woff"),
-       url("/fonts/luxury.ttf") format("truetype"),
-       url("/fonts/luxury.otf") format("opentype");
-  font-weight: 400 700;
+  font-family: "Manier";
+  src: url("../fonts/Manier-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "HelveticaNeueLTArabic";
-  src: url("/fonts/helvetica-neue-lt-arabic.woff2") format("woff2");
-  font-weight: 400 700;
+  font-family: "Manier";
+  src: url("../fonts/Manier-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manier";
+  src: url("../fonts/Manier-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manier";
+  src: url("../fonts/Manier-Heavy.otf") format("opentype");
+  font-weight: 800 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manier";
+  src: url("../fonts/Manier-RegularItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manier";
+  src: url("../fonts/Manier-BoldItalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Aligarh Arabic — Arabic display / headings / body */
+@font-face {
+  font-family: "AligarhArabic";
+  src: url("../fonts/AligarhArabic-Light.otf") format("opentype");
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: "AligarhArabic";
+  src: url("../fonts/AligarhArabic-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "AligarhArabic";
+  src: url("../fonts/AligarhArabic-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "AligarhArabic";
+  src: url("../fonts/AligarhArabic-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "AligarhArabic";
+  src: url("../fonts/AligarhArabic-Bold.otf") format("opentype");
+  font-weight: 700;
   font-display: swap;
 }
 
@@ -45,16 +111,16 @@
   --aroma-gradient: linear-gradient(135deg, #704f2f 0%, #d3a17a 55%, #ffe5ca 100%);
 
   /* Font stacks — per Aroma Brand Guidelines (2024), p.15-19:
-       Manier  = English headings/display    Helvetica Neue = English body/UI
-       Luxury  = Arabic headings/display      Helvetica Neue LT Arabic = Arabic body/UI
-     The licensed files aren't in the repo yet (see public/fonts/README.md), so
-     each stack falls back to a free Google Font chosen to match that role's
-     character — never to each other's role. */
+       Manier         = English headings/display   Helvetica Neue = English body/UI
+       Aligarh Arabic = Arabic headings & body (elegant modern Naskh)
+     The licensed Manier + Aligarh files ship in public/fonts/ (@font-face above);
+     each stack keeps a free Google Font fallback matched to that role's character
+     — never to each other's role — so the UI degrades gracefully if a file 404s. */
   --aroma-heading-en: "Manier", "Playfair Display", Georgia, serif;
   --aroma-body-en: "Helvetica Neue", "Inter", Helvetica, Arial, sans-serif;
   --aroma-script: "Snell Roundhand", "Tangerine", "Brush Script MT", cursive;
-  --aroma-heading-ar: "Luxury", "El Messiri", "Amiri", "Traditional Arabic", serif;
-  --aroma-body-ar: "HelveticaNeueLTArabic", "IBM Plex Sans Arabic", "Tajawal", "Tahoma", sans-serif;
+  --aroma-heading-ar: "AligarhArabic", "El Messiri", "Amiri", "Traditional Arabic", serif;
+  --aroma-body-ar: "AligarhArabic", "IBM Plex Sans Arabic", "Tahoma", sans-serif;
 
   /* Map Bootstrap theme colour to the Aroma brown */
   --bs-primary: #704f2f;
@@ -359,4 +425,511 @@ a:hover {
    directional overrides here. */
 [dir="rtl"] .aroma-logo {
   letter-spacing: 0;
+}
+
+/* --- Responsive polish -----------------------------------------------------
+   The layout is fluid by default (Bootstrap grid + clamp()-based type/spacing).
+   These refinements tighten the phone experience: comfortable touch targets,
+   less aggressive letter-spacing, and breathing room around edge content. */
+@media (max-width: 991.98px) {
+  .aroma-logo {
+    font-size: 1.45rem;
+    letter-spacing: 1px;
+  }
+  /* Give the nav action icons a proper ~44px tap target on touch devices. */
+  .aroma-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .aroma-hero {
+    border-radius: var(--aroma-radius-sm, 0.5rem);
+    padding: 2rem 1.25rem;
+    text-align: center;
+  }
+  .aroma-section-title {
+    margin-bottom: 1.25rem;
+  }
+  /* Stack the checkout / cart action rows so buttons never overflow narrow
+     screens; keep them full-width for easier thumb reach. */
+  .aroma-actions-stack {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .aroma-actions-stack .btn {
+    width: 100%;
+  }
+}
+
+/* Respect users who prefer reduced motion — disable the card lift transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .aroma-category-card,
+  .aroma-product-card,
+  .btn-aroma,
+  .btn-aroma-outline {
+    transition: none;
+  }
+  .aroma-category-card:hover,
+  .aroma-product-card:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================================
+   Checkout — a calmer, more editorial treatment scoped to .checkout-page.
+   Checkout is a form-first flow, so cards are quiet surfaces (crisp thin
+   border, tight radius, no hover lift), the type hierarchy is restrained, and
+   the step indicator replaces the ad-hoc progress bars.
+   ========================================================================== */
+.checkout-page {
+  --checkout-radius: 0.5rem;
+  max-width: 1040px;
+}
+
+/* Cards are static content here — kill the product-card hover lift/shadow. */
+.checkout-page .aroma-card {
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--checkout-radius);
+  box-shadow: 0 1px 2px rgba(112, 79, 47, 0.04);
+  transition: none;
+}
+.checkout-page .aroma-card:hover {
+  transform: none;
+  box-shadow: 0 1px 2px rgba(112, 79, 47, 0.04);
+}
+.checkout-page .aroma-card > .card-body {
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+}
+
+/* Section + card headings: quieter, consistent, no ad-hoc inline colours. */
+.checkout-page .card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--aroma-brown);
+  margin-bottom: 1.1rem;
+}
+.checkout-page h2.aroma-section-title {
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  margin-bottom: 1.5rem;
+}
+.checkout-page .form-label {
+  font-size: 0.85rem;
+  color: var(--aroma-ink);
+  margin-bottom: 0.35rem;
+}
+.checkout-page .form-control {
+  border-radius: 0.45rem;
+}
+
+/* Sticky order summary — a subtly tinted panel that reads as a distinct rail. */
+.checkout-page .checkout-summary {
+  background: #fff;
+}
+.checkout-page .checkout-summary .card-body { padding: 1.35rem; }
+.checkout-summary-total {
+  background: var(--aroma-skin);
+  border-radius: var(--checkout-radius);
+  padding: 0.9rem 1.1rem;
+}
+
+/* --- Step indicator -------------------------------------------------------- */
+.checkout-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 2.25rem;
+}
+.checkout-step {
+  flex: 1 1 0;
+  text-align: center;
+  position: relative;
+  min-width: 0;
+}
+.checkout-step-dot {
+  position: relative;
+  z-index: 1;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1.5px solid var(--aroma-border);
+  color: var(--aroma-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  transition: none;
+}
+/* Connector line runs from each dot back toward the previous step. */
+.checkout-step:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  inset-inline-end: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--aroma-border);
+  z-index: 0;
+}
+.checkout-step-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--aroma-muted);
+  padding-inline: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.checkout-step.is-active .checkout-step-dot,
+.checkout-step.is-done .checkout-step-dot {
+  background: var(--aroma-brown);
+  border-color: var(--aroma-brown);
+  color: #fff;
+}
+.checkout-step.is-active .checkout-step-label,
+.checkout-step.is-done .checkout-step-label {
+  color: var(--aroma-brown);
+  font-weight: 600;
+}
+.checkout-step.is-active::before,
+.checkout-step.is-done::before {
+  background: var(--aroma-brown);
+}
+
+@media (max-width: 575.98px) {
+  .checkout-step-label { font-size: 0.68rem; }
+  .checkout-step-dot { width: 1.75rem; height: 1.75rem; font-size: 0.75rem; }
+  .checkout-step:not(:first-child)::before { top: 0.875rem; }
+}
+
+/* --- Payment method selector ----------------------------------------------- */
+.aroma-pay-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 0.7rem;
+}
+.aroma-pay-method {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--aroma-border);
+  border-radius: 0.6rem;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--aroma-ink);
+  transition: border-color var(--aroma-transition-fast, 0.15s ease),
+              box-shadow var(--aroma-transition-fast, 0.15s ease),
+              background var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-pay-method > i:first-child {
+  font-size: 1.4rem;
+  color: var(--aroma-brown);
+  flex-shrink: 0;
+}
+.aroma-pay-method-label { flex: 1; }
+.aroma-pay-check {
+  margin-inline-start: auto;
+  color: var(--aroma-brown);
+  font-size: 1.05rem;
+  opacity: 0;
+  transition: opacity var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-pay-method:hover { border-color: var(--aroma-light-brown); }
+/* Coming-soon (Tabby / Tamara): visible but not selectable. */
+.aroma-pay-method.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #faf7f2;
+}
+.aroma-pay-method.is-disabled:hover { border-color: var(--aroma-border); }
+.aroma-pay-soon {
+  margin-inline-start: auto;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--aroma-muted, #8a7c68);
+  background: rgba(112, 79, 47, 0.08);
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.btn-check:checked + .aroma-pay-method {
+  border-color: var(--aroma-brown);
+  background: var(--aroma-white);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
+}
+.btn-check:checked + .aroma-pay-method .aroma-pay-check { opacity: 1; }
+.btn-check:focus-visible + .aroma-pay-method {
+  border-color: var(--aroma-brown);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+}
+.aroma-pay-secure {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--aroma-muted);
+}
+.aroma-pay-secure i { color: var(--aroma-success); }
+
+/* The sticky order summary must sit BELOW the sticky navbar, never over it. */
+.checkout-page .checkout-summary.sticky-top {
+  z-index: 1;
+}
+@media (min-width: 992px) {
+  .checkout-page .checkout-summary.sticky-top {
+    top: 6.5rem; /* clears the sticky navbar + category row */
+  }
+}
+@media (max-width: 991.98px) {
+  /* On mobile the summary stacks in normal flow — sticking it is jarring. */
+  .checkout-page .checkout-summary.sticky-top {
+    position: static;
+  }
+}
+
+/* ============================================================================
+   Toast notifications (live add-to-cart) + header count bump
+   ========================================================================== */
+.aroma-toast-container {
+  position: fixed;
+  z-index: 1090;
+  bottom: 1.25rem;
+  inset-inline-end: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: min(360px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+.aroma-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fff;
+  color: var(--aroma-ink);
+  border: 1px solid var(--aroma-border);
+  border-inline-start: 4px solid var(--aroma-success);
+  border-radius: 0.7rem;
+  box-shadow: 0 14px 34px rgba(112, 79, 47, 0.2);
+  padding: 0.85rem 1.05rem;
+  transform: translateY(1rem);
+  opacity: 0;
+  transition: transform var(--aroma-transition, 0.25s ease), opacity var(--aroma-transition, 0.25s ease);
+}
+.aroma-toast.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+.aroma-toast > i {
+  font-size: 1.3rem;
+  color: var(--aroma-success);
+  flex-shrink: 0;
+}
+.aroma-toast > span {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.aroma-toast-link {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--aroma-brown);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.aroma-toast-link:hover { color: var(--aroma-light-brown); }
+.aroma-toast-danger {
+  border-inline-start-color: var(--aroma-danger);
+}
+.aroma-toast-danger > i { color: var(--aroma-danger); }
+
+/* Header cart count pop when it changes. */
+.aroma-badge.is-bumped {
+  animation: aromaBadgePop 0.35s var(--aroma-ease, ease);
+}
+@keyframes aromaBadgePop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aroma-toast { transition: opacity 0.2s ease; transform: none; }
+  .aroma-badge.is-bumped { animation: none; }
+}
+
+/* --- Form validation spacing ----------------------------------------------
+   Give validation messages breathing room from the field above and the next
+   field below (Item 5) so errors never crowd the form. */
+.invalid-feedback {
+  margin-top: 0.45rem;
+  margin-bottom: 0.15rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.form-control.is-invalid,
+.form-select.is-invalid {
+  margin-bottom: 0.1rem;
+}
+
+/* ============================================================================
+   Brand loading animation
+   Warm-white ground (Brand Guidelines "AROMA White"). The logotype wipes on
+   left-to-right so the letters emerge in order, then the slogan settles in
+   beneath it, then the curtain lifts. Animates only compositor-friendly
+   properties (clip-path / transform / opacity) so it stays smooth on mobile.
+   ========================================================================== */
+.aroma-intro-lock { overflow: hidden; }
+
+.aroma-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: radial-gradient(120% 120% at 50% 35%, #fffaf2 0%, var(--aroma-white) 60%, #f7e7d2 130%);
+}
+.aroma-intro.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.6s;
+}
+
+/* The whole lockup eases in together, very subtly. */
+/* Resting (pre-animation) states — the sequence is started by .is-ready below. */
+.aroma-intro-stage {
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.985);
+}
+@keyframes aromaStageIn { to { opacity: 1; transform: none; } }
+
+/* --- Logotype: revealed left → right, letter after letter ------------------ */
+.aroma-intro-word img,
+.aroma-intro-word .aroma-intro-fallback {
+  display: block;
+  margin: 0 auto;
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+.aroma-intro-word img {
+  width: min(520px, 76vw);
+  height: auto;
+}
+/* -2% so the final swash never clips on sub-pixel rounding. */
+@keyframes aromaWordReveal { to { clip-path: inset(0 -2% 0 0); } }
+
+/* --- Slogan: settles in only after the logotype has finished --------------- */
+.aroma-intro-tag { margin-top: 0.9rem; }
+.aroma-intro-tag img,
+.aroma-intro-tag .aroma-intro-fallback-tag {
+  display: block;
+  margin: 0 auto;
+  opacity: 0;
+  transform: translateY(8px);
+}
+.aroma-intro-tag img {
+  width: min(320px, 52vw);
+  height: auto;
+}
+@keyframes aromaTagIn { to { opacity: 1; transform: none; } }
+
+/* The sequence only starts once the artwork has actually decoded. Without this
+   a slow-loading PNG lands *after* the animation has finished, so the logo just
+   pops in fully formed and the reveal is never seen. */
+.aroma-intro.is-ready .aroma-intro-stage {
+  animation: aromaStageIn 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+.aroma-intro.is-ready .aroma-intro-word img,
+.aroma-intro.is-ready .aroma-intro-word .aroma-intro-fallback {
+  animation: aromaWordReveal 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 0.25s forwards;
+}
+.aroma-intro.is-ready .aroma-intro-tag img,
+.aroma-intro.is-ready .aroma-intro-tag .aroma-intro-fallback-tag {
+  animation: aromaTagIn 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) 1.3s forwards;
+}
+
+/* Text fallback until `php artisan aroma:prepare-logo` generates the PNGs. */
+.aroma-intro-fallback {
+  font-family: var(--aroma-heading-en);
+  color: var(--aroma-brown);
+  font-size: clamp(2.6rem, 9vw, 4.6rem);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.aroma-intro-fallback-tag {
+  color: var(--aroma-light-brown);
+  font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+  line-height: 1.1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aroma-intro-stage,
+  .aroma-intro-word img,
+  .aroma-intro-word .aroma-intro-fallback,
+  .aroma-intro-tag img,
+  .aroma-intro-tag .aroma-intro-fallback-tag {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+}
+
+/* --- Packaging section (product page, Item 11) ----------------------------- */
+.aroma-packaging-item {
+  margin: 0;
+  background: #fff;
+  border: 1px solid rgba(112, 79, 47, 0.08);
+  border-radius: var(--aroma-radius);
+  overflow: hidden;
+  box-shadow: var(--aroma-shadow-sm, 0 2px 10px rgba(112, 79, 47, 0.08));
+  height: 100%;
+}
+.aroma-packaging-item img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.aroma-packaging-item figcaption {
+  padding: 0.85rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--aroma-brown);
+  font-weight: 600;
+}
+
+/* --- Header logotype (official transparent asset) --------------------------- */
+.aroma-logo-img {
+  display: block;
+  height: 38px;
+  width: auto;
+  max-width: min(190px, 46vw);
+  object-fit: contain;
+}
+@media (max-width: 991.98px) {
+  .aroma-logo-img { height: 32px; }
 }

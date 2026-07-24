@@ -17,6 +17,9 @@ class AddressRequest extends FormRequest
     {
         return [
             'billing_address.recipient_name' => 'required|string|max:100',
+            // Guests must supply an email so the order confirmation can reach
+            // them; authenticated users already have one on their account.
+            'billing_address.email' => [auth()->check() ? 'nullable' : 'required', 'email', 'max:255'],
             'billing_address.phone' => 'required|string|max:20',
             'billing_address.street_address' => 'required|string|max:255',
             'billing_address.city' => 'required|string|max:100',
@@ -40,6 +43,8 @@ class AddressRequest extends FormRequest
     {
         return [
             'billing_address.recipient_name.required' => __('validation.required', ['attribute' => __('checkout.recipient_name')]),
+            'billing_address.email.required' => __('validation.required', ['attribute' => __('checkout.email')]),
+            'billing_address.email.email' => __('validation.email', ['attribute' => __('checkout.email')]),
             'billing_address.phone.required' => __('validation.required', ['attribute' => __('checkout.phone')]),
             'billing_address.street_address.required' => __('validation.required', ['attribute' => __('checkout.street_address')]),
             'billing_address.city.required' => __('validation.required', ['attribute' => __('checkout.city')]),

@@ -46,6 +46,7 @@ return [
         'secret_key'     => env('TABBY_SECRET_KEY'),
         'merchant_code'  => env('TABBY_MERCHANT_CODE'),
         'webhook_secret' => env('TABBY_WEBHOOK_SECRET'),
+        'base_url'       => env('TABBY_BASE_URL', 'https://api.tabby.ai'),
     ],
 
     'tamara' => [
@@ -69,6 +70,27 @@ return [
         'provider' => env('WHATSAPP_PROVIDER', 'meta'),
         'phone_id' => env('WHATSAPP_PHONE_ID'),
         'token'    => env('WHATSAPP_TOKEN'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | AI assistant (Google Gemini)
+    |--------------------------------------------------------------------------
+    | Powers the storefront live-chat concierge. Without an API key the widget
+    | degrades to a graceful hand-off message + WhatsApp, never an error.
+    */
+    'gemini' => [
+        'api_key'     => env('GEMINI_API_KEY'),
+        // Both legacy "AIza…" keys and the newer AI Studio "AQ…" auth keys work
+        // with the x-goog-api-key header — never validate a key by its prefix.
+        // "…-latest" aliases track whatever the project actually has quota for.
+        // Note: full (non-lite) flash models reason internally and can spend the
+        // whole token budget before emitting text — raise GEMINI_MAX_TOKENS if
+        // you switch to one.
+        'model'       => env('GEMINI_MODEL', 'gemini-flash-lite-latest'),
+        'base_url'    => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
+        'max_tokens'  => (int) env('GEMINI_MAX_TOKENS', 500),
+        'temperature' => (float) env('GEMINI_TEMPERATURE', 0.7),
     ],
 
     /*

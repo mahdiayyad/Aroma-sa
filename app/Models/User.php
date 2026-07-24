@@ -28,7 +28,12 @@ class User extends Authenticatable
         'avatar',
         'provider',
         'provider_id',
+        'role',
     ];
+
+    public const ROLE_CUSTOMER = 'customer';
+    public const ROLE_STAFF = 'staff';
+    public const ROLE_ADMIN = 'admin';
 
     protected $hidden = [
         'password',
@@ -71,6 +76,12 @@ class User extends Authenticatable
     public function hasWishlisted(int $productId): bool
     {
         return $this->wishlistItems()->where('product_id', $productId)->exists();
+    }
+
+    /** Staff and admins may reach the back-office. */
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, [self::ROLE_ADMIN, self::ROLE_STAFF], true);
     }
 
     public function initials(): string

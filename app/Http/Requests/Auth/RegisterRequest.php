@@ -22,7 +22,7 @@ class RegisterRequest extends FormRequest
             'email'    => ['nullable', 'required_without:phone', 'email', 'max:255', 'unique:users,email'],
             'phone'    => ['nullable', 'required_without:email', 'string', 'regex:/^(\+9665|05)\d{8}$/', 'unique:users,phone'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
-            'gender'   => ['nullable', 'in:female,male,unspecified'],
+            'gender'   => ['nullable', 'in:female,male'],
         ];
     }
 

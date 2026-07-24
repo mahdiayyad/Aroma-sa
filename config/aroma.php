@@ -90,8 +90,10 @@ return [
     */
     'contact' => [
         'email'    => env('MAIL_FROM_ADDRESS', 'hello@aroma.sa'),
-        'phone'    => '+966',
-        'whatsapp' => '+966',
+        'phone'    => env('AROMA_PHONE', ''),
+        // Digits only, incl. country code — e.g. 9665XXXXXXXX. The floating
+        // WhatsApp button only appears once this is set.
+        'whatsapp' => env('AROMA_WHATSAPP', ''),
         'instagram' => 'aroma',
     ],
 ];

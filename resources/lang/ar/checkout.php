@@ -56,6 +56,7 @@ return [
     'back_to_cart' => 'العودة إلى السلة',
     'proceed_to_checkout' => 'المتابعة إلى الدفع',
     'secure_checkout' => 'دفع آمن — معلوماتك محمية',
+    'coming_soon' => 'قريباً',
 
     'buttons' => [
         'continue' => 'متابعة',
@@ -75,6 +76,7 @@ return [
         'insufficient_stock' => 'المخزون غير كافي لهذا المنتج.',
         'payment_failed' => 'فشل معالجة الدفع. يرجى المحاولة مرة أخرى.',
         'invalid_address' => 'يرجى تقديم عنوان شحن صحيح.',
+        'bnpl_unavailable' => ':gateway غير متاح لهذا الطلب. يرجى اختيار وسيلة دفع أخرى.',
     ],
 
     'payment_methods' => [

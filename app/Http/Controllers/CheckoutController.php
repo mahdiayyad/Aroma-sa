@@ -9,7 +9,7 @@ use App\Http\Requests\Checkout\PaymentRequest;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
-use App\Services\Payment\MoyasarPaymentService;
+use App\Services\Payment\PaymentGatewayManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -19,16 +19,16 @@ class CheckoutController extends Controller
 {
     private CartService $cart;
     private CheckoutService $checkout;
-    private MoyasarPaymentService $paymentService;
+    private PaymentGatewayManager $gateways;
 
     public function __construct(
         CartService $cart,
         CheckoutService $checkout,
-        MoyasarPaymentService $paymentService
+        PaymentGatewayManager $gateways
     ) {
         $this->cart = $cart;
         $this->checkout = $checkout;
-        $this->paymentService = $paymentService;
+        $this->gateways = $gateways;
     }
 
     /**
@@ -129,14 +129,20 @@ class CheckoutController extends Controller
 
         $data = $request->validated();
 
-        // Prepare shipping address
-        $shippingAddress = $data['use_shipping_for_billing'] ?? false
-            ? $data['billing_address']
-            : $data['shipping_address'];
+        $billingAddress = $data['billing_address'];
+
+        // The address form collects a single address; a distinct shipping
+        // address is optional. Fall back to the billing address whenever the
+        // customer hasn't entered a separate one (this also avoids the
+        // "Undefined index: shipping_address" when the field isn't submitted).
+        $sameAsBilling = (bool) ($data['use_shipping_for_billing'] ?? true);
+        $shippingAddress = (! $sameAsBilling && ! empty($data['shipping_address']))
+            ? $data['shipping_address']
+            : $billingAddress;
 
         // Store in session for next step
         session([
-            'checkout.billing_address' => $data['billing_address'],
+            'checkout.billing_address' => $billingAddress,
             'checkout.shipping_address' => $shippingAddress,
             'checkout.customer_notes' => $data['customer_notes'] ?? null,
         ]);
@@ -188,53 +194,57 @@ class CheckoutController extends Controller
 
         $data = $request->validated();
         $user = auth()->user();
+        $billing = session('checkout.billing_address', []);
+        $gatewayKey = $data['gateway']; // moyasar | tabby | tamara
 
         try {
-            $order = DB::transaction(function () use ($data, $user) {
-                // Create order
+            $order = DB::transaction(function () use ($data, $user, $billing, $gatewayKey) {
                 $order = $this->checkout->createOrder(
                     $user,
-                    session('checkout.billing_address'),
+                    $billing,
                     session('checkout.shipping_address'),
-                    $user ? $user->name : ($data['billing_address']['recipient_name'] ?? 'Guest'),
-                    $user ? $user->email : ($data['billing_address']['email'] ?? session('checkout.billing_address')['email'] ?? 'noemail@aroma.sa'),
-                    session('checkout.billing_address')['phone'] ?? '',
+                    $user ? $user->name : ($billing['recipient_name'] ?? 'Guest'),
+                    $user ? $user->email : ($billing['email'] ?? 'noemail@aroma.sa'),
+                    $billing['phone'] ?? '',
                     session('checkout.customer_notes')
                 );
 
-                // Create payment record
-                $this->checkout->createPayment(
-                    $order,
-                    $data['gateway'],
-                    $data['method']
-                );
+                $this->checkout->createPayment($order, $gatewayKey, $data['method']);
 
-                // Clear cart
                 $this->cart->clear();
-
-                // Clear checkout session
                 session()->forget(['checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes']);
 
                 return $order;
             });
 
-            // Create invoice with Moyasar and get payment URL
-            $paymentResult = $this->paymentService->createInvoice($order);
+            // Remember the order for this session so the customer can view its
+            // confirmation after returning from the gateway (without IDOR).
+            session()->push('checkout.completed_orders', $order->id);
 
-            if (!$paymentResult['success']) {
-                Log::error('Failed to create Moyasar invoice', ['order_id' => $order->id]);
+            // Route to whichever gateway the customer selected.
+            $result = $this->gateways->for($gatewayKey)->createCheckout($order);
+
+            if (! ($result['success'] ?? false)) {
+                Log::error('Gateway checkout failed', [
+                    'gateway'  => $gatewayKey,
+                    'order_id' => $order->id,
+                    'error'    => $result['error'] ?? null,
+                ]);
 
                 return redirect()->route('checkout.payment')->with(
                     'error',
-                    __('checkout.errors.payment_failed')
+                    $result['error'] ?? __('checkout.errors.payment_failed')
                 );
             }
 
-            // Store invoice ID in session for later reference
-            session(['checkout.invoice_id' => $paymentResult['invoice_id']]);
+            // Keep what the callback needs to verify + finalise this order.
+            session([
+                'checkout.gateway'   => $gatewayKey,
+                'checkout.reference' => $result['reference'] ?? null,
+                'checkout.order_id'  => $order->id,
+            ]);
 
-            // Redirect to Moyasar payment page
-            return redirect()->away($paymentResult['url']);
+            return redirect()->away($result['redirect_url']);
         } catch (\Exception $e) {
             Log::error('Checkout error', ['error' => $e->getMessage()]);
 
@@ -246,36 +256,41 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Handle payment callback from Moyasar
-     * Called after customer completes or fails payment
+     * Handle the return from any gateway (Moyasar / Tabby / Tamara).
+     * Verifies the payment against the selected gateway and finalises the order.
      */
     public function paymentCallback(): RedirectResponse
     {
-        $invoiceId = session('checkout.invoice_id');
+        $orderId    = session('checkout.order_id');
+        $gatewayKey = session('checkout.gateway');
+        $reference  = session('checkout.reference');
 
-        if (!$invoiceId) {
+        $order = $orderId ? Order::find($orderId) : null;
+
+        if (! $order || ! $gatewayKey || ! $reference) {
             return redirect()->route('cart.index')->with('error', __('checkout.errors.payment_failed'));
         }
 
-        // Get payment status from Moyasar
-        $paymentData = $this->paymentService->getPaymentStatus($invoiceId);
+        // The gateway is the source of truth on return (webhooks can't reach a
+        // local/test host), so verify with it directly and finalise if paid.
+        $status = $this->gateways->for($gatewayKey)->fetchStatus($reference);
 
-        if (!$paymentData) {
-            return redirect()->route('cart.index')->with('error', __('checkout.errors.payment_failed'));
+        session()->forget(['checkout.gateway', 'checkout.reference', 'checkout.order_id']);
+
+        $gatewayPaid = $status && ($status['paid'] ?? false);
+
+        if ($gatewayPaid && ! $order->isPaid()) {
+            $payment = $order->payment()->latest('id')->first();
+
+            if ($payment) {
+                $this->checkout->markOrderAsPaid($order, $payment);
+            } else {
+                $order->update(['status' => Order::STATUS_PAID]);
+            }
         }
 
-        // Find order by invoice reference
-        $order = Order::where('order_number', $paymentData['reference_id'] ?? null)->first();
-
-        if (!$order) {
-            return redirect()->route('cart.index')->with('error', __('checkout.errors.payment_failed'));
-        }
-
-        session()->forget('checkout.invoice_id');
-
-        // Payment status is handled by webhook, so just show confirmation if paid
-        if ($order->isPaid()) {
-            return redirect()->route('order.confirmation', $order)->with(
+        if ($gatewayPaid || $order->isPaid()) {
+            return redirect()->route('home', app()->getLocale())->with(
                 'status',
                 __('checkout.success.order_created', ['order_number' => $order->order_number])
             );
@@ -292,9 +307,16 @@ class CheckoutController extends Controller
      */
     public function confirmation(Order $order): View
     {
-        if (auth()->check() && auth()->id() !== $order->user_id) {
-            abort(403);
-        }
+        $user = auth()->user();
+        $ownedByUser = $user && (int) $order->user_id === (int) $user->id;
+
+        // Guests have no account to authorise against, so a freshly-placed
+        // order is remembered in the session (see storePayment). Without this
+        // guard any visitor could read another customer's order — and its PII —
+        // just by guessing the sequential id.
+        $completedInSession = in_array($order->id, session('checkout.completed_orders', []), true);
+
+        abort_unless($ownedByUser || $completedInSession, 403);
 
         return view('checkout.confirmation', [
             'order' => $order->load('items'),

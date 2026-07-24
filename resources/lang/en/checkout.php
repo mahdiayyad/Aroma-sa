@@ -56,6 +56,7 @@ return [
     'back_to_cart' => 'Back to Cart',
     'proceed_to_checkout' => 'Proceed to Checkout',
     'secure_checkout' => 'Secure checkout — your information is protected',
+    'coming_soon' => 'Coming soon',
 
     'buttons' => [
         'continue' => 'Continue',
@@ -75,6 +76,7 @@ return [
         'insufficient_stock' => 'Insufficient stock for this product.',
         'payment_failed' => 'Payment processing failed. Please try again.',
         'invalid_address' => 'Please provide a valid shipping address.',
+        'bnpl_unavailable' => ':gateway isn’t available for this order. Please choose another payment method.',
     ],
 
     'payment_methods' => [

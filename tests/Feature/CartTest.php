@@ -51,4 +51,45 @@ class CartTest extends TestCase
 
         $this->assertSame(3, array_sum(array_column(session('cart'), 'qty')));
     }
+
+    public function test_ajax_add_to_cart_returns_json_with_the_live_count(): void
+    {
+        $product = Product::factory()->create(['stock_quantity' => 5]);
+
+        $this->postJson('/cart', ['product_id' => $product->id, 'qty' => 2])
+            ->assertOk()
+            ->assertJson(['count' => 2])
+            ->assertJsonStructure(['count', 'message']);
+    }
+
+    public function test_ajax_add_to_cart_returns_validation_errors_as_json(): void
+    {
+        $this->postJson('/cart', ['product_id' => 999999])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('product_id');
+    }
+
+    public function test_ajax_quantity_update_returns_live_totals(): void
+    {
+        $product = Product::factory()->create(['base_price' => 100, 'stock_quantity' => 10]);
+        $this->post('/cart', ['product_id' => $product->id, 'qty' => 1]);
+        $rowId = md5($product->id.':0');
+
+        $this->patchJson('/cart/'.$rowId, ['qty' => 3])
+            ->assertOk()
+            ->assertJson(['count' => 3, 'removed' => false])
+            ->assertJsonStructure(['count', 'line_total', 'subtotal']);
+    }
+
+    public function test_admin_cannot_add_to_cart(): void
+    {
+        $admin = \App\Models\User::factory()->create(['role' => \App\Models\User::ROLE_ADMIN]);
+        $product = Product::factory()->create(['stock_quantity' => 5]);
+
+        $this->actingAs($admin)
+            ->post('/cart', ['product_id' => $product->id])
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertEmpty(session('cart', []));
+    }
 }

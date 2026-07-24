@@ -4,7 +4,7 @@
 
 @section('content')
 @php($locale = app()->getLocale())
-<div class="container my-5">
+<div class="container checkout-page my-4 my-lg-5">
 
     @if(empty($items))
         <div class="row justify-content-center">
@@ -20,22 +20,11 @@
             </div>
         </div>
     @else
+        @include('checkout.partials.stepper', ['step' => 1])
+
         <div class="row g-4">
             <div class="col-lg-8">
-                {{-- Progress Indicator --}}
-                <div class="mb-5">
-                    <div class="d-flex justify-content-between text-center text-aroma-muted small mb-3">
-                        <span class="fw-bold" style="color:var(--aroma-brown)"><i class="bi bi-cart-check"></i> {{ __('checkout.steps.review') }}</span>
-                        <span>{{ __('checkout.steps.account') }}</span>
-                        <span>{{ __('checkout.steps.address') }}</span>
-                        <span>{{ __('checkout.steps.payment') }}</span>
-                    </div>
-                    <div class="progress" style="height:4px">
-                        <div class="progress-bar" style="width:25%;background:var(--aroma-brown)"></div>
-                    </div>
-                </div>
-
-                <h2 class="aroma-section-title mb-4">{{ __('checkout.review_order') }}</h2>
+                <h2 class="aroma-section-title">{{ __('checkout.review_order') }}</h2>
 
                 <div class="aroma-card mb-4">
                     <div class="card-body p-0">
@@ -88,9 +77,9 @@
 
             {{-- Order Summary --}}
             <div class="col-lg-4">
-                <div class="aroma-card sticky-top" style="top:20px">
+                <div class="aroma-card checkout-summary sticky-top">
                     <div class="card-body">
-                        <h5 class="card-title mb-3" style="color:var(--aroma-brown)">{{ __('checkout.order_summary') }}</h5>
+                        <h5 class="card-title">{{ __('checkout.order_summary') }}</h5>
 
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-2">
@@ -120,10 +109,10 @@
                             @endif
                         </div>
 
-                        <div class="p-3 rounded mb-4" style="background:var(--aroma-skin)">
+                        <div class="checkout-summary-total mb-4">
                             <div class="d-flex justify-content-between align-items-center">
-                                <strong style="color:var(--aroma-brown);font-size:1.1rem">{{ __('checkout.total') }}</strong>
-                                <strong style="color:var(--aroma-brown);font-size:1.3rem">@price($totals['total_amount'])</strong>
+                                <strong class="text-aroma-brown">{{ __('checkout.total') }}</strong>
+                                <strong class="text-aroma-brown" style="font-size:1.25rem">@price($totals['total_amount'])</strong>
                             </div>
                         </div>
 

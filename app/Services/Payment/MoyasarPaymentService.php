@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Payment;
 
+use App\Contracts\PaymentGateway;
 use App\Models\Order;
 use App\Models\Payment;
 use Exception;
@@ -15,21 +16,67 @@ use Illuminate\Support\Facades\Log;
  * Handles invoice creation, payment processing, and webhook verification
  *
  * Supports: Mada, Visa, Mastercard, Apple Pay
- * BNPL: Tabby, Tamara (separate integrations)
+ * BNPL: Tabby, Tamara are separate gateways (see Tabby/TamaraPaymentService).
  */
-class MoyasarPaymentService
+class MoyasarPaymentService implements PaymentGateway
 {
     private string $publishableKey;
     private string $secretKey;
     private string $webhookSecret;
     private string $baseUrl = 'https://api.moyasar.com/v1';
 
+    public function key(): string
+    {
+        return 'moyasar';
+    }
+
+    /**
+     * Contract adapter: create a Moyasar invoice and normalise the result so
+     * the checkout treats every gateway identically.
+     */
+    public function createCheckout(Order $order): array
+    {
+        $result = $this->createInvoice($order);
+
+        if (! ($result['success'] ?? false)) {
+            return ['success' => false, 'error' => $result['error'] ?? 'Payment could not be started.'];
+        }
+
+        return ['success' => true, 'redirect_url' => $result['url'], 'reference' => (string) $result['invoice_id']];
+    }
+
+    /**
+     * Contract adapter: fetch the invoice and report whether it is paid.
+     */
+    public function fetchStatus(string $reference): ?array
+    {
+        $data = $this->getPaymentStatus($reference);
+
+        if (! $data) {
+            return null;
+        }
+
+        $status = (string) ($data['status'] ?? 'unknown');
+
+        return ['paid' => $status === 'paid', 'status' => $status, 'raw' => $data];
+    }
+
     public function __construct()
     {
-        $this->publishableKey = config('services.moyasar.publishable_key', '');
-        $this->secretKey = config('services.moyasar.secret_key', '');
-        $this->webhookSecret = config('services.moyasar.webhook_secret', '');
+        $this->publishableKey = (string) config('services.moyasar.publishable_key', '');
+        $this->secretKey = (string) config('services.moyasar.secret_key', '');
+        $this->webhookSecret = (string) config('services.moyasar.webhook_secret', '');
+    }
 
+    /**
+     * Guard the API calls that actually need credentials. Deliberately not in
+     * the constructor: this service is injected into CheckoutController, so
+     * throwing on construction would 500 the cart-review / address / payment
+     * pages even though they never call the gateway. Failing here instead keeps
+     * those pages working and surfaces a clean error only at payment time.
+     */
+    private function ensureConfigured(): void
+    {
         if (!$this->secretKey) {
             throw new Exception('Moyasar API keys not configured');
         }
@@ -42,6 +89,8 @@ class MoyasarPaymentService
     public function createInvoice(Order $order): array
     {
         try {
+            $this->ensureConfigured();
+
             $payload = [
                 'amount' => (int) round($order->total_amount * 100), // Convert to fils
                 'currency' => 'SAR',
@@ -228,6 +277,8 @@ class MoyasarPaymentService
     public function getPaymentStatus(string $invoiceId): ?array
     {
         try {
+            $this->ensureConfigured();
+
             $response = Http::withBasicAuth($this->secretKey, '')
                 ->get("{$this->baseUrl}/invoices/{$invoiceId}");
 
@@ -244,6 +295,8 @@ class MoyasarPaymentService
     public function refundPayment(Payment $payment, float $amount = null): array
     {
         try {
+            $this->ensureConfigured();
+
             if (!$payment->transaction_id) {
                 return ['success' => false, 'error' => 'No transaction ID found'];
             }

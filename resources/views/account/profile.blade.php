@@ -41,17 +41,19 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('account.profile.gender') }}</label>
+                            @php($gender = old('gender', $user->gender))
                             <select name="gender" class="form-select">
-                                <option value="female" @selected(old('gender', $user->gender) === 'female')>{{ __('auth_ui.register.female') }}</option>
-                                <option value="male" @selected(old('gender', $user->gender) === 'male')>{{ __('auth_ui.register.male') }}</option>
-                                <option value="unspecified" @selected(old('gender', $user->gender) === 'unspecified')>{{ __('auth_ui.register.unspecified') }}</option>
+                                <option value="" {{ in_array($gender, ['female', 'male'], true) ? '' : 'selected' }}>{{ __('auth_ui.register.gender_placeholder') }}</option>
+                                <option value="female" {{ $gender === 'female' ? 'selected' : '' }}>{{ __('auth_ui.register.female') }}</option>
+                                <option value="male" {{ $gender === 'male' ? 'selected' : '' }}>{{ __('auth_ui.register.male') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('account.profile.language') }}</label>
+                            @php($userLocale = old('locale', $user->locale ?? app()->getLocale()))
                             <select name="locale" class="form-select">
-                                <option value="ar" @selected(old('locale', $user->locale) === 'ar')>العربية</option>
-                                <option value="en" @selected(old('locale', $user->locale) === 'en')>English</option>
+                                <option value="ar" {{ $userLocale === 'ar' ? 'selected' : '' }}>العربية</option>
+                                <option value="en" {{ $userLocale === 'en' ? 'selected' : '' }}>English</option>
                             </select>
                         </div>
                     </div>

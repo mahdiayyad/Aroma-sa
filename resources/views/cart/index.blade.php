@@ -29,7 +29,7 @@
                         </thead>
                         <tbody>
                             @foreach ($rows as $rowId => $row)
-                                <tr>
+                                <tr data-row="{{ $rowId }}">
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <img src="{{ $row['image'] }}" alt="" width="56" height="56"
@@ -47,15 +47,13 @@
                                     </td>
                                     <td>@price($row['unit_price'])</td>
                                     <td>
-                                        <form method="post" action="{{ route('cart.update', $rowId) }}" class="d-flex gap-1">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="number" name="qty" value="{{ $row['qty'] }}" min="0" max="99"
-                                                   class="form-control form-control-sm" style="width:70px">
-                                            <button class="btn btn-sm btn-aroma-outline" type="submit"><i class="bi bi-arrow-repeat"></i></button>
-                                        </form>
+                                        {{-- Live: changing the quantity updates totals without a reload (Item 3) --}}
+                                        <input type="number" value="{{ $row['qty'] }}" min="0" max="99"
+                                               class="form-control form-control-sm js-cart-qty" style="width:72px"
+                                               data-url="{{ route('cart.update', $rowId) }}"
+                                               aria-label="{{ __('cart.qty') }}">
                                     </td>
-                                    <td class="text-end fw-semibold">@price($row['unit_price'] * $row['qty'])</td>
+                                    <td class="text-end fw-semibold js-line-total">@price($row['unit_price'] * $row['qty'])</td>
                                     <td class="text-end">
                                         <form method="post" action="{{ route('cart.remove', $rowId) }}">
                                             @csrf
@@ -82,7 +80,7 @@
                     <h5 class="mb-3">{{ __('cart.summary') }}</h5>
                     <div class="d-flex justify-content-between mb-3">
                         <span>{{ __('cart.subtotal') }}</span>
-                        <span class="fw-bold" style="color:var(--aroma-brown)">{{ $subtotal }}</span>
+                        <span class="fw-bold js-cart-subtotal" style="color:var(--aroma-brown)">{{ $subtotal }}</span>
                     </div>
                     <a href="{{ route('checkout.review') }}" class="btn btn-aroma w-100 mb-2">{{ __('cart.checkout') }}</a>
                     <a href="{{ route('home', $locale) }}" class="btn btn-aroma-outline w-100">{{ __('cart.continue') }}</a>

@@ -41,4 +41,6 @@ return [
         'wishlist_added'   => 'تمت الإضافة إلى المفضلة.',
         'wishlist_removed' => 'تمت الإزالة من المفضلة.',
     ],
+
+    'continue_shopping' => 'متابعة التسوق'
 ];

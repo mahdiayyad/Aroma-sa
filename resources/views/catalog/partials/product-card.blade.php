@@ -33,7 +33,7 @@
                     <i class="bi bi-eye me-1"></i>{{ __('storefront.product.add_to_cart') }}
                 </a>
             @else
-                <form method="post" action="{{ route('cart.store') }}">
+                <form method="post" action="{{ route('cart.store') }}" class="js-add-to-cart">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                     <button type="submit" class="btn btn-aroma btn-sm w-100 {{ $product->inStock() ? '' : 'disabled' }}">

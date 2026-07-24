@@ -19,8 +19,17 @@
                     <i class="bi bi-list fs-2"></i>
                 </button>
 
+                {{-- Official logotype when the transparent asset exists
+                     (php artisan aroma:prepare-logo), otherwise the wordmark. --}}
+                @php($headerLogo = is_file(public_path('images/brand/aroma-wordmark.png'))
+                        ? 'images/brand/aroma-wordmark.png'
+                        : (is_file(public_path('images/brand/aroma-logo-mark.png')) ? 'images/brand/aroma-logo-mark.png' : null))
                 <a href="{{ route('home', $locale) }}" class="aroma-logo text-decoration-none">
-                    {{ $brand['name'] }}
+                    @if ($headerLogo)
+                        <img src="{{ \App\Support\Assets::versioned($headerLogo) }}" alt="{{ $brand['name'] }}" class="aroma-logo-img">
+                    @else
+                        {{ $brand['name'] }}
+                    @endif
                 </a>
             </div>
 
@@ -66,7 +75,7 @@
                 @endauth
                 <a href="{{ route('cart.index') }}" class="aroma-icon-link" title="{{ __('storefront.nav.cart') }}">
                     <i class="bi bi-bag fs-5"></i>
-                    @if (($cartCount ?? 0) > 0)<span class="aroma-badge">{{ $cartCount }}</span>@endif
+                    <span class="aroma-badge js-cart-count {{ ($cartCount ?? 0) > 0 ? '' : 'd-none' }}">{{ $cartCount ?? 0 }}</span>
                 </a>
             </div>
         </div>
@@ -86,7 +95,13 @@
 {{-- Mobile offcanvas: search + categories --}}
 <div class="offcanvas offcanvas-start" tabindex="-1" id="aromaMobileNav" aria-labelledby="aromaMobileNavLabel">
     <div class="offcanvas-header">
-        <span class="aroma-logo" id="aromaMobileNavLabel">{{ $brand['name'] }}</span>
+        <span class="aroma-logo" id="aromaMobileNavLabel">
+            @if ($headerLogo ?? null)
+                <img src="{{ \App\Support\Assets::versioned($headerLogo) }}" alt="{{ $brand['name'] }}" class="aroma-logo-img">
+            @else
+                {{ $brand['name'] }}
+            @endif
+        </span>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body d-flex flex-column">

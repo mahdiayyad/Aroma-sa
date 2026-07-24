@@ -44,10 +44,11 @@
 
         <div class="mb-3">
             <label class="form-label">{{ __('auth_ui.register.gender') }}</label>
+            @php($gender = old('gender'))
             <select name="gender" class="form-select">
-                <option value="female" @selected(old('gender') === 'female')>{{ __('auth_ui.register.female') }}</option>
-                <option value="male" @selected(old('gender') === 'male')>{{ __('auth_ui.register.male') }}</option>
-                <option value="unspecified" @selected(old('gender') === 'unspecified')>{{ __('auth_ui.register.unspecified') }}</option>
+                <option value="" {{ $gender === null || $gender === '' ? 'selected' : '' }}>{{ __('auth_ui.register.gender_placeholder') }}</option>
+                <option value="female" {{ $gender === 'female' ? 'selected' : '' }}>{{ __('auth_ui.register.female') }}</option>
+                <option value="male" {{ $gender === 'male' ? 'selected' : '' }}>{{ __('auth_ui.register.male') }}</option>
             </select>
         </div>
 
