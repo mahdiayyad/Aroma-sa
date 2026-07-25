@@ -50,6 +50,41 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ->first();
     }
 
+    public function giftSuggestions(Product $product, int $limit = 6): Collection
+    {
+        $base = function () use ($product) {
+            return $this->model->newQuery()
+                ->active()
+                ->where('id', '!=', $product->id)
+                ->where('is_gift_eligible', true)
+                // In stock: either simple stock on hand, or variant-managed.
+                ->where(function ($q) {
+                    $q->where('stock_quantity', '>', 0)->orWhere('has_variants', true);
+                })
+                ->with(['images']);
+        };
+
+        $suggestions = $base()
+            ->where('category_id', $product->category_id)
+            ->latest()
+            ->limit($limit)
+            ->get();
+
+        // Top up from the wider catalogue so the strip always has something.
+        if ($suggestions->count() < $limit) {
+            $filler = $base()
+                ->whereNotIn('id', $suggestions->pluck('id')->all())
+                ->orderByDesc('is_featured')
+                ->latest()
+                ->limit($limit - $suggestions->count())
+                ->get();
+
+            $suggestions = $suggestions->concat($filler);
+        }
+
+        return $suggestions;
+    }
+
     public function paginateForCategory(Category $category, array $filters = [], int $perPage = 12): LengthAwarePaginator
     {
         // Include immediate sub-categories so a parent listing shows everything.

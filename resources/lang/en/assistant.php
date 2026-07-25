@@ -25,4 +25,15 @@ return [
         'How long is delivery?',
         'How does the packaging look?',
     ],
+
+    'menu' => [
+        'title'           => 'How can we help?',
+        'products'        => 'Browse products',
+        'products_desc'   => 'Explore fragrances, gifts & more',
+        'service'         => 'Talk to customer service',
+        'service_desc'    => 'Chat with our team on WhatsApp',
+        'returns'         => 'Return an item',
+        'returns_desc'    => 'Start a return or exchange',
+        'returns_prefill' => 'Hello Aroma, I would like to return or exchange an item from my order.',
+    ],
 ];

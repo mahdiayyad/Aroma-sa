@@ -74,6 +74,38 @@ class AdminUiTest extends TestCase
         $this->assertGuest();
     }
 
+    /* Admins are confined to the back-office --------------------------------- */
+
+    public function test_an_admin_is_sent_back_to_the_dashboard_from_storefront_pages(): void
+    {
+        $product = Product::factory()->create(['slug' => 'shop-me']);
+        $admin   = $this->admin();
+
+        foreach (['/ar', '/en', '/en/product/shop-me', '/cart', '/account', '/checkout/review'] as $path) {
+            $this->actingAs($admin)->get($path)
+                ->assertRedirect(route('admin.dashboard'));
+        }
+    }
+
+    public function test_an_admin_can_still_reach_the_back_office_and_sign_out(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->get('/admin')->assertOk();
+        $this->actingAs($admin)->get('/admin/products')->assertOk();
+        $this->actingAs($admin)->get('/locale/en')->assertRedirect();      // language switch
+        $this->actingAs($admin)->get('/csrf-token')->assertOk();           // token refresh
+        $this->actingAs($admin)->post('/logout')->assertRedirect();        // sign out
+    }
+
+    public function test_a_shopper_is_unaffected_by_the_admin_confinement(): void
+    {
+        $shopper = User::factory()->create(); // role: customer
+
+        $this->actingAs($shopper)->get('/ar')->assertOk();
+        $this->actingAs($shopper)->get('/cart')->assertOk();
+    }
+
     /* Catalog CRUD --------------------------------------------------------- */
 
     public function test_admin_can_open_product_screens(): void

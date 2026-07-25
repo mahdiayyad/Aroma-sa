@@ -62,6 +62,45 @@ class CartTest extends TestCase
             ->assertJsonStructure(['count', 'message']);
     }
 
+    public function test_ajax_add_returns_the_item_total_and_gift_suggestions(): void
+    {
+        $category = \App\Models\Category::factory()->create();
+        $product  = Product::factory()->for($category)->create([
+            'name' => ['en' => 'Rose Oud', 'ar' => 'ورد عود'], 'base_price' => 100, 'stock_quantity' => 10,
+        ]);
+        // A gift-eligible sibling in the same category → offered as an add-on.
+        $addon = Product::factory()->for($category)->create([
+            'name' => ['en' => 'Silk Ribbon', 'ar' => 'شريط حرير'], 'stock_quantity' => 5, 'is_gift_eligible' => true,
+        ]);
+
+        $response = $this->postJson('/cart', ['product_id' => $product->id, 'qty' => 2])
+            ->assertOk()
+            ->assertJsonStructure([
+                'count', 'message', 'subtotal',
+                'item' => ['row_id', 'name', 'image', 'qty', 'line_total'],
+                'suggestions' => [['id', 'name', 'image', 'price', 'url', 'has_variants']],
+            ]);
+
+        $response->assertJsonPath('item.qty', 2);
+        $this->assertSame(md5($product->id.':0'), $response->json('item.row_id'));
+
+        // The product just added is never suggested back to the shopper.
+        $ids = array_column($response->json('suggestions'), 'id');
+        $this->assertContains($addon->id, $ids);
+        $this->assertNotContains($product->id, $ids);
+    }
+
+    public function test_a_stale_csrf_token_can_be_refreshed(): void
+    {
+        // Backs the JS recovery path: on 419 the storefront pulls a fresh token
+        // from here and replays the request, instead of failing the shopper.
+        $this->get('/csrf-token')
+            ->assertOk()
+            ->assertJsonStructure(['token']);
+
+        $this->assertNotEmpty($this->get('/csrf-token')->json('token'));
+    }
+
     public function test_ajax_add_to_cart_returns_validation_errors_as_json(): void
     {
         $this->postJson('/cart', ['product_id' => 999999])

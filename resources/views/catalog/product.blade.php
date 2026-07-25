@@ -18,25 +18,33 @@
         </ol>
     </nav>
 
+    @php($first = $gallery->first())
+
     <div class="row g-4">
         {{-- Gallery --}}
         <div class="col-lg-6">
-            <div class="aroma-gallery-main">
-                @if ($product->isOnSale())
-                    <span class="aroma-badge-discount">-{{ $product->discountPercent() }}%</span>
+            <div class="aroma-gallery">
+                <figure class="aroma-gallery-main">
+                    @if ($product->isOnSale())
+                        <span class="aroma-badge-discount">-{{ $product->discountPercent() }}%</span>
+                    @endif
+                    <img id="galleryMainImg" src="{{ $first['url'] }}" alt="{{ $first['alt'] }}">
+                    <figcaption class="aroma-gallery-caption {{ $first['label'] === '' ? 'is-empty' : '' }}" id="galleryCaption">{{ $first['label'] }}</figcaption>
+                </figure>
+
+                @if ($gallery->count() > 1)
+                    <div class="aroma-gallery-thumbs" role="list">
+                        @foreach ($gallery as $g)
+                            <button type="button" role="listitem"
+                                    class="aroma-gallery-thumb {{ $loop->first ? 'active' : '' }}"
+                                    data-full="{{ $g['url'] }}" data-label="{{ $g['label'] }}"
+                                    aria-label="{{ $g['label'] !== '' ? $g['label'] : $product->name.' '.$loop->iteration }}">
+                                <img src="{{ $g['url'] }}" alt="{{ $g['alt'] }}" loading="lazy">
+                            </button>
+                        @endforeach
+                    </div>
                 @endif
-                <img id="galleryMainImg" src="{{ $product->primaryImageUrl() }}" alt="{{ $product->name }}">
             </div>
-            @if ($product->images->count() > 1)
-                <div class="d-flex gap-2 mt-2">
-                    @foreach ($product->images as $img)
-                        <button type="button" class="aroma-gallery-thumb {{ $loop->first ? 'active' : '' }}"
-                                data-full="{{ $img->url() }}" aria-label="{{ __('storefront.product.description') }} {{ $loop->iteration }}">
-                            <img src="{{ $img->url() }}" alt="{{ $img->translate('alt') ?? $product->name }}">
-                        </button>
-                    @endforeach
-                </div>
-            @endif
         </div>
 
         {{-- Details --}}
@@ -107,9 +115,9 @@
             {{-- Wishlist --}}
             @auth
                 @php($isWishlisted = in_array($product->id, $wishlistIds ?? [], true))
-                <form method="post" action="{{ route('wishlist.toggle', $product->slug) }}" class="mb-3">
+                <form method="post" action="{{ route('wishlist.toggle', $product->slug) }}" class="mb-3 js-wishlist">
                     @csrf
-                    <button type="submit" class="btn btn-aroma-outline">
+                    <button type="submit" class="btn btn-aroma-outline {{ $isWishlisted ? 'is-active' : '' }}">
                         <i class="bi {{ $isWishlisted ? 'bi-heart-fill' : 'bi-heart' }} me-1"></i>{{ __('storefront.nav.wishlist') }}
                     </button>
                 </form>
@@ -137,13 +145,11 @@
                     </div>
                 </div>
             </div>
+
+            {{-- طرق الدفع --}}
+            @include('catalog.partials.payment-methods')
         </div>
     </div>
-</div>
-
-{{-- Packaging & thank-you card --}}
-<div class="container my-5">
-    @include('catalog.partials.packaging')
 </div>
 
 {{-- Sticky mobile add-to-cart bar — submits the same #addToCartForm above --}}
@@ -160,13 +166,44 @@
 
 @push('scripts')
 <script>
-    document.querySelectorAll('.aroma-gallery-thumb').forEach(function (thumb) {
-        thumb.addEventListener('click', function () {
-            document.getElementById('galleryMainImg').src = thumb.dataset.full;
-            document.querySelectorAll('.aroma-gallery-thumb').forEach(function (t) { t.classList.remove('active'); });
+    (function () {
+        var main = document.getElementById('galleryMainImg');
+        var caption = document.getElementById('galleryCaption');
+        var thumbs = document.querySelectorAll('.aroma-gallery-thumb');
+        if (!main || !thumbs.length) { return; }
+
+        function select(thumb) {
+            var full = thumb.dataset.full;
+            if (main.getAttribute('src') !== full) {
+                // Crossfade: fade out, swap once the new image is decoded, fade in.
+                main.style.opacity = '0';
+                var pre = new Image();
+                pre.onload = function () { main.src = full; main.alt = thumb.querySelector('img').alt; main.style.opacity = '1'; };
+                pre.onerror = function () { main.src = full; main.style.opacity = '1'; };
+                pre.src = full;
+            }
+            if (caption) {
+                caption.textContent = thumb.dataset.label || '';
+                caption.classList.toggle('is-empty', !thumb.dataset.label);
+            }
+            thumbs.forEach(function (t) { t.classList.remove('active'); t.setAttribute('aria-current', 'false'); });
             thumb.classList.add('active');
+            thumb.setAttribute('aria-current', 'true');
+        }
+
+        thumbs.forEach(function (thumb, i) {
+            thumb.addEventListener('click', function () { select(thumb); });
+            // Arrow-key navigation across the thumbnail strip.
+            thumb.addEventListener('keydown', function (e) {
+                var next = e.key === 'ArrowRight' ? i + 1 : (e.key === 'ArrowLeft' ? i - 1 : null);
+                if (next === null) { return; }
+                e.preventDefault();
+                var target = thumbs[(next + thumbs.length) % thumbs.length];
+                target.focus();
+                select(target);
+            });
         });
-    });
+    })();
 
     // Live product total: price × quantity, updating with the selected variant.
     (function () {

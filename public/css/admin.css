@@ -172,6 +172,9 @@ html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabi
 .admin-input, .admin-select, textarea.admin-input {
   width: 100%; background: #fff; border: 1px solid var(--admin-border-strong);
   border-radius: var(--admin-radius-sm); padding: .55rem .75rem; font-size: .875rem; color: var(--admin-text);
+  /* Latin-first so typed symbols (+ < > = &) don't pick up the Arabic
+     display face, which has no proper glyphs for them. */
+  font-family: var(--aroma-input-font, "Inter", Helvetica, Arial, sans-serif);
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .admin-input:focus, .admin-select:focus, textarea.admin-input:focus {

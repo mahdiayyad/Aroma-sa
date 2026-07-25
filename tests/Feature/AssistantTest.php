@@ -141,6 +141,34 @@ class AssistantTest extends TestCase
             ->assertDontSee('aromaChatToggle', false);
     }
 
+    public function test_the_chat_offers_quick_actions(): void
+    {
+        config(['aroma.contact.whatsapp' => '+966 50 000 0000']);
+
+        $response = $this->get('/ar')->assertOk();
+
+        // 1) Browse products → storefront shop (home in the active locale).
+        $response->assertSee('aroma-quick-action', false)
+            ->assertSee(__('assistant.menu.products'))
+            ->assertSee(url('/ar'), false);
+
+        // 2) Customer service + 3) Returns → WhatsApp, each with its own prefill.
+        $response->assertSee(__('assistant.menu.service'))
+            ->assertSee(__('assistant.menu.returns'))
+            ->assertSee('wa.me/966500000000', false)
+            ->assertSee(rawurlencode(__('assistant.menu.returns_prefill')), false);
+    }
+
+    public function test_service_actions_fall_back_to_email_without_whatsapp(): void
+    {
+        config(['aroma.contact.whatsapp' => '', 'aroma.contact.email' => 'care@aroma.sa']);
+
+        $this->get('/ar')->assertOk()
+            ->assertSee(__('assistant.menu.service'))
+            ->assertSee('mailto:care@aroma.sa', false)
+            ->assertDontSee('wa.me', false);
+    }
+
     public function test_the_conversation_can_be_reset(): void
     {
         $this->withSession(['assistant.history' => [['role' => 'user', 'text' => 'hi']]])

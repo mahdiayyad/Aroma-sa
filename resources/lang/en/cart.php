@@ -18,6 +18,19 @@ return [
     'checkout' => 'Proceed to checkout',
     'continue' => 'Continue shopping',
     'bnpl'     => 'Or split with Tabby & Tamara at checkout.',
+    'modal' => [
+        'added'    => 'Added to your cart',
+        'perfect'  => 'Make your gift perfect',
+        'perfect_hint' => 'A thoughtful finishing touch, chosen to pair beautifully.',
+        'total'    => 'Cart total',
+        'add'      => 'Add',
+        'options'  => 'Choose options',
+        'show_cart' => 'View cart',
+        'continue' => 'Continue shopping',
+        'close'    => 'Close',
+        'remove'   => 'Remove',
+    ],
+
     'flash' => [
         'added'   => 'Added to your cart.',
         'updated' => 'Cart updated.',

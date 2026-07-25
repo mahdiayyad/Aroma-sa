@@ -189,9 +189,12 @@
                 headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 credentials: 'same-origin'
             }).finally(function () {
-                // Keep the greeting, drop the conversation.
+                // Keep the greeting and quick-action menu, drop the conversation.
                 Array.prototype.slice.call(log.children).forEach(function (child) {
-                    if (!child.classList.contains('aroma-chat-greeting')) { child.remove(); }
+                    if (!child.classList.contains('aroma-chat-greeting') &&
+                        !child.classList.contains('aroma-quick-actions')) {
+                        child.remove();
+                    }
                 });
                 if (suggestions) { suggestions.hidden = false; }
                 if (input) { input.focus(); }

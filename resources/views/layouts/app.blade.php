@@ -48,13 +48,16 @@
     <link href="{{ asset('css/components/tables.css') }}" rel="stylesheet">
     <link href="{{ asset('css/components/navigation.css') }}" rel="stylesheet">
     <link href="{{ asset('css/components/animations.css') }}" rel="stylesheet">
+    <link href="{{ \App\Support\Assets::versioned('css/cart-modal.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/assistant.css') }}" rel="stylesheet">
 
     @stack('head')
 </head>
 <body data-cart-url="{{ route('cart.index') }}"
       data-cart-label="{{ __('cart.view') }}"
-      data-cart-error="{{ __('cart.error') }}">
+      data-cart-error="{{ __('cart.error') }}"
+      data-wishlist-url="{{ route('wishlist.index') }}"
+      data-wishlist-label="{{ __('storefront.nav.wishlist') }}">
     @include('layouts.partials.intro')
     @include('layouts.partials.header')
 
@@ -66,12 +69,15 @@
     </main>
 
     @include('layouts.partials.footer')
+    @include('layouts.partials.cart-modal')
     @include('layouts.partials.assistant')
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ asset('js/select2-init.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/aroma-http.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/cart-modal.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/aroma-ui.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/assistant.js') }}" defer></script>
     @stack('scripts')

@@ -132,6 +132,12 @@ Route::get('order/{order}/confirmation', [CheckoutController::class, 'confirmati
 /* Legal / static pages ----------------------------------------------------- */
 Route::view('terms', 'pages.terms')->name('terms');
 
+/* Fresh CSRF token — lets the storefront JS recover from a stale token on a
+   long-open tab (419) instead of failing the shopper's action. */
+Route::get('csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('csrf.token');
+
 /* AI concierge ------------------------------------------------------------- */
 Route::prefix('assistant')->name('assistant.')->middleware('throttle:20,1')->group(function () {
     Route::post('chat', [AssistantController::class, 'chat'])->name('chat');

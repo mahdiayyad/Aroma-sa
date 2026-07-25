@@ -4,6 +4,12 @@ return [
 
     'admin_no_shop' => 'Admin accounts manage the store and cannot place orders.',
 
+    'payment' => [
+        'title' => 'Payment methods',
+        'note'  => 'Secure checkout — your details are always protected.',
+        'soon'  => 'Soon',
+    ],
+
     'packaging' => [
         'eyebrow'  => 'The Aroma Experience',
         'title'    => 'Wrapped with Care',

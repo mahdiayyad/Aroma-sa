@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use App\Services\CartService;
+use App\Services\CatalogService;
 use App\Support\Formatting\Money;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,9 +16,13 @@ class CartController extends Controller
     /** @var CartService */
     private $cart;
 
-    public function __construct(CartService $cart)
+    /** @var CatalogService */
+    private $catalog;
+
+    public function __construct(CartService $cart, CatalogService $catalog)
     {
         $this->cart = $cart;
+        $this->catalog = $catalog;
     }
 
     public function index()
@@ -36,19 +42,34 @@ class CartController extends Controller
             'qty'        => ['nullable', 'integer', 'min:1', 'max:99'],
         ]);
 
-        $this->cart->add(
+        $rowId = $this->cart->add(
             (int) $data['product_id'],
             isset($data['variant_id']) ? (int) $data['variant_id'] : null,
             (int) ($data['qty'] ?? 1)
         );
 
         // Live add-to-cart: the storefront submits these via fetch and expects
-        // JSON so it can show a toast and update the header count without a
-        // full page reload. Non-JS clients still get the redirect + flash.
+        // JSON so it can open the confirmation modal and update the header count
+        // without a reload. Non-JS clients still get the redirect + flash.
         if ($request->expectsJson()) {
+            $row     = $this->cart->rows()[$rowId] ?? null;
+            $product = Product::find((int) $data['product_id']);
+            $locale  = app()->getLocale();
+
             return response()->json([
-                'count'   => $this->cart->count(),
-                'message' => __('cart.flash.added'),
+                'count'    => $this->cart->count(),
+                'message'  => __('cart.flash.added'),
+                'subtotal' => $this->cart->subtotalLabel(),
+                'item'     => $row ? [
+                    'row_id'     => $rowId,
+                    'name'       => $row['name'][$locale] ?? reset($row['name']),
+                    'variant'    => $row['variant'][$locale] ?? ($row['variant'] ? reset($row['variant']) : null),
+                    'image'      => $row['image'],
+                    'qty'        => $row['qty'],
+                    'line_total' => Money::format($row['unit_price'] * $row['qty']),
+                ] : null,
+                // "Make your gift perfect" add-ons shown beneath the added item.
+                'suggestions' => $product ? $this->suggestions($product) : [],
             ]);
         }
 
@@ -90,5 +111,34 @@ class CartController extends Controller
         $this->cart->clear();
 
         return back()->with('status', __('cart.flash.cleared'));
+    }
+
+    /**
+     * Gift add-ons for the modal, already resolved for the view layer.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function suggestions(Product $product): array
+    {
+        $inCart = array_column($this->cart->rows(), 'product_id');
+        $locale = app()->getLocale();
+
+        return $this->catalog->giftSuggestions($product, 8)
+            ->reject(function (Product $item) use ($inCart) {
+                return in_array($item->id, $inCart, true);
+            })
+            ->take(6)
+            ->map(function (Product $item) use ($locale) {
+                return [
+                    'id'         => $item->id,
+                    'name'       => (string) $item->name,
+                    'image'      => $item->primaryImageUrl(),
+                    'price'      => $item->priceLabel(),
+                    'url'        => route('product.show', [$locale, $item->slug]),
+                    'has_variants' => (bool) $item->has_variants,
+                ];
+            })
+            ->values()
+            ->all();
     }
 }

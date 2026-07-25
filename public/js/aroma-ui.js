@@ -24,20 +24,25 @@
         });
     }
 
-    function updateCartCount(count) {
-        document.querySelectorAll('.js-cart-count').forEach(function (el) {
+    function bumpCount(selector, count) {
+        document.querySelectorAll(selector).forEach(function (el) {
             el.textContent = count;
             el.classList.toggle('d-none', !count);
             el.classList.remove('is-bumped');
-            // reflow so the animation restarts on every add
+            // reflow so the animation restarts on every change
             void el.offsetWidth;
             el.classList.add('is-bumped');
         });
     }
 
+    function updateCartCount(count) { bumpCount('.js-cart-count', count); }
+    function updateWishlistCount(count) { bumpCount('.js-wishlist-count', count); }
+
     var toastContainer;
 
-    function showToast(message, type) {
+    // action: {url,label} to show a link · null to suppress · undefined for the
+    // default "view cart" link (used by add-to-cart).
+    function showToast(message, type, action) {
         if (!toastContainer) {
             toastContainer = document.createElement('div');
             toastContainer.className = 'aroma-toast-container';
@@ -58,14 +63,17 @@
         toast.appendChild(icon);
         toast.appendChild(text);
 
-        var cartUrl = document.body.getAttribute('data-cart-url');
-        var cartLabel = document.body.getAttribute('data-cart-label');
-        if (!isError && cartUrl) {
-            var link = document.createElement('a');
-            link.className = 'aroma-toast-link';
-            link.href = cartUrl;
-            link.textContent = cartLabel || 'Cart';
-            toast.appendChild(link);
+        var link = action;
+        if (typeof link === 'undefined' && !isError) {
+            var cartUrl = document.body.getAttribute('data-cart-url');
+            if (cartUrl) { link = { url: cartUrl, label: document.body.getAttribute('data-cart-label') || 'Cart' }; }
+        }
+        if (link && link.url) {
+            var a = document.createElement('a');
+            a.className = 'aroma-toast-link';
+            a.href = link.url;
+            a.textContent = link.label || '';
+            toast.appendChild(a);
         }
 
         toastContainer.appendChild(toast);
@@ -78,10 +86,41 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // 1) Loading state for regular navigating forms.
-        document.querySelectorAll('form:not(.js-add-to-cart)').forEach(function (form) {
+        // 1) Loading state for regular navigating forms (not the live ones).
+        document.querySelectorAll('form:not(.js-add-to-cart):not(.js-wishlist)').forEach(function (form) {
             form.addEventListener('submit', function () {
                 brandSubmitButtons(form).forEach(function (btn) { btn.classList.add('is-loading'); });
+            });
+        });
+
+        // 1c) Live wishlist toggle — flip the heart + header count, no reload.
+        document.querySelectorAll('form.js-wishlist').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var btn = form.querySelector('button');
+                if (btn) { btn.disabled = true; }
+
+                window.AromaHttp.post(form.action, new FormData(form))
+                    .then(function (data) {
+                        if (btn) {
+                            btn.classList.toggle('is-active', !!data.active);
+                            btn.setAttribute('aria-pressed', data.active ? 'true' : 'false');
+                            var icon = btn.querySelector('i.bi');
+                            if (icon) {
+                                icon.classList.toggle('bi-heart-fill', !!data.active);
+                                icon.classList.toggle('bi-heart', !data.active);
+                            }
+                        }
+                        if (typeof data.count !== 'undefined') { updateWishlistCount(data.count); }
+
+                        var wl = document.body.getAttribute('data-wishlist-url');
+                        showToast(data.message || '', 'success',
+                            wl ? { url: wl, label: document.body.getAttribute('data-wishlist-label') } : null);
+                    })
+                    .catch(function () {
+                        showToast(document.body.getAttribute('data-cart-error') || 'Something went wrong.', 'danger', null);
+                    })
+                    .finally(function () { if (btn) { btn.disabled = false; } });
             });
         });
 
@@ -95,17 +134,10 @@
 
                 var body = new FormData();
                 body.append('_method', 'PATCH');
-                body.append('_token', csrf);
                 body.append('qty', qty);
 
                 input.disabled = true;
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                    body: body,
-                    credentials: 'same-origin'
-                })
-                    .then(function (r) { return r.json(); })
+                window.AromaHttp.post(url, body)
                     .then(function (data) {
                         if (typeof data.count !== 'undefined') { updateCartCount(data.count); }
                         var row = input.closest('[data-row]');
@@ -131,20 +163,17 @@
                 var buttons = brandSubmitButtons(form);
                 buttons.forEach(function (btn) { btn.classList.add('is-loading'); });
 
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-                    body: new FormData(form),
-                    credentials: 'same-origin'
-                })
-                    .then(function (res) {
-                        return res.json().then(function (data) {
-                            return res.ok ? data : Promise.reject(data);
-                        });
-                    })
+                window.AromaHttp.post(form.action, new FormData(form))
                     .then(function (data) {
                         if (typeof data.count !== 'undefined') { updateCartCount(data.count); }
-                        showToast(data.message || (document.body.getAttribute('data-cart-label') || 'Added'), 'success');
+
+                        // Prefer the confirmation modal (with gift suggestions);
+                        // fall back to the toast if it isn't on the page.
+                        if (window.AromaCartModal && data.item) {
+                            window.AromaCartModal.open(data);
+                        } else {
+                            showToast(data.message || (document.body.getAttribute('data-cart-label') || 'Added'), 'success');
+                        }
                     })
                     .catch(function (err) {
                         var msg = (err && err.errors && Object.values(err.errors)[0] && Object.values(err.errors)[0][0]) ||

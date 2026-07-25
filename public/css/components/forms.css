@@ -8,14 +8,13 @@
   border-radius: var(--aroma-radius-sm);
   padding: 0.65rem 1rem;
   min-height: 3rem;
-  font-family: var(--aroma-body-en);
+  /* Latin-first stack (see --aroma-input-font in aroma.css): the Arabic display
+     face garbles typed symbols like + < > = & — Arabic characters still fall
+     through to it per-glyph, so Arabic input looks unchanged. */
+  font-family: var(--aroma-input-font);
   color: var(--aroma-ink);
   background-color: #fff;
   transition: border-color var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
-}
-html[lang="ar"] .form-control,
-html[lang="ar"] .form-select {
-  font-family: var(--aroma-body-ar);
 }
 
 .form-control:focus,

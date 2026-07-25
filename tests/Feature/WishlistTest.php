@@ -30,6 +30,23 @@ class WishlistTest extends TestCase
         $this->assertDatabaseMissing('wishlists', ['user_id' => $user->id, 'product_id' => $product->id]);
     }
 
+    public function test_ajax_toggle_returns_json_without_reloading(): void
+    {
+        $user    = User::factory()->create();
+        $product = Product::factory()->create();
+
+        // Add → active true, count 1
+        $this->actingAs($user)->postJson(route('wishlist.toggle', $product->slug))
+            ->assertOk()
+            ->assertJson(['active' => true, 'count' => 1])
+            ->assertJsonStructure(['active', 'count', 'message']);
+
+        // Remove → active false, count 0
+        $this->actingAs($user)->postJson(route('wishlist.toggle', $product->slug))
+            ->assertOk()
+            ->assertJson(['active' => false, 'count' => 0]);
+    }
+
     public function test_wishlist_index_lists_saved_products(): void
     {
         $user    = User::factory()->create();

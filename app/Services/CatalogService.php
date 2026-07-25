@@ -75,4 +75,10 @@ class CatalogService extends BaseService
     {
         return $this->products->findActiveBySlug($slug);
     }
+
+    /** Gift add-ons offered in the add-to-cart modal ("make your gift perfect"). */
+    public function giftSuggestions(Product $product, int $limit = 6): Collection
+    {
+        return $this->products->giftSuggestions($product, $limit);
+    }
 }

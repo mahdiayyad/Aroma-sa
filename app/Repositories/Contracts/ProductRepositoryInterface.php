@@ -19,6 +19,13 @@ interface ProductRepositoryInterface extends RepositoryInterface
     public function findActiveBySlug(string $slug): ?Product;
 
     /**
+     * Gift add-ons to offer alongside a product ("make your gift perfect"):
+     * in-stock, gift-eligible items from the same category first, topped up
+     * with featured products so the strip is never empty.
+     */
+    public function giftSuggestions(Product $product, int $limit = 6): Collection;
+
+    /**
      * Paginate active products in a category, honouring optional filters:
      *   brand (slug), price_min, price_max, sort (newest|price_asc|price_desc).
      *

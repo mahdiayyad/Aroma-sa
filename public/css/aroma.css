@@ -122,6 +122,12 @@
   --aroma-heading-ar: "AligarhArabic", "El Messiri", "Amiri", "Traditional Arabic", serif;
   --aroma-body-ar: "AligarhArabic", "IBM Plex Sans Arabic", "Tahoma", sans-serif;
 
+  /* Fields the shopper types into. Inter leads because it covers ASCII symbols
+     (+ < > = / \ etc.) cleanly and contains NO Arabic — so Arabic characters
+     fall through, per-glyph, to AligarhArabic right after it. Inheriting the
+     Arabic display face directly renders those symbols as odd/garbled shapes. */
+  --aroma-input-font: "Inter", "AligarhArabic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
   /* Map Bootstrap theme colour to the Aroma brown */
   --bs-primary: #704f2f;
   --bs-primary-rgb: 112, 79, 47;
@@ -898,29 +904,6 @@ a:hover {
   }
 }
 
-/* --- Packaging section (product page, Item 11) ----------------------------- */
-.aroma-packaging-item {
-  margin: 0;
-  background: #fff;
-  border: 1px solid rgba(112, 79, 47, 0.08);
-  border-radius: var(--aroma-radius);
-  overflow: hidden;
-  box-shadow: var(--aroma-shadow-sm, 0 2px 10px rgba(112, 79, 47, 0.08));
-  height: 100%;
-}
-.aroma-packaging-item img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
-.aroma-packaging-item figcaption {
-  padding: 0.85rem 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--aroma-brown);
-  font-weight: 600;
-}
 
 /* --- Header logotype (official transparent asset) --------------------------- */
 .aroma-logo-img {
@@ -932,4 +915,28 @@ a:hover {
 }
 @media (max-width: 991.98px) {
   .aroma-logo-img { height: 32px; }
+}
+
+/* --- Typed input --------------------------------------------------------------
+   Form controls use a Latin-first stack so symbols the shopper types (+ < > = &
+   / \ | ~ ^ *) render correctly. The Arabic brand face sits next in the stack,
+   so Arabic text still uses it via the browser's per-glyph fallback. */
+input,
+textarea,
+select,
+.form-control,
+.form-select,
+.admin-input,
+.admin-select,
+.aroma-chat-form textarea {
+  font-family: var(--aroma-input-font);
+}
+/* Same treatment for values that are essentially data rather than prose:
+   prices, quantities, SKUs, order numbers and tracking codes. */
+.aroma-price,
+.aroma-price-compare,
+.aroma-suggest-price,
+.aroma-suggest-qty,
+.aroma-added-price {
+  font-family: var(--aroma-input-font);
 }

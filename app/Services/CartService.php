@@ -24,7 +24,8 @@ class CartService
         return session(self::SESSION_KEY, []);
     }
 
-    public function add(int $productId, ?int $variantId = null, int $qty = 1): void
+    /** @return string the cart row id, so callers can address the line afterwards */
+    public function add(int $productId, ?int $variantId = null, int $qty = 1): string
     {
         $qty = max(1, $qty);
 
@@ -61,6 +62,8 @@ class CartService
         ];
 
         $this->persist($cart);
+
+        return $rowId;
     }
 
     public function update(string $rowId, int $qty): void

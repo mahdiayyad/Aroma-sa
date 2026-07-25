@@ -13,6 +13,16 @@
         ->values();
 
     $assistantProduct = (isset($product) && $product instanceof \App\Models\Product) ? (string) $product->name : '';
+
+    // Quick-action deep links. Customer-service / returns prefer WhatsApp, then
+    // fall back to email, so the actions are always useful.
+    $contactEmail = (string) config('aroma.contact.email');
+    $shopUrl      = route('home', app()->getLocale());
+    $serviceUrl   = $waUrl ?: ($contactEmail ? 'mailto:'.$contactEmail : null);
+    $returnsUrl   = $hasWhatsApp
+        ? 'https://wa.me/'.$waDigits.'?text='.rawurlencode(__('assistant.menu.returns_prefill'))
+        : ($contactEmail ? 'mailto:'.$contactEmail.'?subject='.rawurlencode(__('assistant.menu.returns')) : null);
+    $rtlChat = ($direction ?? 'ltr') === 'rtl';
 @endphp
 
 <div class="aroma-assistant" id="aromaAssistant"
@@ -65,6 +75,33 @@
             <div class="aroma-msg aroma-msg-bot aroma-chat-greeting">
                 <p class="aroma-chat-greet-title">{{ __('assistant.title') }}</p>
                 <p id="aromaChatIntro" class="mb-0">{{ __('assistant.intro') }}</p>
+            </div>
+
+            {{-- Quick actions: deep links (not AI turns). Preserved on reset. --}}
+            <div class="aroma-quick-actions" role="group" aria-label="{{ __('assistant.menu.title') }}">
+                @php($chev = 'bi-chevron-'.($rtlChat ? 'left' : 'right'))
+
+                <a class="aroma-quick-action" href="{{ $shopUrl }}">
+                    <span class="aroma-qa-icon"><i class="bi bi-bag" aria-hidden="true"></i></span>
+                    <span class="aroma-qa-text"><strong>{{ __('assistant.menu.products') }}</strong><span>{{ __('assistant.menu.products_desc') }}</span></span>
+                    <i class="bi {{ $chev }} aroma-qa-chev" aria-hidden="true"></i>
+                </a>
+
+                @if ($serviceUrl)
+                    <a class="aroma-quick-action" href="{{ $serviceUrl }}" @if($hasWhatsApp) target="_blank" rel="noopener" @endif>
+                        <span class="aroma-qa-icon aroma-qa-icon-wa"><i class="bi bi-whatsapp" aria-hidden="true"></i></span>
+                        <span class="aroma-qa-text"><strong>{{ __('assistant.menu.service') }}</strong><span>{{ __('assistant.menu.service_desc') }}</span></span>
+                        <i class="bi {{ $chev }} aroma-qa-chev" aria-hidden="true"></i>
+                    </a>
+                @endif
+
+                @if ($returnsUrl)
+                    <a class="aroma-quick-action" href="{{ $returnsUrl }}" @if($hasWhatsApp) target="_blank" rel="noopener" @endif>
+                        <span class="aroma-qa-icon"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></span>
+                        <span class="aroma-qa-text"><strong>{{ __('assistant.menu.returns') }}</strong><span>{{ __('assistant.menu.returns_desc') }}</span></span>
+                        <i class="bi {{ $chev }} aroma-qa-chev" aria-hidden="true"></i>
+                    </a>
+                @endif
             </div>
 
             @foreach ($assistantHistory as $turn)

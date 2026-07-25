@@ -8,7 +8,7 @@
 
         {{-- Wishlist toggle --}}
         @auth
-            <form method="post" action="{{ route('wishlist.toggle', $product->slug) }}">
+            <form method="post" action="{{ route('wishlist.toggle', $product->slug) }}" class="js-wishlist">
                 @csrf
                 <button type="submit" class="aroma-wishlist-btn {{ $isWishlisted ? 'is-active' : '' }}"
                         title="{{ __('storefront.nav.wishlist') }}" aria-label="{{ __('storefront.nav.wishlist') }}">

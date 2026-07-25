@@ -66,7 +66,7 @@
                     </div>
                     <a href="{{ route('wishlist.index') }}" class="aroma-icon-link" title="{{ __('storefront.nav.wishlist') }}">
                         <i class="bi bi-heart fs-5"></i>
-                        @if (count($wishlistIds ?? []) > 0)<span class="aroma-badge">{{ count($wishlistIds) }}</span>@endif
+                        <span class="aroma-badge js-wishlist-count {{ count($wishlistIds ?? []) > 0 ? '' : 'd-none' }}">{{ count($wishlistIds ?? []) }}</span>
                     </a>
                 @else
                     <a href="{{ route('login') }}" class="aroma-icon-link" title="{{ __('storefront.nav.account') }}">

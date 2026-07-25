@@ -8,8 +8,12 @@ use Closure;
 use Illuminate\Http\Request;
 
 /**
- * Staff/admin accounts run the store — they must not shop or check out with it.
- * Applied to the cart + checkout flows; sends admins back to the back-office.
+ * Staff/admin accounts run the store — they don't browse or shop it. Applied to
+ * the whole web group, so an authenticated admin who lands on any storefront
+ * page is returned to the back-office.
+ *
+ * A short allowlist keeps the essentials reachable: the admin area itself,
+ * signing out, switching language, and the CSRF token endpoint.
  */
 class BlockAdminShopping
 {
@@ -17,7 +21,7 @@ class BlockAdminShopping
     {
         $user = $request->user();
 
-        if ($user && $user->isAdmin()) {
+        if ($user && $user->isAdmin() && ! $this->isAllowed($request)) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => __('storefront.admin_no_shop')], 403);
             }
@@ -26,5 +30,14 @@ class BlockAdminShopping
         }
 
         return $next($request);
+    }
+
+    /** Routes an admin may still use outside the back-office. */
+    private function isAllowed(Request $request): bool
+    {
+        return $request->is('admin', 'admin/*')
+            || $request->is('logout')
+            || $request->is('locale/*')
+            || $request->is('csrf-token');
     }
 }

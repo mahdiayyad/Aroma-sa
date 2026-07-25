@@ -59,6 +59,33 @@ class CatalogTest extends TestCase
             ->assertSee('Add to cart');
     }
 
+    public function test_the_product_page_shows_the_payment_methods(): void
+    {
+        config(['services.moyasar.secret_key' => 'sk_test']); // cards live
+        $product = Product::factory()->for(Category::factory())->create(['slug' => 'pay-me']);
+
+        $this->get('/en/product/pay-me')
+            ->assertOk()
+            ->assertSee(__('storefront.payment.title'))
+            ->assertSee(__('checkout.payment_methods.mada'))
+            ->assertSee(__('checkout.payment_methods.applepay'))
+            // BNPL isn't configured, so it is shown but flagged as coming soon.
+            ->assertSee(__('storefront.payment.soon'));
+    }
+
+    public function test_the_gallery_always_includes_the_packaging_and_thank_you_card(): void
+    {
+        // Even a product with no photos of its own shows how it arrives.
+        $product = Product::factory()->for(Category::factory())->create(['slug' => 'no-photos']);
+
+        $this->get('/en/product/no-photos')
+            ->assertOk()
+            ->assertSee('aroma-gallery-thumbs', false)
+            ->assertSee('packaging-gift.jpg', false)
+            ->assertSee('packaging-bags.jpg', false)
+            ->assertSee('thank-you-card.jpg', false);
+    }
+
     public function test_unknown_category_and_product_return_404(): void
     {
         $this->get('/en/category/nope')->assertNotFound();

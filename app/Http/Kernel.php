@@ -39,6 +39,8 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\ShareViewData::class,
+            // Admins/staff belong in the back-office, not the storefront.
+            \App\Http\Middleware\BlockAdminShopping::class,
         ],
 
         'api' => [
