@@ -5,7 +5,7 @@
 @section('content')
 @php($locale = app()->getLocale())
 <div class="container checkout-page my-4 my-lg-5">
-    @include('checkout.partials.stepper', ['step' => 4])
+    @include('checkout.partials.stepper', ['step' => 7])
 
     <div class="row g-4">
         {{-- Order Summary (rail on the right for desktop, on top for mobile) --}}
@@ -52,6 +52,13 @@
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-aroma-muted">{{ __('checkout.tax') }}</span>
                                 <span>@price($totals['tax_amount'])</span>
+                            </div>
+                        @endif
+
+                        @if(($totals['gift_wrap_fee'] ?? 0) > 0)
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-aroma-muted">{{ __('gift.wrap_title') }}</span>
+                                <span>@price($totals['gift_wrap_fee'])</span>
                             </div>
                         @endif
                     </div>

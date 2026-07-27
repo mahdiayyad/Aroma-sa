@@ -14,6 +14,7 @@ return [
         'products'   => 'Products',
         'categories' => 'Categories',
         'brands'     => 'Brands',
+        'gift_cards' => 'Gift Cards',
         'orders'     => 'Orders',
         'customers'  => 'Customers',
     ],
@@ -150,6 +151,23 @@ return [
         'meta_description' => 'Meta description',
     ],
 
+    'gift_cards' => [
+        'title'       => 'Gift Cards',
+        'subtitle'    => 'The greeting-card designs shoppers can attach to a gift',
+        'new'         => 'New design',
+        'edit'        => 'Edit design',
+        'name'        => 'Name',
+        'design'      => 'Card design',
+        'slug'        => 'Slug',
+        'sort_order'  => 'Sort order',
+        'used'        => 'Used',
+        'is_active'   => 'Active',
+        'image_hint'  => 'Shown to shoppers when choosing a card. Recommended: a portrait or square image.',
+        'no_gift_cards' => 'No gift card designs yet.',
+        'saved'       => 'Gift card saved.',
+        'deleted'     => 'Gift card deleted.',
+    ],
+
     'orders' => [
         'title'       => 'Orders',
         'subtitle'    => 'Fulfilment & payments',
@@ -184,6 +202,23 @@ return [
         'method'      => 'Method',
         'gateway'     => 'Gateway',
         'no_payment'  => 'No payment recorded.',
+
+        'gift'              => 'Gift',
+        'not_a_gift'        => 'This order is not a gift.',
+        'anonymous'         => 'Anonymous sender',
+        'gift_card'         => 'Greeting card',
+        'gift_to'           => 'To',
+        'gift_from'         => 'From',
+        'gift_message'      => 'Message',
+        'gift_wrap'         => 'Gift wrapped',
+        'gift_signature'    => 'Signature',
+        'gift_media'        => 'Song / video link',
+
+        'delivery'              => 'Delivery',
+        'delivery_date'         => 'Date',
+        'delivery_slot'         => 'Time slot',
+        'delivery_instructions' => 'Instructions',
+        'no_delivery'           => 'No delivery preference recorded.',
     ],
 
     'customers' => [

@@ -2,15 +2,19 @@
 
 return [
     'title' => 'الدفع',
+    'step_of' => 'الخطوة :n من :total — :label',
     'review' => 'مراجعة الطلب',
     'address' => 'عنوان الشحن',
     'payment' => 'طريقة الدفع',
     'confirmation' => 'تأكيد الطلب',
 
     'steps' => [
-        'review' => 'مراجعة السلة',
+        'review' => 'السلة',
         'account' => 'الحساب',
-        'address' => 'عنوان الشحن',
+        'address' => 'العنوان',
+        'gift' => 'الهدية',
+        'delivery' => 'التوصيل',
+        'order_review' => 'المراجعة',
         'payment' => 'الدفع',
     ],
 
@@ -110,4 +114,14 @@ return [
         'standard' => '3-5 أيام عمل',
     ],
     'saved_addresses' => 'العناوين المحفوظة',
+
+    'order_review' => [
+        'title' => 'مراجعة طلبك',
+        'items_title' => 'العناصر',
+        'delivering_to' => 'التوصيل إلى',
+        'not_a_gift' => 'هذا الطلب ليس هدية.',
+        'anonymous_badge' => 'مجهول',
+        'edit' => 'تعديل',
+        'continue_to_payment' => 'المتابعة إلى الدفع',
+    ],
 ];

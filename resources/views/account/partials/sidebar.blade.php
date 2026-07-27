@@ -14,6 +14,8 @@
            href="{{ route('order.index') }}"><i class="bi bi-receipt me-2"></i>{{ __('account.nav.orders') }}</a>
         <a class="aroma-account-nav-link {{ $active === 'wishlist' ? 'active' : '' }}"
            href="{{ route('wishlist.index') }}"><i class="bi bi-heart me-2"></i>{{ __('account.nav.wishlist') }}</a>
+        <a class="aroma-account-nav-link {{ $active === 'addresses' ? 'active' : '' }}"
+           href="{{ route('account.addresses.index') }}"><i class="bi bi-geo-alt me-2"></i>{{ __('account.nav.addresses') }}</a>
         <a class="aroma-account-nav-link {{ $active === 'profile' ? 'active' : '' }}"
            href="{{ route('account.profile.edit') }}"><i class="bi bi-person-gear me-2"></i>{{ __('account.nav.profile') }}</a>
         <form method="post" action="{{ route('logout') }}" class="mt-2">

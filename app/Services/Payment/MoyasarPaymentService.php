@@ -7,6 +7,7 @@ namespace App\Services\Payment;
 use App\Contracts\PaymentGateway;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\CheckoutService;
 use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -24,6 +25,7 @@ class MoyasarPaymentService implements PaymentGateway
     private string $secretKey;
     private string $webhookSecret;
     private string $baseUrl = 'https://api.moyasar.com/v1';
+    private CheckoutService $checkout;
 
     public function key(): string
     {
@@ -61,11 +63,12 @@ class MoyasarPaymentService implements PaymentGateway
         return ['paid' => $status === 'paid', 'status' => $status, 'raw' => $data];
     }
 
-    public function __construct()
+    public function __construct(CheckoutService $checkout)
     {
         $this->publishableKey = (string) config('services.moyasar.publishable_key', '');
         $this->secretKey = (string) config('services.moyasar.secret_key', '');
         $this->webhookSecret = (string) config('services.moyasar.webhook_secret', '');
+        $this->checkout = $checkout;
     }
 
     /**
@@ -205,23 +208,22 @@ class MoyasarPaymentService implements PaymentGateway
     }
 
     /**
-     * Process successful payment
+     * Process successful payment. Records the webhook-specific transaction
+     * detail here, then routes the "this order is now paid" side effects
+     * (status, OrderPaid event) through CheckoutService::markOrderAsPaid —
+     * the single source of truth also used by the customer-return callback,
+     * so the confirmation email fires exactly once regardless of which path
+     * observes the payment first.
      */
     private function handlePaymentSuccess(Order $order, Payment $payment, array $paymentData): void
     {
         try {
-            // Update payment status
             $payment->update([
-                'status' => Payment::STATUS_CAPTURED,
                 'transaction_id' => $paymentData['id'],
                 'gateway_response' => $paymentData,
             ]);
 
-            // Update order status
-            $order->update(['status' => Order::STATUS_PAID]);
-
-            // Trigger OrderPaid event (for notifications, inventory, etc)
-            event(new \App\Events\OrderPaid($order, $payment));
+            $this->checkout->markOrderAsPaid($order, $payment);
 
             Log::info('Payment processed successfully', [
                 'order_id' => $order->id,

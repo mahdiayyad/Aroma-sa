@@ -1,10 +1,19 @@
 {{-- Checkout progress indicator. Pass the 1-based current step:
-     1 = review, 2 = account, 3 = address, 4 = payment.
+     1 = review, 2 = account, 3 = address, 4 = gift, 5 = delivery,
+     6 = order-review, 7 = payment.
      Uses only the inline @php directive on purpose (see project Blade note). --}}
 @php($current = $step ?? 1)
-@php($checkoutSteps = ['review' => 'bi-bag-check', 'account' => 'bi-person', 'address' => 'bi-geo-alt', 'payment' => 'bi-credit-card'])
+@php($checkoutSteps = [
+    'review'        => 'bi-bag-check',
+    'account'       => 'bi-person',
+    'address'       => 'bi-geo-alt',
+    'gift'          => 'bi-gift',
+    'delivery'      => 'bi-truck',
+    'order_review'  => 'bi-clipboard-check',
+    'payment'       => 'bi-credit-card',
+])
 
-<nav class="checkout-steps" aria-label="{{ __('checkout.review') }}">
+<nav class="checkout-steps" data-count="{{ count($checkoutSteps) }}" aria-label="{{ __('checkout.review') }}">
     @foreach($checkoutSteps as $key => $icon)
         @php($n = $loop->iteration)
         @php($state = $n < $current ? 'is-done' : ($n === $current ? 'is-active' : ''))
@@ -16,3 +25,6 @@
         </div>
     @endforeach
 </nav>
+{{-- Compact fallback shown only on very narrow screens (see the @media rule
+     that hides the labels above) so the current step is never unlabeled. --}}
+<p class="checkout-steps-caption">{{ __('checkout.step_of', ['n' => $current, 'total' => count($checkoutSteps), 'label' => __('checkout.steps.'.array_keys($checkoutSteps)[$current - 1])]) }}</p>

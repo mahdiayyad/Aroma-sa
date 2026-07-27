@@ -25,6 +25,25 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
+        // Gifting + delivery scheduling
+        'is_gift' => 'boolean',
+        'is_anonymous' => 'boolean',
+        'gift_wrap_fee' => 'decimal:2',
+        'delivery_date' => 'date',
+    ];
+
+    /**
+     * Fixed delivery windows for v1 (data capture only — no slot-capacity
+     * logic; fulfilled manually via the admin. See ai-docs checkout analysis).
+     */
+    public const DELIVERY_SLOT_MORNING = 'morning';
+    public const DELIVERY_SLOT_AFTERNOON = 'afternoon';
+    public const DELIVERY_SLOT_EVENING = 'evening';
+
+    public const DELIVERY_SLOTS = [
+        self::DELIVERY_SLOT_MORNING,
+        self::DELIVERY_SLOT_AFTERNOON,
+        self::DELIVERY_SLOT_EVENING,
     ];
 
     public const STATUS_PENDING = 'pending';
@@ -56,6 +75,11 @@ class Order extends Model
     public function payment(): HasMany
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function giftCard(): BelongsTo
+    {
+        return $this->belongsTo(GiftCard::class, 'greeting_card_id');
     }
 
     public function isPaid(): bool

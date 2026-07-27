@@ -36,6 +36,16 @@ class CheckoutServiceTest extends TestCase
         'postal_code'    => '12211',
     ];
 
+    private function order(string $name, string $email, string $phone): Order
+    {
+        return $this->checkout->createOrder(null, [
+            'billing_address' => $this->address,
+            'customer_name' => $name,
+            'customer_email' => $email,
+            'customer_phone' => $phone,
+        ]);
+    }
+
     /* validateCart -------------------------------------------------------- */
 
     public function test_validate_fails_on_an_empty_cart(): void
@@ -98,15 +108,14 @@ class CheckoutServiceTest extends TestCase
         ]);
         $this->cart->add($product->id, null, 2);
 
-        $order = $this->checkout->createOrder(
-            null,
-            $this->address,
-            [],
-            'Sara Al Qahtani',
-            'sara@example.com',
-            '0500000000',
-            'Leave at reception'
-        );
+        $order = $this->checkout->createOrder(null, [
+            'billing_address' => $this->address,
+            'shipping_address' => [],
+            'customer_name' => 'Sara Al Qahtani',
+            'customer_email' => 'sara@example.com',
+            'customer_phone' => '0500000000',
+            'customer_notes' => 'Leave at reception',
+        ]);
 
         $this->assertInstanceOf(Order::class, $order);
         $this->assertSame(Order::STATUS_PENDING, $order->status);
@@ -129,11 +138,11 @@ class CheckoutServiceTest extends TestCase
         $product = Product::factory()->create(['base_price' => 100, 'stock_quantity' => 50]);
 
         $this->cart->add($product->id, null, 1);
-        $first = $this->checkout->createOrder(null, $this->address, [], 'A', 'a@example.com', '0500000000');
+        $first = $this->order('A', 'a@example.com', '0500000000');
 
         $this->cart->clear();
         $this->cart->add($product->id, null, 1);
-        $second = $this->checkout->createOrder(null, $this->address, [], 'B', 'b@example.com', '0500000001');
+        $second = $this->order('B', 'b@example.com', '0500000001');
 
         $year = now()->year;
         $this->assertSame(sprintf('AR-%d-000001', $year), $first->order_number);
@@ -146,7 +155,7 @@ class CheckoutServiceTest extends TestCase
     {
         $product = Product::factory()->create(['base_price' => 100, 'stock_quantity' => 10]);
         $this->cart->add($product->id, null, 1);
-        $order = $this->checkout->createOrder(null, $this->address, [], 'A', 'a@example.com', '0500000000');
+        $order = $this->order('A', 'a@example.com', '0500000000');
 
         $payment = $this->checkout->createPayment($order, 'moyasar', 'mada');
 
@@ -159,7 +168,7 @@ class CheckoutServiceTest extends TestCase
     {
         $product = Product::factory()->create(['base_price' => 100, 'stock_quantity' => 10]);
         $this->cart->add($product->id, null, 1);
-        $order = $this->checkout->createOrder(null, $this->address, [], 'A', 'a@example.com', '0500000000');
+        $order = $this->order('A', 'a@example.com', '0500000000');
         $payment = $this->checkout->createPayment($order, 'moyasar', 'mada');
 
         $this->checkout->markOrderAsPaid($order, $payment);

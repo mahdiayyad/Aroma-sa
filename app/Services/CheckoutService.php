@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Events\OrderPaid;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -83,40 +84,54 @@ class CheckoutService extends BaseService
     }
 
     /**
-     * Create an order from cart and checkout data
+     * Create an order from the cart plus the checkout details gathered across
+     * the address / gift-options / delivery steps. One structured array
+     * rather than a growing positional-parameter list — see ai-docs checkout
+     * refactor analysis, "createOrder() signature growth".
+     *
+     * @param array{
+     *     billing_address: array<string,mixed>,
+     *     shipping_address?: array<string,mixed>,
+     *     customer_name: string,
+     *     customer_email: string,
+     *     customer_phone: string,
+     *     customer_notes?: ?string,
+     *     is_gift?: bool,
+     *     gift_message?: ?string,
+     *     is_anonymous?: bool,
+     *     gift_wrap_fee?: float|string,
+     *     greeting_card_id?: ?int,
+     *     gift_card_to?: ?string,
+     *     gift_card_from?: ?string,
+     *     gift_signature?: ?string,
+     *     gift_media_url?: ?string,
+     *     delivery_date?: ?string,
+     *     delivery_time_slot?: ?string,
+     *     delivery_instructions?: ?string,
+     * } $details
      */
-    public function createOrder(
-        ?User $user,
-        array $billingAddress,
-        array $shippingAddress,
-        string $customerName,
-        string $customerEmail,
-        string $customerPhone,
-        ?string $customerNotes = null
-    ): Order {
-        return DB::transaction(function () use (
-            $user,
-            $billingAddress,
-            $shippingAddress,
-            $customerName,
-            $customerEmail,
-            $customerPhone,
-            $customerNotes
-        ) {
-            // Use shipping as billing if not provided
+    public function createOrder(?User $user, array $details): Order
+    {
+        return DB::transaction(function () use ($user, $details) {
+            $billingAddress = $details['billing_address'] ?? [];
+            $shippingAddress = $details['shipping_address'] ?? [];
+
+            // Use billing as shipping if a distinct one wasn't provided.
             if (empty($shippingAddress)) {
                 $shippingAddress = $billingAddress;
             }
 
+            $giftWrapFee = (float) ($details['gift_wrap_fee'] ?? 0);
             $totals = $this->calculateTotals();
+            $totals['total_amount'] += $giftWrapFee;
 
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
                 'order_number' => $this->generateOrderNumber(),
                 'status' => Order::STATUS_PENDING,
-                'customer_name' => $customerName,
-                'customer_email' => $customerEmail,
-                'customer_phone' => $customerPhone,
+                'customer_name' => $details['customer_name'],
+                'customer_email' => $details['customer_email'],
+                'customer_phone' => $details['customer_phone'],
                 'billing_address' => $billingAddress,
                 'shipping_address' => $shippingAddress,
                 'subtotal' => $totals['subtotal'],
@@ -124,7 +139,25 @@ class CheckoutService extends BaseService
                 'tax_amount' => $totals['tax_amount'],
                 'shipping_cost' => $totals['shipping_cost'],
                 'total_amount' => $totals['total_amount'],
-                'customer_notes' => $customerNotes,
+                'customer_notes' => $details['customer_notes'] ?? null,
+
+                // Gifting (see the "Recipient model" decision in the analysis:
+                // shipping_address above already carries the recipient's name
+                // + phone when is_gift is true — no separate columns for that).
+                'is_gift' => (bool) ($details['is_gift'] ?? false),
+                'gift_message' => $details['gift_message'] ?? null,
+                'is_anonymous' => (bool) ($details['is_anonymous'] ?? false),
+                'gift_wrap_fee' => $giftWrapFee,
+                'greeting_card_id' => $details['greeting_card_id'] ?? null,
+                'gift_card_to' => $details['gift_card_to'] ?? null,
+                'gift_card_from' => $details['gift_card_from'] ?? null,
+                'gift_signature' => $details['gift_signature'] ?? null,
+                'gift_media_url' => $details['gift_media_url'] ?? null,
+
+                // Delivery scheduling — data capture only, see config('aroma.delivery').
+                'delivery_date' => $details['delivery_date'] ?? null,
+                'delivery_time_slot' => $details['delivery_time_slot'] ?? null,
+                'delivery_instructions' => $details['delivery_instructions'] ?? null,
             ]);
 
             // Create order items from cart
@@ -176,15 +209,25 @@ class CheckoutService extends BaseService
     }
 
     /**
-     * Mark order as paid
+     * Mark an order as paid. The single source of truth for the paid
+     * transition — both the customer-return callback (CheckoutController)
+     * and the Moyasar webhook (MoyasarPaymentService) route through here, so
+     * OrderPaid fires exactly once no matter which one lands first.
      */
     public function markOrderAsPaid(Order $order, Payment $payment): void
     {
         DB::transaction(function () use ($order, $payment) {
+            $wasAlreadyPaid = $order->isPaid();
+
             $order->update(['status' => Order::STATUS_PAID]);
             $payment->update(['status' => Payment::STATUS_CAPTURED]);
 
-            // TODO: Trigger OrderPaid event (send confirmation email, etc)
+            // Guard against a double-dispatch race between the webhook and the
+            // callback (both can independently observe "gateway says paid").
+            if (! $wasAlreadyPaid) {
+                event(new OrderPaid($order, $payment));
+            }
+
             // TODO: Deduct stock permanently
         });
     }

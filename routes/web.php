@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\GiftCardController as AdminGiftCardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\AssistantController;
@@ -101,6 +103,16 @@ Route::middleware('auth')->prefix('account')->group(function () {
     Route::get('profile', [ProfileController::class, 'edit'])->name('account.profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('account.profile.update');
     Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+
+    Route::prefix('addresses')->name('account.addresses.')->group(function () {
+        Route::get('/', [AddressController::class, 'index'])->name('index');
+        Route::get('create', [AddressController::class, 'create'])->name('create');
+        Route::post('/', [AddressController::class, 'store'])->name('store');
+        Route::get('{address}/edit', [AddressController::class, 'edit'])->name('edit');
+        Route::put('{address}', [AddressController::class, 'update'])->name('update');
+        Route::delete('{address}', [AddressController::class, 'destroy'])->name('destroy');
+        Route::patch('{address}/default', [AddressController::class, 'setDefault'])->name('default');
+    });
 });
 
 Route::post('wishlist/{product}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.toggle');
@@ -122,6 +134,11 @@ Route::prefix('checkout')->name('checkout.')->middleware('not_admin')->group(fun
     Route::get('register', [CheckoutController::class, 'redirectToRegister'])->name('register');
     Route::get('address', [CheckoutController::class, 'showAddressForm'])->name('address');
     Route::post('address', [CheckoutController::class, 'storeAddress'])->name('address.store');
+    Route::get('gift-options', [CheckoutController::class, 'showGiftOptions'])->name('gift-options');
+    Route::post('gift-options', [CheckoutController::class, 'storeGiftOptions'])->name('gift-options.store');
+    Route::get('delivery', [CheckoutController::class, 'showDelivery'])->name('delivery');
+    Route::post('delivery', [CheckoutController::class, 'storeDelivery'])->name('delivery.store');
+    Route::get('order-review', [CheckoutController::class, 'showOrderReview'])->name('order-review');
     Route::get('payment', [CheckoutController::class, 'showPaymentForm'])->name('payment');
     Route::post('payment', [CheckoutController::class, 'storePayment'])->name('payment.store');
 });
@@ -164,6 +181,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('products', AdminProductController::class);
         Route::resource('categories', AdminCategoryController::class)->except('show');
         Route::resource('brands', AdminBrandController::class)->except('show');
+        Route::resource('gift-cards', AdminGiftCardController::class)->except('show');
 
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');

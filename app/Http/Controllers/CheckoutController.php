@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Checkout\AddressRequest;
+use App\Http\Requests\Checkout\DeliveryRequest;
+use App\Http\Requests\Checkout\GiftOptionsRequest;
 use App\Http\Requests\Checkout\PaymentRequest;
+use App\Models\GiftCard;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
@@ -13,6 +16,8 @@ use App\Services\Payment\PaymentGatewayManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -149,7 +154,197 @@ class CheckoutController extends Controller
 
         // TODO: Save address to user's address book if authenticated
 
-        return redirect()->route('checkout.payment');
+        return redirect()->route('checkout.gift-options');
+    }
+
+    /**
+     * Show the Gift Options step: "is this a gift?", recipient details (when
+     * it is), gift wrap, greeting card + message studio, anonymous sender.
+     *
+     * @return View|RedirectResponse
+     */
+    public function showGiftOptions()
+    {
+        $validation = $this->checkout->validateCart();
+
+        if (!$validation['valid']) {
+            return redirect()->route('cart.index')->with('error', $validation['error']);
+        }
+
+        if (!session()->has('checkout.billing_address')) {
+            return redirect()->route('checkout.address');
+        }
+
+        $gift = session('checkout.gift', []);
+
+        return view('checkout.gift-options', [
+            'giftCards' => GiftCard::active()->orderBy('sort_order')->get(),
+            'gift'      => $gift,
+            // The recipient fields live in checkout.shipping_address (see the
+            // "Recipient model" decision) — only meaningful to repopulate when
+            // the previous visit here actually set is_gift.
+            'recipient' => ($gift['is_gift'] ?? false) ? session('checkout.shipping_address', []) : [],
+            'wrapFee'   => (float) config('aroma.gifting.wrap_fee', 0),
+            'maxChars'  => (int) config('aroma.gifting.message_max_chars', 200),
+            'maxLines'  => (int) config('aroma.gifting.message_max_lines', 5),
+            'suggestionCategories' => __('gift.suggestion_categories'),
+        ]);
+    }
+
+    /**
+     * Save the Gift Options step and proceed to Delivery Scheduling.
+     */
+    public function storeGiftOptions(GiftOptionsRequest $request): RedirectResponse
+    {
+        $validation = $this->checkout->validateCart();
+
+        if (!$validation['valid']) {
+            return redirect()->route('cart.index')->with('error', $validation['error']);
+        }
+
+        $data = $request->validated();
+        $isGift = (bool) ($data['is_gift'] ?? false);
+        $isAnonymous = $isGift && (bool) ($data['is_anonymous'] ?? false);
+
+        if ($isGift) {
+            // The recipient's own address IS checkout.shipping_address — see
+            // the "Recipient model" decision in the checkout refactor analysis.
+            session(['checkout.shipping_address' => $data['recipient']]);
+        }
+
+        // An anonymous sender never has their name or signature attached,
+        // regardless of what was submitted — enforced here, not just in the UI.
+        // A resubmit (e.g. after a validation error elsewhere on this page)
+        // won't carry new signature data if the shopper didn't redraw it, so
+        // fall back to whatever was already saved in the session rather than
+        // silently discarding it.
+        $signaturePath = null;
+        if ($isGift && !$isAnonymous) {
+            if (!empty($data['gift_signature_data'])) {
+                $signaturePath = $this->storeSignature($data['gift_signature_data']);
+            } else {
+                $signaturePath = session('checkout.gift.signature');
+            }
+        }
+
+        session(['checkout.gift' => [
+            'is_gift'      => $isGift,
+            'message'      => $isGift ? ($data['gift_message'] ?? null) : null,
+            'is_anonymous' => $isAnonymous,
+            'wrap_fee'     => $isGift && ($data['gift_wrap'] ?? false) ? (float) config('aroma.gifting.wrap_fee', 0) : 0,
+            'card_id'      => $isGift ? ($data['greeting_card_id'] ?? null) : null,
+            'to'           => $isGift ? ($data['gift_to'] ?? null) : null,
+            'from'         => $isGift && !$isAnonymous ? ($data['gift_from'] ?? null) : null,
+            'signature'    => $signaturePath,
+            'media_url'    => $isGift ? ($data['gift_media_url'] ?? null) : null,
+        ]]);
+
+        return redirect()->route('checkout.delivery');
+    }
+
+    /** Decode the signature pad's base64 PNG and store it on the public disk. */
+    private function storeSignature(string $dataUri): string
+    {
+        $encoded = substr($dataUri, strpos($dataUri, ',') + 1);
+        $path = 'gift-signatures/'.Str::random(32).'.png';
+
+        Storage::disk('public')->put($path, base64_decode($encoded));
+
+        return $path;
+    }
+
+    /**
+     * Show the Delivery Scheduling step: date + time slot + instructions.
+     * UI + data capture only — an admin fulfils orders manually, there is no
+     * carrier/slot-capacity integration (see the "Delivery scheduling"
+     * decision in the checkout refactor analysis).
+     *
+     * @return View|RedirectResponse
+     */
+    public function showDelivery()
+    {
+        $validation = $this->checkout->validateCart();
+
+        if (!$validation['valid']) {
+            return redirect()->route('cart.index')->with('error', $validation['error']);
+        }
+
+        if (!session()->has('checkout.billing_address')) {
+            return redirect()->route('checkout.address');
+        }
+
+        return view('checkout.delivery', [
+            'delivery' => session('checkout.delivery', []),
+            'minDate'  => now()->addDays((int) config('aroma.delivery.min_lead_days', 1))->toDateString(),
+            'maxDate'  => now()->addDays((int) config('aroma.delivery.max_lead_days', 30))->toDateString(),
+        ]);
+    }
+
+    /**
+     * Save the Delivery Scheduling step and proceed to the Order Review.
+     */
+    public function storeDelivery(DeliveryRequest $request): RedirectResponse
+    {
+        $validation = $this->checkout->validateCart();
+
+        if (!$validation['valid']) {
+            return redirect()->route('cart.index')->with('error', $validation['error']);
+        }
+
+        $data = $request->validated();
+
+        session(['checkout.delivery' => [
+            'date'         => $data['delivery_date'],
+            'time_slot'    => $data['delivery_time_slot'],
+            'instructions' => $data['delivery_instructions'] ?? null,
+        ]]);
+
+        return redirect()->route('checkout.order-review');
+    }
+
+    /**
+     * Show the consolidated Order Review: items, recipient, gift summary,
+     * delivery schedule and totals, each with an Edit link back to its step.
+     *
+     * @return View|RedirectResponse
+     */
+    public function showOrderReview()
+    {
+        $validation = $this->checkout->validateCart();
+
+        if (!$validation['valid']) {
+            return redirect()->route('cart.index')->with('error', $validation['error']);
+        }
+
+        if (!session()->has('checkout.billing_address')) {
+            return redirect()->route('checkout.address');
+        }
+
+        $gift = session('checkout.gift', []);
+
+        return view('checkout.order-review', [
+            'totals'   => $this->totalsWithGiftWrap(),
+            'shipping' => session('checkout.shipping_address', []),
+            'gift'     => $gift,
+            'giftCard' => !empty($gift['card_id']) ? GiftCard::find($gift['card_id']) : null,
+            'delivery' => session('checkout.delivery', []),
+        ]);
+    }
+
+    /**
+     * calculateTotals() is cart-only math; the gift wrap fee lives in the
+     * checkout session (set in storeGiftOptions()), so it's layered on here
+     * for display — the same way createOrder() layers it on when charging.
+     * Keeps the Order Review / Payment totals from ever understating what
+     * the customer is actually about to pay.
+     */
+    private function totalsWithGiftWrap(): array
+    {
+        $totals = $this->checkout->calculateTotals();
+        $totals['gift_wrap_fee'] = (float) session('checkout.gift.wrap_fee', 0);
+        $totals['total_amount'] += $totals['gift_wrap_fee'];
+
+        return $totals;
     }
 
     /**
@@ -169,7 +364,7 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.address');
         }
 
-        $totals = $this->checkout->calculateTotals();
+        $totals = $this->totalsWithGiftWrap();
 
         return view('checkout.payment', [
             'totals' => $totals,
@@ -199,20 +394,36 @@ class CheckoutController extends Controller
 
         try {
             $order = DB::transaction(function () use ($data, $user, $billing, $gatewayKey) {
-                $order = $this->checkout->createOrder(
-                    $user,
-                    $billing,
-                    session('checkout.shipping_address'),
-                    $user ? $user->name : ($billing['recipient_name'] ?? 'Guest'),
-                    $user ? $user->email : ($billing['email'] ?? 'noemail@aroma.sa'),
-                    $billing['phone'] ?? '',
-                    session('checkout.customer_notes')
-                );
+                $order = $this->checkout->createOrder($user, [
+                    'billing_address'  => $billing,
+                    'shipping_address' => session('checkout.shipping_address'),
+                    'customer_name'    => $user ? $user->name : ($billing['recipient_name'] ?? 'Guest'),
+                    'customer_email'   => $user ? $user->email : ($billing['email'] ?? 'noemail@aroma.sa'),
+                    'customer_phone'   => $billing['phone'] ?? '',
+                    'customer_notes'   => session('checkout.customer_notes'),
+
+                    'is_gift'               => session('checkout.gift.is_gift', false),
+                    'gift_message'          => session('checkout.gift.message'),
+                    'is_anonymous'          => session('checkout.gift.is_anonymous', false),
+                    'gift_wrap_fee'         => session('checkout.gift.wrap_fee', 0),
+                    'greeting_card_id'      => session('checkout.gift.card_id'),
+                    'gift_card_to'          => session('checkout.gift.to'),
+                    'gift_card_from'        => session('checkout.gift.from'),
+                    'gift_signature'        => session('checkout.gift.signature'),
+                    'gift_media_url'        => session('checkout.gift.media_url'),
+
+                    'delivery_date'         => session('checkout.delivery.date'),
+                    'delivery_time_slot'    => session('checkout.delivery.time_slot'),
+                    'delivery_instructions' => session('checkout.delivery.instructions'),
+                ]);
 
                 $this->checkout->createPayment($order, $gatewayKey, $data['method']);
 
                 $this->cart->clear();
-                session()->forget(['checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes']);
+                session()->forget([
+                    'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
+                    'checkout.gift', 'checkout.delivery',
+                ]);
 
                 return $order;
             });

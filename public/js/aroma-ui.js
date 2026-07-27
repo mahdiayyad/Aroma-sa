@@ -86,6 +86,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        // 0) Confirm destructive actions: <form data-confirm="Delete this?">
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (!window.confirm(form.getAttribute('data-confirm'))) { e.preventDefault(); }
+            });
+        });
+
         // 1) Loading state for regular navigating forms (not the live ones).
         document.querySelectorAll('form:not(.js-add-to-cart):not(.js-wishlist)').forEach(function (form) {
             form.addEventListener('submit', function () {

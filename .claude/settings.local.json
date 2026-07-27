@@ -9,7 +9,9 @@
       "Bash(curl -s \"http://127.0.0.1:8125/ar/category/perfumes\" -o /tmp/car.html -w \"http=%{http_code}\\\\n\")",
       "Bash(curl -s -o /dev/null -w \"http=%{http_code}\\\\n\" \"http://127.0.0.1:8125/en/category/nope\")",
       "Bash(pkill -f \"artisan serve\")",
-      "Bash(cd \"c:/Users/Administrator/Desktop/Project/aroma-sa\" *)"
+      "Bash(cd \"c:/Users/Administrator/Desktop/Project/aroma-sa\" *)",
+      "Bash(php -l tests/Feature/Admin/AdminGiftCardTest.php)",
+      "Bash(php -l tests/Feature/Account/AddressTest.php)"
     ]
   }
 }

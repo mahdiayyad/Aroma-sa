@@ -38,7 +38,7 @@ class CheckoutTest extends TestCase
         $this->seedCart();
 
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling])
-            ->assertRedirect(route('checkout.payment'))
+            ->assertRedirect(route('checkout.gift-options'))
             ->assertSessionHasNoErrors();
 
         $this->assertSame(session('checkout.billing_address'), session('checkout.shipping_address'));

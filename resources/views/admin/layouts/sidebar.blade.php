@@ -3,6 +3,7 @@
     ['route' => 'admin.products.index', 'match' => 'admin.products.*', 'icon' => 'bi-box-seam',    'label' => __('admin.nav.products')],
     ['route' => 'admin.categories.index','match' => 'admin.categories.*','icon' => 'bi-diagram-3', 'label' => __('admin.nav.categories')],
     ['route' => 'admin.brands.index',   'match' => 'admin.brands.*',   'icon' => 'bi-award',       'label' => __('admin.nav.brands')],
+    ['route' => 'admin.gift-cards.index','match' => 'admin.gift-cards.*','icon' => 'bi-postcard', 'label' => __('admin.nav.gift_cards')],
     ['route' => 'admin.orders.index',   'match' => 'admin.orders.*',   'icon' => 'bi-receipt',     'label' => __('admin.nav.orders')],
     ['route' => 'admin.customers.index','match' => 'admin.customers.*','icon' => 'bi-people',      'label' => __('admin.nav.customers')],
 ])

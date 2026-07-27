@@ -86,6 +86,27 @@ return [
     ],
 
     /*
+    | Gifting (checkout Gift Options step) -------------------------------------
+    */
+    'gifting' => [
+        'wrap_fee'          => (float) env('AROMA_GIFT_WRAP_FEE', 15.00),
+        'message_max_chars' => 200,
+        'message_max_lines' => 5,
+    ],
+
+    /*
+    | Delivery scheduling (checkout) ------------------------------------------
+    | Data capture only for v1 — no carrier/slot-capacity logic yet (Aramex
+    | integration is a separate, later project). The shopper picks a date at
+    | least `min_lead_days` out and one of the fixed time windows below; staff
+    | fulfil manually via the admin order view.
+    */
+    'delivery' => [
+        'min_lead_days'  => (int) env('AROMA_DELIVERY_MIN_LEAD_DAYS', 1),
+        'max_lead_days'  => (int) env('AROMA_DELIVERY_MAX_LEAD_DAYS', 30),
+    ],
+
+    /*
     | Contact / footer -------------------------------------------------------
     */
     'contact' => [

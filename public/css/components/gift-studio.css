@@ -1,0 +1,165 @@
+/* ============================================================================
+   Gift Studio — checkout "Gift Options" step
+   Is-it-a-gift toggle, greeting card picker, signature pad, and the live
+   card preview rail. Loaded only on checkout.gift-options (see @push('head')
+   in resources/views/checkout/gift-options.blade.php).
+   ========================================================================== */
+
+/* --- Is this a gift? toggle -------------------------------------------- */
+.aroma-gift-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+.aroma-gift-toggle-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 1.25rem 1rem;
+  border: 1.5px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm, 0.5rem);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--aroma-ink);
+  text-align: center;
+  transition: border-color var(--aroma-transition-fast, 0.15s ease),
+              box-shadow var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-gift-toggle-option i { font-size: 1.6rem; color: var(--aroma-brown); }
+.aroma-gift-toggle-option:hover { border-color: var(--aroma-light-brown); }
+.btn-check:checked + .aroma-gift-toggle-option {
+  border-color: var(--aroma-brown);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
+}
+.btn-check:focus-visible + .aroma-gift-toggle-option {
+  border-color: var(--aroma-brown);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+}
+
+/* --- Greeting card picker ------------------------------------------------ */
+.aroma-gift-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 0.75rem;
+}
+.aroma-gift-card-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.5rem;
+  border: 1.5px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm, 0.5rem);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color var(--aroma-transition-fast, 0.15s ease),
+              box-shadow var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-gift-card-option img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 0.35rem;
+  background: var(--aroma-skin);
+}
+.aroma-gift-card-option span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--aroma-ink);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.aroma-gift-card-none {
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+.aroma-gift-card-none i { font-size: 1.6rem; color: var(--aroma-muted); margin-top: 1rem; }
+.aroma-gift-card-option:hover { border-color: var(--aroma-light-brown); }
+.btn-check:checked + .aroma-gift-card-option {
+  border-color: var(--aroma-brown);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
+}
+
+/* --- Message counters ----------------------------------------------------- */
+.aroma-gift-counters { white-space: nowrap; }
+.aroma-gift-counters.is-limit { color: var(--aroma-danger); font-weight: 600; }
+
+/* --- Signature ------------------------------------------------------------- */
+.aroma-signature-canvas {
+  width: 100%;
+  aspect-ratio: 500 / 220;
+  border: 1.5px dashed var(--aroma-border-strong);
+  border-radius: var(--aroma-radius-sm, 0.5rem);
+  background: #fff;
+  touch-action: none;
+  cursor: crosshair;
+}
+.aroma-signature-thumb {
+  display: block;
+  height: 2.5rem;
+  margin-top: 0.6rem;
+  border: 1px solid var(--aroma-border);
+  border-radius: 0.35rem;
+  background: #fff;
+}
+
+/* --- Message suggestions --------------------------------------------------- */
+.aroma-suggestion-item {
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+/* --- Live preview rail ------------------------------------------------------ */
+.aroma-gift-preview-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--aroma-radius-sm, 0.5rem);
+  background: var(--aroma-skin);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.aroma-gift-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.aroma-gift-preview-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--aroma-muted);
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 1rem;
+}
+.aroma-gift-preview-empty i { font-size: 1.8rem; }
+.aroma-gift-preview-to,
+.aroma-gift-preview-from {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--aroma-muted);
+}
+.aroma-gift-preview-message {
+  font-family: var(--aroma-script, "Tangerine", cursive);
+  font-size: 1.6rem;
+  line-height: 1.3;
+  color: var(--aroma-ink);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+.aroma-gift-preview-signature {
+  display: block;
+  max-height: 2.75rem;
+  margin-top: 0.5rem;
+}

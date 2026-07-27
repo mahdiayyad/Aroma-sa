@@ -55,7 +55,7 @@
                             <div>{{ $addr['recipient_name'] ?? '' }}</div>
                             <div>{{ $addr['street_address'] ?? '' }}</div>
                             <div>{{ ($addr['city'] ?? '') }}, {{ $addr['region'] ?? '' }} {{ $addr['postal_code'] ?? '' }}</div>
-                            <div>{{ $order->customer_phone }}</div>
+                            <div>{{ $addr['phone'] ?? $order->customer_phone }}</div>
                         </div>
                     </x-admin.card>
                 </div>
@@ -68,6 +68,54 @@
                             <div class="d-flex justify-content-between align-items-center"><span class="admin-cell-sub">{{ __('admin.common.status') }}</span><x-admin.badge :status="$payment->status" :label="ucfirst($payment->status)" /></div>
                         @else
                             <p class="admin-cell-sub mb-0">{{ __('admin.orders.no_payment') }}</p>
+                        @endif
+                    </x-admin.card>
+                </div>
+            </div>
+
+            {{-- Fulfilment relies on manual reading of these two cards — there is
+                 no carrier/slot-capacity integration (data capture only). --}}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <x-admin.card :title="__('admin.orders.delivery')">
+                        @if ($order->delivery_date || $order->delivery_time_slot || $order->delivery_instructions)
+                            @if ($order->delivery_date)
+                                <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">{{ __('admin.orders.delivery_date') }}</span><span>{{ $order->delivery_date->translatedFormat('l, j F Y') }}</span></div>
+                            @endif
+                            @if ($order->delivery_time_slot)
+                                <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">{{ __('admin.orders.delivery_slot') }}</span><span>{{ __('delivery.slots.'.$order->delivery_time_slot) }} ({{ __('delivery.slot_times.'.$order->delivery_time_slot) }})</span></div>
+                            @endif
+                            @if ($order->delivery_instructions)
+                                <div class="admin-cell-sub mt-2"><strong>{{ __('admin.orders.delivery_instructions') }}:</strong> {{ $order->delivery_instructions }}</div>
+                            @endif
+                        @else
+                            <p class="admin-cell-sub mb-0">{{ __('admin.orders.no_delivery') }}</p>
+                        @endif
+                    </x-admin.card>
+                </div>
+                <div class="col-md-6">
+                    <x-admin.card :title="__('admin.orders.gift')">
+                        @if ($order->is_gift)
+                            <div class="d-flex align-items-start gap-3">
+                                @if ($order->giftCard)
+                                    <img src="{{ $order->giftCard->imageUrl() }}" alt="" class="admin-thumb" style="width:56px;height:75px;object-fit:cover;">
+                                @endif
+                                <div class="flex-grow-1">
+                                    @if ($order->is_anonymous)
+                                        <span class="admin-badge admin-badge-neutral mb-2">{{ __('admin.orders.anonymous') }}</span>
+                                    @endif
+                                    @if ($order->gift_card_to)<div class="admin-cell-sub"><strong>{{ __('admin.orders.gift_to') }}:</strong> {{ $order->gift_card_to }}</div>@endif
+                                    @if ($order->gift_message)<div class="admin-cell-sub my-1" style="white-space:pre-wrap;">{{ $order->gift_message }}</div>@endif
+                                    @if ($order->gift_card_from && !$order->is_anonymous)<div class="admin-cell-sub"><strong>{{ __('admin.orders.gift_from') }}:</strong> {{ $order->gift_card_from }}</div>@endif
+                                    @if ($order->gift_signature && !$order->is_anonymous)
+                                        <div class="mt-2"><img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($order->gift_signature) }}" alt="" style="max-height:2.5rem;"></div>
+                                    @endif
+                                    @if ($order->gift_media_url)<div class="admin-cell-sub mt-1"><i class="bi bi-music-note-beamed me-1"></i><a href="{{ $order->gift_media_url }}" target="_blank" rel="noopener">{{ __('admin.orders.gift_media') }}</a></div>@endif
+                                    @if ($order->gift_wrap_fee > 0)<div class="admin-cell-sub mt-1"><i class="bi bi-check-circle me-1"></i>{{ __('admin.orders.gift_wrap') }} (@price($order->gift_wrap_fee))</div>@endif
+                                </div>
+                            </div>
+                        @else
+                            <p class="admin-cell-sub mb-0">{{ __('admin.orders.not_a_gift') }}</p>
                         @endif
                     </x-admin.card>
                 </div>

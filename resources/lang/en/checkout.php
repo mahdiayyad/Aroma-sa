@@ -2,15 +2,19 @@
 
 return [
     'title' => 'Checkout',
+    'step_of' => 'Step :n of :total — :label',
     'review' => 'Order Review',
     'address' => 'Shipping Address',
     'payment' => 'Payment Method',
     'confirmation' => 'Order Confirmation',
 
     'steps' => [
-        'review' => 'Review Cart',
+        'review' => 'Cart',
         'account' => 'Account',
-        'address' => 'Shipping Address',
+        'address' => 'Address',
+        'gift' => 'Gift',
+        'delivery' => 'Delivery',
+        'order_review' => 'Review',
         'payment' => 'Payment',
     ],
 
@@ -110,4 +114,14 @@ return [
         'standard' => '3-5 business days',
     ],
     'saved_addresses' => 'Saved Addresses',
+
+    'order_review' => [
+        'title' => 'Review Your Order',
+        'items_title' => 'Items',
+        'delivering_to' => 'Delivering to',
+        'not_a_gift' => 'This order is not a gift.',
+        'anonymous_badge' => 'Anonymous',
+        'edit' => 'Edit',
+        'continue_to_payment' => 'Continue to Payment',
+    ],
 ];
