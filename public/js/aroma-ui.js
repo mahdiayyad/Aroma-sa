@@ -38,6 +38,13 @@
     function updateCartCount(count) { bumpCount('.js-cart-count', count); }
     function updateWishlistCount(count) { bumpCount('.js-wishlist-count', count); }
 
+    // Drops a cart row from the DOM; if it was the last one, reload so the
+    // page can render the "empty cart" state instead of a bare table.
+    function removeCartRow(row) {
+        if (row) { row.parentNode.removeChild(row); }
+        if (!document.querySelector('[data-row]')) { window.location.reload(); }
+    }
+
     var toastContainer;
 
     // action: {url,label} to show a link · null to suppress · undefined for the
@@ -149,8 +156,7 @@
                         if (typeof data.count !== 'undefined') { updateCartCount(data.count); }
                         var row = input.closest('[data-row]');
                         if (data.removed) {
-                            if (row) { row.parentNode.removeChild(row); }
-                            if (!document.querySelector('.js-cart-qty')) { window.location.reload(); return; }
+                            removeCartRow(row);
                         } else if (row) {
                             var cell = row.querySelector('.js-line-total');
                             if (cell) { cell.textContent = data.line_total; }
@@ -159,6 +165,28 @@
                     })
                     .catch(function () { showToast(document.body.getAttribute('data-cart-error') || 'Error', 'danger'); })
                     .finally(function () { input.disabled = false; });
+            });
+        });
+
+        // 1d) Live cart remove — delete a line via fetch, no reload.
+        document.querySelectorAll('form.js-cart-remove').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                var row = form.closest('[data-row]');
+                var btn = form.querySelector('button');
+                if (btn) { btn.disabled = true; }
+
+                window.AromaHttp.post(form.action, new FormData(form))
+                    .then(function (data) {
+                        if (typeof data.count !== 'undefined') { updateCartCount(data.count); }
+                        document.querySelectorAll('.js-cart-subtotal').forEach(function (el) { el.textContent = data.subtotal; });
+                        removeCartRow(row);
+                    })
+                    .catch(function () {
+                        showToast(document.body.getAttribute('data-cart-error') || 'Error', 'danger');
+                        if (btn) { btn.disabled = false; }
+                    });
             });
         });
 

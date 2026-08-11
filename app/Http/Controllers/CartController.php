@@ -99,9 +99,19 @@ class CartController extends Controller
         return back()->with('status', __('cart.flash.updated'));
     }
 
-    public function remove(string $rowId): RedirectResponse
+    public function remove(Request $request, string $rowId)
     {
         $this->cart->remove($rowId);
+
+        // Live cart: the delete button removes the row via fetch and expects
+        // JSON so the row can disappear without a reload.
+        if ($request->expectsJson()) {
+            return response()->json([
+                'count'    => $this->cart->count(),
+                'message'  => __('cart.flash.removed'),
+                'subtotal' => $this->cart->subtotalLabel(),
+            ]);
+        }
 
         return back()->with('status', __('cart.flash.removed'));
     }

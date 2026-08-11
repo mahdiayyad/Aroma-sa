@@ -56,7 +56,8 @@
                                     </td>
                                     <td class="text-end fw-semibold js-line-total">@price($row['unit_price'] * $row['qty'])</td>
                                     <td class="text-end">
-                                        <form method="post" action="{{ route('cart.remove', $rowId) }}">
+                                        {{-- Live: removing a line deletes the row without a reload --}}
+                                        <form method="post" action="{{ route('cart.remove', $rowId) }}" class="js-cart-remove">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-sm btn-link text-danger" type="submit" title="{{ __('cart.remove') }}">
