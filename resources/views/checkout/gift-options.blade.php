@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', __('gift.toggle_title').' — '.$brand['name'])
+@section('robots', 'noindex, follow')
 
 @push('head')
     <link href="{{ \App\Support\Assets::versioned('css/components/gift-studio.css') }}" rel="stylesheet">

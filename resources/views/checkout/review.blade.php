@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', __('checkout.review').' — '.$brand['name'])
+@section('robots', 'noindex, follow')
 
 @section('content')
 @php($locale = app()->getLocale())

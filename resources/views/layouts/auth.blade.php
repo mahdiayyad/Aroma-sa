@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', $brand['name'])</title>
+    {{-- Auth pages carry no unique content worth ranking — keep them out of
+         search results (they'd otherwise duplicate/compete with the storefront). --}}
+    <meta name="robots" content="noindex, follow">
+    <link rel="icon" type="image/x-icon" href="{{ \App\Support\Assets::versioned('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\Assets::versioned('favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
     @if (($direction ?? 'ltr') === 'rtl')
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     @else

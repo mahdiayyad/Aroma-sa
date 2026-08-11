@@ -94,4 +94,31 @@
         </div>
     </div>
 </div>
+
+@push('structured_data')
+<script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => __('storefront.nav.home'), 'item' => route('home', $locale)],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => $category->name],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+<script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'itemListElement' => collect($products->items())->values()->map(function ($product, $i) use ($locale) {
+            return [
+                '@type' => 'ListItem',
+                'position' => $i + 1,
+                'url' => route('product.show', [$locale, $product->slug]),
+                'name' => $product->name,
+            ];
+        })->all(),
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endpush
 @endsection

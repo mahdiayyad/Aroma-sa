@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', __('checkout.confirmation').' — '.$brand['name'])
+@section('robots', 'noindex, follow')
 
 @section('content')
 <div class="container checkout-page my-4 my-lg-5">

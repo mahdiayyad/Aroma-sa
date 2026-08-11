@@ -124,4 +124,33 @@ class Product extends Model
 
         return (int) round((($compareAt - $base) / $compareAt) * 100);
     }
+
+    /**
+     * schema.org Product structured data (for the product detail page's
+     * JSON-LD). @return array<string,mixed>
+     */
+    public function toSchemaOrgArray(): array
+    {
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $this->name,
+            'image' => [url($this->primaryImageUrl())],
+            'description' => (string) ($this->translate('short_description') ?? ''),
+            'sku' => $this->sku,
+            'offers' => [
+                '@type' => 'Offer',
+                'priceCurrency' => $this->currency ?? 'SAR',
+                'price' => (string) $this->base_price,
+                'availability' => $this->inStock() ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'itemCondition' => 'https://schema.org/NewCondition',
+            ],
+        ];
+
+        if ($this->brand) {
+            $schema['brand'] = ['@type' => 'Brand', 'name' => $this->brand->name];
+        }
+
+        return $schema;
+    }
 }

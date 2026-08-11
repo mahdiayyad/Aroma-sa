@@ -110,7 +110,11 @@ return [
     | Contact / footer -------------------------------------------------------
     */
     'contact' => [
-        'email'    => env('MAIL_FROM_ADDRESS', 'hello@aroma.sa'),
+        // The public-facing contact address (footer, Contact page, policies).
+        // Deliberately separate from MAIL_FROM_ADDRESS, which is the
+        // technical "sent from" address for system emails — the two don't
+        // have to be the same mailbox.
+        'email'    => env('AROMA_CONTACT_EMAIL', 'info@aromagiftcenter.com'),
         'phone'    => env('AROMA_PHONE', ''),
         // Digits only, incl. country code — e.g. 9665XXXXXXXX. The floating
         // WhatsApp button only appears once this is set.

@@ -7,6 +7,75 @@
 
     <title>@yield('title', $brand['name'].' — '.$brand['tagline'])</title>
     <meta name="description" content="@yield('meta_description', $brand['tagline'])">
+    <meta name="robots" content="@yield('robots', 'index, follow')">
+
+    {{-- Favicon / app icons (public/*.png, *.ico generated from the brand's
+         "A" monogram — see public/images/brand/aroma-logo-mark.png). --}}
+    {{-- Versioned so a favicon update shows immediately instead of waiting out
+         the browser's aggressive favicon cache. --}}
+    <link rel="icon" type="image/x-icon" href="{{ \App\Support\Assets::versioned('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ \App\Support\Assets::versioned('favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\Assets::versioned('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ \App\Support\Assets::versioned('favicon-48x48.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+    <meta name="theme-color" content="#704F2F">
+
+    {{-- Canonical + hreflang (only advertised where a real per-locale URL
+         exists — see App\Support\Seo::alternateUrls()). --}}
+    @php($alternates = \App\Support\Seo::alternateUrls())
+    <link rel="canonical" href="{{ url()->current() }}">
+    @foreach ($alternates as $altLocale => $altUrl)
+        <link rel="alternate" hreflang="{{ $altLocale }}" href="{{ $altUrl }}">
+    @endforeach
+    @if (count($alternates))
+        <link rel="alternate" hreflang="x-default" href="{{ $alternates[config('aroma.default_locale')] ?? url()->current() }}">
+    @endif
+
+    {{-- Open Graph / Twitter Card --}}
+    <meta property="og:site_name" content="{{ $brand['name'] }}">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:title" content="@yield('title', $brand['name'].' — '.$brand['tagline'])">
+    <meta property="og:description" content="@yield('meta_description', $brand['tagline'])">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('og_image', asset('android-chrome-512x512.png'))">
+    <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_SA' : 'en_US' }}">
+    @foreach (array_keys(config('aroma.locales', [])) as $ogLocale)
+        @if ($ogLocale !== app()->getLocale())
+            <meta property="og:locale:alternate" content="{{ $ogLocale === 'ar' ? 'ar_SA' : 'en_US' }}">
+        @endif
+    @endforeach
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', $brand['name'].' — '.$brand['tagline'])">
+    <meta name="twitter:description" content="@yield('meta_description', $brand['tagline'])">
+    <meta name="twitter:image" content="@yield('og_image', asset('android-chrome-512x512.png'))">
+
+    {{-- Structured data: Organization + WebSite, present on every page.
+         Page-specific schema (Product, BreadcrumbList) is pushed onto
+         'structured_data' by the views that have it. --}}
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id' => url('/').'#organization',
+                    'name' => $brand['name'],
+                    'url' => url('/'),
+                    'logo' => asset('android-chrome-512x512.png'),
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => url('/').'#website',
+                    'name' => $brand['name'],
+                    'url' => url('/'),
+                    'publisher' => ['@id' => url('/').'#organization'],
+                    'inLanguage' => [app()->getLocale() === 'ar' ? 'ar-SA' : 'en'],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+    @stack('structured_data')
 
     {{-- Bootstrap 5.3 (RTL build for Arabic) served from CDN so the app renders
          without a Node build step. The production SCSS pipeline emits the same
@@ -62,7 +131,7 @@
     @include('layouts.partials.header')
 
     <main>
-        @if (session('status') || $errors->any())
+        @if (session('status') || session('error') || session('warning') || $errors->any())
             <div class="container mt-3">@include('partials.flash')</div>
         @endif
         @yield('content')

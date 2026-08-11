@@ -2,6 +2,8 @@
 
 @section('title', $product->name.' — '.$brand['name'])
 @section('meta_description', $product->translate('meta_description') ?? $product->translate('short_description'))
+@section('og_type', 'product')
+@section('og_image', url($product->primaryImageUrl()))
 
 @section('content')
 @php($locale = app()->getLocale())
@@ -163,6 +165,15 @@
         {{ $product->inStock() ? __('storefront.product.add_to_cart') : __('storefront.product.sold_out') }}
     </button>
 </div>
+
+@push('structured_data')
+<script type="application/ld+json">
+    {!! json_encode($productSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+<script type="application/ld+json">
+    {!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+</script>
+@endpush
 
 @push('scripts')
 <script>

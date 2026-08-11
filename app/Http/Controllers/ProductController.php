@@ -28,10 +28,38 @@ class ProductController extends Controller
             throw new NotFoundHttpException();
         }
 
+        $productSchema = $model->toSchemaOrgArray();
+        $productSchema['offers']['url'] = route('product.show', [$locale, $model->slug]);
+
         return view('catalog.product', [
             'product' => $model,
             'gallery' => $this->gallery($model),
+            'productSchema' => $productSchema,
+            'breadcrumbSchema' => $this->breadcrumbSchema($model, $locale),
         ]);
+    }
+
+    /** @return array<string,mixed> */
+    private function breadcrumbSchema(Product $product, string $locale): array
+    {
+        $items = [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => __('storefront.nav.home'), 'item' => route('home', $locale)],
+        ];
+
+        if ($product->category) {
+            $items[] = [
+                '@type' => 'ListItem', 'position' => 2, 'name' => $product->category->name,
+                'item' => route('category.show', [$locale, $product->category->slug]),
+            ];
+        }
+
+        $items[] = ['@type' => 'ListItem', 'position' => count($items) + 1, 'name' => $product->name];
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $items,
+        ];
     }
 
     /**

@@ -256,6 +256,65 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-body-ar); }
   border-color: var(--aroma-light-brown);
 }
 
+/* --- Policy accordion (flat list style, Privacy & Policy page) -----------------
+   Deliberately minimal: no card boxes, no icon badges, no shadows — a plain
+   list of brand-colored "link" headers divided by hairlines, first item open. */
+.aroma-policy-accordion {
+  border-top: 1px solid var(--aroma-border);
+}
+.aroma-policy-accordion .accordion-item {
+  border: none;
+  border-bottom: 1px solid var(--aroma-border);
+  border-radius: 0 !important;
+  overflow: visible;
+  margin-bottom: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.aroma-policy-accordion .accordion-button {
+  padding: 1.1rem 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--aroma-body-en);
+  color: var(--aroma-brown);
+  background: transparent;
+  box-shadow: none;
+}
+html[lang="ar"] .aroma-policy-accordion .accordion-button {
+  font-family: var(--aroma-body-ar);
+}
+.aroma-policy-accordion .accordion-button:not(.collapsed) {
+  background: transparent;
+  color: var(--aroma-brown);
+  box-shadow: none;
+}
+.aroma-policy-accordion .accordion-button.collapsed:hover,
+.aroma-policy-accordion .accordion-button.collapsed:focus {
+  color: var(--aroma-light-brown);
+}
+.aroma-policy-accordion .accordion-button:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+.aroma-policy-accordion .accordion-button::after {
+  width: 0.9rem;
+  height: 0.9rem;
+  background-size: 0.9rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23704F2F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M3 6l5 5 5-5'/%3e%3c/svg%3e");
+  transition: transform var(--aroma-transition);
+}
+.aroma-policy-accordion .accordion-button:not(.collapsed)::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23704F2F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M3 6l5 5 5-5'/%3e%3c/svg%3e");
+}
+
+.aroma-policy-accordion .accordion-body {
+  padding: 0 0.25rem 1.5rem;
+}
+.aroma-policy-accordion .accordion-body p {
+  color: var(--aroma-ink);
+}
+
 /* --- Sticky mobile add-to-cart bar --------------------------------------------- */
 .aroma-mobile-cart-bar {
   position: fixed;

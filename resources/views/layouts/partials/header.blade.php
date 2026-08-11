@@ -82,7 +82,7 @@
 
         {{-- Category nav (desktop) --}}
         <ul class="nav justify-content-center pb-2 d-none d-lg-flex">
-            @foreach (['perfumes', 'flowers', 'beauty', 'abayas', 'accessories', 'seasonal'] as $cat)
+            @foreach (['abayas'] as $cat)
                 <li class="nav-item">
                     <a class="nav-link px-3 {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
                        href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>
@@ -114,7 +114,7 @@
             </div>
         </form>
         <ul class="nav flex-column gap-1">
-            @foreach (['perfumes', 'flowers', 'beauty', 'abayas', 'accessories', 'seasonal'] as $cat)
+            @foreach (['abayas'] as $cat)
                 <li class="nav-item">
                     <a class="nav-link aroma-mobile-nav-link {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
                        href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>

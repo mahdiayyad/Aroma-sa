@@ -194,5 +194,46 @@
                     });
             });
         });
+
+        // 3) Live contact form — AJAX submit with inline field errors, no reload.
+        document.querySelectorAll('form.js-contact-form').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                form.querySelectorAll('.is-invalid').forEach(function (el) { el.classList.remove('is-invalid'); });
+                form.querySelectorAll('.invalid-feedback').forEach(function (el) { el.textContent = ''; });
+
+                var buttons = brandSubmitButtons(form);
+                buttons.forEach(function (btn) { btn.classList.add('is-loading'); });
+
+                window.AromaHttp.post(form.action, new FormData(form))
+                    .then(function (data) {
+                        showToast(data.message || 'Sent', 'success');
+                        form.reset();
+
+                        var topicSelect = form.querySelector('select[name="topic"]');
+                        if (topicSelect && window.jQuery) {
+                            window.jQuery(topicSelect).val('').trigger('change');
+                        }
+                    })
+                    .catch(function (err) {
+                        if (err && err.errors) {
+                            Object.keys(err.errors).forEach(function (field) {
+                                var input = form.querySelector('[name="' + field + '"]');
+                                if (!input) { return; }
+                                input.classList.add('is-invalid');
+                                var feedback = input.parentElement.querySelector('.invalid-feedback');
+                                if (feedback) { feedback.textContent = err.errors[field][0]; }
+                            });
+                        }
+
+                        var msg = (err && err.message) || document.body.getAttribute('data-cart-error') || 'Something went wrong.';
+                        showToast(msg, 'danger');
+                    })
+                    .finally(function () {
+                        buttons.forEach(function (btn) { btn.classList.remove('is-loading'); });
+                    });
+            });
+        });
     });
 })();

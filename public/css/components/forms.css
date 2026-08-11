@@ -43,6 +43,21 @@ textarea.form-control {
 
 .form-text { color: var(--aroma-muted); font-size: 0.825rem; }
 
+/* Visually hidden but still in normal flow as a real (tiny) box — unlike
+   `position:absolute; left:-9999px`, this can never expand the page's
+   scrollable area, which is exactly what a far-offscreen honeypot field does. */
+.aroma-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* --- Validation states -------------------------------------------------------- */
 .form-control.is-valid, .form-select.is-valid {
   border-color: var(--aroma-success);

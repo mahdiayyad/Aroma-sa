@@ -2,6 +2,7 @@
 
 @php($editing = $address->exists)
 @section('title', ($editing ? __('account.addresses.edit') : __('account.addresses.new')).' — '.$brand['name'])
+@section('robots', 'noindex, follow')
 
 @section('content')
 <div class="container my-4">

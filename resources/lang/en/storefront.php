@@ -72,7 +72,8 @@ return [
     'footer' => [
         'about'    => 'About Aroma',
         'help'     => 'Help & Support',
-        'policies' => 'Policies',
+        'policies' => 'Policies & Privacy',
+        'terms'    => 'Terms & Conditions',
         'contact'  => 'Contact us',
         'rights'   => 'All rights reserved.',
         'tagline'  => 'Awaken your Senses',

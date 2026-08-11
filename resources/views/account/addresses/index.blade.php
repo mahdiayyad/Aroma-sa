@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', __('account.addresses.title').' — '.$brand['name'])
+@section('robots', 'noindex, follow')
 
 @section('content')
 <div class="container my-4">

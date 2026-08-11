@@ -21,9 +21,11 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Webhooks\MoyasarWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -148,6 +150,32 @@ Route::get('order/{order}/confirmation', [CheckoutController::class, 'confirmati
 
 /* Legal / static pages ----------------------------------------------------- */
 Route::view('terms', 'pages.terms')->name('terms');
+Route::view('about', 'pages.about')->name('about');
+Route::view('privacy-policy', 'pages.privacy-policy')->name('privacy-policy');
+
+Route::get('contact', [ContactController::class, 'show'])->name('contact');
+Route::post('contact', [ContactController::class, 'send'])->middleware('throttle:5,1')->name('contact.send');
+
+/* SEO -------------------------------------------------------------------- */
+Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+Route::get('robots.txt', function () {
+    // Generated (not a static public/robots.txt file) so the Sitemap: line
+    // always resolves to the real current host — never a hardcoded/guessed domain.
+    $disallow = [
+        '/account/', '/cart', '/checkout/', '/orders/', '/order/', '/admin/',
+        '/login', '/register', '/password/', '/auth/', '/wishlist',
+        '/assistant/', '/csrf-token', '/webhooks/', '/payment/',
+    ];
+
+    $lines = array_merge(
+        ['User-agent: *', 'Allow: /'],
+        array_map(fn ($path) => "Disallow: {$path}", $disallow),
+        ['', 'Sitemap: '.route('sitemap')]
+    );
+
+    return response(implode("\n", $lines), 200)->header('Content-Type', 'text/plain');
+})->name('robots');
 
 /* Fresh CSRF token — lets the storefront JS recover from a stale token on a
    long-open tab (419) instead of failing the shopper's action. */
