@@ -33,7 +33,6 @@ return [
     'social' => [
         'or'     => 'or continue with',
         'google' => 'Continue with Google',
-        'apple'  => 'Continue with Apple',
         'unavailable' => 'This sign-in method is not configured yet.',
         'failed' => 'We could not sign you in with that provider. Please try again.',
     ],
@@ -51,6 +50,8 @@ return [
     'validation' => [
         'phone' => 'Enter a valid Saudi mobile number (05XXXXXXXX or +9665XXXXXXXX).',
     ],
+    'show_password' => 'Show password',
+    'hide_password' => 'Hide password',
     'errors' => [
         'invalid' => 'These credentials do not match our records.',
     ],

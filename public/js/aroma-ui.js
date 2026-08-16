@@ -119,6 +119,42 @@
             }
         });
 
+        // -1.5) Password visibility toggle — wraps every input[type=password]
+        // on the page (login, register, reset, admin login, …) with an eye
+        // icon that flips the field between password/text. Pure progressive
+        // enhancement: works identically wherever this script is loaded, no
+        // per-page markup needed.
+        document.querySelectorAll('input[type="password"]').forEach(function (input) {
+            if (input.closest('.aroma-password-field')) { return; }
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'aroma-password-field';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            var showLabel = document.body.getAttribute('data-show-password') || 'Show password';
+            var hideLabel = document.body.getAttribute('data-hide-password') || 'Hide password';
+
+            var toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'aroma-password-toggle';
+            toggle.setAttribute('aria-label', showLabel);
+
+            var icon = document.createElement('i');
+            icon.className = 'bi bi-eye';
+            toggle.appendChild(icon);
+
+            toggle.addEventListener('click', function () {
+                var isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                icon.classList.toggle('bi-eye', !isHidden);
+                icon.classList.toggle('bi-eye-slash', isHidden);
+                toggle.setAttribute('aria-label', isHidden ? hideLabel : showLabel);
+            });
+
+            wrapper.appendChild(toggle);
+        });
+
         // -1) Quantity stepper — "+"/"-" buttons drive the number input.
         document.querySelectorAll('.aroma-qty-stepper').forEach(function (stepper) {
             var input = stepper.querySelector('.aroma-qty-input');

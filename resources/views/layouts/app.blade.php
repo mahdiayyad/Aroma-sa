@@ -93,7 +93,7 @@
          Tangerine stands in for the Snell Roundhand script accent. --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Tangerine:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Tangerine:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
     {{-- ?v=<mtime> so a changed stylesheet is never served from browser cache. --}}
     <link href="{{ \App\Support\Assets::versioned('css/aroma.css') }}" rel="stylesheet">
 
@@ -130,7 +130,9 @@
       data-wishlist-label="{{ __('storefront.nav.wishlist') }}"
       data-confirm-yes="{{ __('storefront.confirm.yes') }}"
       data-confirm-cancel="{{ __('storefront.confirm.cancel') }}"
-      data-flash-success="{{ session('status') }}">
+      data-flash-success="{{ session('status') }}"
+      data-show-password="{{ __('auth_ui.show_password') }}"
+      data-hide-password="{{ __('auth_ui.hide_password') }}">
     @include('layouts.partials.intro')
     @include('layouts.partials.header')
 

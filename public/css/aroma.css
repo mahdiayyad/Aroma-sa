@@ -1110,4 +1110,40 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
   color: #fff;
 }
 
+/* --- Password visibility toggle --------------------------------------------
+   aroma-ui.js auto-wraps every input[type=password] on the page in
+   .aroma-password-field and appends .aroma-password-toggle — storefront
+   (.form-control) and admin (.admin-input) fields alike, since this file is
+   loaded on both. Higher specificity than either input class beats their
+   shorthand `padding` rule regardless of stylesheet order. */
+.aroma-password-field { position: relative; }
+.aroma-password-field input { padding-inline-end: 2.75rem; }
+.aroma-password-toggle {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 0.6rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--aroma-muted, #8a7c68);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.aroma-password-toggle:hover {
+  color: var(--aroma-brown, #704f2f);
+  background: rgba(112, 79, 47, 0.08);
+}
+.aroma-password-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+}
+.aroma-password-toggle i { font-size: 1.05rem; }
+
 html[dir="rtl"] .aroma-swal-popup { direction: rtl; }

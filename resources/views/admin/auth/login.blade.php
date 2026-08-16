@@ -13,7 +13,8 @@
     <link href="{{ asset('css/aroma.css') }}" rel="stylesheet">
     <link href="{{ asset('css/admin.css') }}" rel="stylesheet">
 </head>
-<body>
+<body data-show-password="{{ __('admin.common.show_password') }}"
+      data-hide-password="{{ __('admin.common.hide_password') }}">
 <div class="admin-login">
     <div class="admin-login-card">
         <div class="admin-login-brand">
@@ -47,5 +48,6 @@
         </form>
     </div>
 </div>
+<script src="{{ asset('js/aroma-ui.js') }}"></script>
 </body>
 </html>

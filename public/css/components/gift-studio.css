@@ -152,11 +152,22 @@
 }
 .aroma-gift-preview-message {
   font-family: var(--aroma-script, "Tangerine", cursive);
-  font-size: 1.6rem;
-  line-height: 1.3;
+  font-size: 1.35rem;
+  line-height: 1.4;
   color: var(--aroma-ink);
   white-space: pre-wrap;
   overflow-wrap: break-word;
+}
+/* Tangerine has no Arabic glyphs, so an Arabic message would otherwise fall
+   back to the plain body font — Aref Ruqaa is a calligraphic Naskh/Ruqaa
+   face that actually reads as "handwritten" in Arabic, sized down from the
+   Latin script (its letterforms run visually larger at the same rem value)
+   and given extra line-height for its ascenders/descenders. */
+html[lang="ar"] .aroma-gift-preview-message {
+  font-family: "Aref Ruqaa", var(--aroma-heading-ar), serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.9;
 }
 .aroma-gift-preview-signature {
   display: block;

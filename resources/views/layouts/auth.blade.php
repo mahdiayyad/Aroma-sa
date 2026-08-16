@@ -29,7 +29,9 @@
     <link href="{{ asset('css/components/navigation.css') }}" rel="stylesheet">
     <link href="{{ asset('css/components/animations.css') }}" rel="stylesheet">
 </head>
-<body class="aroma-auth-shell" data-flash-success="{{ session('status') }}">
+<body class="aroma-auth-shell" data-flash-success="{{ session('status') }}"
+      data-show-password="{{ __('auth_ui.show_password') }}"
+      data-hide-password="{{ __('auth_ui.hide_password') }}">
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
