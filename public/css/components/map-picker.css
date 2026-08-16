@@ -1,0 +1,105 @@
+/* ============================================================================
+   Aroma — address map picker (account/addresses/form.blade.php only)
+   Loaded on-demand via @push('head') so the ~150KB Leaflet payload never
+   ships to pages that don't need it.
+   ========================================================================== */
+
+.aroma-map-picker {
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius);
+  padding: 1rem;
+  background: var(--aroma-white, #fff3e2);
+}
+
+.aroma-map-search { position: relative; margin-bottom: 0.75rem; }
+
+.aroma-map-search-results {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 5;
+  background: #fff;
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm);
+  box-shadow: var(--aroma-shadow);
+  max-height: 260px;
+  overflow-y: auto;
+}
+.aroma-map-search-item {
+  display: block;
+  width: 100%;
+  text-align: start;
+  padding: 0.6rem 0.85rem;
+  border: none;
+  border-bottom: 1px solid var(--aroma-border);
+  background: #fff;
+  color: var(--aroma-ink);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.aroma-map-search-item:last-child { border-bottom: none; }
+.aroma-map-search-item:hover,
+.aroma-map-search-item:focus-visible { background: var(--aroma-skin); outline: none; }
+
+.aroma-map-canvas-wrap { position: relative; }
+
+.aroma-map-canvas {
+  width: 100%;
+  height: 320px;
+  border-radius: var(--aroma-radius-sm);
+  border: 1px solid var(--aroma-border);
+  z-index: 0; /* keep Leaflet's internal panes below sticky header/dropdowns */
+}
+.aroma-map-canvas:focus,
+.aroma-map-canvas:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--aroma-select-bg, rgba(37, 99, 235, 0.15));
+}
+.aroma-map-canvas .leaflet-control-attribution {
+  font-size: 0.65rem;
+}
+
+/* Scroll-to-zoom is off until the shopper clicks/focuses the map (so the
+   page keeps scrolling normally while they're just skimming past it) — this
+   hint explains why, and fades out for good on first interaction. */
+.aroma-map-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  background: rgba(43, 32, 22, 0.45);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--aroma-radius-sm);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--aroma-transition);
+}
+.aroma-map-hint.is-hidden { opacity: 0; }
+
+.aroma-map-detected {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--aroma-select-bg, var(--aroma-skin));
+  border-radius: var(--aroma-radius-sm);
+  font-size: 0.85rem;
+  color: var(--aroma-ink);
+}
+.aroma-map-detected i { color: var(--aroma-select, var(--aroma-brown)); margin-top: 0.15rem; }
+.aroma-map-detected .btn-link {
+  color: var(--aroma-brown);
+  text-decoration: underline;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+  .aroma-map-canvas { height: 240px; }
+}

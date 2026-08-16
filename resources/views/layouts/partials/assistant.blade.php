@@ -63,10 +63,12 @@
                 <span class="aroma-chat-name" id="aromaChatTitle">{{ __('assistant.name') }}</span>
                 <span class="aroma-chat-status"><i class="aroma-dot" aria-hidden="true"></i>{{ __('assistant.status') }}</span>
             </span>
-            <button type="button" class="aroma-chat-icon" id="aromaChatReset" title="{{ __('assistant.reset') }}" aria-label="{{ __('assistant.reset') }}">
+            <button type="button" class="aroma-chat-icon" id="aromaChatReset" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    title="{{ __('assistant.reset') }}" aria-label="{{ __('assistant.reset') }}">
                 <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
             </button>
-            <button type="button" class="aroma-chat-icon" id="aromaChatClose" title="{{ __('assistant.close') }}" aria-label="{{ __('assistant.close') }}">
+            <button type="button" class="aroma-chat-icon" id="aromaChatClose" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                    title="{{ __('assistant.close') }}" aria-label="{{ __('assistant.close') }}">
                 <i class="bi bi-chevron-down" aria-hidden="true"></i>
             </button>
         </header>

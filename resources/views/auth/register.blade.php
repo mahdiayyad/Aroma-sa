@@ -9,14 +9,16 @@
     <form method="post" action="{{ route('register.store') }}">
         @csrf
         <div class="mb-3">
-            <label class="form-label">{{ __('auth_ui.register.name') }}</label>
+            <label class="form-label">{{ __('auth_ui.register.name') }} <span class="aroma-required">*</span></label>
             <input type="text" name="name" value="{{ old('name') }}"
                    class="form-control @error('name') is-invalid @enderror" required autofocus>
             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
 
+        <p class="form-text mt-n1 mb-2">{{ __('auth_ui.register.contact_hint') }}</p>
+
         <div class="mb-3">
-            <label class="form-label">{{ __('auth_ui.register.phone') }}</label>
+            <label class="form-label">{{ __('auth_ui.register.phone') }} <span class="aroma-required">*</span></label>
             <input type="tel" name="phone" value="{{ old('phone') }}" dir="ltr"
                    class="form-control @error('phone') is-invalid @enderror" placeholder="05XXXXXXXX">
             <div class="form-text">{{ __('auth_ui.register.phone_hint') }}</div>
@@ -24,7 +26,7 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">{{ __('auth_ui.register.email') }}</label>
+            <label class="form-label">{{ __('auth_ui.register.email') }} <span class="aroma-required">*</span></label>
             <input type="email" name="email" value="{{ old('email') }}"
                    class="form-control @error('email') is-invalid @enderror">
             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -32,12 +34,12 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label class="form-label">{{ __('auth_ui.register.password') }}</label>
+                <label class="form-label">{{ __('auth_ui.register.password') }} <span class="aroma-required">*</span></label>
                 <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
                 @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-6 mb-3">
-                <label class="form-label">{{ __('auth_ui.register.confirm') }}</label>
+                <label class="form-label">{{ __('auth_ui.register.confirm') }} <span class="aroma-required">*</span></label>
                 <input type="password" name="password_confirmation" class="form-control" required>
             </div>
         </div>

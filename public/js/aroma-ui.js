@@ -92,11 +92,103 @@
         }, 3500);
     }
 
+    // Dispatches a real, bubbling DOM event so existing input/change
+    // listeners (live totals, cart AJAX update) fire exactly as if the user
+    // had typed into the field themselves.
+    function fireEvent(el, type) {
+        var evt;
+        try { evt = new Event(type, { bubbles: true }); }
+        catch (e) { evt = document.createEvent('Event'); evt.initEvent(type, true, true); }
+        el.dispatchEvent(evt);
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
-        // 0) Confirm destructive actions: <form data-confirm="Delete this?">
+        // -3) Success flash → toast. Server-side redirects still set the
+        // session('status') flash the usual Laravel way; this just renders it
+        // as a toast (matching cart/wishlist feedback) instead of a banner.
+        var flashSuccess = document.body.getAttribute('data-flash-success');
+        if (flashSuccess) { showToast(flashSuccess, 'success'); }
+
+        // -2) Brand-themed tooltips (see .tooltip overrides in aroma.css) —
+        // replaces the native title="" hover tooltip everywhere it was used.
+        // data-bs-tooltip="true" is a second marker for elements that already
+        // use data-bs-toggle for something else (e.g. a dropdown toggle).
+        document.querySelectorAll('[data-bs-toggle="tooltip"], [data-bs-tooltip="true"]').forEach(function (el) {
+            if (window.bootstrap && window.bootstrap.Tooltip) {
+                window.bootstrap.Tooltip.getOrCreateInstance(el);
+            }
+        });
+
+        // -1) Quantity stepper — "+"/"-" buttons drive the number input.
+        document.querySelectorAll('.aroma-qty-stepper').forEach(function (stepper) {
+            var input = stepper.querySelector('.aroma-qty-input');
+            if (!input) { return; }
+            var minusBtn = stepper.querySelector('.aroma-qty-minus');
+            var plusBtn = stepper.querySelector('.aroma-qty-plus');
+
+            function bounds() {
+                var min = parseInt(input.getAttribute('min'), 10);
+                var max = parseInt(input.getAttribute('max'), 10);
+                return { min: isNaN(min) ? 0 : min, max: isNaN(max) ? 99 : max };
+            }
+            function refreshDisabled() {
+                var b = bounds();
+                var val = parseInt(input.value, 10);
+                if (isNaN(val)) { val = b.min; }
+                if (minusBtn) { minusBtn.disabled = val <= b.min; }
+                if (plusBtn) { plusBtn.disabled = val >= b.max; }
+            }
+            function step(delta) {
+                var b = bounds();
+                var val = parseInt(input.value, 10);
+                if (isNaN(val)) { val = b.min; }
+                var next = Math.min(b.max, Math.max(b.min, val + delta));
+                if (next === val) { return; }
+                input.value = next;
+                fireEvent(input, 'input');
+                fireEvent(input, 'change');
+                refreshDisabled();
+            }
+
+            if (minusBtn) { minusBtn.addEventListener('click', function () { step(-1); }); }
+            if (plusBtn) { plusBtn.addEventListener('click', function () { step(1); }); }
+            input.addEventListener('input', refreshDisabled);
+            refreshDisabled();
+        });
+
+
+        // 0) Confirm destructive actions: <form data-confirm="Delete this?"> —
+        // a brand-themed SweetAlert2 dialog instead of the native browser
+        // confirm(). Falls back to the native one if the CDN failed to load.
         document.querySelectorAll('form[data-confirm]').forEach(function (form) {
             form.addEventListener('submit', function (e) {
-                if (!window.confirm(form.getAttribute('data-confirm'))) { e.preventDefault(); }
+                var message = form.getAttribute('data-confirm');
+
+                if (!window.Swal) {
+                    if (!window.confirm(message)) { e.preventDefault(); }
+                    return;
+                }
+
+                e.preventDefault();
+                var isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+
+                Swal.fire({
+                    title: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    focusCancel: true,
+                    reverseButtons: isRtl,
+                    confirmButtonText: document.body.getAttribute('data-confirm-yes') || 'Yes',
+                    cancelButtonText: document.body.getAttribute('data-confirm-cancel') || 'Cancel',
+                    buttonsStyling: false,
+                    customClass: {
+                        popup: 'aroma-swal-popup',
+                        confirmButton: 'aroma-swal-btn aroma-swal-btn-danger',
+                        cancelButton: 'aroma-swal-btn aroma-swal-btn-outline'
+                    }
+                }).then(function (result) {
+                    if (result.isConfirmed) { form.submit(); }
+                });
             });
         });
 

@@ -88,6 +88,12 @@
                                 <textarea name="customer_notes" class="form-control" rows="3" placeholder="...">{{ old('customer_notes') }}</textarea>
                             </div>
                         </div>
+
+                        {{-- Carries the pinned map location through to the order, when a
+                             saved address (set via the account map picker) is selected
+                             below. Empty when the shopper types a fresh address here. --}}
+                        <input type="hidden" name="billing_address[latitude]" id="billingLatitude" value="{{ old('billing_address.latitude') }}">
+                        <input type="hidden" name="billing_address[longitude]" id="billingLongitude" value="{{ old('billing_address.longitude') }}">
                     </div>
                 </div>
 
@@ -103,10 +109,14 @@
                                             onclick="loadAddress(this)" data-recipient="{{ $address->recipient_name }}"
                                             data-phone="{{ $address->phone }}" data-street="{{ $address->street_address }}"
                                             data-city="{{ $address->city }}" data-region="{{ $address->region }}"
-                                            data-postal="{{ $address->postal_code }}">
+                                            data-postal="{{ $address->postal_code }}"
+                                            data-lat="{{ $address->latitude }}" data-lng="{{ $address->longitude }}">
                                         <div>
                                             <strong>{{ $address->label ?? 'Address' }}</strong>
                                             <div class="small text-aroma-muted">{{ $address->street_address }}, {{ $address->city }}</div>
+                                            @if ($address->hasCoordinates())
+                                                <div class="small text-aroma-brown"><i class="bi bi-geo-alt-fill me-1"></i>{{ __('account.saved_addresses_pinned') }}</div>
+                                            @endif
                                         </div>
                                     </button>
                                 @endforeach
@@ -138,6 +148,8 @@ function loadAddress(btn) {
     document.querySelector('[name="billing_address[city]"]').value = btn.dataset.city;
     document.querySelector('[name="billing_address[region]"]').value = btn.dataset.region;
     document.querySelector('[name="billing_address[postal_code]"]').value = btn.dataset.postal;
+    document.getElementById('billingLatitude').value = btn.dataset.lat || '';
+    document.getElementById('billingLongitude').value = btn.dataset.lng || '';
 }
 </script>
 @endpush

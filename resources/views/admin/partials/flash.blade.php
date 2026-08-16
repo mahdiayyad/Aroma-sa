@@ -1,10 +1,5 @@
-@if (session('status'))
-    <div class="alert admin-alert admin-alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill"></i>
-        <span>{{ session('status') }}</span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
+{{-- Success flashes render as a toast (see the data-flash-success body
+     attribute + admin.js) instead of a persistent banner here. --}}
 
 @if (session('error'))
     <div class="alert admin-alert admin-alert-danger alert-dismissible fade show" role="alert">

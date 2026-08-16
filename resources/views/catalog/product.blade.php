@@ -107,7 +107,11 @@
                 </div>
 
                 <div class="d-flex gap-2">
-                    <input type="number" name="qty" value="1" min="1" max="99" class="form-control js-pdp-qty" style="max-width:100px">
+                    <div class="aroma-qty-stepper">
+                        <button type="button" class="aroma-qty-btn aroma-qty-minus" aria-label="{{ __('storefront.product.qty_decrease') }}">&minus;</button>
+                        <input type="number" name="qty" value="1" min="1" max="99" class="form-control js-pdp-qty aroma-qty-input">
+                        <button type="button" class="aroma-qty-btn aroma-qty-plus" aria-label="{{ __('storefront.product.qty_increase') }}">+</button>
+                    </div>
                     <button type="submit" class="btn btn-aroma btn-lg flex-grow-1 {{ $product->inStock() ? '' : 'disabled' }}">
                         <i class="bi bi-bag-plus me-1"></i>{{ __('storefront.product.add_to_cart') }}
                     </button>

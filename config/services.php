@@ -95,6 +95,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Maps (address location picker)
+    |--------------------------------------------------------------------------
+    | Powers the map tiles on account/addresses/form.blade.php. Without a
+    | token the picker still fully works — it just falls back to the free
+    | OpenStreetMap tile style instead of Mapbox's more polished basemap.
+    | Get a free public token at https://account.mapbox.com/access-tokens/.
+    */
+    'mapbox' => [
+        'access_token' => env('MAPBOX_ACCESS_TOKEN'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Social login
     |--------------------------------------------------------------------------
     */

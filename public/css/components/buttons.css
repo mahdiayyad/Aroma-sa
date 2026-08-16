@@ -110,6 +110,28 @@ html[lang="ar"] .btn-aroma-ghost {
   font-size: 1.05rem;
 }
 
+/* --- Selectable options (size/variant pickers: .btn-check + .btn-aroma-outline) -
+   Bootstrap's .btn-check hides the native radio/checkbox; the sibling <label>
+   is styled directly so the checked option is unmistakably the active one. */
+.btn-check:checked + .btn-aroma-outline,
+.btn-check:active + .btn-aroma-outline {
+  background-color: var(--aroma-select);
+  border-color: var(--aroma-select);
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--aroma-select-bg);
+}
+.btn-check:focus-visible + .btn-aroma-outline {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--aroma-select-bg);
+}
+.btn-check:disabled + .btn-aroma-outline,
+.btn-check[disabled] + .btn-aroma-outline {
+  background-color: var(--aroma-disabled-bg);
+  border-color: var(--aroma-disabled-bg);
+  color: var(--aroma-disabled-text);
+  cursor: not-allowed;
+}
+
 /* --- Disabled ------------------------------------------------------------------ */
 .btn-aroma:disabled, .btn-aroma.disabled,
 .btn-aroma-outline:disabled, .btn-aroma-outline.disabled,

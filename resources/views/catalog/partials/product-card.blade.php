@@ -11,12 +11,14 @@
             <form method="post" action="{{ route('wishlist.toggle', $product->slug) }}" class="js-wishlist">
                 @csrf
                 <button type="submit" class="aroma-wishlist-btn {{ $isWishlisted ? 'is-active' : '' }}"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
                         title="{{ __('storefront.nav.wishlist') }}" aria-label="{{ __('storefront.nav.wishlist') }}">
                     <i class="bi {{ $isWishlisted ? 'bi-heart-fill' : 'bi-heart' }}"></i>
                 </button>
             </form>
         @else
             <a href="{{ route('login') }}" class="aroma-wishlist-btn"
+               data-bs-toggle="tooltip" data-bs-placement="top"
                title="{{ __('storefront.nav.wishlist') }}" aria-label="{{ __('storefront.nav.wishlist') }}">
                 <i class="bi bi-heart"></i>
             </a>

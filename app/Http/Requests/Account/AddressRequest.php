@@ -28,6 +28,8 @@ class AddressRequest extends FormRequest
             'city'            => ['required', 'string', 'max:100'],
             'region'          => ['required', 'string', 'max:100'],
             'postal_code'     => ['nullable', 'string', 'max:20'],
+            'latitude'        => ['nullable', 'numeric', 'between:-90,90'],
+            'longitude'       => ['nullable', 'numeric', 'between:-180,180'],
             'is_default'      => ['boolean'],
         ];
     }

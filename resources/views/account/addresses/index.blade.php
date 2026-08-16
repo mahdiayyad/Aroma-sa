@@ -50,7 +50,7 @@
                                     @unless ($address->is_default)
                                         <form method="post" action="{{ route('account.addresses.default', $address) }}">
                                             @csrf @method('PATCH')
-                                            <button type="submit" class="btn btn-aroma-outline btn-sm" title="{{ __('account.addresses.make_default') }}">
+                                            <button type="submit" class="btn btn-aroma-outline btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('account.addresses.make_default') }}">
                                                 <i class="bi bi-star"></i>
                                             </button>
                                         </form>
@@ -58,7 +58,7 @@
                                     <form method="post" action="{{ route('account.addresses.destroy', $address) }}"
                                           data-confirm="{{ __('account.addresses.confirm_delete') }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="{{ __('account.addresses.delete') }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('account.addresses.delete') }}">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>

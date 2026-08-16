@@ -145,7 +145,9 @@ html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabi
 .admin-table-actions { display: inline-flex; gap: .35rem; }
 
 /* --- Badges ---------------------------------------------------------------- */
-.admin-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 700; line-height: 1.4; }
+/* Latin-first font: badges often carry symbols (-X%) the Arabic display
+   face has no proper glyphs for — see .admin-input above for the same fix. */
+.admin-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 700; line-height: 1.4; font-family: var(--aroma-input-font, "Inter", Helvetica, Arial, sans-serif); }
 .admin-badge-success { background: var(--admin-success-bg); color: var(--admin-success); }
 .admin-badge-warning { background: var(--admin-warning-bg); color: var(--admin-warning); }
 .admin-badge-danger  { background: var(--admin-danger-bg);  color: var(--admin-danger); }
@@ -180,7 +182,7 @@ html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabi
 .admin-input:focus, .admin-select:focus, textarea.admin-input:focus {
   outline: none; border-color: var(--admin-brand); box-shadow: 0 0 0 3px rgba(112, 79, 47, .12);
 }
-.admin-input.is-invalid { border-color: var(--admin-danger); }
+.admin-input.is-invalid { background: #fff; border-color: var(--admin-brand); }
 .admin-bilingual { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
 .admin-bilingual-field { position: relative; }
 .admin-bilingual-tag { position: absolute; top: -.55rem; inset-inline-start: .6rem; background: #fff; padding: 0 .35rem; font-size: .66rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .04em; }

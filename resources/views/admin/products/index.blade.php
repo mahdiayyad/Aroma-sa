@@ -65,10 +65,10 @@
                                 <td><x-admin.badge :tone="$product->is_active ? 'success' : 'neutral'" :label="$product->is_active ? __('admin.common.active') : __('admin.common.inactive')" /></td>
                                 <td class="text-end">
                                     <div class="admin-table-actions">
-                                        <a href="{{ route('admin.products.edit', $product) }}" class="admin-btn admin-btn-outline admin-btn-icon" title="{{ __('admin.common.edit') }}"><i class="bi bi-pencil"></i></a>
+                                        <a href="{{ route('admin.products.edit', $product) }}" class="admin-btn admin-btn-outline admin-btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('admin.common.edit') }}"><i class="bi bi-pencil"></i></a>
                                         <form method="post" action="{{ route('admin.products.destroy', $product) }}" data-confirm="{{ __('admin.common.confirm_delete') }}">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="admin-btn admin-btn-danger admin-btn-icon" title="{{ __('admin.common.delete') }}"><i class="bi bi-trash"></i></button>
+                                            <button type="submit" class="admin-btn admin-btn-danger admin-btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('admin.common.delete') }}"><i class="bi bi-trash"></i></button>
                                         </form>
                                     </div>
                                 </td>

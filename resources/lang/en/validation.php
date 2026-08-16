@@ -158,6 +158,123 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        // Generic / shared across several forms
+        'name'                   => 'name',
+        'email'                  => 'email address',
+        'phone'                  => 'mobile number',
+        'password'               => 'password',
+        'password_confirmation'  => 'password confirmation',
+        'gender'                 => 'gender',
+        'dob'                    => 'date of birth',
+        'locale'                 => 'language',
+        'login'                  => 'email or mobile number',
+        'remember'               => 'remember me',
+
+        // Account address book (account/addresses — plain field names)
+        'label'                  => 'label',
+        'recipient_name'         => 'recipient name',
+        'street_address'         => 'street address',
+        'city'                   => 'city',
+        'region'                 => 'region',
+        'postal_code'            => 'postal code',
+        'latitude'               => 'latitude',
+        'longitude'              => 'longitude',
+        'is_default'             => 'default address',
+
+        // Checkout — billing address
+        'billing_address.recipient_name' => 'recipient name',
+        'billing_address.email'          => 'email address',
+        'billing_address.phone'          => 'mobile number',
+        'billing_address.street_address' => 'street address',
+        'billing_address.city'           => 'city',
+        'billing_address.region'         => 'region',
+        'billing_address.postal_code'    => 'postal code',
+        'billing_address.latitude'       => 'latitude',
+        'billing_address.longitude'      => 'longitude',
+
+        // Checkout — separate shipping address
+        'use_shipping_for_billing'        => 'use billing address for shipping',
+        'shipping_address.recipient_name' => 'shipping recipient name',
+        'shipping_address.phone'          => 'shipping recipient phone',
+        'shipping_address.street_address' => 'shipping street address',
+        'shipping_address.city'           => 'shipping city',
+        'shipping_address.region'         => 'shipping region',
+        'shipping_address.postal_code'    => 'shipping postal code',
+        'shipping_address.latitude'       => 'shipping latitude',
+        'shipping_address.longitude'      => 'shipping longitude',
+        'customer_notes'                  => 'order notes',
+
+        // Checkout — delivery scheduling
+        'delivery_date'          => 'delivery date',
+        'delivery_time_slot'     => 'delivery time slot',
+        'delivery_instructions'  => 'delivery instructions',
+
+        // Checkout — gift options / recipient
+        'is_gift'                   => 'gift option',
+        'recipient.recipient_name'  => 'recipient name',
+        'recipient.phone'           => 'recipient phone',
+        'recipient.street_address'  => 'recipient address',
+        'recipient.city'            => 'recipient city',
+        'recipient.region'          => 'recipient region',
+        'recipient.postal_code'     => 'recipient postal code',
+        'is_anonymous'              => 'sending anonymously',
+        'gift_wrap'                 => 'gift wrap',
+        'greeting_card_id'          => 'greeting card',
+        'gift_to'                   => "recipient's name",
+        'gift_from'                 => "sender's name",
+        'gift_message'              => 'gift message',
+        'gift_media_url'            => 'media link',
+        'gift_signature_data'       => 'signature',
+
+        // Checkout — payment
+        'gateway'                => 'payment gateway',
+        'method'                 => 'payment method',
+        'coupon_code'            => 'coupon code',
+        'shipping_method'        => 'shipping method',
+
+        // Contact form
+        'topic'                  => 'topic',
+        'message'                => 'message',
+        'website'                => 'website',
+
+        // Admin — shared bilingual/meta fields
+        'name.ar'                => 'name (Arabic)',
+        'name.en'                => 'name (English)',
+        'slug'                   => 'slug',
+        'description.ar'         => 'description (Arabic)',
+        'description.en'         => 'description (English)',
+        'short_description.ar'   => 'short description (Arabic)',
+        'short_description.en'   => 'short description (English)',
+        'meta_title.ar'          => 'SEO title (Arabic)',
+        'meta_title.en'          => 'SEO title (English)',
+        'meta_description.ar'    => 'SEO description (Arabic)',
+        'meta_description.en'    => 'SEO description (English)',
+        'logo'                   => 'logo',
+        'image'                  => 'image',
+        'images'                 => 'images',
+        'images.*'               => 'image',
+        'icon'                   => 'icon',
+        'parent_id'              => 'parent category',
+        'sort_order'             => 'sort order',
+        'is_active'              => 'active',
+        'is_featured'            => 'featured',
+        'is_new_arrival'         => 'new arrival',
+        'is_gift_eligible'       => 'gift eligible',
+        'has_variants'           => 'has variants',
+
+        // Admin — products / categories / brands / gift cards / orders
+        'category_id'            => 'category',
+        'brand_id'                => 'brand',
+        'sku'                    => 'SKU',
+        'base_price'              => 'base price',
+        'compare_at_price'         => 'compare-at price',
+        'currency'                 => 'currency',
+        'stock_quantity'           => 'stock quantity',
+        'scent_family'             => 'scent family',
+        'status'                   => 'status',
+        'tracking_number'          => 'tracking number',
+        'device'                   => 'device',
+    ],
 
 ];

@@ -25,6 +25,10 @@ class AddressRequest extends FormRequest
             'billing_address.city' => 'required|string|max:100',
             'billing_address.region' => 'required|string|max:100',
             'billing_address.postal_code' => 'nullable|string|max:20',
+            // Set when the shopper picks a saved address that was pinned via
+            // the account map picker (see account/addresses/form.blade.php).
+            'billing_address.latitude' => 'nullable|numeric|between:-90,90',
+            'billing_address.longitude' => 'nullable|numeric|between:-180,180',
 
             'use_shipping_for_billing' => 'boolean',
 
@@ -34,6 +38,8 @@ class AddressRequest extends FormRequest
             'shipping_address.city' => 'required_if:use_shipping_for_billing,false|string|max:100',
             'shipping_address.region' => 'required_if:use_shipping_for_billing,false|string|max:100',
             'shipping_address.postal_code' => 'nullable|string|max:20',
+            'shipping_address.latitude' => 'nullable|numeric|between:-90,90',
+            'shipping_address.longitude' => 'nullable|numeric|between:-180,180',
 
             'customer_notes' => 'nullable|string|max:500',
         ];

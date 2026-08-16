@@ -16,6 +16,12 @@
   --aroma-info: var(--aroma-brown);
   --aroma-info-bg: var(--aroma-skin);
 
+  /* Selection blue — deliberately not brand-brown: used only for "this option
+     is the active choice" states (size/variant pickers) where a universally
+     recognizable selected-state color reads faster than a brand accent. */
+  --aroma-select: #2563eb;
+  --aroma-select-bg: #eff6ff;
+
   /* Neutral scale — warm-tinted grays derived from the ink color, used for
      borders, muted text, and disabled states instead of Bootstrap's cool grays. */
   --aroma-border: #e7dccc;

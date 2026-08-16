@@ -2,7 +2,7 @@
 
 <div class="aroma-topbar">
     <div class="container d-flex justify-content-between align-items-center py-1">
-        <span class="d-none d-md-inline">{{ __('storefront.trust.delivery') }}</span>
+        {{-- <span class="d-none d-md-inline">{{ __('storefront.trust.delivery') }}</span> --}}
         <span class="aroma-script">{{ __('storefront.hero.title') }}</span>
         @include('layouts.partials.language-switcher')
     </div>
@@ -48,7 +48,8 @@
             <div class="d-flex align-items-center gap-3">
                 @auth
                     <div class="dropdown">
-                        <a href="#" class="aroma-icon-link dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" title="{{ __('storefront.nav.account') }}">
+                        <a href="#" class="aroma-icon-link dropdown-toggle text-decoration-none" data-bs-toggle="dropdown"
+                           data-bs-tooltip="true" data-bs-placement="bottom" title="{{ __('storefront.nav.account') }}">
                             <i class="bi bi-person fs-5"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -64,16 +65,16 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="{{ route('wishlist.index') }}" class="aroma-icon-link" title="{{ __('storefront.nav.wishlist') }}">
+                    <a href="{{ route('wishlist.index') }}" class="aroma-icon-link" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('storefront.nav.wishlist') }}">
                         <i class="bi bi-heart fs-5"></i>
                         <span class="aroma-badge js-wishlist-count {{ count($wishlistIds ?? []) > 0 ? '' : 'd-none' }}">{{ count($wishlistIds ?? []) }}</span>
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="aroma-icon-link" title="{{ __('storefront.nav.account') }}">
+                    <a href="{{ route('login') }}" class="aroma-icon-link" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('storefront.nav.account') }}">
                         <i class="bi bi-person fs-5"></i>
                     </a>
                 @endauth
-                <a href="{{ route('cart.index') }}" class="aroma-icon-link" title="{{ __('storefront.nav.cart') }}">
+                <a href="{{ route('cart.index') }}" class="aroma-icon-link" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ __('storefront.nav.cart') }}">
                     <i class="bi bi-bag fs-5"></i>
                     <span class="aroma-badge js-cart-count {{ ($cartCount ?? 0) > 0 ? '' : 'd-none' }}">{{ $cartCount ?? 0 }}</span>
                 </a>

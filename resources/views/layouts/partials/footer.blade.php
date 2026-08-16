@@ -47,9 +47,9 @@
                     <button class="btn btn-aroma" type="submit">{{ __('storefront.newsletter.cta') }}</button>
                 </form>
                 <div class="d-flex gap-2 mt-3 fs-4 opacity-75">
-                    <i class="bi bi-credit-card-2-front" title="Mada / Visa / Mastercard"></i>
-                    <i class="bi bi-apple" title="Apple Pay"></i>
-                    <i class="bi bi-wallet2" title="Tabby / Tamara"></i>
+                    <i class="bi bi-credit-card-2-front" data-bs-toggle="tooltip" data-bs-placement="top" title="Mada / Visa / Mastercard"></i>
+                    <i class="bi bi-apple" data-bs-toggle="tooltip" data-bs-placement="top" title="Apple Pay"></i>
+                    <i class="bi bi-wallet2" data-bs-toggle="tooltip" data-bs-placement="top" title="Tabby / Tamara"></i>
                 </div>
             </div>
         </div>

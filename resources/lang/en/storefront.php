@@ -4,6 +4,11 @@ return [
 
     'admin_no_shop' => 'Admin accounts manage the store and cannot place orders.',
 
+    'confirm' => [
+        'yes'    => 'Yes, delete',
+        'cancel' => 'Cancel',
+    ],
+
     'payment' => [
         'title' => 'Payment methods',
         'note'  => 'Secure checkout — your details are always protected.',
@@ -85,6 +90,8 @@ return [
         'sold_out'     => 'Sold out',
         'in_stock'     => 'In stock',
         'total'        => 'Total',
+        'qty_decrease' => 'Decrease quantity',
+        'qty_increase' => 'Increase quantity',
         'sale'         => 'Sale',
         'brand'        => 'Brand',
         'sku'          => 'SKU',

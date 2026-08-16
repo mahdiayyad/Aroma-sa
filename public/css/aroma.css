@@ -740,7 +740,7 @@ a:hover {
 }
 @media (min-width: 992px) {
   .checkout-page .checkout-summary.sticky-top {
-    top: 6.5rem; /* clears the sticky navbar + category row */
+    top: 8.5rem; /* clears the sticky navbar + category row */
   }
 }
 @media (max-width: 991.98px) {
@@ -980,6 +980,134 @@ select,
 .aroma-price-compare,
 .aroma-suggest-price,
 .aroma-suggest-qty,
-.aroma-added-price {
+.aroma-added-price,
+.aroma-badge-discount,
+.aroma-badge-status {
   font-family: var(--aroma-input-font);
 }
+
+/* --- Tooltips (brand-themed, replaces the native browser title tooltip) ------
+   Shared by both the storefront (aroma-ui.js) and admin (admin.js) init
+   scripts — this one file is loaded by both layouts, so the look stays
+   identical everywhere a [data-bs-toggle="tooltip"] element appears. */
+.tooltip {
+  --bs-tooltip-bg: var(--aroma-brown);
+  --bs-tooltip-color: var(--aroma-white);
+  --bs-tooltip-border-radius: var(--aroma-radius-sm, 0.5rem);
+  --bs-tooltip-font-size: 0.8rem;
+  --bs-tooltip-padding-x: 0.65rem;
+  --bs-tooltip-padding-y: 0.4rem;
+  --bs-tooltip-opacity: 1;
+}
+.tooltip .tooltip-inner {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: var(--aroma-shadow-sm, 0 2px 10px rgba(112, 79, 47, 0.15));
+}
+
+/* --- SweetAlert2 (brand-themed, replaces the native window.confirm()) --------
+   Shared by the storefront (aroma-ui.js) and admin (admin.js) init scripts —
+   this one file is loaded by both layouts. buttonsStyling:false in the JS
+   hands full control of button looks to .aroma-swal-btn-* below. */
+.swal2-popup.aroma-swal-popup {
+  border-radius: var(--aroma-radius);
+  box-shadow: var(--aroma-shadow);
+  font-family: var(--aroma-body-en);
+  padding-bottom: 1.75rem;
+}
+html[lang="ar"] .swal2-popup.aroma-swal-popup {
+  font-family: var(--aroma-body-ar);
+}
+.aroma-swal-popup .swal2-title {
+  font-family: var(--aroma-heading-en);
+  color: var(--aroma-ink);
+  font-size: 1.35rem;
+  padding-top: 1.5rem;
+}
+html[lang="ar"] .aroma-swal-popup .swal2-title {
+  font-family: var(--aroma-heading-ar);
+}
+.aroma-swal-popup .swal2-html-container {
+  color: var(--aroma-muted, #8a7c68);
+}
+.aroma-swal-popup .swal2-icon.swal2-warning {
+  border-color: var(--aroma-danger, #a6432b);
+  color: var(--aroma-danger, #a6432b);
+}
+.aroma-swal-popup .swal2-icon.swal2-warning .swal2-icon-content {
+  color: var(--aroma-danger, #a6432b);
+}
+/* Success toast (admin.js flash → toast) — olive, not SweetAlert2's stock green. */
+.aroma-swal-popup .swal2-icon.swal2-success {
+  border-color: var(--aroma-success, #5b7a4a);
+  color: var(--aroma-success, #5b7a4a);
+}
+.aroma-swal-popup .swal2-icon.swal2-success [class^="swal2-success-line"] {
+  background-color: var(--aroma-success, #5b7a4a);
+}
+.aroma-swal-popup .swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(91, 122, 74, 0.3);
+}
+.aroma-swal-popup.swal2-toast .swal2-timer-progress-bar {
+  background: var(--aroma-success, #5b7a4a);
+}
+/* Toast mode is compact — the full-dialog title/padding rules above would
+   look oversized here, so scale them back down for .swal2-toast specifically. */
+.aroma-swal-popup.swal2-toast {
+  padding: 0.75rem 1rem;
+}
+.aroma-swal-popup.swal2-toast .swal2-title {
+  padding-top: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.aroma-swal-popup .swal2-actions {
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.aroma-swal-popup .swal2-close:focus,
+.aroma-swal-popup .swal2-confirm:focus,
+.aroma-swal-popup .swal2-cancel:focus {
+  box-shadow: none;
+}
+
+/* A warm ink tint instead of SweetAlert2's default flat black backdrop. */
+.swal2-container.swal2-backdrop-show,
+.swal2-container.swal2-backdrop-hide {
+  background: rgba(43, 32, 22, 0.45);
+}
+
+.aroma-swal-btn {
+  border-radius: 999px;
+  padding: 0.6rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: inherit;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.aroma-swal-btn:active { transform: translateY(1px); }
+.aroma-swal-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.25);
+}
+
+.aroma-swal-btn-danger {
+  background-color: var(--aroma-danger, #a6432b);
+  border-color: var(--aroma-danger, #a6432b);
+  color: #fff;
+}
+.aroma-swal-btn-danger:hover { filter: brightness(0.92); }
+
+.aroma-swal-btn-outline {
+  background-color: transparent;
+  border-color: var(--aroma-brown);
+  color: var(--aroma-brown);
+}
+.aroma-swal-btn-outline:hover {
+  background-color: var(--aroma-brown);
+  color: #fff;
+}
+
+html[dir="rtl"] .aroma-swal-popup { direction: rtl; }
