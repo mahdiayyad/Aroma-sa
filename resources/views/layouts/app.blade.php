@@ -119,6 +119,7 @@
     <link href="{{ asset('css/components/animations.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/cart-modal.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/assistant.css') }}" rel="stylesheet">
+    <link href="{{ \App\Support\Assets::versioned('css/components/hero-carousel.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css" rel="stylesheet">
 
     @stack('head')

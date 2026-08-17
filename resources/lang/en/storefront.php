@@ -43,6 +43,9 @@ return [
         'title'    => 'Awaken your Senses',
         'subtitle' => 'Captivating fragrances, floral arrangements, and beauty — curated in Saudi Arabia.',
         'cta'      => 'Shop the collection',
+        'slide'    => 'Slide',
+        'prev'     => 'Previous slide',
+        'next'     => 'Next slide',
     ],
 
     'sections' => [
