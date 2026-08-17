@@ -2,6 +2,16 @@
 <html lang="{{ app()->getLocale() }}" dir="{{ $direction ?? 'ltr' }}">
 <head>
     <meta charset="utf-8">
+    {{-- See the matching script + comment in layouts/app.blade.php — flags
+         Safari before first paint so aroma.css's html.is-safari Arabic font
+         override (working around a broken trial-font build) applies here too. --}}
+    <script>
+        (function () {
+            var ua = navigator.userAgent;
+            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua);
+            if (isSafari) { document.documentElement.classList.add('is-safari'); }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('admin.app_name'))</title>

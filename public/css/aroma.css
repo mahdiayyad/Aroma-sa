@@ -136,6 +136,20 @@
   --aroma-shadow: 0 10px 30px rgba(112, 79, 47, 0.12);
 }
 
+/* AligarhArabic (public/fonts/) is a trial/watermarked build — its internal
+   font name literally reads "Aligarh Arabic FREE PERSONAL USE" — and its
+   Arabic glyph shaping renders visibly broken specifically on Safari (its
+   text-shaping engine exposes gaps other engines don't). Rather than drop the
+   brand font everywhere, `.is-safari` (set by the inline script in
+   layouts/app.blade.php's <head>, via user-agent sniffing before first paint)
+   scopes the Google Fonts fallback to just the browser where it actually
+   breaks. Swap this out once the real licensed file replaces the trial one. */
+html.is-safari[lang="ar"] {
+  --aroma-heading-ar: "El Messiri", "Amiri", "Traditional Arabic", serif;
+  --aroma-body-ar: "IBM Plex Sans Arabic", "Tahoma", sans-serif;
+  --aroma-input-font: "Inter", "IBM Plex Sans Arabic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 /* --- Base ------------------------------------------------------------------ */
 body {
   background-color: var(--aroma-white);

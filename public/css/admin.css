@@ -39,6 +39,9 @@
   font-size: 0.925rem;
 }
 html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabic", "Tahoma", sans-serif; }
+/* Safari-only override — AligarhArabic is a trial build that renders broken
+   Arabic shaping specifically there; see the note in aroma.css. */
+html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Tahoma", sans-serif; }
 
 .admin-shell { display: flex; min-height: 100vh; }
 

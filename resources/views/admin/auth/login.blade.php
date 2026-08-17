@@ -2,6 +2,14 @@
 <html lang="{{ app()->getLocale() }}" dir="{{ $direction ?? 'ltr' }}">
 <head>
     <meta charset="utf-8">
+    {{-- See the matching script + comment in layouts/app.blade.php --}}
+    <script>
+        (function () {
+            var ua = navigator.userAgent;
+            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua);
+            if (isSafari) { document.documentElement.classList.add('is-safari'); }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('admin.login.title') }} — {{ $brand['name'] ?? 'Aroma' }}</title>
     @if (($direction ?? 'ltr') === 'rtl')
