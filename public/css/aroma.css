@@ -982,7 +982,8 @@ select,
 .aroma-suggest-qty,
 .aroma-added-price,
 .aroma-badge-discount,
-.aroma-badge-status {
+.aroma-badge-status,
+.footer-rights {
   font-family: var(--aroma-input-font);
 }
 

@@ -56,7 +56,7 @@
 
         <hr class="mt-4">
         <div class="d-flex flex-wrap justify-content-between small">
-            <span>© {{ date('Y') }} {{ $brand['name'] }}. {{ __('storefront.footer.rights') }}</span>
+            <span><span class="footer-rights">©</span> {{ date('Y') }} {{ $brand['name'] }}. {{ __('storefront.footer.rights') }}</span>
             <span class="aroma-script">{{ __('storefront.footer.tagline') }}</span>
         </div>
     </div>
