@@ -8,26 +8,27 @@
          carry their own baked-in headline, so the caption below is the
          site's short, consistent *actionable* layer (title + CTA) rather
          than a restatement — skipped only on the one slide whose artwork
-         already has its own complete "Explore Abayas" button baked in. --}}
+         already has its own complete "Explore Abayas" button baked in.
+
+         Four slides (signature-style, gifting-set, packaging, fragrance-
+         beauty) are deliberately left out of this list: they were cropped
+         from a single 2172x724 collage image, so getting each quadrant to
+         HeroImageProcessor's uniform 1920x1080 (16:9) meant removing ~43%
+         of its width — enough that the baked-in headline text got cut off
+         on both edges no matter how the crop was tuned. Re-add them (see
+         git history for the exact entries) once real, individually-shot
+         source photography replaces that collage. --}}
     @php
         $locale = app()->getLocale();
         $isAr = $locale === 'ar';
         $abayasUrl = route('category.show', [$locale, 'abayas']);
         $giftingUrl = route('home', $locale).'#gifting';
-        $categoriesUrl = route('home', $locale).'#categories';
         $heroSlides = [
             [
                 'image' => 'images/hero/abaya-rack.jpg',
                 'alt'   => $isAr ? 'مجموعة عبايات أروما المعلّقة — أناقة خالدة' : 'The Aroma abayas collection, hung — timeless elegance',
                 'url'   => $abayasUrl,
                 'title' => $isAr ? 'اكتشف مجموعة العبايات' : 'Discover the Abaya Collection',
-                'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
-            ],
-            [
-                'image' => 'images/hero/signature-style.jpg',
-                'alt'   => $isAr ? 'أناقة خالدة، توقيعك المميز' : 'Timeless elegance, your signature style',
-                'url'   => $abayasUrl,
-                'title' => $isAr ? 'اكتشف أناقتك المميزة' : 'Discover Your Signature Style',
                 'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
             ],
             [
@@ -54,32 +55,11 @@
                 'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
             ],
             [
-                'image' => 'images/hero/gifting-set.jpg',
-                'alt'   => $isAr ? 'هدايا مدروسة بعناية، تترك انطباعاً يدوم' : 'Thoughtful gifts, lasting impressions',
-                'url'   => $giftingUrl,
-                'title' => $isAr ? 'اكتشف هدايا مدروسة بعناية' : 'Discover Thoughtful Gifts',
-                'cta'   => $isAr ? 'أهدِ الآن' : 'Gift Now',
-            ],
-            [
-                'image' => 'images/hero/packaging.jpg',
-                'alt'   => $isAr ? 'تغليف أنيق، تجربة استثنائية' : 'Exquisite packaging, a beautiful experience',
-                'url'   => $giftingUrl,
-                'title' => $isAr ? 'اكتشف تغليفاً استثنائياً' : 'Discover Exquisite Packaging',
-                'cta'   => $isAr ? 'أهدِ الآن' : 'Gift Now',
-            ],
-            [
                 'image' => 'images/hero/gift-exchange.jpg',
                 'alt'   => $isAr ? 'هدية مميزة ملفوفة بأناقة' : 'A thoughtful gift, wrapped in elegance',
                 'url'   => $giftingUrl,
                 'title' => $isAr ? 'اكتشف الهدية المثالية' : 'Discover the Perfect Gift',
                 'cta'   => $isAr ? 'أهدِ الآن' : 'Gift Now',
-            ],
-            [
-                'image' => 'images/hero/fragrance-beauty.jpg',
-                'alt'   => $isAr ? 'عطور وجمال، عالم من البهجة' : 'Fragrances & beauty, a world of delight',
-                'url'   => $categoriesUrl,
-                'title' => $isAr ? 'اكتشف عالم العطور والجمال' : 'Discover Fragrances & Beauty',
-                'cta'   => $isAr ? 'استكشف' : 'Explore',
             ],
         ];
     @endphp

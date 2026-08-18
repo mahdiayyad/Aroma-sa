@@ -26,13 +26,34 @@
   cursor: grabbing;
 }
 
-/* Fixed aspect ratio (not a fixed height) so every slide crops the same way
-   regardless of its own source dimensions — this, plus object-fit below, is
-   what guarantees images are never stretched or distorted. */
+/* --- Hero media box ---------------------------------------------------------
+   The one reusable sizing rule every slide shares — this, plus object-fit
+   below, is what guarantees every image (regardless of its own source
+   dimensions) renders at the exact same box size, cropped and centered
+   rather than stretched. Adding a slide never means writing new CSS: drop
+   the image into $heroSlides in home/index.blade.php and it inherits this
+   automatically.
+
+   Height is explicit (not aspect-ratio) and fluid via clamp(), so every
+   slide is a fixed, modest carousel band — 380-480px on desktop, scaling
+   with viewport width between those bounds — not a towering hero. Being an
+   explicit height rather than one derived from the image also means the box
+   never changes size while an image loads or between slides, so there's no
+   layout shift either way.
+
+   The height is also chosen to keep this box's own aspect ratio wider than
+   the images' native 16:9 (see HeroImageProcessor, which standardizes every
+   slide to exactly 1920x1080): a box narrower than 16:9 forces object-fit:
+   cover below to crop width as well as height, stacking a second crop on
+   top of whatever HeroImageProcessor's own crop already did — on the four
+   slides cropped hardest from source (the ones from the old 2172x724
+   collage), that second crop was enough to push baked-in text past the
+   edge. A wider-than-16:9 box only ever crops top/bottom instead, which
+   these landscape banners tolerate far better. */
 .aroma-hero-slide {
   position: relative;
-  aspect-ratio: 21 / 9;
-  background: var(--aroma-skin); /* shows briefly while an image loads */
+  height: clamp(380px, 13.9vw + 213px, 480px); /* ≈380px @1200px viewport → 480px @1920px */
+  background: var(--aroma-skin); /* shows while an image loads — same height, so no jump once it's in */
   overflow: hidden;
 }
 .aroma-hero-slide img {
@@ -133,14 +154,28 @@ html[dir="rtl"] .aroma-hero-slide-cta i {
 
 @media (max-width: 575.98px) {
   .aroma-hero-slide-caption {
-    inset-inline-start: 0.75rem;
-    inset-block-end: 0.75rem;
-    width: 68%;
-    padding: 0.75rem 0.95rem;
+    inset-inline-start: 0.6rem;
+    inset-block-end: 0.6rem;
+    width: 64%;
+    padding: 0.55rem 0.75rem;
+    gap: 0.35rem;
+  }
+  .aroma-hero-slide-title { font-size: 0.78rem; line-height: 1.2; }
+  .aroma-hero-slide-cta { padding: 0.32rem 0.85rem; font-size: 0.7rem; }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  /* The tablet hero band is shorter than desktop's — same reasoning as the
+     mobile override above, just a middle-ground trim. */
+  .aroma-hero-slide-caption {
+    inset-inline-start: 0.9rem;
+    inset-block-end: 0.9rem;
+    width: min(70%, 320px);
+    padding: 0.75rem 1rem;
     gap: 0.5rem;
   }
-  .aroma-hero-slide-title { font-size: 0.9rem; }
-  .aroma-hero-slide-cta { padding: 0.4rem 1rem; font-size: 0.78rem; }
+  .aroma-hero-slide-title { font-size: 1rem; }
+  .aroma-hero-slide-cta { padding: 0.4rem 1rem; font-size: 0.8rem; }
 }
 .aroma-hero-slide-cta:focus-visible {
   outline: none;
@@ -239,10 +274,13 @@ html[dir="rtl"] .aroma-hero-carousel .carousel-control-next-icon::before { conte
 @media (max-width: 575.98px) {
   .aroma-hero-carousel { border-radius: var(--aroma-radius-sm, 0.5rem); }
   .aroma-hero-carousel .carousel-inner { border-radius: var(--aroma-radius-sm, 0.5rem); }
-  /* Stays landscape, just less wide than desktop — these are campaign
-     banners with content (wordmark, product) spread edge to edge, so a
-     portrait ratio here would crop both sides away under object-fit:cover. */
-  .aroma-hero-slide { aspect-ratio: 4 / 3; }
+  /* Shorter and capped, so the hero doesn't eat the whole first screen on a
+     phone — but still scales a little with viewport width so a wider phone
+     gets a proportionally taller (not just wider) banner. Kept close to
+     16:9 itself (see the note above the base .aroma-hero-slide rule) so
+     object-fit:cover crops as little extra width as this narrow a viewport
+     allows. */
+  .aroma-hero-slide { height: clamp(200px, 50vw, 260px); }
   .aroma-hero-carousel .carousel-control-prev-icon,
   .aroma-hero-carousel .carousel-control-next-icon {
     width: 2.5rem;
@@ -253,5 +291,7 @@ html[dir="rtl"] .aroma-hero-carousel .carousel-control-next-icon::before { conte
 }
 
 @media (min-width: 576px) and (max-width: 991.98px) {
-  .aroma-hero-slide { aspect-ratio: 16 / 10; }
+  /* Proportionally scaled between the mobile and desktop tiers — same
+     clamp() technique, just a middle band of values. */
+  .aroma-hero-slide { height: clamp(280px, 34vw, 340px); }
 }
