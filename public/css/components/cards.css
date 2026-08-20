@@ -7,7 +7,7 @@
 
 .aroma-card {
   background: #fff;
-  border: 1px solid rgba(112, 79, 47, 0.08);
+  border: none;
   border-radius: var(--aroma-radius);
   box-shadow: var(--aroma-shadow-sm);
   transition: transform var(--aroma-transition), box-shadow var(--aroma-transition);
@@ -32,7 +32,10 @@
 .aroma-product-media {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 1 / 1;
+  /* Taller than square — a fashion/catalog ratio, not a thumbnail-grid one;
+     the extra height is what lets a product read as "curated" rather than
+     "listed". */
+  aspect-ratio: 4 / 5;
   background: var(--aroma-skin);
 }
 .aroma-product-media img {
@@ -116,34 +119,40 @@
 }
 
 .aroma-product-body {
-  padding: 1rem 1.1rem 1.2rem;
+  padding: 1.5rem 1.4rem 1.6rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 .aroma-product-brand {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   color: var(--aroma-muted);
 }
+/* The heading face, not the body face — a product name is closer to a
+   small headline than a line of UI copy, so it gets the same editorial
+   typographic family the rest of the platform's headings use. */
 .aroma-product-title {
-  font-family: var(--aroma-body-en);
-  font-weight: 600;
-  font-size: var(--aroma-fs-h5);
+  font-family: var(--aroma-heading-en);
+  font-weight: 500;
+  font-size: 1.15rem;
+  letter-spacing: -0.005em;
   color: var(--aroma-ink);
-  margin: 0.25rem 0 0.6rem;
+  margin: 0.4rem 0 0.85rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-html[lang="ar"] .aroma-product-title { font-family: var(--aroma-body-ar); }
+html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); font-weight: 600; }
 
 .aroma-price {
   font-weight: 700;
   color: var(--aroma-brown);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
 }
 .aroma-price-compare {
   color: var(--aroma-muted);
@@ -162,7 +171,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-body-ar); }
   overflow: hidden;
   aspect-ratio: 1 / 1;
   background: var(--aroma-skin);
-  border: 1px solid rgba(112, 79, 47, 0.08);
+  border: 1px solid rgba(31, 77, 61, 0.08);
 }
 .aroma-gallery-main img {
   width: 100%;
@@ -182,7 +191,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-body-ar); }
   font-weight: 600;
   color: #fff;
   text-align: center;
-  background: linear-gradient(0deg, rgba(43, 32, 22, 0.72), transparent);
+  background: linear-gradient(0deg, rgba(27, 26, 23, 0.72), transparent);
   transition: opacity 0.25s ease;
 }
 .aroma-gallery-caption.is-empty { opacity: 0; }
@@ -223,7 +232,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-body-ar); }
 .aroma-gallery-thumb:focus-visible {
   outline: none;
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.4);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.4);
   opacity: 1;
 }
 
@@ -236,7 +245,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-body-ar); }
 
 /* --- Accordion (product description) ------------------------------------------ */
 .accordion-item {
-  border: 1px solid rgba(112, 79, 47, 0.08);
+  border: 1px solid rgba(31, 77, 61, 0.08);
   border-radius: var(--aroma-radius-sm) !important;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -252,7 +261,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-body-ar); }
   box-shadow: none;
 }
 .accordion-button:focus {
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
   border-color: var(--aroma-light-brown);
 }
 
@@ -301,11 +310,11 @@ html[lang="ar"] .aroma-policy-accordion .accordion-button {
   width: 0.9rem;
   height: 0.9rem;
   background-size: 0.9rem;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23704F2F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M3 6l5 5 5-5'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%231F4D3D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M3 6l5 5 5-5'/%3e%3c/svg%3e");
   transition: transform var(--aroma-transition);
 }
 .aroma-policy-accordion .accordion-button:not(.collapsed)::after {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23704F2F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M3 6l5 5 5-5'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%231F4D3D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M3 6l5 5 5-5'/%3e%3c/svg%3e");
 }
 
 .aroma-policy-accordion .accordion-body {
@@ -323,7 +332,7 @@ html[lang="ar"] .aroma-policy-accordion .accordion-button {
   z-index: 1030;
   background: #fff;
   border-top: 1px solid var(--aroma-border);
-  box-shadow: 0 -4px 20px rgba(112, 79, 47, 0.1);
+  box-shadow: 0 -4px 20px rgba(31, 77, 61, 0.1);
   padding: 0.75rem 1rem;
   padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
 }

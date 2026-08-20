@@ -101,14 +101,24 @@
 }
 
 :root {
-  /* Palette — Brand Guidelines p.14 */
-  --aroma-brown: #704f2f;
-  --aroma-light-brown: #d3a17a;
-  --aroma-skin: #ffe5ca;
-  --aroma-white: #fff3e2;
-  --aroma-ink: #2b2016;
+  /* Palette — 2026 luxury-gifting brand evolution.
+     --aroma-brown/--aroma-light-brown keep their original NAMES (100+ rules
+     across this file and every component in css/components/ already key off
+     them as "the primary brand color" / "the accent/hover color") but now
+     POINT at Deep Emerald / Gold — repointing values here is what re-themes
+     the entire platform in one place instead of touching every selector.
+     Heritage Brown survives as its own explicit, deliberately sparingly-used
+     token (--aroma-heritage-brown) rather than disappearing. */
+  --aroma-brown: #1F4D3D;          /* Deep Emerald — primary: nav, headers, primary buttons, active states */
+  --aroma-light-brown: #C9A24B;    /* Gold — accent: hover, badges, selected states, CTA emphasis */
+  --aroma-gold: #C9A24B;           /* explicit alias of the above, for new gold-specific rules */
+  --aroma-emerald-deep: #1B3E32;   /* darker emerald — hover/active shade for primary surfaces; same value as --aroma-btn-emerald-bg-hover in tokens.css */
+  --aroma-heritage-brown: #704F2F; /* secondary only — never a dominant surface color */
+  --aroma-skin: #FAF3E7;           /* Cream — soft surfaces, section tints */
+  --aroma-white: #FAF3E7;          /* Cream — text/surfaces on dark (nav, hero, footer) */
+  --aroma-ink: #1B1A17;            /* True Ink — primary text, headings */
 
-  --aroma-gradient: linear-gradient(135deg, #704f2f 0%, #d3a17a 55%, #ffe5ca 100%);
+  --aroma-gradient: linear-gradient(135deg, #1F4D3D 0%, #17402F 55%, #0F2820 100%);
 
   /* Font stacks — per Aroma Brand Guidelines (2024), p.15-19:
        Manier         = English headings/display   Helvetica Neue = English body/UI
@@ -128,12 +138,16 @@
      Arabic display face directly renders those symbols as odd/garbled shapes. */
   --aroma-input-font: "Inter", "AligarhArabic", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-  /* Map Bootstrap theme colour to the Aroma brown */
-  --bs-primary: #704f2f;
-  --bs-primary-rgb: 112, 79, 47;
+  /* Map Bootstrap theme colour to the Aroma primary (Deep Emerald) */
+  --bs-primary: #1F4D3D;
+  --bs-primary-rgb: 31, 77, 61;
 
   --aroma-radius: 0.85rem;
-  --aroma-shadow: 0 10px 30px rgba(112, 79, 47, 0.12);
+  --aroma-shadow: 0 10px 30px rgba(31, 77, 61, 0.14);
+  /* A restrained gold glow for the handful of genuinely premium moments
+     (badges, a primary CTA's hover) — never the default shadow, since gold
+     "should never overpower emerald" as a resting-state treatment. */
+  --aroma-shadow-gold: 0 8px 24px rgba(201, 162, 75, 0.25);
 }
 
 /* AligarhArabic (public/fonts/) is a trial/watermarked build — its internal
@@ -152,7 +166,7 @@ html.is-safari[lang="ar"] {
 
 /* --- Base ------------------------------------------------------------------ */
 body {
-  background-color: var(--aroma-white);
+  background-color: #FFFFFF/*var(--aroma-white)*/;
   color: var(--aroma-ink);
   font-family: var(--aroma-body-en);
   -webkit-font-smoothing: antialiased;
@@ -191,38 +205,49 @@ a:hover {
 }
 
 /* --- Buttons --------------------------------------------------------------- */
+/* Every Aroma button declares two explicit background colors — default and
+   hover (tokens.css's --aroma-btn-* pair) — and lets background-color
+   itself transition between them. No filter/opacity/gradient stands in for
+   the hover color. Shared transition timing + shadow tokens live in
+   components/buttons.css. */
 .btn-aroma {
-  background-color: var(--aroma-brown);
-  border: 1px solid var(--aroma-brown);
+  background-color: var(--aroma-btn-emerald-bg, rgb(31 77 61));
+  border: 1px solid var(--aroma-btn-emerald-bg, rgb(31 77 61));
   color: var(--aroma-white);
-  border-radius: 999px;
+  border-radius: 7px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(27, 26, 23, 0.08));
 }
 .btn-aroma:hover {
-  background-color: #5c3f24;
-  border-color: #5c3f24;
+  background-color: var(--aroma-btn-emerald-bg-hover, rgb(27 62 50));
+  border-color: var(--aroma-btn-emerald-bg-hover, rgb(27 62 50));
   color: #fff;
+  transform: translateY(-1px);
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(27, 26, 23, 0.14));
 }
 .btn-aroma-outline {
   background-color: transparent;
-  border: 1px solid var(--aroma-brown);
+  border: 1px solid var(--aroma-btn-emerald-bg, rgb(31 77 61));
   color: var(--aroma-brown);
-  border-radius: 999px;
+  border-radius: 7px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(27, 26, 23, 0.08));
 }
 .btn-aroma-outline:hover {
-  background-color: var(--aroma-brown);
+  background-color: var(--aroma-btn-emerald-bg, rgb(31 77 61));
   color: var(--aroma-white);
+  transform: translateY(-1px);
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(27, 26, 23, 0.14));
 }
 
 /* --- Navbar ---------------------------------------------------------------- */
 .aroma-topbar {
   background: var(--aroma-brown);
   color: var(--aroma-skin);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
 }
 .aroma-topbar a {
   color: var(--aroma-skin);
@@ -262,26 +287,40 @@ a:hover {
   background: var(--aroma-brown);
   color: #fff;
 }
+/* A crisp white bar, distinct from the warm cream page underneath it, held
+   up by a soft shadow rather than a hard border — the nav should read as a
+   layer floating above the page, not a box drawn on top of it. */
 .aroma-navbar {
-  background: var(--aroma-white);
-  border-bottom: 1px solid rgba(112, 79, 47, 0.12);
+  background: #fff;
+  border-bottom: none;
+  box-shadow: 0 1px 0 rgba(31, 77, 61, 0.06), 0 10px 24px -18px rgba(31, 77, 61, 0.35);
 }
 .aroma-logo {
   font-family: var(--aroma-heading-en);
-  font-size: 1.7rem;
+  font-size: 1.65rem;
   font-weight: 700;
   color: var(--aroma-brown);
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
 }
 .aroma-search .form-control {
-  border-radius: 999px;
-  border-color: rgba(112, 79, 47, 0.25);
+  border-radius: 7px;
+  border-color: var(--aroma-border);
+  background: var(--aroma-skin);
+  transition: background-color var(--aroma-transition-fast), border-color var(--aroma-transition-fast);
+}
+.aroma-search .form-control:hover,
+.aroma-search .form-control:focus {
   background: #fff;
 }
 .aroma-icon-link {
   color: var(--aroma-brown);
   position: relative;
+  transition: color var(--aroma-transition-fast), transform var(--aroma-transition-fast);
+}
+.aroma-icon-link:hover {
+  color: var(--aroma-gold);
+  transform: translateY(-1px);
 }
 .aroma-badge {
   position: absolute;
@@ -289,7 +328,7 @@ a:hover {
   inset-inline-end: -10px;
   background: var(--aroma-light-brown);
   color: #fff;
-  border-radius: 999px;
+  border-radius: 7px;
   font-size: 0.65rem;
   padding: 0 6px;
   line-height: 1.5;
@@ -332,19 +371,30 @@ a:hover {
 .aroma-hero {
   background: var(--aroma-gradient);
   color: #fff;
-  border-radius: var(--aroma-radius);
-  padding: clamp(2.5rem, 6vw, 5rem);
+  border-radius: var(--aroma-radius-lg, 1.25rem);
+  padding: clamp(3rem, 7vw, 6rem);
   position: relative;
   overflow: hidden;
 }
+/* A faint gold hairline frames the hero — the one place gold outlines a
+   large surface rather than filling it, so it reads as a finishing touch
+   (like foil-stamped card stock) instead of competing with the emerald. */
+.aroma-hero::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(201, 162, 75, 0.35);
+  border-radius: inherit;
+  pointer-events: none;
+}
 .aroma-hero h1 {
   color: #fff;
-  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-size: clamp(2.1rem, 5.5vw, 3.75rem);
 }
 .aroma-hero .aroma-hero-tagline {
   font-family: var(--aroma-script);
   font-size: clamp(1.6rem, 4vw, 2.6rem);
-  color: var(--aroma-skin);
+  color: var(--aroma-gold);
 }
 .aroma-hero .aroma-hero-lead {
   max-width: 640px;
@@ -355,28 +405,51 @@ a:hover {
 .aroma-section-title {
   position: relative;
   display: inline-block;
-  margin-bottom: 1.75rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
 }
+html[lang="ar"] .aroma-section-title { font-weight: 600; }
 .aroma-section-title::after {
   content: "";
   display: block;
-  width: 48px;
-  height: 3px;
-  background: var(--aroma-light-brown);
-  margin-top: 0.5rem;
+  width: 44px;
+  height: 1px;
+  background: var(--aroma-gold);
+  margin-top: 0.9rem;
 }
 .aroma-category-card,
 .aroma-product-card {
+  position: relative;
   background: #fff;
-  border: 1px solid rgba(112, 79, 47, 0.08);
+  border: none;
   border-radius: var(--aroma-radius);
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   height: 100%;
 }
+/* A thin gold line that draws in on hover — the platform's signature
+   premium "reveal", used consistently on every card type (see the matching
+   rule for .aroma-card in components/cards.css). Restrained: gold only ever
+   appears as this 2px hairline accent, never a fill, so it stays an accent. */
+.aroma-category-card::before,
+.aroma-product-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--aroma-gold);
+  transform: scaleX(0);
+  transition: transform 0.45s var(--aroma-ease, ease);
+  z-index: 2;
+}
+.aroma-category-card:hover::before,
+.aroma-product-card:hover::before {
+  transform: scaleX(1);
+}
 .aroma-category-card:hover,
 .aroma-product-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
   box-shadow: var(--aroma-shadow);
 }
 .aroma-category-card .card-body {
@@ -386,33 +459,50 @@ a:hover {
 /* --- Trust badges ---------------------------------------------------------- */
 .aroma-trust {
   background: #fff;
-  border-radius: var(--aroma-radius);
-  border: 1px solid rgba(112, 79, 47, 0.08);
+  border-radius: var(--aroma-radius-lg);
+  border: none;
+  box-shadow: var(--aroma-shadow-sm);
 }
 .aroma-trust .aroma-trust-item {
-  padding: 1.25rem;
+  padding: 2rem 1.5rem;
+}
+.aroma-trust hr.border-end,
+.aroma-trust .border-end {
+  border-color: var(--aroma-border) !important;
+  opacity: 1;
 }
 
 /* --- Newsletter ------------------------------------------------------------ */
 .aroma-newsletter {
-  background: var(--aroma-brown);
+  background: var(--aroma-gradient);
   color: var(--aroma-skin);
-  border-radius: var(--aroma-radius);
+  border-radius: var(--aroma-radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+.aroma-newsletter::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(201, 162, 75, 0.3);
+  border-radius: inherit;
+  pointer-events: none;
 }
 .aroma-newsletter h2 {
-  color: var(--aroma-skin);
+  color: #fff;
 }
 .aroma-newsletter .form-control {
-  border-radius: 999px;
+  border-radius: 7px;
+  border-color: transparent;
 }
 
 /* --- Footer ---------------------------------------------------------------- */
 .aroma-footer {
   background: var(--aroma-ink);
-  color: rgba(255, 243, 226, 0.85);
+  color: rgba(250, 243, 231, 0.85);
 }
 .aroma-footer a {
-  color: rgba(255, 243, 226, 0.7);
+  color: rgba(250, 243, 231, 0.7);
   transition: color 0.2s ease;
 }
 .aroma-footer a:hover {
@@ -424,15 +514,15 @@ a:hover {
   font-size: 0.8rem;
 }
 .aroma-footer hr {
-  border-color: rgba(255, 243, 226, 0.15);
+  border-color: rgba(250, 243, 231, 0.15);
 }
 .aroma-footer .form-control {
   background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 243, 226, 0.2);
+  border-color: rgba(250, 243, 231, 0.2);
   color: var(--aroma-skin);
 }
 .aroma-footer .form-control::placeholder {
-  color: rgba(255, 243, 226, 0.5);
+  color: rgba(250, 243, 231, 0.5);
 }
 .aroma-footer .aroma-footer-brand {
   font-family: var(--aroma-script);
@@ -491,11 +581,23 @@ a:hover {
   .aroma-category-card,
   .aroma-product-card,
   .btn-aroma,
-  .btn-aroma-outline {
+  .btn-aroma-outline,
+  .btn-aroma-secondary,
+  .btn-aroma-success,
+  .btn-aroma-danger,
+  .btn-aroma-ghost,
+  .btn-aroma-light {
     transition: none;
   }
   .aroma-category-card:hover,
-  .aroma-product-card:hover {
+  .aroma-product-card:hover,
+  .btn-aroma:hover,
+  .btn-aroma-outline:hover,
+  .btn-aroma-secondary:hover,
+  .btn-aroma-success:hover,
+  .btn-aroma-danger:hover,
+  .btn-aroma-ghost:hover,
+  .btn-aroma-light:hover {
     transform: none;
   }
 }
@@ -515,12 +617,12 @@ a:hover {
 .checkout-page .aroma-card {
   border: 1px solid var(--aroma-border);
   border-radius: var(--checkout-radius);
-  box-shadow: 0 1px 2px rgba(112, 79, 47, 0.04);
+  box-shadow: 0 1px 2px rgba(31, 77, 61, 0.04);
   transition: none;
 }
 .checkout-page .aroma-card:hover {
   transform: none;
-  box-shadow: 0 1px 2px rgba(112, 79, 47, 0.04);
+  box-shadow: 0 1px 2px rgba(31, 77, 61, 0.04);
 }
 .checkout-page .aroma-card > .card-body {
   padding: clamp(1.1rem, 3vw, 1.6rem);
@@ -666,6 +768,25 @@ a:hover {
   color: var(--aroma-brown);
   flex-shrink: 0;
 }
+/* Real brand marks (see resources/views/components/payment-icon.blade.php)
+   — fixed height, width:auto, so mada/Tamara's wide wordmarks and Visa/
+   Mastercard/Apple Pay's squarer marks all read as the same visual weight. */
+/* Real brand marks in their own colors — see components/payment-icon.blade.php. */
+.aroma-pay-method > svg:first-child {
+  height: 1.7rem;
+  width: auto;
+  max-width: 3rem;
+  flex-shrink: 0;
+}
+.aroma-pay-method > .aroma-payment-chip {
+  height: 1.85rem;
+  padding: 0 0.7rem;
+  border-radius: 0.4rem;
+  flex-shrink: 0;
+}
+.aroma-pay-method > .aroma-payment-chip .aroma-payment-chip-text {
+  font-size: 0.9rem;
+}
 .aroma-pay-method-label { flex: 1; }
 .aroma-pay-check {
   margin-inline-start: auto;
@@ -689,20 +810,20 @@ a:hover {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--aroma-muted, #8a7c68);
-  background: rgba(112, 79, 47, 0.08);
+  background: rgba(31, 77, 61, 0.08);
   padding: 0.12rem 0.5rem;
-  border-radius: 999px;
+  border-radius: 7px;
   white-space: nowrap;
 }
 .btn-check:checked + .aroma-pay-method {
   border-color: var(--aroma-brown);
   background: var(--aroma-white);
-  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
+  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.12);
 }
 .btn-check:checked + .aroma-pay-method .aroma-pay-check { opacity: 1; }
 .btn-check:focus-visible + .aroma-pay-method {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.35);
 }
 .aroma-pay-secure {
   display: flex;
@@ -741,11 +862,11 @@ a:hover {
 .aroma-slot-option:hover { border-color: var(--aroma-light-brown); }
 .btn-check:checked + .aroma-slot-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
+  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.12);
 }
 .btn-check:focus-visible + .aroma-slot-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.35);
 }
 
 /* The sticky order summary must sit BELOW the sticky navbar, never over it. */
@@ -788,7 +909,7 @@ a:hover {
   border: 1px solid var(--aroma-border);
   border-inline-start: 4px solid var(--aroma-success);
   border-radius: 0.7rem;
-  box-shadow: 0 14px 34px rgba(112, 79, 47, 0.2);
+  box-shadow: 0 14px 34px rgba(31, 77, 61, 0.2);
   padding: 0.85rem 1.05rem;
   transform: translateY(1rem);
   opacity: 0;
@@ -1017,7 +1138,7 @@ select,
 .tooltip .tooltip-inner {
   font-weight: 600;
   letter-spacing: 0.01em;
-  box-shadow: var(--aroma-shadow-sm, 0 2px 10px rgba(112, 79, 47, 0.15));
+  box-shadow: var(--aroma-shadow-sm, 0 2px 10px rgba(31, 77, 61, 0.15));
 }
 
 /* --- SweetAlert2 (brand-themed, replaces the native window.confirm()) --------
@@ -1089,11 +1210,11 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
 /* A warm ink tint instead of SweetAlert2's default flat black backdrop. */
 .swal2-container.swal2-backdrop-show,
 .swal2-container.swal2-backdrop-hide {
-  background: rgba(43, 32, 22, 0.45);
+  background: rgba(27, 26, 23, 0.45);
 }
 
 .aroma-swal-btn {
-  border-radius: 999px;
+  border-radius: 7px;
   padding: 0.6rem 1.75rem;
   font-weight: 600;
   font-size: 0.95rem;
@@ -1105,7 +1226,7 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
 .aroma-swal-btn:active { transform: translateY(1px); }
 .aroma-swal-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.25);
+  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.25);
 }
 
 .aroma-swal-btn-danger {
@@ -1152,12 +1273,12 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 .aroma-password-toggle:hover {
-  color: var(--aroma-brown, #704f2f);
-  background: rgba(112, 79, 47, 0.08);
+  color: var(--aroma-brown, #1F4D3D);
+  background: rgba(31, 77, 61, 0.08);
 }
 .aroma-password-toggle:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.35);
 }
 .aroma-password-toggle i { font-size: 1.05rem; }
 

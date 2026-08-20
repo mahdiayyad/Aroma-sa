@@ -6,7 +6,7 @@
 .aroma-payments {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(112, 79, 47, 0.12);
+  border-top: 1px solid rgba(31, 77, 61, 0.12);
 }
 .aroma-payments-title {
   display: flex;
@@ -31,8 +31,8 @@
 .aroma-payment-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
   border: 1px solid var(--aroma-border, #ebe2d4);
   border-radius: 0.5rem;
   background: #fff;
@@ -41,6 +41,40 @@
   color: var(--aroma-ink);
 }
 .aroma-payment-badge i { font-size: 1rem; color: var(--aroma-brown); }
+/* Real brand marks in their own colors (see components/payment-icon.blade.php)
+   — a fixed height with width:auto keeps every mark the same visual weight
+   regardless of how wide/square its own shape naturally is (mada is a wide
+   lockup; Visa/Mastercard/Apple Pay are closer to square). Color now comes
+   from each mark's own fill, not currentColor — these are brand colors, not
+   the site accent. */
+.aroma-payment-badge svg {
+  height: 1.15rem;
+  width: auto;
+  flex-shrink: 0;
+}
+/* tabby / Tamara — shown as their real self-branding: a gradient chip with
+   the wordmark in dark bold type, not an icon-plus-label pair. */
+.aroma-payment-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+  padding: 0 0.6rem;
+  border-radius: 0.4rem;
+  flex-shrink: 0;
+}
+.aroma-payment-chip-text {
+  font-family: var(--aroma-heading-en);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+/* Tamara's wordmark is Arabic branding regardless of site locale — it needs
+   the Arabic display face to render its glyphs at all, let alone cleanly. */
+.aroma-payment-chip-text[dir="rtl"] {
+  font-family: var(--aroma-heading-ar);
+}
 .aroma-payment-badge.is-soon { opacity: 0.55; }
 .aroma-payment-soon {
   font-size: 0.6rem;
@@ -48,7 +82,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--aroma-muted, #8a7c68);
-  background: rgba(112, 79, 47, 0.08);
+  background: rgba(31, 77, 61, 0.08);
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
 }
@@ -64,7 +98,7 @@
 .aroma-cart-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(43, 32, 22, 0.5);
+  background: rgba(27, 26, 23, 0.5);
   opacity: 0;
   transition: opacity 0.25s ease;
 }
@@ -83,7 +117,7 @@
   flex-direction: column;
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 30px 70px rgba(43, 32, 22, 0.32);
+  box-shadow: 0 30px 70px rgba(27, 26, 23, 0.32);
   overflow: hidden;
   transition: opacity 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
               transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -194,7 +228,7 @@
   flex-direction: column;
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
-.aroma-suggest-card:hover { border-color: var(--aroma-light-brown); box-shadow: 0 6px 16px rgba(112, 79, 47, 0.1); }
+.aroma-suggest-card:hover { border-color: var(--aroma-light-brown); box-shadow: 0 6px 16px rgba(31, 77, 61, 0.1); }
 .aroma-suggest-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: var(--aroma-skin); display: block; }
 .aroma-suggest-body { padding: 0.5rem 0.6rem 0.6rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
 .aroma-suggest-name {
@@ -227,6 +261,7 @@ a.aroma-suggest-name:hover { color: var(--aroma-brown); }
   text-align: center;
   text-decoration: none;
   display: block;
+  transition-duration: 0.15s !important;
 }
 .aroma-suggest-add:hover { background: var(--aroma-brown); color: #fff; }
 .aroma-suggest-add:disabled { opacity: 0.55; cursor: wait; }

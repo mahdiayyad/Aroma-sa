@@ -106,13 +106,12 @@
                                 @php($enabled = $gatewayReady[$gateway] ?? false)
                                 @php($checked = $enabled && $needsDefault)
                                 @php($needsDefault = $needsDefault && ! $enabled)
-                                @php($icon = ['mada' => 'bi-credit-card-2-front', 'applepay' => 'bi-apple', 'visa' => 'bi-credit-card', 'mastercard' => 'bi-credit-card-2-back'][$method] ?? ($isBnpl ? 'bi-calendar-check' : 'bi-credit-card'))
                                 <input type="radio" class="btn-check" name="gateway" id="gateway-{{ $method }}"
                                        value="{{ $gateway }}" data-method="{{ $method }}"
                                        {{ $enabled ? 'required' : 'disabled' }}
                                        {{ $checked ? 'checked' : '' }}>
                                 <label class="aroma-pay-method {{ $enabled ? '' : 'is-disabled' }}" for="gateway-{{ $method }}">
-                                    <i class="bi {{ $icon }}"></i>
+                                    <x-payment-icon :method="$method" />
                                     <span class="aroma-pay-method-label">{{ __('checkout.payment_methods.'.strtolower($method)) }}</span>
                                     @if($enabled)
                                         <i class="bi bi-check-circle-fill aroma-pay-check"></i>

@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="admin-stats-grid">
-        <x-admin.stat :label="__('admin.dashboard.revenue')" :value="\App\Support\Formatting\Money::format($revenue)" icon="bi-cash-coin" tone="success" />
+        <x-admin.stat :label="__('admin.dashboard.revenue')" :value="\App\Support\Formatting\Money::format($revenue)" icon="bi-cash-coin" tone="gold" />
         <x-admin.stat :label="__('admin.dashboard.total_orders')" :value="$ordersTotal" icon="bi-receipt" />
         <x-admin.stat :label="__('admin.dashboard.pending_orders')" :value="$ordersPending" icon="bi-hourglass-split" tone="warning" />
         <x-admin.stat :label="__('admin.dashboard.customers')" :value="$customers" icon="bi-people" tone="info" />

@@ -35,7 +35,7 @@ html[lang="ar"] .select2-container--default .select2-selection--single .select2-
 
 .select2-container--default.select2-container--open .select2-selection--single {
   border-color: var(--aroma-light-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
+  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
 }
 
 /* Select2 hides the original <select> and inserts .select2-container as its
