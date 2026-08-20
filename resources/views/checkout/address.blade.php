@@ -3,6 +3,12 @@
 @section('title', __('checkout.address').' — '.$brand['name'])
 @section('robots', 'noindex, follow')
 
+@push('head')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link href="{{ \App\Support\Assets::versioned('css/components/map-picker.css') }}" rel="stylesheet">
+@endpush
+
 @section('content')
 @php($locale = app()->getLocale())
 <div class="container checkout-page my-4 my-lg-5">
@@ -52,22 +58,7 @@
 
                             <div class="col-12">
                                 <label class="form-label fw-semibold">{{ __('location.label') }}</label>
-                                <div class="aroma-location-field">
-                                    <input type="text" name="billing_address[location_code]" id="billingLocationCode"
-                                           class="form-control js-location-code @error('billing_address.location_code') is-invalid @enderror"
-                                           value="{{ old('billing_address.location_code') }}" maxlength="8"
-                                           placeholder="{{ __('location.placeholder') }}"
-                                           data-lang-loading="{{ __('location.preview.loading') }}"
-                                           data-lang-not-found="{{ __('location.errors.not_found') }}"
-                                           data-lang-invalid="{{ __('location.errors.invalid_format') }}"
-                                           data-lang-failed="{{ __('location.errors.lookup_failed') }}"
-                                           required>
-                                    <div class="aroma-location-preview" hidden></div>
-                                </div>
-                                <div class="form-text">{{ __('location.hint') }}</div>
-                                @error('billing_address.location_code')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
+                                <x-location-picker field-prefix="billing_address" dom-id="billing" />
                             </div>
 
                             <div class="col-12">
@@ -89,10 +80,13 @@
                                     <button type="button" class="list-group-item list-group-item-action d-flex align-items-start gap-3 border-0 p-3"
                                             onclick="loadAddress(this)" data-recipient="{{ $address->recipient_name }}"
                                             data-phone="{{ $address->phone }}"
-                                            data-location-code="{{ $address->location_code }}">
+                                            data-location-code="{{ $address->location_code }}"
+                                            data-lat="{{ $address->latitude }}" data-lng="{{ $address->longitude }}">
                                         <div>
                                             <strong>{{ $address->label ?? 'Address' }}</strong>
-                                            <div class="small text-aroma-muted">{{ $address->formatted_address ?: $address->street_address }}</div>
+                                            <div class="small text-aroma-muted">
+                                                {{ $address->formatted_address ?: ($address->street_address ?: ($address->hasCoordinates() ? __('location.map.pinned_label') : '')) }}
+                                            </div>
                                         </div>
                                     </button>
                                 @endforeach
@@ -116,15 +110,33 @@
 </div>
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{{ \App\Support\Assets::versioned('js/address-map.js') }}"></script>
+<script src="{{ \App\Support\Assets::versioned('js/location-method-toggle.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script>
 function loadAddress(btn) {
     document.querySelector('[name="billing_address[recipient_name]"]').value = btn.dataset.recipient;
     document.querySelector('[name="billing_address[phone]"]').value = btn.dataset.phone;
 
-    var codeInput = document.getElementById('billingLocationCode');
-    codeInput.value = btn.dataset.locationCode || '';
-    codeInput.dispatchEvent(new Event('aroma:location-code-set'));
+    if (btn.dataset.locationCode) {
+        var codeRadio = document.getElementById('billingMethodCode');
+        codeRadio.checked = true;
+        codeRadio.dispatchEvent(new Event('change'));
+
+        var codeInput = document.querySelector('.js-location-code');
+        codeInput.value = btn.dataset.locationCode;
+        codeInput.dispatchEvent(new Event('aroma:location-code-set'));
+    } else if (btn.dataset.lat && btn.dataset.lng) {
+        var mapRadio = document.getElementById('billingMethodMap');
+        mapRadio.checked = true;
+        mapRadio.dispatchEvent(new Event('change'));
+
+        document.dispatchEvent(new CustomEvent('aroma:location-coords-set', {
+            detail: { lat: btn.dataset.lat, lng: btn.dataset.lng }
+        }));
+    }
 }
 </script>
 @endpush

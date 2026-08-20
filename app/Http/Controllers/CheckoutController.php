@@ -41,26 +41,51 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Resolve a location_code into the full address array stored in the
-     * checkout session / order snapshot. Every key is always present (even
-     * when null) so downstream direct-array reads on the order's JSON
-     * snapshot never warn on a missing key. Returns null on lookup failure —
-     * callers translate that into a field-specific validation error; there is
-     * no manual-entry fallback.
+     * Resolve one of the two location methods into the full address array
+     * stored in the checkout session / order snapshot. Every key is always
+     * present (even when null) so downstream direct-array reads on the
+     * order's JSON snapshot never warn on a missing key.
+     *
+     * - location_code present: resolved via LocationLookupService (city/
+     *   region/district/formatted_address/coordinates). Returns null on
+     *   lookup failure — callers translate that into a field-specific
+     *   validation error; there is no manual-entry fallback.
+     * - No code, only coordinates: the shopper pinned a spot on the map.
+     *   Stored as coordinates ONLY — no lookup, no street/city/region/
+     *   district/formatted_address text. Delivery for these addresses is
+     *   coordinate-based (Aramex or another carrier), not text-based.
+     *
+     * Exactly one of these is guaranteed present by the FormRequest's
+     * withValidator check before this is ever called.
      */
-    private function resolveAddress(array $contact, string $locationCode): ?array
+    private function resolveAddress(array $contact, ?string $locationCode, ?float $latitude, ?float $longitude): ?array
     {
-        $result = $this->locationLookup->lookup($locationCode);
+        if (filled($locationCode)) {
+            $result = $this->locationLookup->lookup($locationCode);
 
-        if (! $result['success']) {
-            return null;
+            if (! $result['success']) {
+                return null;
+            }
+
+            return array_merge($contact, [
+                'location_code'  => strtoupper(trim($locationCode)),
+                'street_address' => null,
+                'postal_code'    => null,
+            ], $result['data']);
         }
 
         return array_merge($contact, [
-            'location_code'  => strtoupper(trim($locationCode)),
-            'street_address' => null,
-            'postal_code'    => null,
-        ], $result['data']);
+            'location_code'     => null,
+            'latitude'          => $latitude,
+            'longitude'         => $longitude,
+            'city'              => null,
+            'region'            => null,
+            'district'          => null,
+            'country'           => null,
+            'formatted_address' => null,
+            'street_address'    => null,
+            'postal_code'       => null,
+        ]);
     }
 
     /**
@@ -165,7 +190,7 @@ class CheckoutController extends Controller
             'recipient_name' => $data['billing_address']['recipient_name'],
             'phone'          => $data['billing_address']['phone'],
             'email'          => $data['billing_address']['email'] ?? null,
-        ], $data['billing_address']['location_code']);
+        ], $data['billing_address']['location_code'] ?? null, $data['billing_address']['latitude'] ?? null, $data['billing_address']['longitude'] ?? null);
 
         if ($billingAddress === null) {
             return back()
@@ -178,12 +203,14 @@ class CheckoutController extends Controller
         // customer hasn't entered a separate one (this also avoids the
         // "Undefined index: shipping_address" when the field isn't submitted).
         $sameAsBilling = (bool) ($data['use_shipping_for_billing'] ?? true);
+        $shippingHasCode = ! empty($data['shipping_address']['location_code']);
+        $shippingHasCoordinates = ! empty($data['shipping_address']['latitude']) && ! empty($data['shipping_address']['longitude']);
 
-        if (! $sameAsBilling && ! empty($data['shipping_address']['location_code'])) {
+        if (! $sameAsBilling && ($shippingHasCode || $shippingHasCoordinates)) {
             $shippingAddress = $this->resolveAddress([
                 'recipient_name' => $data['shipping_address']['recipient_name'],
                 'phone'          => $data['shipping_address']['phone'],
-            ], $data['shipping_address']['location_code']);
+            ], $data['shipping_address']['location_code'] ?? null, $data['shipping_address']['latitude'] ?? null, $data['shipping_address']['longitude'] ?? null);
 
             if ($shippingAddress === null) {
                 return back()
@@ -259,7 +286,7 @@ class CheckoutController extends Controller
             $recipientAddress = $this->resolveAddress([
                 'recipient_name' => $data['recipient']['recipient_name'],
                 'phone'          => $data['recipient']['phone'],
-            ], $data['recipient']['location_code']);
+            ], $data['recipient']['location_code'] ?? null, $data['recipient']['latitude'] ?? null, $data['recipient']['longitude'] ?? null);
 
             if ($recipientAddress === null) {
                 return back()

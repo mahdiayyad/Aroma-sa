@@ -39,10 +39,15 @@
                                 </div>
                                 <div class="text-aroma-muted small flex-grow-1">
                                     <div>{{ $address->recipient_name }}</div>
-                                    {{-- formatted_address covers new (location-code) rows; street_address
-                                         is the fallback for rows saved before this cutover. --}}
-                                    <div>{{ $address->formatted_address ?: $address->street_address }}</div>
-                                    <div>{{ $address->city }}, {{ $address->region }}</div>
+                                    @if ($address->formatted_address || $address->street_address)
+                                        {{-- formatted_address covers location-code rows; street_address
+                                             is the fallback for rows saved before this cutover. --}}
+                                        <div>{{ $address->formatted_address ?: $address->street_address }}</div>
+                                        <div>{{ $address->city }}, {{ $address->region }}</div>
+                                    @elseif ($address->hasCoordinates())
+                                        {{-- Pinned via the map — coordinates only, no address text. --}}
+                                        <div><i class="bi bi-geo-alt-fill me-1"></i>{{ __('location.map.pinned_label') }}</div>
+                                    @endif
                                     <div dir="ltr">{{ $address->phone }}</div>
                                 </div>
                                 <div class="d-flex gap-2 mt-3">

@@ -1,12 +1,13 @@
 /**
- * Aroma — address map picker (account/addresses/form.blade.php only).
+ * Aroma — location map picker (checkout address, checkout gift-recipient,
+ * account addresses — anywhere the "pin my location" method is offered).
  *
- * Drag the pin, search an address, or use the device's current location; the
- * chosen point is written to the hidden latitude/longitude inputs so the
- * saved address carries an exact delivery point, not just typed text.
- * Reverse-geocoding only *offers* matching street/city/region text via an
- * explicit "Use this address" action — it never overwrites what the
- * shopper already typed on its own.
+ * Drag the pin, search a place, or use the device's current location; the
+ * chosen point is written to hidden latitude/longitude inputs — that pair IS
+ * the address for this method. Unlike the retired multi-field flow, nothing
+ * here ever writes a street/city/region/postal_code field: reverse-geocoding
+ * only shows a "Near: …" label for the shopper's own reassurance, purely
+ * informational, never submitted or stored.
  *
  * Map tiles: Mapbox's polished streets style when a public access token is
  * configured (MAPBOX_ACCESS_TOKEN — see config/services.php), falling back to
@@ -38,7 +39,6 @@
         var locateBtn = document.getElementById('addressMapLocateBtn');
         var detectedBox = document.getElementById('addressMapDetected');
         var detectedText = document.getElementById('addressMapDetectedText');
-        var applyBtn = document.getElementById('addressMapApplyBtn');
 
         var DEFAULT_CENTER = [24.7136, 46.6753]; // Riyadh — sensible default before a pin is set.
         var startLat = parseFloat(mapEl.getAttribute('data-lat'));
@@ -86,21 +86,23 @@
         });
 
         var marker = L.marker(center, { draggable: true }).addTo(map);
-        var lastDetected = null;
 
         function setCoords(lat, lng) {
             latInput.value = lat.toFixed(7);
             lngInput.value = lng.toFixed(7);
         }
 
+        // Informational only — never written to a submitted field. Lets the
+        // shopper confirm "yes, that's roughly where I am" before saving.
         function reverseGeocode(lat, lng) {
+            if (!detectedBox || !detectedText) { return; }
+
             fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + lat + '&lon=' + lng + '&addressdetails=1', {
                 headers: { 'Accept': 'application/json' }
             })
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
                     if (!data || !data.display_name) { return; }
-                    lastDetected = data;
                     detectedText.textContent = data.display_name;
                     detectedBox.classList.remove('d-none');
                 })
@@ -140,7 +142,8 @@
             });
         }
 
-        // Address search — debounced so we stay well under Nominatim's fair-use rate limit.
+        // Place search — debounced so we stay well under Nominatim's fair-use
+        // rate limit. Only moves the pin; never fills a text field (none exist).
         var searchTimer = null;
         if (searchInput) {
             searchInput.addEventListener('input', function () {
@@ -187,29 +190,27 @@
             });
         }
 
-        // Explicit, opt-in autofill from the reverse-geocoded result.
-        if (applyBtn) {
-            applyBtn.addEventListener('click', function () {
-                if (!lastDetected || !lastDetected.address) { return; }
-                var a = lastDetected.address;
-                var form = mapEl.closest('form');
-                if (!form) { return; }
-
-                var streetInput = form.querySelector('[name="street_address"]');
-                var cityInput = form.querySelector('[name="city"]');
-                var regionInput = form.querySelector('[name="region"]');
-                var postalInput = form.querySelector('[name="postal_code"]');
-
-                var streetParts = [a.road, a.house_number].filter(Boolean).join(' ');
-                if (streetInput && streetParts) { streetInput.value = streetParts; }
-                if (cityInput) { cityInput.value = a.city || a.town || a.village || a.county || cityInput.value; }
-                if (regionInput) { regionInput.value = a.state || regionInput.value; }
-                if (postalInput && a.postcode) { postalInput.value = a.postcode; }
+        // The map may start inside a hidden (d-none) panel when "location
+        // code" is the active method — Leaflet mis-sizes/mis-renders tiles if
+        // initialised while its container has zero size, so re-check once at
+        // load (matches the original always-visible case) and again whenever
+        // the location-method-toggle script reveals the map panel.
+        setTimeout(function () { map.invalidateSize(); }, 200);
+        var mapPanel = mapEl.closest('.js-method-panel');
+        if (mapPanel) {
+            mapPanel.addEventListener('aroma:location-map-shown', function () {
+                setTimeout(function () { map.invalidateSize(); }, 50);
             });
         }
 
-        // The map is inside a normal (not hidden) card, but sizing it a tick
-        // after first paint avoids the classic "half-rendered tiles" glitch.
-        setTimeout(function () { map.invalidateSize(); }, 200);
+        // A saved-address picker (checkout) sets coordinates directly rather
+        // than through map interaction — move the pin the same way any other
+        // placeMarker() call would.
+        document.addEventListener('aroma:location-coords-set', function (e) {
+            var lat = parseFloat(e.detail && e.detail.lat);
+            var lng = parseFloat(e.detail && e.detail.lng);
+            if (isNaN(lat) || isNaN(lng)) { return; }
+            setTimeout(function () { placeMarker(lat, lng, 16); }, 50);
+        });
     });
 })();

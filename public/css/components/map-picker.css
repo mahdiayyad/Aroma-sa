@@ -1,8 +1,45 @@
 /* ============================================================================
-   Aroma — address map picker (account/addresses/form.blade.php only)
-   Loaded on-demand via @push('head') so the ~150KB Leaflet payload never
-   ships to pages that don't need it.
+   Aroma — address location toggle + map picker
+   Used on checkout/address, checkout/gift-options, and account/addresses/
+   form — anywhere the shopper picks a location. Loaded on-demand via
+   @push('head') so the ~150KB Leaflet payload never ships to pages that
+   don't need it.
    ========================================================================== */
+
+/* --- Method toggle: "location code" vs "pin my location" -------------------
+   Compact segmented control (not the big card-style .aroma-gift-toggle) —
+   this is a sub-choice within an address section, not a page-level decision. */
+.aroma-location-toggle {
+  display: inline-flex;
+  border: 1px solid var(--aroma-border);
+  border-radius: 999px;
+  padding: 0.25rem;
+  gap: 0.25rem;
+  margin-bottom: 0.85rem;
+}
+.aroma-location-toggle-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--aroma-muted, #8a7c68);
+  cursor: pointer;
+  transition: background-color var(--aroma-transition-fast, 0.15s ease), color var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-location-toggle-option i { font-size: 0.95rem; }
+.aroma-location-toggle-option:hover { color: var(--aroma-brown); }
+.btn-check:checked + .aroma-location-toggle-option {
+  background: var(--aroma-brown);
+  color: #fff;
+}
+.btn-check:focus-visible + .aroma-location-toggle-option {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.35);
+}
 
 .aroma-map-picker {
   border: 1px solid var(--aroma-border);
@@ -93,12 +130,6 @@
   color: var(--aroma-ink);
 }
 .aroma-map-detected i { color: var(--aroma-select, var(--aroma-brown)); margin-top: 0.15rem; }
-.aroma-map-detected .btn-link {
-  color: var(--aroma-brown);
-  text-decoration: underline;
-  font-weight: 600;
-  white-space: nowrap;
-}
 
 @media (max-width: 576px) {
   .aroma-map-canvas { height: 240px; }

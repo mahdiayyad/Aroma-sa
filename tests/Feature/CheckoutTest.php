@@ -61,6 +61,38 @@ class CheckoutTest extends TestCase
             ->assertSessionHasErrors('billing_address.email');
     }
 
+    public function test_a_pinned_location_can_replace_the_location_code(): void
+    {
+        $this->seedCart();
+
+        $billing = $this->validBilling;
+        unset($billing['location_code']);
+        $billing['latitude'] = 24.7136;
+        $billing['longitude'] = 46.6753;
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
+            ->assertRedirect(route('checkout.gift-options'))
+            ->assertSessionHasNoErrors();
+
+        $shipping = session('checkout.shipping_address');
+        $this->assertNull($shipping['location_code']);
+        $this->assertNull($shipping['city']);
+        $this->assertNull($shipping['formatted_address']);
+        $this->assertEqualsWithDelta(24.7136, $shipping['latitude'], 0.0001);
+        $this->assertEqualsWithDelta(46.6753, $shipping['longitude'], 0.0001);
+    }
+
+    public function test_neither_a_code_nor_coordinates_is_rejected(): void
+    {
+        $this->seedCart();
+
+        $billing = $this->validBilling;
+        unset($billing['location_code']);
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
+            ->assertSessionHasErrors('billing_address.location_code');
+    }
+
     /* ---- The payment page must render (terms route exists) ----------------- */
 
     public function test_payment_page_renders_with_a_working_terms_link(): void

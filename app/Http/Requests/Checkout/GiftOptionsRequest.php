@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Checkout;
 
 use App\Rules\LocationCode;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -43,9 +44,14 @@ class GiftOptionsRequest extends FormRequest
             // being skipped — which is exactly the bug this fixes.
             'recipient.recipient_name'  => [Rule::requiredIf($isGift), 'nullable', 'string', 'max:100'],
             'recipient.phone'           => [Rule::requiredIf($isGift), 'nullable', 'string', 'regex:/^(\+9665|05)\d{8}$/'],
-            // Resolved server-side via LocationLookupService, same as the
-            // billing/shipping address — not collected as free text anymore.
-            'recipient.location_code'   => [Rule::requiredIf($isGift), 'nullable', 'string', new LocationCode()],
+            // Resolved server-side via LocationLookupService (code) or stored
+            // directly (map pin) — not collected as free text. Exactly one of
+            // location_code / (latitude+longitude) is required when it's a
+            // gift (see withValidator below); neither is individually
+            // required here so either can be omitted.
+            'recipient.location_code'   => ['nullable', 'string', new LocationCode()],
+            'recipient.latitude'        => ['nullable', 'numeric', 'between:-90,90'],
+            'recipient.longitude'       => ['nullable', 'numeric', 'between:-180,180'],
 
             'is_anonymous'     => ['boolean'],
             'gift_wrap'        => ['boolean'],
@@ -63,6 +69,22 @@ class GiftOptionsRequest extends FormRequest
             'gift_media_url'     => ['nullable', 'url', 'max:500'],
             'gift_signature_data' => ['nullable', 'string', 'starts_with:data:image/png;base64,'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            if (! $this->boolean('is_gift')) {
+                return;
+            }
+
+            $hasCode = filled($this->input('recipient.location_code'));
+            $hasCoordinates = filled($this->input('recipient.latitude')) && filled($this->input('recipient.longitude'));
+
+            if (! $hasCode && ! $hasCoordinates) {
+                $validator->errors()->add('recipient.location_code', __('location.errors.required_one'));
+            }
+        });
     }
 
     public function messages(): array

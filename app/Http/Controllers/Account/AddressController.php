@@ -116,27 +116,48 @@ class AddressController extends Controller
     }
 
     /**
-     * Resolves location_code via LocationLookupService and merges the result
-     * in. Returns null on lookup failure — store()/update() translate that
-     * into a field-specific validation error; there is no manual fallback.
+     * Resolves one of the two location methods:
+     * - location_code present: via LocationLookupService (city/region/
+     *   district/formatted_address/coordinates). Returns null on lookup
+     *   failure — store()/update() translate that into a field-specific
+     *   validation error; there is no manual fallback.
+     * - No code, only coordinates: the shopper pinned a spot on the map.
+     *   Stored as coordinates ONLY — no lookup, no street/city/region/
+     *   district/formatted_address text.
+     *
+     * Exactly one of these is guaranteed present by AddressRequest's
+     * withValidator check before this is ever called.
      *
      * @return array<string,mixed>|null
      */
     private function payload(AddressRequest $request): ?array
     {
         $data = $request->validated();
+        $data['type'] = 'shipping';
 
-        $result = $this->locationLookup->lookup($data['location_code']);
+        if (filled($data['location_code'] ?? null)) {
+            $result = $this->locationLookup->lookup($data['location_code']);
 
-        if (! $result['success']) {
-            return null;
+            if (! $result['success']) {
+                return null;
+            }
+
+            $data['location_code'] = strtoupper(trim($data['location_code']));
+            $data['street_address'] = null;
+            $data['postal_code'] = null;
+
+            return array_merge($data, $result['data']);
         }
 
-        $data['type'] = 'shipping';
-        $data['location_code'] = strtoupper(trim($data['location_code']));
+        $data['location_code'] = null;
+        $data['city'] = null;
+        $data['region'] = null;
+        $data['district'] = null;
+        $data['country'] = null;
+        $data['formatted_address'] = null;
         $data['street_address'] = null;
         $data['postal_code'] = null;
 
-        return array_merge($data, $result['data']);
+        return $data;
     }
 }

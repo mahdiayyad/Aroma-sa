@@ -5,6 +5,9 @@
 
 @push('head')
     <link href="{{ \App\Support\Assets::versioned('css/components/gift-studio.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link href="{{ \App\Support\Assets::versioned('css/components/map-picker.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -64,19 +67,10 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">{{ __('location.label') }}</label>
-                                    <div class="aroma-location-field">
-                                        <input type="text" name="recipient[location_code]"
-                                               class="form-control js-location-code @error('recipient.location_code') is-invalid @enderror"
-                                               value="{{ old('recipient.location_code', $recipient['location_code'] ?? '') }}" maxlength="8"
-                                               placeholder="{{ __('location.placeholder') }}"
-                                               data-lang-loading="{{ __('location.preview.loading') }}"
-                                               data-lang-not-found="{{ __('location.errors.not_found') }}"
-                                               data-lang-invalid="{{ __('location.errors.invalid_format') }}"
-                                               data-lang-failed="{{ __('location.errors.lookup_failed') }}">
-                                        <div class="aroma-location-preview" hidden></div>
-                                    </div>
-                                    <div class="form-text">{{ __('location.hint') }}</div>
-                                    @error('recipient.location_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                    <x-location-picker field-prefix="recipient" dom-id="recipient"
+                                        :code="$recipient['location_code'] ?? null"
+                                        :latitude="$recipient['latitude'] ?? null"
+                                        :longitude="$recipient['longitude'] ?? null" />
                                 </div>
                             </div>
 
@@ -282,6 +276,10 @@
 </div>
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{{ \App\Support\Assets::versioned('js/address-map.js') }}"></script>
+<script src="{{ \App\Support\Assets::versioned('js/location-method-toggle.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/gift-studio.js') }}"></script>
 @endpush

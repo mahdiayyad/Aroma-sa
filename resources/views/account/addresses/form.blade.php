@@ -4,6 +4,12 @@
 @section('title', ($editing ? __('account.addresses.edit') : __('account.addresses.new')).' — '.$brand['name'])
 @section('robots', 'noindex, follow')
 
+@push('head')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <link href="{{ \App\Support\Assets::versioned('css/components/map-picker.css') }}" rel="stylesheet">
+@endpush
+
 @section('content')
 <div class="container my-4">
     <h1 class="aroma-section-title">{{ $editing ? __('account.addresses.edit') : __('account.addresses.new') }}</h1>
@@ -42,20 +48,10 @@
 
                         <div class="col-12">
                             <label class="form-label fw-semibold">{{ __('location.label') }}</label>
-                            <div class="aroma-location-field">
-                                <input type="text" name="location_code"
-                                       class="form-control js-location-code @error('location_code') is-invalid @enderror"
-                                       value="{{ old('location_code', $address->location_code) }}" maxlength="8"
-                                       placeholder="{{ __('location.placeholder') }}"
-                                       data-lang-loading="{{ __('location.preview.loading') }}"
-                                       data-lang-not-found="{{ __('location.errors.not_found') }}"
-                                       data-lang-invalid="{{ __('location.errors.invalid_format') }}"
-                                       data-lang-failed="{{ __('location.errors.lookup_failed') }}"
-                                       required>
-                                <div class="aroma-location-preview" hidden></div>
-                            </div>
-                            <div class="form-text">{{ __('location.hint') }}</div>
-                            @error('location_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <x-location-picker dom-id="address"
+                                :code="$address->location_code"
+                                :latitude="$address->latitude"
+                                :longitude="$address->longitude" />
                         </div>
 
                         <div class="col-12">
@@ -78,6 +74,10 @@
 </div>
 
 @push('scripts')
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="{{ \App\Support\Assets::versioned('js/address-map.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/location-method-toggle.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 @endpush
 @endsection

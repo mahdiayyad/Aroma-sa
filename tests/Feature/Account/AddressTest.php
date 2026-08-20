@@ -137,4 +137,39 @@ class AddressTest extends TestCase
             ->assertOk()
             ->assertSee('Sara Al Qahtani');
     }
+
+    public function test_a_user_can_add_an_address_by_pinning_a_location_instead_of_a_code(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('account.addresses.store'), [
+            'recipient_name' => 'Sara Al Qahtani',
+            'phone' => '0500000000',
+            'latitude' => 24.7136,
+            'longitude' => 46.6753,
+        ])->assertRedirect(route('account.addresses.index'));
+
+        $address = Address::first();
+        $this->assertNull($address->location_code);
+        $this->assertNull($address->city);
+        $this->assertNull($address->region);
+        $this->assertNull($address->district);
+        $this->assertNull($address->formatted_address);
+        $this->assertNull($address->street_address);
+        $this->assertNull($address->postal_code);
+        $this->assertEqualsWithDelta(24.7136, $address->latitude, 0.0001);
+        $this->assertEqualsWithDelta(46.6753, $address->longitude, 0.0001);
+    }
+
+    public function test_neither_a_code_nor_coordinates_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('account.addresses.store'), [
+            'recipient_name' => 'Sara Al Qahtani',
+            'phone' => '0500000000',
+        ])->assertSessionHasErrors('location_code');
+
+        $this->assertDatabaseCount('addresses', 0);
+    }
 }
