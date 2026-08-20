@@ -142,11 +142,13 @@ class AddressTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // Strings, not floats — a real browser form submission sends every
+        // field as a string.
         $this->actingAs($user)->post(route('account.addresses.store'), [
             'recipient_name' => 'Sara Al Qahtani',
             'phone' => '0500000000',
-            'latitude' => 24.7136,
-            'longitude' => 46.6753,
+            'latitude' => '24.7136',
+            'longitude' => '46.6753',
         ])->assertRedirect(route('account.addresses.index'));
 
         $address = Address::first();

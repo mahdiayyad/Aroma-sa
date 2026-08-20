@@ -67,8 +67,13 @@ class CheckoutTest extends TestCase
 
         $billing = $this->validBilling;
         unset($billing['location_code']);
-        $billing['latitude'] = 24.7136;
-        $billing['longitude'] = 46.6753;
+        // Strings, not floats: a real browser form submission sends every
+        // field as a string — $request->validated()'s 'numeric' rule
+        // validates but never casts. A float literal here would silently
+        // skip over the exact TypeError this test exists to catch (see
+        // CheckoutController::toFloatOrNull()).
+        $billing['latitude'] = '24.7136';
+        $billing['longitude'] = '46.6753';
 
         $this->post(route('checkout.address.store'), ['billing_address' => $billing])
             ->assertRedirect(route('checkout.gift-options'))
@@ -78,6 +83,8 @@ class CheckoutTest extends TestCase
         $this->assertNull($shipping['location_code']);
         $this->assertNull($shipping['city']);
         $this->assertNull($shipping['formatted_address']);
+        $this->assertIsFloat($shipping['latitude']);
+        $this->assertIsFloat($shipping['longitude']);
         $this->assertEqualsWithDelta(24.7136, $shipping['latitude'], 0.0001);
         $this->assertEqualsWithDelta(46.6753, $shipping['longitude'], 0.0001);
     }

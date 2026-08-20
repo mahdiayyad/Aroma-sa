@@ -49,6 +49,14 @@
                         <div class="text-aroma-muted small">
                             @if(!empty($shipping['district'])){{ $shipping['district'] }}, @endif{{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}
                         </div>
+                    @elseif(!empty($shipping['latitude']) && !empty($shipping['longitude']))
+                        {{-- Pinned via the map — coordinates only, no address text. --}}
+                        <div class="text-aroma-muted small">
+                            <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                            <a href="https://www.google.com/maps?q={{ $shipping['latitude'] }},{{ $shipping['longitude'] }}" target="_blank" rel="noopener">
+                                {{ __('location.map.pinned_label') }}
+                            </a>
+                        </div>
                     @else
                         <div class="text-aroma-muted small">
                             {{ $shipping['street_address'] ?? '' }}, {{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}

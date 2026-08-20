@@ -130,13 +130,16 @@
 
         <h3>{{ __('emails.order_confirmation.shipping_address') }}</h3>
         {{-- location_code present = resolved via the Saudi National Address
-             lookup at checkout; its absence means this order predates that
-             cutover and still carries the old free-text address fields. --}}
+             lookup at checkout; coordinates-only (no code, no street_address)
+             = pinned via the map picker instead; neither = this order
+             predates the cutover and still carries the old free-text fields. --}}
         <p>
             <strong>{{ $order->shipping_address['recipient_name'] ?? '' }}</strong><br>
             @if(!empty($order->shipping_address['location_code']))
                 {{ $order->shipping_address['formatted_address'] ?? '' }}<br>
                 @if(!empty($order->shipping_address['district'])){{ $order->shipping_address['district'] }}, @endif{{ $order->shipping_address['city'] ?? '' }}, {{ $order->shipping_address['region'] ?? '' }}<br>
+            @elseif(!empty($order->shipping_address['latitude']) && !empty($order->shipping_address['longitude']))
+                <a href="https://www.google.com/maps?q={{ $order->shipping_address['latitude'] }},{{ $order->shipping_address['longitude'] }}">{{ __('location.map.pinned_label') }}</a><br>
             @else
                 {{ $order->shipping_address['street_address'] ?? '' }}<br>
                 {{ $order->shipping_address['city'] ?? '' }}, {{ $order->shipping_address['region'] ?? '' }}<br>

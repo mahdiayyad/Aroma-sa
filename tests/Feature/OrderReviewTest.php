@@ -116,4 +116,30 @@ class OrderReviewTest extends TestCase
         $this->get(route('checkout.order-review'))
             ->assertRedirect(route('checkout.address'));
     }
+
+    public function test_a_pinned_location_shows_as_a_map_link_not_a_blank_address(): void
+    {
+        $product = Product::factory()->create(['base_price' => 200, 'stock_quantity' => 10]);
+        $this->post('/cart', ['product_id' => $product->id, 'qty' => 1])->assertRedirect();
+
+        $this->post(route('checkout.address.store'), ['billing_address' => [
+            'recipient_name' => 'Geo Test',
+            'email'          => 'geo@example.com',
+            'phone'          => '0500000000',
+            // Strings, matching a real form submission.
+            'latitude'       => '24.7136',
+            'longitude'      => '46.6753',
+        ]])->assertSessionHasNoErrors();
+
+        $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
+        $this->post(route('checkout.delivery.store'), [
+            'delivery_date'      => now()->addDays(2)->toDateString(),
+            'delivery_time_slot' => Order::DELIVERY_SLOT_MORNING,
+        ]);
+
+        $this->get(route('checkout.order-review'))
+            ->assertOk()
+            ->assertSee(__('location.map.pinned_label'))
+            ->assertSee('google.com/maps?q=24.7136,46.6753', false);
+    }
 }

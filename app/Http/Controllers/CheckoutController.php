@@ -89,6 +89,17 @@ class CheckoutController extends Controller
     }
 
     /**
+     * $request->validated() returns 'numeric' fields as whatever raw type
+     * they arrived as (a string, from HTML form submission) — Laravel's
+     * 'numeric' rule validates but never casts. resolveAddress() takes a
+     * strict ?float, so every coordinate must pass through this first.
+     */
+    private function toFloatOrNull($value): ?float
+    {
+        return $value !== null && $value !== '' ? (float) $value : null;
+    }
+
+    /**
      * Show cart review page
      *
      * @return View|RedirectResponse
@@ -190,7 +201,7 @@ class CheckoutController extends Controller
             'recipient_name' => $data['billing_address']['recipient_name'],
             'phone'          => $data['billing_address']['phone'],
             'email'          => $data['billing_address']['email'] ?? null,
-        ], $data['billing_address']['location_code'] ?? null, $data['billing_address']['latitude'] ?? null, $data['billing_address']['longitude'] ?? null);
+        ], $data['billing_address']['location_code'] ?? null, $this->toFloatOrNull($data['billing_address']['latitude'] ?? null), $this->toFloatOrNull($data['billing_address']['longitude'] ?? null));
 
         if ($billingAddress === null) {
             return back()
@@ -210,7 +221,7 @@ class CheckoutController extends Controller
             $shippingAddress = $this->resolveAddress([
                 'recipient_name' => $data['shipping_address']['recipient_name'],
                 'phone'          => $data['shipping_address']['phone'],
-            ], $data['shipping_address']['location_code'] ?? null, $data['shipping_address']['latitude'] ?? null, $data['shipping_address']['longitude'] ?? null);
+            ], $data['shipping_address']['location_code'] ?? null, $this->toFloatOrNull($data['shipping_address']['latitude'] ?? null), $this->toFloatOrNull($data['shipping_address']['longitude'] ?? null));
 
             if ($shippingAddress === null) {
                 return back()
@@ -286,7 +297,7 @@ class CheckoutController extends Controller
             $recipientAddress = $this->resolveAddress([
                 'recipient_name' => $data['recipient']['recipient_name'],
                 'phone'          => $data['recipient']['phone'],
-            ], $data['recipient']['location_code'] ?? null, $data['recipient']['latitude'] ?? null, $data['recipient']['longitude'] ?? null);
+            ], $data['recipient']['location_code'] ?? null, $this->toFloatOrNull($data['recipient']['latitude'] ?? null), $this->toFloatOrNull($data['recipient']['longitude'] ?? null));
 
             if ($recipientAddress === null) {
                 return back()
