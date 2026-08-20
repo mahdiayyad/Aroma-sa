@@ -12,6 +12,7 @@ use App\Models\GiftCard;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Services\LocationLookupService;
 use App\Services\Payment\PaymentGatewayManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -25,15 +26,41 @@ class CheckoutController extends Controller
     private CartService $cart;
     private CheckoutService $checkout;
     private PaymentGatewayManager $gateways;
+    private LocationLookupService $locationLookup;
 
     public function __construct(
         CartService $cart,
         CheckoutService $checkout,
-        PaymentGatewayManager $gateways
+        PaymentGatewayManager $gateways,
+        LocationLookupService $locationLookup
     ) {
         $this->cart = $cart;
         $this->checkout = $checkout;
         $this->gateways = $gateways;
+        $this->locationLookup = $locationLookup;
+    }
+
+    /**
+     * Resolve a location_code into the full address array stored in the
+     * checkout session / order snapshot. Every key is always present (even
+     * when null) so downstream direct-array reads on the order's JSON
+     * snapshot never warn on a missing key. Returns null on lookup failure —
+     * callers translate that into a field-specific validation error; there is
+     * no manual-entry fallback.
+     */
+    private function resolveAddress(array $contact, string $locationCode): ?array
+    {
+        $result = $this->locationLookup->lookup($locationCode);
+
+        if (! $result['success']) {
+            return null;
+        }
+
+        return array_merge($contact, [
+            'location_code'  => strtoupper(trim($locationCode)),
+            'street_address' => null,
+            'postal_code'    => null,
+        ], $result['data']);
     }
 
     /**
@@ -134,16 +161,38 @@ class CheckoutController extends Controller
 
         $data = $request->validated();
 
-        $billingAddress = $data['billing_address'];
+        $billingAddress = $this->resolveAddress([
+            'recipient_name' => $data['billing_address']['recipient_name'],
+            'phone'          => $data['billing_address']['phone'],
+            'email'          => $data['billing_address']['email'] ?? null,
+        ], $data['billing_address']['location_code']);
+
+        if ($billingAddress === null) {
+            return back()
+                ->withErrors(['billing_address.location_code' => __('location.errors.not_found')])
+                ->withInput();
+        }
 
         // The address form collects a single address; a distinct shipping
         // address is optional. Fall back to the billing address whenever the
         // customer hasn't entered a separate one (this also avoids the
         // "Undefined index: shipping_address" when the field isn't submitted).
         $sameAsBilling = (bool) ($data['use_shipping_for_billing'] ?? true);
-        $shippingAddress = (! $sameAsBilling && ! empty($data['shipping_address']))
-            ? $data['shipping_address']
-            : $billingAddress;
+
+        if (! $sameAsBilling && ! empty($data['shipping_address']['location_code'])) {
+            $shippingAddress = $this->resolveAddress([
+                'recipient_name' => $data['shipping_address']['recipient_name'],
+                'phone'          => $data['shipping_address']['phone'],
+            ], $data['shipping_address']['location_code']);
+
+            if ($shippingAddress === null) {
+                return back()
+                    ->withErrors(['shipping_address.location_code' => __('location.errors.not_found')])
+                    ->withInput();
+            }
+        } else {
+            $shippingAddress = $billingAddress;
+        }
 
         // Store in session for next step
         session([
@@ -207,9 +256,20 @@ class CheckoutController extends Controller
         $isAnonymous = $isGift && (bool) ($data['is_anonymous'] ?? false);
 
         if ($isGift) {
+            $recipientAddress = $this->resolveAddress([
+                'recipient_name' => $data['recipient']['recipient_name'],
+                'phone'          => $data['recipient']['phone'],
+            ], $data['recipient']['location_code']);
+
+            if ($recipientAddress === null) {
+                return back()
+                    ->withErrors(['recipient.location_code' => __('location.errors.not_found')])
+                    ->withInput();
+            }
+
             // The recipient's own address IS checkout.shipping_address — see
             // the "Recipient model" decision in the checkout refactor analysis.
-            session(['checkout.shipping_address' => $data['recipient']]);
+            session(['checkout.shipping_address' => $recipientAddress]);
         }
 
         // An anonymous sender never has their name or signature attached,

@@ -108,6 +108,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | National Address (Saudi Post / SPL) location-code lookup
+    |--------------------------------------------------------------------------
+    | Resolves a Saudi National Address short code (AAAA1234) to coordinates +
+    | city/region/district via LocationLookupService. Leave base_url/api_key
+    | blank to run in stub mode (deterministic canned responses, so checkout
+    | and account addresses keep working before real SPL credentials exist).
+    */
+    'national_address' => [
+        'base_url' => env('NATIONAL_ADDRESS_BASE_URL', ''),
+        'api_key'  => env('NATIONAL_ADDRESS_API_KEY', ''),
+        'timeout'  => (int) env('NATIONAL_ADDRESS_TIMEOUT', 10),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Social login
     |--------------------------------------------------------------------------
     */

@@ -64,8 +64,8 @@ html[lang="ar"] .btn-aroma-light {
    clears ~7:1, so it stays legible at both rest and hover instead of only
    looking right in the rest state. */
 .btn-aroma-secondary {
-  background-color: var(--aroma-btn-gold-bg, rgb(201 162 75));
-  border: 1px solid var(--aroma-btn-gold-bg, rgb(201 162 75));
+  background-color: var(--aroma-btn-gold-bg, rgb(212 175 106));
+  border: 1px solid var(--aroma-btn-gold-bg, rgb(212 175 106));
   color: var(--aroma-ink);
   border-radius: 999px;
   padding: 0.65rem 1.6rem;
@@ -73,8 +73,8 @@ html[lang="ar"] .btn-aroma-light {
   box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(27, 26, 23, 0.08));
 }
 .btn-aroma-secondary:hover {
-  background-color: var(--aroma-btn-gold-bg-hover, rgb(174 136 54));
-  border-color: var(--aroma-btn-gold-bg-hover, rgb(174 136 54));
+  background-color: var(--aroma-btn-gold-bg-hover, rgb(174 144 87));
+  border-color: var(--aroma-btn-gold-bg-hover, rgb(174 144 87));
   color: var(--aroma-ink);
   transform: translateY(-1px);
   box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(27, 26, 23, 0.14));

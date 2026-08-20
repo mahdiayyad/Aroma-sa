@@ -36,6 +36,8 @@ return [
     'street_address' => 'عنوان الشارع',
     'city' => 'المدينة',
     'region' => 'المنطقة',
+    'district' => 'الحي',
+    'formatted_address' => 'العنوان',
     'postal_code' => 'الرمز البريدي',
     'email' => 'عنوان البريد الإلكتروني',
 

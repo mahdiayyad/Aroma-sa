@@ -4,12 +4,6 @@
 @section('title', ($editing ? __('account.addresses.edit') : __('account.addresses.new')).' — '.$brand['name'])
 @section('robots', 'noindex, follow')
 
-@push('head')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <link href="{{ \App\Support\Assets::versioned('css/components/map-picker.css') }}" rel="stylesheet">
-@endpush
-
 @section('content')
 <div class="container my-4">
     <h1 class="aroma-section-title">{{ $editing ? __('account.addresses.edit') : __('account.addresses.new') }}</h1>
@@ -47,75 +41,21 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold d-block">{{ __('account.addresses.map_label') }}</label>
-                            <p class="form-text mt-0 mb-2">{{ __('account.addresses.map_hint') }}</p>
-
-                            <div class="aroma-map-picker">
-                                <div class="aroma-map-search">
-                                    <div class="input-group">
-                                        <input type="text" id="addressMapSearch" class="form-control" autocomplete="off"
-                                               placeholder="{{ __('account.addresses.map_search_placeholder') }}">
-                                        <button type="button" id="addressMapLocateBtn" class="btn btn-aroma-outline"
-                                                data-bs-toggle="tooltip" data-bs-placement="top"
-                                                title="{{ __('account.addresses.map_use_current') }}">
-                                            <i class="bi bi-crosshair"></i>
-                                        </button>
-                                    </div>
-                                    <div id="addressMapSearchResults" class="aroma-map-search-results d-none"></div>
-                                </div>
-
-                                <div class="aroma-map-canvas-wrap">
-                                    <div id="addressMap" class="aroma-map-canvas" tabindex="0"
-                                         data-lat="{{ old('latitude', $address->latitude) }}"
-                                         data-lng="{{ old('longitude', $address->longitude) }}"
-                                         data-mapbox-token="{{ config('services.mapbox.access_token') }}"></div>
-                                    <div id="addressMapHint" class="aroma-map-hint">
-                                        <i class="bi bi-hand-index-thumb"></i>
-                                        {{ __('account.addresses.map_scroll_hint') }}
-                                    </div>
-                                </div>
-
-                                <div id="addressMapDetected" class="aroma-map-detected d-none">
-                                    <i class="bi bi-geo-alt-fill"></i>
-                                    <span id="addressMapDetectedText" class="flex-grow-1"></span>
-                                    <button type="button" id="addressMapApplyBtn" class="btn btn-link btn-sm p-0">
-                                        {{ __('account.addresses.map_use_detected') }}
-                                    </button>
-                                </div>
+                            <label class="form-label fw-semibold">{{ __('location.label') }}</label>
+                            <div class="aroma-location-field">
+                                <input type="text" name="location_code"
+                                       class="form-control js-location-code @error('location_code') is-invalid @enderror"
+                                       value="{{ old('location_code', $address->location_code) }}" maxlength="8"
+                                       placeholder="{{ __('location.placeholder') }}"
+                                       data-lang-loading="{{ __('location.preview.loading') }}"
+                                       data-lang-not-found="{{ __('location.errors.not_found') }}"
+                                       data-lang-invalid="{{ __('location.errors.invalid_format') }}"
+                                       data-lang-failed="{{ __('location.errors.lookup_failed') }}"
+                                       required>
+                                <div class="aroma-location-preview" hidden></div>
                             </div>
-
-                            <input type="hidden" name="latitude" id="addressLatitude" value="{{ old('latitude', $address->latitude) }}">
-                            <input type="hidden" name="longitude" id="addressLongitude" value="{{ old('longitude', $address->longitude) }}">
-                            @error('latitude')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                            @error('longitude')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">{{ __('checkout.street_address') }}</label>
-                            <input type="text" name="street_address" value="{{ old('street_address', $address->street_address) }}"
-                                   class="form-control @error('street_address') is-invalid @enderror" required>
-                            @error('street_address')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">{{ __('checkout.city') }}</label>
-                            <input type="text" name="city" value="{{ old('city', $address->city) }}"
-                                   class="form-control @error('city') is-invalid @enderror" required>
-                            @error('city')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">{{ __('checkout.region') }}</label>
-                            <input type="text" name="region" value="{{ old('region', $address->region) }}"
-                                   class="form-control @error('region') is-invalid @enderror" required>
-                            @error('region')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">{{ __('checkout.postal_code') }}</label>
-                            <input type="text" name="postal_code" value="{{ old('postal_code', $address->postal_code) }}"
-                                   class="form-control @error('postal_code') is-invalid @enderror">
-                            @error('postal_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <div class="form-text">{{ __('location.hint') }}</div>
+                            @error('location_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="col-12">
@@ -138,8 +78,6 @@
 </div>
 
 @push('scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="{{ \App\Support\Assets::versioned('js/address-map.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 @endpush
 @endsection

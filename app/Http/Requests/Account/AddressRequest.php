@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Account;
 
+use App\Rules\LocationCode;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddressRequest extends FormRequest
@@ -24,12 +25,10 @@ class AddressRequest extends FormRequest
             'label'           => ['nullable', 'string', 'max:60'],
             'recipient_name'  => ['required', 'string', 'max:100'],
             'phone'           => ['required', 'string', 'regex:/^(\+9665|05)\d{8}$/'],
-            'street_address'  => ['required', 'string', 'max:255'],
-            'city'            => ['required', 'string', 'max:100'],
-            'region'          => ['required', 'string', 'max:100'],
-            'postal_code'     => ['nullable', 'string', 'max:20'],
-            'latitude'        => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude'       => ['nullable', 'numeric', 'between:-180,180'],
+            // The actual address (street/city/region/coordinates) is resolved
+            // server-side from this code by AddressController via
+            // LocationLookupService — not collected as free text anymore.
+            'location_code'   => ['required', 'string', new LocationCode()],
             'is_default'      => ['boolean'],
         ];
     }
@@ -38,6 +37,7 @@ class AddressRequest extends FormRequest
     {
         return [
             'phone.regex' => __('auth_ui.validation.phone'),
+            'location_code.required' => __('validation.required', ['attribute' => __('location.label')]),
         ];
     }
 }

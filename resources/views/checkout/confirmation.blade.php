@@ -43,15 +43,7 @@
                     {{-- Shipping Address --}}
                     <div class="mb-4 pb-4 border-bottom">
                         <h6 class="fw-bold mb-3" style="color:var(--aroma-brown)">{{ __('checkout.shipping_address_label') }}</h6>
-                        <div class="text-aroma-muted small">
-                            <div>{{ $order->shipping_address['recipient_name'] }}</div>
-                            <div>{{ $order->shipping_address['street_address'] }}</div>
-                            <div>{{ $order->shipping_address['city'] }}, {{ $order->shipping_address['region'] }}</div>
-                            @if($order->shipping_address['postal_code'])
-                                <div>{{ $order->shipping_address['postal_code'] }}</div>
-                            @endif
-                            <div>{{ $order->customer_phone }}</div>
-                        </div>
+                        <x-address-summary class="text-aroma-muted small" :address="$order->shipping_address" :phone="$order->customer_phone" />
                     </div>
 
                     {{-- Order Items --}}

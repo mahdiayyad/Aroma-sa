@@ -232,7 +232,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
 .aroma-gallery-thumb:focus-visible {
   outline: none;
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.4);
+  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.4);
   opacity: 1;
 }
 
@@ -261,7 +261,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   box-shadow: none;
 }
 .accordion-button:focus {
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.25);
+  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.25);
   border-color: var(--aroma-light-brown);
 }
 

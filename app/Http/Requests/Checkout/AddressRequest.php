@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Checkout;
 
+use App\Rules\LocationCode;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddressRequest extends FormRequest
@@ -21,25 +22,16 @@ class AddressRequest extends FormRequest
             // them; authenticated users already have one on their account.
             'billing_address.email' => [auth()->check() ? 'nullable' : 'required', 'email', 'max:255'],
             'billing_address.phone' => 'required|string|max:20',
-            'billing_address.street_address' => 'required|string|max:255',
-            'billing_address.city' => 'required|string|max:100',
-            'billing_address.region' => 'required|string|max:100',
-            'billing_address.postal_code' => 'nullable|string|max:20',
-            // Set when the shopper picks a saved address that was pinned via
-            // the account map picker (see account/addresses/form.blade.php).
-            'billing_address.latitude' => 'nullable|numeric|between:-90,90',
-            'billing_address.longitude' => 'nullable|numeric|between:-180,180',
+            // The actual address (street/city/region/coordinates) is resolved
+            // server-side from this code by CheckoutController via
+            // LocationLookupService — not collected as free text anymore.
+            'billing_address.location_code' => ['required', 'string', new LocationCode()],
 
             'use_shipping_for_billing' => 'boolean',
 
             'shipping_address.recipient_name' => 'required_if:use_shipping_for_billing,false|string|max:100',
             'shipping_address.phone' => 'required_if:use_shipping_for_billing,false|string|max:20',
-            'shipping_address.street_address' => 'required_if:use_shipping_for_billing,false|string|max:255',
-            'shipping_address.city' => 'required_if:use_shipping_for_billing,false|string|max:100',
-            'shipping_address.region' => 'required_if:use_shipping_for_billing,false|string|max:100',
-            'shipping_address.postal_code' => 'nullable|string|max:20',
-            'shipping_address.latitude' => 'nullable|numeric|between:-90,90',
-            'shipping_address.longitude' => 'nullable|numeric|between:-180,180',
+            'shipping_address.location_code' => ['required_if:use_shipping_for_billing,false', 'nullable', 'string', new LocationCode()],
 
             'customer_notes' => 'nullable|string|max:500',
         ];
@@ -52,9 +44,8 @@ class AddressRequest extends FormRequest
             'billing_address.email.required' => __('validation.required', ['attribute' => __('checkout.email')]),
             'billing_address.email.email' => __('validation.email', ['attribute' => __('checkout.email')]),
             'billing_address.phone.required' => __('validation.required', ['attribute' => __('checkout.phone')]),
-            'billing_address.street_address.required' => __('validation.required', ['attribute' => __('checkout.street_address')]),
-            'billing_address.city.required' => __('validation.required', ['attribute' => __('checkout.city')]),
-            'billing_address.region.required' => __('validation.required', ['attribute' => __('checkout.region')]),
+            'billing_address.location_code.required' => __('validation.required', ['attribute' => __('location.label')]),
+            'shipping_address.location_code.required_if' => __('validation.required', ['attribute' => __('location.label')]),
         ];
     }
 }

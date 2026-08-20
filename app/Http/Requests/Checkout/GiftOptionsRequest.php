@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Checkout;
 
+use App\Rules\LocationCode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -42,10 +43,9 @@ class GiftOptionsRequest extends FormRequest
             // being skipped — which is exactly the bug this fixes.
             'recipient.recipient_name'  => [Rule::requiredIf($isGift), 'nullable', 'string', 'max:100'],
             'recipient.phone'           => [Rule::requiredIf($isGift), 'nullable', 'string', 'regex:/^(\+9665|05)\d{8}$/'],
-            'recipient.street_address'  => [Rule::requiredIf($isGift), 'nullable', 'string', 'max:255'],
-            'recipient.city'            => [Rule::requiredIf($isGift), 'nullable', 'string', 'max:100'],
-            'recipient.region'          => [Rule::requiredIf($isGift), 'nullable', 'string', 'max:100'],
-            'recipient.postal_code'     => ['nullable', 'string', 'max:20'],
+            // Resolved server-side via LocationLookupService, same as the
+            // billing/shipping address — not collected as free text anymore.
+            'recipient.location_code'   => [Rule::requiredIf($isGift), 'nullable', 'string', new LocationCode()],
 
             'is_anonymous'     => ['boolean'],
             'gift_wrap'        => ['boolean'],

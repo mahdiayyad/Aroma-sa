@@ -51,36 +51,23 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label fw-semibold">{{ __('checkout.street_address') }}</label>
-                                <input type="text" name="billing_address[street_address]" class="form-control @error('billing_address.street_address') is-invalid @enderror"
-                                       value="{{ old('billing_address.street_address') }}" required>
-                                @error('billing_address.street_address')
+                                <label class="form-label fw-semibold">{{ __('location.label') }}</label>
+                                <div class="aroma-location-field">
+                                    <input type="text" name="billing_address[location_code]" id="billingLocationCode"
+                                           class="form-control js-location-code @error('billing_address.location_code') is-invalid @enderror"
+                                           value="{{ old('billing_address.location_code') }}" maxlength="8"
+                                           placeholder="{{ __('location.placeholder') }}"
+                                           data-lang-loading="{{ __('location.preview.loading') }}"
+                                           data-lang-not-found="{{ __('location.errors.not_found') }}"
+                                           data-lang-invalid="{{ __('location.errors.invalid_format') }}"
+                                           data-lang-failed="{{ __('location.errors.lookup_failed') }}"
+                                           required>
+                                    <div class="aroma-location-preview" hidden></div>
+                                </div>
+                                <div class="form-text">{{ __('location.hint') }}</div>
+                                @error('billing_address.location_code')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">{{ __('checkout.city') }}</label>
-                                <input type="text" name="billing_address[city]" class="form-control @error('billing_address.city') is-invalid @enderror"
-                                       value="{{ old('billing_address.city') }}" required>
-                                @error('billing_address.city')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">{{ __('checkout.region') }}</label>
-                                <input type="text" name="billing_address[region]" class="form-control @error('billing_address.region') is-invalid @enderror"
-                                       value="{{ old('billing_address.region') }}" required>
-                                @error('billing_address.region')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">{{ __('checkout.postal_code') }}</label>
-                                <input type="text" name="billing_address[postal_code]" class="form-control"
-                                       value="{{ old('billing_address.postal_code') }}">
                             </div>
 
                             <div class="col-12">
@@ -88,12 +75,6 @@
                                 <textarea name="customer_notes" class="form-control" rows="3" placeholder="...">{{ old('customer_notes') }}</textarea>
                             </div>
                         </div>
-
-                        {{-- Carries the pinned map location through to the order, when a
-                             saved address (set via the account map picker) is selected
-                             below. Empty when the shopper types a fresh address here. --}}
-                        <input type="hidden" name="billing_address[latitude]" id="billingLatitude" value="{{ old('billing_address.latitude') }}">
-                        <input type="hidden" name="billing_address[longitude]" id="billingLongitude" value="{{ old('billing_address.longitude') }}">
                     </div>
                 </div>
 
@@ -107,16 +88,11 @@
                                 @foreach($addresses as $address)
                                     <button type="button" class="list-group-item list-group-item-action d-flex align-items-start gap-3 border-0 p-3"
                                             onclick="loadAddress(this)" data-recipient="{{ $address->recipient_name }}"
-                                            data-phone="{{ $address->phone }}" data-street="{{ $address->street_address }}"
-                                            data-city="{{ $address->city }}" data-region="{{ $address->region }}"
-                                            data-postal="{{ $address->postal_code }}"
-                                            data-lat="{{ $address->latitude }}" data-lng="{{ $address->longitude }}">
+                                            data-phone="{{ $address->phone }}"
+                                            data-location-code="{{ $address->location_code }}">
                                         <div>
                                             <strong>{{ $address->label ?? 'Address' }}</strong>
-                                            <div class="small text-aroma-muted">{{ $address->street_address }}, {{ $address->city }}</div>
-                                            @if ($address->hasCoordinates())
-                                                <div class="small text-aroma-brown"><i class="bi bi-geo-alt-fill me-1"></i>{{ __('account.saved_addresses_pinned') }}</div>
-                                            @endif
+                                            <div class="small text-aroma-muted">{{ $address->formatted_address ?: $address->street_address }}</div>
                                         </div>
                                     </button>
                                 @endforeach
@@ -140,16 +116,15 @@
 </div>
 
 @push('scripts')
+<script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script>
 function loadAddress(btn) {
     document.querySelector('[name="billing_address[recipient_name]"]').value = btn.dataset.recipient;
     document.querySelector('[name="billing_address[phone]"]').value = btn.dataset.phone;
-    document.querySelector('[name="billing_address[street_address]"]').value = btn.dataset.street;
-    document.querySelector('[name="billing_address[city]"]').value = btn.dataset.city;
-    document.querySelector('[name="billing_address[region]"]').value = btn.dataset.region;
-    document.querySelector('[name="billing_address[postal_code]"]').value = btn.dataset.postal;
-    document.getElementById('billingLatitude').value = btn.dataset.lat || '';
-    document.getElementById('billingLongitude').value = btn.dataset.lng || '';
+
+    var codeInput = document.getElementById('billingLocationCode');
+    codeInput.value = btn.dataset.locationCode || '';
+    codeInput.dispatchEvent(new Event('aroma:location-code-set'));
 }
 </script>
 @endpush

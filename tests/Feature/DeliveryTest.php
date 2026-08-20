@@ -5,20 +5,25 @@ namespace Tests\Feature;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
 
 class DeliveryTest extends TestCase
 {
     use RefreshDatabase;
+    use MocksLocationLookup;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockLocationLookup();
+    }
 
     private array $validBilling = [
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
         'phone'          => '0500000000',
-        'street_address' => 'King Fahd Rd',
-        'city'           => 'Riyadh',
-        'region'         => 'Riyadh',
-        'postal_code'    => '12211',
+        'location_code'  => 'RAHA1234',
     ];
 
     private function seedCartAndAddress(): void

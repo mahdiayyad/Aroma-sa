@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Account;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\AddressRequest;
 use App\Models\Address;
+use App\Services\LocationLookupService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -22,6 +23,13 @@ use Illuminate\View\View;
  */
 class AddressController extends Controller
 {
+    private LocationLookupService $locationLookup;
+
+    public function __construct(LocationLookupService $locationLookup)
+    {
+        $this->locationLookup = $locationLookup;
+    }
+
     public function index(): View
     {
         return view('account.addresses.index', [
@@ -38,6 +46,10 @@ class AddressController extends Controller
     {
         $user = $request->user();
         $data = $this->payload($request);
+
+        if ($data === null) {
+            return back()->withErrors(['location_code' => __('location.errors.not_found')])->withInput();
+        }
 
         if ($data['is_default'] || $user->addresses()->doesntExist()) {
             $this->clearDefault($user->id);
@@ -61,6 +73,10 @@ class AddressController extends Controller
         $this->authorizeOwner($address);
 
         $data = $this->payload($request);
+
+        if ($data === null) {
+            return back()->withErrors(['location_code' => __('location.errors.not_found')])->withInput();
+        }
 
         if ($data['is_default']) {
             $this->clearDefault($address->user_id);
@@ -99,12 +115,28 @@ class AddressController extends Controller
         Address::where('user_id', $userId)->where('is_default', true)->update(['is_default' => false]);
     }
 
-    /** @return array<string,mixed> */
-    private function payload(AddressRequest $request): array
+    /**
+     * Resolves location_code via LocationLookupService and merges the result
+     * in. Returns null on lookup failure — store()/update() translate that
+     * into a field-specific validation error; there is no manual fallback.
+     *
+     * @return array<string,mixed>|null
+     */
+    private function payload(AddressRequest $request): ?array
     {
         $data = $request->validated();
-        $data['type'] = 'shipping';
 
-        return $data;
+        $result = $this->locationLookup->lookup($data['location_code']);
+
+        if (! $result['success']) {
+            return null;
+        }
+
+        $data['type'] = 'shipping';
+        $data['location_code'] = strtoupper(trim($data['location_code']));
+        $data['street_address'] = null;
+        $data['postal_code'] = null;
+
+        return array_merge($data, $result['data']);
     }
 }

@@ -33,9 +33,13 @@ return [
 
     'recipient_name' => 'Full Name',
     'phone' => 'Phone Number',
+    // street_address/city/region/postal_code kept for orders placed before the
+    // location-code cutover — new orders display district/formatted_address instead.
     'street_address' => 'Street Address',
     'city' => 'City',
     'region' => 'Region',
+    'district' => 'District',
+    'formatted_address' => 'Address',
     'postal_code' => 'Postal Code',
     'email' => 'Email Address',
 

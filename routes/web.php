@@ -23,6 +23,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LocationLookupController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SitemapController;
@@ -188,6 +189,10 @@ Route::prefix('assistant')->name('assistant.')->middleware('throttle:20,1')->gro
     Route::post('chat', [AssistantController::class, 'chat'])->name('chat');
     Route::post('reset', [AssistantController::class, 'reset'])->name('reset');
 });
+
+/* Saudi National Address location-code preview (checkout + account forms) - */
+Route::post('location/lookup', [LocationLookupController::class, 'lookup'])
+    ->middleware('throttle:30,1')->name('location.lookup');
 
 /* Orders (authenticated) ------------------------------------------------- */
 Route::middleware('auth')->prefix('orders')->name('order.')->group(function () {

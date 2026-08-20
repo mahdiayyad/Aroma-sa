@@ -136,7 +136,10 @@ class TamaraPaymentService implements PaymentGateway
             'shipping_address' => [
                 'first_name'   => $firstName,
                 'last_name'    => $lastName,
-                'line1'        => $shipping['street_address'] ?? '',
+                // formatted_address is what new (location-code) orders carry;
+                // street_address only survives on orders placed before the
+                // Saudi National Address cutover.
+                'line1'        => $shipping['formatted_address'] ?? $shipping['street_address'] ?? '',
                 'city'         => $shipping['city'] ?? '',
                 'country_code' => 'SA',
                 'phone_number' => $order->customer_phone,

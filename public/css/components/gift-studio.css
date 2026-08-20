@@ -36,7 +36,7 @@
 }
 .btn-check:focus-visible + .aroma-gift-toggle-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.35);
+  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.35);
 }
 
 /* --- Greeting card picker ------------------------------------------------ */

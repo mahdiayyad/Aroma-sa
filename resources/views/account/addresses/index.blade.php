@@ -39,8 +39,10 @@
                                 </div>
                                 <div class="text-aroma-muted small flex-grow-1">
                                     <div>{{ $address->recipient_name }}</div>
-                                    <div>{{ $address->street_address }}</div>
-                                    <div>{{ $address->city }}, {{ $address->region }} {{ $address->postal_code }}</div>
+                                    {{-- formatted_address covers new (location-code) rows; street_address
+                                         is the fallback for rows saved before this cutover. --}}
+                                    <div>{{ $address->formatted_address ?: $address->street_address }}</div>
+                                    <div>{{ $address->city }}, {{ $address->region }}</div>
                                     <div dir="ltr">{{ $address->phone }}</div>
                                 </div>
                                 <div class="d-flex gap-2 mt-3">

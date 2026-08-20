@@ -29,8 +29,8 @@
      darken, so it's exact and designer-controlled. */
   --aroma-btn-emerald-bg: var(--aroma-brown);       /* rgb(31 77 61) */
   --aroma-btn-emerald-bg-hover: rgb(27 62 50);      /* #1B3E32 */
-  --aroma-btn-gold-bg: var(--aroma-light-brown);    /* rgb(201 162 75) */
-  --aroma-btn-gold-bg-hover: rgb(174 136 54);       /* #AE8836 */
+  --aroma-btn-gold-bg: var(--aroma-light-brown);    /* rgb(212 175 106) */
+  --aroma-btn-gold-bg-hover: rgb(174 144 87);       /* #AE9057 — proportional darken of the new champagne gold */
 
   /* Selection blue — deliberately not brand-brown: used only for "this option
      is the active choice" states (size/variant pickers) where a universally

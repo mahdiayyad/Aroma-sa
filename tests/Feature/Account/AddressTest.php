@@ -5,21 +5,26 @@ namespace Tests\Feature\Account;
 use App\Models\Address;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
 
 class AddressTest extends TestCase
 {
     use RefreshDatabase;
+    use MocksLocationLookup;
 
     private array $payload = [
         'label' => 'Home',
         'recipient_name' => 'Sara Al Qahtani',
         'phone' => '0500000000',
-        'street_address' => 'King Fahd Rd',
-        'city' => 'Riyadh',
-        'region' => 'Riyadh',
-        'postal_code' => '12211',
+        'location_code' => 'RAHA1234',
     ];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockLocationLookup();
+    }
 
     public function test_guest_is_redirected_from_the_address_book(): void
     {
@@ -85,7 +90,7 @@ class AddressTest extends TestCase
         $address = Address::first();
 
         $this->actingAs($user)->put(route('account.addresses.update', $address), array_merge($this->payload, [
-            'city' => 'Jeddah',
+            'location_code' => 'JEDD5678',
         ]))->assertRedirect(route('account.addresses.index'));
 
         $this->assertSame('Jeddah', $address->fresh()->city);

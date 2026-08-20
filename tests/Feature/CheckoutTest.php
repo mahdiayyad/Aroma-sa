@@ -7,11 +7,19 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
 
 class CheckoutTest extends TestCase
 {
     use RefreshDatabase;
+    use MocksLocationLookup;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockLocationLookup();
+    }
 
     private function seedCart(int $qty = 1): Product
     {
@@ -25,10 +33,7 @@ class CheckoutTest extends TestCase
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
         'phone'          => '0500000000',
-        'street_address' => 'King Fahd Rd',
-        'city'           => 'Riyadh',
-        'region'         => 'Riyadh',
-        'postal_code'    => '12211',
+        'location_code'  => 'RAHA1234',
     ];
 
     /* ---- The reported bug: shipping_address must default to billing -------- */

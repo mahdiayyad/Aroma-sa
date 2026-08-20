@@ -44,10 +44,17 @@
                     </div>
                     <div>{{ $shipping['recipient_name'] ?? '' }}</div>
                     <div class="text-aroma-muted small">{{ $shipping['phone'] ?? '' }}</div>
-                    <div class="text-aroma-muted small">
-                        {{ $shipping['street_address'] ?? '' }}, {{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}
-                        @if(!empty($shipping['postal_code'])) {{ $shipping['postal_code'] }} @endif
-                    </div>
+                    @if(!empty($shipping['location_code']))
+                        <div class="text-aroma-muted small">{{ $shipping['formatted_address'] ?? '' }}</div>
+                        <div class="text-aroma-muted small">
+                            @if(!empty($shipping['district'])){{ $shipping['district'] }}, @endif{{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}
+                        </div>
+                    @else
+                        <div class="text-aroma-muted small">
+                            {{ $shipping['street_address'] ?? '' }}, {{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}
+                            @if(!empty($shipping['postal_code'])) {{ $shipping['postal_code'] }} @endif
+                        </div>
+                    @endif
                 </div>
             </div>
 

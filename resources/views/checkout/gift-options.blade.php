@@ -63,27 +63,20 @@
                                     @error('recipient.phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label fw-semibold">{{ __('checkout.street_address') }}</label>
-                                    <input type="text" name="recipient[street_address]" class="form-control @error('recipient.street_address') is-invalid @enderror"
-                                           value="{{ old('recipient.street_address', $recipient['street_address'] ?? '') }}">
-                                    @error('recipient.street_address')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">{{ __('checkout.city') }}</label>
-                                    <input type="text" name="recipient[city]" class="form-control @error('recipient.city') is-invalid @enderror"
-                                           value="{{ old('recipient.city', $recipient['city'] ?? '') }}">
-                                    @error('recipient.city')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">{{ __('checkout.region') }}</label>
-                                    <input type="text" name="recipient[region]" class="form-control @error('recipient.region') is-invalid @enderror"
-                                           value="{{ old('recipient.region', $recipient['region'] ?? '') }}">
-                                    @error('recipient.region')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">{{ __('checkout.postal_code') }}</label>
-                                    <input type="text" name="recipient[postal_code]" class="form-control"
-                                           value="{{ old('recipient.postal_code', $recipient['postal_code'] ?? '') }}">
+                                    <label class="form-label fw-semibold">{{ __('location.label') }}</label>
+                                    <div class="aroma-location-field">
+                                        <input type="text" name="recipient[location_code]"
+                                               class="form-control js-location-code @error('recipient.location_code') is-invalid @enderror"
+                                               value="{{ old('recipient.location_code', $recipient['location_code'] ?? '') }}" maxlength="8"
+                                               placeholder="{{ __('location.placeholder') }}"
+                                               data-lang-loading="{{ __('location.preview.loading') }}"
+                                               data-lang-not-found="{{ __('location.errors.not_found') }}"
+                                               data-lang-invalid="{{ __('location.errors.invalid_format') }}"
+                                               data-lang-failed="{{ __('location.errors.lookup_failed') }}">
+                                        <div class="aroma-location-preview" hidden></div>
+                                    </div>
+                                    <div class="form-text">{{ __('location.hint') }}</div>
+                                    @error('recipient.location_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                             </div>
 
@@ -289,6 +282,7 @@
 </div>
 
 @push('scripts')
+<script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/gift-studio.js') }}"></script>
 @endpush
 @endsection

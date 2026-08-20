@@ -104,8 +104,8 @@ html[lang="ar"] .aroma-navbar .nav-link {
   font-weight: 600;
   transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
 }
-.aroma-mobile-nav-link:hover { background: var(--aroma-skin); color: var(--aroma-brown); }
-.aroma-mobile-nav-link.active { background: var(--aroma-skin); color: var(--aroma-brown); }
+.aroma-mobile-nav-link:hover { background: rgba(31, 77, 61, 0.08); color: var(--aroma-brown); }
+.aroma-mobile-nav-link.active { background: rgba(31, 77, 61, 0.08); color: var(--aroma-brown); }
 
 /* --- Account sidebar nav ------------------------------------------------------------- */
 .aroma-account-nav-link {

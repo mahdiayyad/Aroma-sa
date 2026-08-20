@@ -7,29 +7,31 @@ use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
 
 class GiftOptionsTest extends TestCase
 {
     use RefreshDatabase;
+    use MocksLocationLookup;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockLocationLookup();
+    }
 
     private array $validBilling = [
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
         'phone'          => '0500000000',
-        'street_address' => 'King Fahd Rd',
-        'city'           => 'Riyadh',
-        'region'         => 'Riyadh',
-        'postal_code'    => '12211',
+        'location_code'  => 'RAHA1234', // resolves to Riyadh, see MocksLocationLookup
     ];
 
     private array $validRecipient = [
         'recipient_name' => 'Layla Al Otaibi',
         'phone'          => '0511111111',
-        'street_address' => 'Tahlia St',
-        'city'           => 'Jeddah',
-        'region'         => 'Makkah',
-        'postal_code'    => '23411',
+        'location_code'  => 'JEDD5678', // resolves to Jeddah, see MocksLocationLookup
     ];
 
     private function seedCartAndAddress(): void

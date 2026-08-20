@@ -50,13 +50,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <x-admin.card :title="__('admin.orders.shipping_address')">
-                        @php($addr = $order->shipping_address)
-                        <div class="admin-cell-sub">
-                            <div>{{ $addr['recipient_name'] ?? '' }}</div>
-                            <div>{{ $addr['street_address'] ?? '' }}</div>
-                            <div>{{ ($addr['city'] ?? '') }}, {{ $addr['region'] ?? '' }} {{ $addr['postal_code'] ?? '' }}</div>
-                            <div>{{ $addr['phone'] ?? $order->customer_phone }}</div>
-                        </div>
+                        <x-address-summary class="admin-cell-sub" :address="$order->shipping_address" :phone="$order->customer_phone" />
                     </x-admin.card>
                 </div>
                 <div class="col-md-6">
