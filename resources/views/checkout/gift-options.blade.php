@@ -5,9 +5,6 @@
 
 @push('head')
     <link href="{{ \App\Support\Assets::versioned('css/components/gift-studio.css') }}" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <link href="{{ \App\Support\Assets::versioned('css/components/map-picker.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -61,9 +58,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">{{ __('checkout.phone') }}</label>
-                                    <input type="tel" name="recipient[phone]" class="form-control @error('recipient.phone') is-invalid @enderror"
-                                           value="{{ old('recipient.phone', $recipient['phone'] ?? '') }}">
-                                    @error('recipient.phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                    <x-phone-input name="recipient[phone]" :value="$recipient['phone'] ?? null" />
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label fw-semibold">{{ __('location.label') }}</label>
@@ -117,6 +112,16 @@
                                     <label class="aroma-gift-card-option" for="card-{{ $card->id }}" data-image="{{ $card->imageUrl() }}">
                                         <img src="{{ $card->imageUrl() }}" alt="{{ $card->name }}" loading="lazy">
                                         <span>{{ $card->name }}</span>
+                                        @if ($card->slug === 'blank-note')
+                                            <span class="aroma-gift-card-caption">{{ __('gift.blank_note_caption') }}</span>
+                                        @endif
+                                        <span class="aroma-gift-card-price {{ (float) $card->price === 0.0 ? 'is-free' : '' }}">
+                                            @if ((float) $card->price === 0.0)
+                                                {{ __('gift.card_free') }}
+                                            @else
+                                                @price($card->price)
+                                            @endif
+                                        </span>
                                         {{-- A button nested inside this <label> doesn't double-toggle
                                              the radio — the same nesting the terms checkbox above
                                              already relies on. Opens the shared preview modal below
@@ -317,10 +322,6 @@
 </div>
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="{{ \App\Support\Assets::versioned('js/address-map.js') }}"></script>
-<script src="{{ \App\Support\Assets::versioned('js/location-method-toggle.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/gift-studio.js') }}"></script>
 @endpush

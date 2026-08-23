@@ -213,6 +213,7 @@ return [
         'gift_from'         => 'من',
         'gift_message'      => 'الرسالة',
         'gift_wrap'         => 'مُغلّف كهدية',
+        'card_fee'          => 'رسوم البطاقة',
         'gift_signature'    => 'التوقيع',
         'gift_media'        => 'رابط أغنية / فيديو',
 

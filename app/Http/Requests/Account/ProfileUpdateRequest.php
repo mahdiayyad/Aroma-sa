@@ -27,4 +27,11 @@ class ProfileUpdateRequest extends FormRequest
             'locale' => ['nullable', 'in:ar,en'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'phone.regex' => __('auth_ui.validation.phone'),
+        ];
+    }
 }

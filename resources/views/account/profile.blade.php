@@ -30,9 +30,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('account.profile.phone') }}</label>
-                            <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" dir="ltr"
-                                   class="form-control @error('phone') is-invalid @enderror" placeholder="05XXXXXXXX">
-                            @error('phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <x-phone-input name="phone" :value="$user->phone" />
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('account.profile.dob') }}</label>

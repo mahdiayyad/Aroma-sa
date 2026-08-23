@@ -147,6 +147,13 @@
                                 <span>@price($totals['gift_wrap_fee'])</span>
                             </div>
                         @endif
+
+                        @if(($totals['greeting_card_fee'] ?? 0) > 0)
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-aroma-muted">{{ __('gift.card_fee_title') }}</span>
+                                <span>@price($totals['greeting_card_fee'])</span>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="checkout-summary-total mb-3">

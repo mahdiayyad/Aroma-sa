@@ -1114,7 +1114,8 @@ select,
 .aroma-added-price,
 .aroma-badge-discount,
 .aroma-badge-status,
-.footer-rights {
+.footer-rights,
+.aroma-phone-plus {
   font-family: var(--aroma-input-font);
 }
 

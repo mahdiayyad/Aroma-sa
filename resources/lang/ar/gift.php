@@ -20,6 +20,9 @@ return [
 
     'card_title'     => 'اختر بطاقة معايدة',
     'card_none'      => 'بدون بطاقة',
+    'card_free'      => 'مجاناً',
+    'blank_note_caption' => 'اكتب ما يحلو لك',
+    'card_fee_title' => 'بطاقة المعايدة',
 
     'message_title'  => 'رسالتك',
     'to_label'       => 'إلى (اختياري)',

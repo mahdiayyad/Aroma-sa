@@ -120,6 +120,16 @@ textarea.form-control {
   border-radius: var(--aroma-radius-sm);
 }
 
+/* --- Saudi phone prefix (see <x-phone-input>) ----------------------------------- */
+.aroma-phone-input .input-group-text {
+  background: var(--aroma-skin);
+  color: var(--aroma-brown);
+  border: 1px solid var(--aroma-border);
+  border-inline-end: none;
+  font-weight: 600;
+  padding-inline: 0.85rem;
+}
+
 /* --- Touch-friendly minimum size on small screens ------------------------------- */
 @media (max-width: 576px) {
   .form-control, .form-select, .btn-aroma, .btn-aroma-outline, .btn-aroma-secondary {

@@ -213,6 +213,7 @@ return [
         'gift_from'         => 'From',
         'gift_message'      => 'Message',
         'gift_wrap'         => 'Gift wrapped',
+        'card_fee'          => 'Card fee',
         'gift_signature'    => 'Signature',
         'gift_media'        => 'Song / video link',
 

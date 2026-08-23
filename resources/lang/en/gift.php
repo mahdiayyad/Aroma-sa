@@ -20,6 +20,9 @@ return [
 
     'card_title'     => 'Choose a greeting card',
     'card_none'      => 'No card',
+    'card_free'      => 'Free',
+    'blank_note_caption' => 'Write whatever you like',
+    'card_fee_title' => 'Greeting card',
 
     'message_title'  => 'Your message',
     'to_label'       => 'To (optional)',

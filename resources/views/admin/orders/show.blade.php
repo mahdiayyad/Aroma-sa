@@ -106,6 +106,7 @@
                                     @endif
                                     @if ($order->gift_media_url)<div class="admin-cell-sub mt-1"><i class="bi bi-music-note-beamed me-1"></i><a href="{{ $order->gift_media_url }}" target="_blank" rel="noopener">{{ __('admin.orders.gift_media') }}</a></div>@endif
                                     @if ($order->gift_wrap_fee > 0)<div class="admin-cell-sub mt-1"><i class="bi bi-check-circle me-1"></i>{{ __('admin.orders.gift_wrap') }} (@price($order->gift_wrap_fee))</div>@endif
+                                    @if ($order->greeting_card_fee > 0)<div class="admin-cell-sub mt-1"><i class="bi bi-tag me-1"></i>{{ __('admin.orders.card_fee') }} (@price($order->greeting_card_fee))</div>@endif
                                 </div>
                             </div>
                         @else

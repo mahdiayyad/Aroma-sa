@@ -18,7 +18,6 @@ return [
         'name'     => 'Full name',
         'email'    => 'Email',
         'phone'    => 'Mobile number',
-        'phone_hint' => 'Format: 05XXXXXXXX or +9665XXXXXXXX',
         'contact_hint' => 'Please provide at least one: mobile number or email.',
         'password' => 'Password',
         'confirm'  => 'Confirm password',
@@ -48,7 +47,7 @@ return [
         'back_to_login' => 'Back to sign in',
     ],
     'validation' => [
-        'phone' => 'Enter a valid Saudi mobile number (05XXXXXXXX or +9665XXXXXXXX).',
+        'phone' => 'Enter a valid Saudi mobile number, e.g. 5XXXXXXXX.',
     ],
     'show_password' => 'Show password',
     'hide_password' => 'Hide password',

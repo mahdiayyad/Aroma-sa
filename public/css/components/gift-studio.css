@@ -84,6 +84,22 @@
   justify-content: center;
   min-height: 100%;
 }
+/* Caption (blank-note only) and price — scoped under .aroma-gift-card-option
+   so they win over the generic "span" name-styling rule above. */
+.aroma-gift-card-option .aroma-gift-card-caption {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--aroma-muted);
+  margin-top: -0.25rem;
+}
+.aroma-gift-card-option .aroma-gift-card-price {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--aroma-brown);
+}
+.aroma-gift-card-option .aroma-gift-card-price.is-free {
+  color: var(--aroma-success);
+}
 .aroma-gift-card-none i { font-size: 1.6rem; color: var(--aroma-muted); margin-top: 1rem; }
 .aroma-gift-card-option:hover { border-color: var(--aroma-light-brown); }
 .btn-check:checked + .aroma-gift-card-option {

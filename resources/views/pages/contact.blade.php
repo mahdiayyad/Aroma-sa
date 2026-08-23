@@ -115,7 +115,7 @@
                             <div class="small text-aroma-muted">{{ __('contact.info.whatsapp_label') }}</div>
                             <a href="https://wa.me/{{ $waDigits }}" target="_blank" rel="noopener"
                                class="fw-semibold text-decoration-none" style="color:var(--aroma-ink)" dir="ltr">
-                                +{{ $waDigits }}
+                                <span class="aroma-phone-plus">+</span>{{ $waDigits }}
                             </a>
                         </div>
                     </div>

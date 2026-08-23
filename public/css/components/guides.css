@@ -109,33 +109,74 @@ html[lang="ar"] .aroma-guide-card .aroma-guide-card-title { font-family: var(--a
   font-family: var(--aroma-heading-en);
 }
 
-/* --- Size Guide: general size-reference card grid --------------------------
-   Deliberately a card grid, not a <table> — naturally single-column on
-   phones with zero breakpoint logic, and avoids mixed-direction numerals
-   inside RTL table cells. */
-.aroma-size-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+/* --- Size Guide: original abaya technical-flat diagram --------------------- */
+.aroma-size-diagram {
+  max-width: 320px;
+  margin-inline: auto;
 }
-.aroma-size-card { text-align: center; }
-.aroma-size-card .aroma-size-label {
+.aroma-size-diagram svg { width: 100%; height: auto; overflow: visible; }
+.aroma-size-diagram-garment {
+  fill: var(--aroma-skin);
+  stroke: var(--aroma-brown);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.aroma-size-diagram-dim {
+  stroke: var(--aroma-muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+.aroma-size-diagram-tick { stroke: var(--aroma-muted); stroke-width: 1; }
+.aroma-size-diagram-label {
+  fill: var(--aroma-brown);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--aroma-body-en);
+}
+
+/* --- Size Guide: full size-conversion table ---------------------------------
+   Dense reference data (13 sizes × 3 measurements × cm/in) — this is exactly
+   the "genuinely large/dense tabular data" case .aroma-table-responsive
+   already exists for. The size column stays sticky so it's never scrolled
+   out of view while comparing measurement columns on a narrow screen. */
+.aroma-size-table-wrap { position: relative; }
+.aroma-size-table th,
+.aroma-size-table td {
+  text-align: center;
+  white-space: nowrap;
+}
+.aroma-size-table thead tr:first-child th { border-bottom: 1px solid var(--aroma-border); }
+/* Physical (not logical) sides on purpose: the numeric <td>s carry their own
+   dir="ltr" (to keep digits left-to-right), which makes border-inline-start
+   resolve against THAT cell's direction instead of the page's — flipping the
+   divider to the wrong edge in Arabic. html[dir] scoping sidesteps that. */
+.aroma-size-table-divider { border-left: 1px solid var(--aroma-border-strong); }
+html[dir="rtl"] .aroma-size-table-divider { border-left: none; border-right: 1px solid var(--aroma-border-strong); }
+.aroma-size-table .aroma-size-table-unit {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--aroma-muted);
+  text-transform: uppercase;
+  background: #fff;
+}
+.aroma-size-table .aroma-size-table-size-col {
+  position: sticky;
+  inset-inline-start: 0;
+  background: var(--aroma-brown);
+  color: var(--aroma-white);
   font-family: var(--aroma-heading-en);
-  font-size: 1.5rem;
-  color: var(--aroma-brown);
-  display: block;
-  margin-bottom: 0.6rem;
+  font-size: 1.05rem;
+  z-index: 1;
 }
-.aroma-size-card dl {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 0.35rem 0.75rem;
-  justify-content: center;
-  margin: 0;
-  font-size: 0.9rem;
+.aroma-size-table thead .aroma-size-table-size-col { background: var(--aroma-emerald-deep, var(--aroma-brown)); }
+.aroma-size-table-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--aroma-muted);
+  margin-bottom: 0.75rem;
 }
-.aroma-size-card dt { color: var(--aroma-muted); font-weight: 500; }
-.aroma-size-card dd { margin: 0; font-weight: 600; color: var(--aroma-ink); }
 
 /* --- Fit Guide: preference cards -------------------------------------------- */
 .aroma-fit-card-cta {

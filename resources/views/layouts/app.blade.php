@@ -170,6 +170,7 @@
     <script src="{{ \App\Support\Assets::versioned('js/aroma-http.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/cart-modal.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/aroma-ui.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/phone-prefix.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/assistant.js') }}" defer></script>
     @stack('scripts')
 </body>

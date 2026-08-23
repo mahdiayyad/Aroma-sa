@@ -19,10 +19,7 @@
 
         <div class="mb-3">
             <label class="form-label">{{ __('auth_ui.register.phone') }} <span class="aroma-required">*</span></label>
-            <input type="tel" name="phone" value="{{ old('phone') }}" dir="ltr"
-                   class="form-control @error('phone') is-invalid @enderror" placeholder="05XXXXXXXX">
-            <div class="form-text">{{ __('auth_ui.register.phone_hint') }}</div>
-            @error('phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+            <x-phone-input name="phone" />
         </div>
 
         <div class="mb-3">

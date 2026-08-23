@@ -15,7 +15,7 @@
     // scannability, never reworded into a new claim. No day-count return
     // window is stated anywhere in the app, so none is invented here either.
     $steps = $isAr ? [
-        ['bi-chat-dots', 'تواصلي معنا', 'راسلينا عبر واتساب أو البريد الإلكتروني خلال فترة الإرجاع الموضحة عند إتمام الطلب.'],
+        ['bi-chat-dots', 'تواصلي معنا', 'راسلينا عبر واتساب خلال فترة الإرجاع الموضحة عند إتمام الطلب.'],
         ['bi-box-seam', 'جهّزي القطعة', 'احتفظي بالمنتج بحالته الأصلية غير المستخدمة، وبتغليفه الأصلي.'],
         ['bi-clock-history', 'نستلم ونراجع', 'فريقنا يرد خلال 24 ساعة، ويقوم بمراجعة القطعة المرتجعة عند استلامها.'],
         ['bi-arrow-repeat', 'استرداد المبلغ', 'يُعاد المبلغ إلى وسيلة الدفع الأصلية بعد التحقق من حالة المنتج، بعد خصم رسوم المعالجة.'],
@@ -31,7 +31,7 @@
         : ['Items in original, unused condition', 'With original packaging kept', 'Within the return period stated at checkout'];
 
     $notEligible = $isAr
-        ? ['المنتجات القابلة للتلف (كالزهور الطازجة)', 'المنتجات المخصصة أو المُصنّعة حسب الطلب']
+        ? ['المنتجات القابلة للتلف (كالزهور الطبيعية)', 'المنتجات المخصصة أو المُصنّعة حسب الطلب']
         : ['Perishable items (fresh flowers)', 'Personalized or made-to-order products'];
 @endphp
 
@@ -114,7 +114,7 @@
                 <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                 <span>
                     {{ $isAr
-                        ? 'يُخصم رسم معالجة إرجاع قدره 50 ريال سعودي من قيمة المبلغ المسترد لتغطية تكاليف المعالجة والشحن، بصرف النظر عن سبب الإرجاع.'
+                        ? 'يُخصم 50 ريال سعودي رسوم إرجاع من قيمة المبلغ المسترد لتغطية تكاليف الشحن.'
                         : 'A return handling fee of 50 SAR is deducted from your refund to cover return processing and shipping costs, regardless of the reason for return.' }}
                 </span>
             </div>

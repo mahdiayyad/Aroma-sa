@@ -24,6 +24,14 @@ use Illuminate\Support\Facades\Storage;
 class GiftCardSeeder extends Seeder
 {
     private array $cards = [
+        // First on purpose: the free write-your-own option, so it's the
+        // first thing a shopper sees rather than buried at the end.
+        [
+            'slug' => 'blank-note',
+            'name' => ['ar' => 'بطاقة فارغة', 'en' => 'Blank Note'],
+            'file' => 'blank-note.jpg',
+            'price' => 0,
+        ],
         [
             'slug' => 'happy-birthday-candles',
             'name' => ['ar' => 'عيد ميلاد سعيد (شموع)', 'en' => 'Happy Birthday (Candles)'],
@@ -94,11 +102,6 @@ class GiftCardSeeder extends Seeder
             'name' => ['ar' => 'مبروك تخرجك', 'en' => 'You Did It! Congrats! (Cap)'],
             'file' => 'you-did-it-congrats.jpg',
         ],
-        [
-            'slug' => 'blank-note',
-            'name' => ['ar' => 'بطاقة فارغة', 'en' => 'Blank Note'],
-            'file' => 'blank-note.jpg',
-        ],
     ];
 
     public function run(): void
@@ -122,6 +125,7 @@ class GiftCardSeeder extends Seeder
                     'image'      => $diskPath,
                     'sort_order' => $i,
                     'is_active'  => true,
+                    'price'      => $card['price'] ?? 5.00,
                 ]
             );
         }

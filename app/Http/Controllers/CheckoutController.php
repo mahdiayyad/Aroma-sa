@@ -338,12 +338,23 @@ class CheckoutController extends Controller
             }
         }
 
+        $cardId = $isGift ? ($data['greeting_card_id'] ?? null) : null;
+        // Snapshot the price at selection time, not at order time — matches
+        // wrap_fee's own reasoning below (see the migration comment on
+        // orders.greeting_card_fee for why this shouldn't re-read live).
+        $cardFee = 0;
+        if ($cardId) {
+            $selectedCard = GiftCard::find($cardId);
+            $cardFee = $selectedCard ? (float) $selectedCard->price : 0;
+        }
+
         session(['checkout.gift' => [
             'is_gift'      => $isGift,
             'message'      => $isGift ? ($data['gift_message'] ?? null) : null,
             'is_anonymous' => $isAnonymous,
             'wrap_fee'     => $isGift && ($data['gift_wrap'] ?? false) ? (float) config('aroma.gifting.wrap_fee', 0) : 0,
-            'card_id'      => $isGift ? ($data['greeting_card_id'] ?? null) : null,
+            'card_id'      => $cardId,
+            'card_fee'     => $cardFee,
             'to'           => $isGift ? ($data['gift_to'] ?? null) : null,
             'from'         => $isGift && !$isAnonymous ? ($data['gift_from'] ?? null) : null,
             'signature'    => $signaturePath,
@@ -434,7 +445,7 @@ class CheckoutController extends Controller
         $gift = session('checkout.gift', []);
 
         return view('checkout.order-review', [
-            'totals'   => $this->totalsWithGiftWrap(),
+            'totals'   => $this->totalsWithGiftExtras(),
             'shipping' => session('checkout.shipping_address', []),
             'gift'     => $gift,
             'giftCard' => !empty($gift['card_id']) ? GiftCard::find($gift['card_id']) : null,
@@ -443,17 +454,19 @@ class CheckoutController extends Controller
     }
 
     /**
-     * calculateTotals() is cart-only math; the gift wrap fee lives in the
-     * checkout session (set in storeGiftOptions()), so it's layered on here
-     * for display — the same way createOrder() layers it on when charging.
-     * Keeps the Order Review / Payment totals from ever understating what
-     * the customer is actually about to pay.
+     * calculateTotals() is cart-only math; the gift wrap fee and the chosen
+     * greeting card's fee both live in the checkout session (set in
+     * storeGiftOptions()), so they're layered on here for display — the
+     * same way createOrder() layers them on when charging. Keeps the Order
+     * Review / Payment totals from ever understating what the customer is
+     * actually about to pay.
      */
-    private function totalsWithGiftWrap(): array
+    private function totalsWithGiftExtras(): array
     {
         $totals = $this->checkout->calculateTotals();
         $totals['gift_wrap_fee'] = (float) session('checkout.gift.wrap_fee', 0);
-        $totals['total_amount'] += $totals['gift_wrap_fee'];
+        $totals['greeting_card_fee'] = (float) session('checkout.gift.card_fee', 0);
+        $totals['total_amount'] += $totals['gift_wrap_fee'] + $totals['greeting_card_fee'];
 
         return $totals;
     }
@@ -475,7 +488,7 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.address');
         }
 
-        $totals = $this->totalsWithGiftWrap();
+        $totals = $this->totalsWithGiftExtras();
 
         return view('checkout.payment', [
             'totals' => $totals,
@@ -518,6 +531,7 @@ class CheckoutController extends Controller
                     'is_anonymous'          => session('checkout.gift.is_anonymous', false),
                     'gift_wrap_fee'         => session('checkout.gift.wrap_fee', 0),
                     'greeting_card_id'      => session('checkout.gift.card_id'),
+                    'greeting_card_fee'     => session('checkout.gift.card_fee', 0),
                     'gift_card_to'          => session('checkout.gift.to'),
                     'gift_card_from'        => session('checkout.gift.from'),
                     'gift_signature'        => session('checkout.gift.signature'),

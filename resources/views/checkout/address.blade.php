@@ -3,11 +3,6 @@
 @section('title', __('checkout.address').' — '.$brand['name'])
 @section('robots', 'noindex, follow')
 
-@push('head')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-    <link href="{{ \App\Support\Assets::versioned('css/components/map-picker.css') }}" rel="stylesheet">
-@endpush
 
 @section('content')
 @php($locale = app()->getLocale())
@@ -37,11 +32,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">{{ __('checkout.phone') }}</label>
-                                <input type="tel" name="billing_address[phone]" class="form-control @error('billing_address.phone') is-invalid @enderror"
-                                       value="{{ old('billing_address.phone', optional(auth()->user())->phone) }}" required>
-                                @error('billing_address.phone')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
+                                <x-phone-input name="billing_address[phone]" :value="optional(auth()->user())->phone" required />
                             </div>
 
                             <div class="col-12">
@@ -108,32 +99,20 @@
 </div>
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="{{ \App\Support\Assets::versioned('js/address-map.js') }}"></script>
-<script src="{{ \App\Support\Assets::versioned('js/location-method-toggle.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script>
 function loadAddress(btn) {
     document.querySelector('[name="billing_address[recipient_name]"]').value = btn.dataset.recipient;
-    document.querySelector('[name="billing_address[phone]"]').value = btn.dataset.phone;
+    // The phone field only shows the local part next to a fixed "+966"
+    // badge (see the phone-input component) — strip whichever prefix the
+    // saved address's stored number happens to have.
+    document.querySelector('[name="billing_address[phone]"]').value =
+        (btn.dataset.phone || '').replace(/^(\+966|0)/, '');
 
     if (btn.dataset.locationCode) {
-        var codeRadio = document.getElementById('billingMethodCode');
-        codeRadio.checked = true;
-        codeRadio.dispatchEvent(new Event('change'));
-
         var codeInput = document.querySelector('.js-location-code');
         codeInput.value = btn.dataset.locationCode;
         codeInput.dispatchEvent(new Event('aroma:location-code-set'));
-    } else if (btn.dataset.lat && btn.dataset.lng) {
-        var mapRadio = document.getElementById('billingMethodMap');
-        mapRadio.checked = true;
-        mapRadio.dispatchEvent(new Event('change'));
-
-        document.dispatchEvent(new CustomEvent('aroma:location-coords-set', {
-            detail: { lat: btn.dataset.lat, lng: btn.dataset.lng }
-        }));
     }
 }
 </script>
