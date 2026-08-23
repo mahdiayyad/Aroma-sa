@@ -62,12 +62,19 @@
                 <form class="d-flex gap-2" action="#" method="post">
                     @csrf
                     <input type="email" class="form-control" placeholder="{{ __('storefront.newsletter.placeholder') }}">
-                    <button class="btn btn-aroma" type="submit">{{ __('storefront.newsletter.cta') }}</button>
+                    <button class="btn btn-aroma-light" type="submit">{{ __('storefront.newsletter.cta') }}</button>
                 </form>
-                <div class="d-flex gap-2 mt-3 fs-4 opacity-75">
-                    <i class="bi bi-credit-card-2-front" data-bs-toggle="tooltip" data-bs-placement="top" title="Mada / Visa / Mastercard"></i>
-                    <i class="bi bi-apple" data-bs-toggle="tooltip" data-bs-placement="top" title="Apple Pay"></i>
-                    <i class="bi bi-wallet2" data-bs-toggle="tooltip" data-bs-placement="top" title="Tabby / Tamara"></i>
+                {{-- Real brand-colored marks (see components/payment-icon.blade.php),
+                     not generic Bootstrap glyphs — each sits on its own small
+                     light chip since several of these marks assume a light
+                     card background, which the dark footer isn't. --}}
+                <div class="d-flex flex-wrap gap-2 mt-3 aroma-footer-payment-icons">
+                    <span class="aroma-footer-payment-chip"><x-payment-icon method="mada" /></span>
+                    <span class="aroma-footer-payment-chip"><x-payment-icon method="visa" /></span>
+                    <span class="aroma-footer-payment-chip"><x-payment-icon method="mastercard" /></span>
+                    <span class="aroma-footer-payment-chip"><x-payment-icon method="applepay" /></span>
+                    <span class="aroma-footer-payment-chip"><x-payment-icon method="tabby" /></span>
+                    <span class="aroma-footer-payment-chip"><x-payment-icon method="tamara" /></span>
                 </div>
             </div>
         </div>

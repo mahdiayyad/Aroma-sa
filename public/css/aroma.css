@@ -101,24 +101,26 @@
 }
 
 :root {
-  /* Palette — 2026 luxury-gifting brand evolution.
-     --aroma-brown/--aroma-light-brown keep their original NAMES (100+ rules
-     across this file and every component in css/components/ already key off
-     them as "the primary brand color" / "the accent/hover color") but now
-     POINT at Deep Emerald / Gold — repointing values here is what re-themes
-     the entire platform in one place instead of touching every selector.
-     Heritage Brown survives as its own explicit, deliberately sparingly-used
-     token (--aroma-heritage-brown) rather than disappearing. */
-  --aroma-brown: #1F4D3D;          /* Deep Emerald — primary: nav, headers, primary buttons, active states */
-  --aroma-light-brown: #D4AF6A;    /* Champagne Gold — accent: hover, badges, selected states, CTA emphasis */
-  --aroma-gold: #D4AF6A;           /* explicit alias of the above, for new gold-specific rules */
-  --aroma-emerald-deep: #1B3E32;   /* darker emerald — hover/active shade for primary surfaces; same value as --aroma-btn-emerald-bg-hover in tokens.css */
-  --aroma-heritage-brown: #704F2F; /* secondary only — never a dominant surface color */
-  --aroma-skin: #F3E8D5;           /* Skin — soft surfaces, section tints (distinct from Cream below) */
-  --aroma-white: #FAF3E7;          /* Cream — text/surfaces on dark (nav, hero, footer) */
-  --aroma-ink: #1B1A17;            /* True Ink — primary text, headings */
+  /* Palette — 2026 Gulf abaya-fashion brand evolution (Dark Brown / Warm Tan
+     / Peach Cream / Light Cream). --aroma-brown/--aroma-light-brown keep
+     their original NAMES (100+ rules across this file and every component in
+     css/components/ already key off them as "the primary brand color" /
+     "the accent/hover color") — this is the SECOND repoint of these same
+     names in one session (they briefly pointed at Deep Emerald / Champagne
+     Gold); the names stay stable so the whole platform re-themes from this
+     one block instead of touching every selector. Heritage Brown already
+     equalled the new Dark Brown by coincidence — kept as a reserved alias,
+     not force-repurposed. */
+  --aroma-brown: #704F2F;          /* Dark Brown — primary: nav, headers, primary buttons, headings, prices, footer */
+  --aroma-light-brown: #D3A17A;    /* Warm Tan — accent (15%): hover, badges, selected states, small highlights */
+  --aroma-gold: #D3A17A;           /* explicit alias of the above — kept for existing gold-specific rules */
+  --aroma-emerald-deep: #5A3F26;   /* darker Dark Brown — hover/active shade for brown surfaces; same value as --aroma-btn-emerald-bg-hover in tokens.css */
+  --aroma-heritage-brown: #704F2F; /* reserved alias of --aroma-brown — unused today, kept for a future need to distinguish a de-emphasised brand moment */
+  --aroma-skin: #FFE5CA;           /* Soft Peach Cream — secondary surface (30%): alt sections, selected cards, info blocks */
+  --aroma-white: #FFF3E2;          /* Light Cream — dominant surface (45%): main bg, header, hero, product image areas; also text-on-dark (footer) */
+  --aroma-ink: #704F2F;            /* Same as --aroma-brown — brief calls for primary text = headings = #704F2F, never pure black */
 
-  --aroma-gradient: linear-gradient(135deg, #1F4D3D 0%, #17402F 55%, #0F2820 100%);
+  --aroma-gradient: linear-gradient(135deg, #704F2F 0%, #5A3F26 55%, #3D2A19 100%);
 
   /* Font stacks — per Aroma Brand Guidelines (2024), p.15-19:
        Manier         = English headings/display   Helvetica Neue = English body/UI
@@ -138,16 +140,16 @@
      Arabic display face directly renders those symbols as odd/garbled shapes. */
   --aroma-input-font: "Inter", "AligarhArabic", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-  /* Map Bootstrap theme colour to the Aroma primary (Deep Emerald) */
-  --bs-primary: #1F4D3D;
-  --bs-primary-rgb: 31, 77, 61;
+  /* Map Bootstrap theme colour to the Aroma primary (Dark Brown) */
+  --bs-primary: #704F2F;
+  --bs-primary-rgb: 112, 79, 47;
 
   --aroma-radius: 0.85rem;
-  --aroma-shadow: 0 10px 30px rgba(31, 77, 61, 0.14);
-  /* A restrained gold glow for the handful of genuinely premium moments
-     (badges, a primary CTA's hover) — never the default shadow, since gold
-     "should never overpower emerald" as a resting-state treatment. */
-  --aroma-shadow-gold: 0 8px 24px rgba(212, 175, 106, 0.25);
+  --aroma-shadow: 0 10px 30px rgba(112, 79, 47, 0.14);
+  /* A restrained tan glow for the handful of genuinely premium moments
+     (badges, a primary CTA's hover) — never the default shadow, since tan
+     "should never overpower the dark brown" as a resting-state treatment. */
+  --aroma-shadow-gold: 0 8px 24px rgba(211, 161, 122, 0.25);
 }
 
 /* AligarhArabic (public/fonts/) is a trial/watermarked build — its internal
@@ -166,7 +168,7 @@ html.is-safari[lang="ar"] {
 
 /* --- Base ------------------------------------------------------------------ */
 body {
-  background-color: #FFFFFF/*var(--aroma-white)*/;
+  background-color: var(--aroma-white);
   color: var(--aroma-ink);
   font-family: var(--aroma-body-en);
   -webkit-font-smoothing: antialiased;
@@ -217,50 +219,58 @@ a:hover {
   border-radius: 7px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
-  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(27, 26, 23, 0.08));
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
 }
 .btn-aroma:hover {
   background-color: var(--aroma-btn-emerald-bg-hover, rgb(27 62 50));
   border-color: var(--aroma-btn-emerald-bg-hover, rgb(27 62 50));
   color: #fff;
   transform: translateY(-1px);
-  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(27, 26, 23, 0.14));
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
 }
 .btn-aroma-outline {
   background-color: transparent;
-  border: 1px solid var(--aroma-btn-emerald-bg, rgb(31 77 61));
+  border: 1px solid var(--aroma-brown);
   color: var(--aroma-brown);
   border-radius: 7px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
-  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(27, 26, 23, 0.08));
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
 }
+/* Soft tint, not a solid color-invert — the brief wants secondary actions to
+   stay "visually subordinate to primary CTAs": a peach-cream wash and the
+   same dark-brown text reads as a gentle acknowledgement, not a second
+   competing solid button next to the real (.btn-aroma) primary CTA. */
 .btn-aroma-outline:hover {
-  background-color: var(--aroma-btn-emerald-bg, rgb(31 77 61));
-  color: var(--aroma-white);
+  background-color: var(--aroma-skin);
+  border-color: var(--aroma-brown);
+  color: var(--aroma-brown);
   transform: translateY(-1px);
-  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(27, 26, 23, 0.14));
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
 }
 
-/* --- Navbar ---------------------------------------------------------------- */
+/* --- Navbar -----------------------------------------------------------------
+   Topbar used to be a solid dark-filled bar (brand-primary background, cream
+   text) — the brief explicitly wants a light, elegant header by default
+   ("Do not use a dark header unless there is a strong design reason"), so
+   it's now the same Light Cream as the navbar below it, with a hairline
+   border for separation since same-color bars would otherwise merge.
+   .aroma-icon-link's default brown text is already correct here now — no
+   override needed, unlike when this bar was dark. */
 .aroma-topbar {
-  background: var(--aroma-brown);
-  color: var(--aroma-skin);
+  background: var(--aroma-white);
+  color: var(--aroma-brown);
   font-size: 0.78rem;
   letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--aroma-border);
 }
 .aroma-topbar a {
-  color: var(--aroma-skin);
-}
-/* Language switcher lives in the dark topbar; .aroma-icon-link's brown text
-   (correct on the white navbar) would be invisible here, so override it. */
-.aroma-topbar .aroma-icon-link {
-  color: var(--aroma-skin);
+  color: var(--aroma-brown);
 }
 .aroma-topbar .aroma-icon-link:hover,
 .aroma-topbar .aroma-icon-link:focus,
 .aroma-topbar .aroma-icon-link.show {
-  color: #fff;
+  color: var(--aroma-light-brown);
 }
 .aroma-topbar .dropdown-menu {
   /* .aroma-navbar is sticky-top (Bootstrap z-index: 1020), which sits directly
@@ -293,7 +303,7 @@ a:hover {
 .aroma-navbar {
   background: #fff;
   border-bottom: none;
-  box-shadow: 0 1px 0 rgba(31, 77, 61, 0.06), 0 10px 24px -18px rgba(31, 77, 61, 0.35);
+  box-shadow: 0 1px 0 rgba(112, 79, 47, 0.06), 0 10px 24px -18px rgba(112, 79, 47, 0.35);
 }
 .aroma-logo {
   font-family: var(--aroma-heading-en);
@@ -379,7 +389,7 @@ a:hover {
   content: "";
   position: absolute;
   inset: 10px;
-  border: 1px solid rgba(212, 175, 106, 0.35);
+  border: 1px solid rgba(211, 161, 122, 0.35);
   border-radius: inherit;
   pointer-events: none;
 }
@@ -480,7 +490,7 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
   content: "";
   position: absolute;
   inset: 10px;
-  border: 1px solid rgba(212, 175, 106, 0.3);
+  border: 1px solid rgba(211, 161, 122, 0.3);
   border-radius: inherit;
   pointer-events: none;
 }
@@ -492,17 +502,21 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
   border-color: transparent;
 }
 
-/* --- Footer ---------------------------------------------------------------- */
+/* --- Footer -----------------------------------------------------------------
+   Deliberately the one dark, dense surface on the storefront (brief: "Make
+   the footer visually deeper and luxurious... Background: #704F2F"). Text
+   hierarchy follows the brief literally: primary text & links = Light
+   Cream, secondary/label text = Peach Cream, hover = Warm Tan. */
 .aroma-footer {
   background: var(--aroma-ink);
-  color: rgba(243, 232, 213, 0.85);
+  color: var(--aroma-white);
 }
 .aroma-footer a {
-  color: rgba(243, 232, 213, 0.7);
+  color: var(--aroma-white);
   transition: color 0.2s ease;
 }
 .aroma-footer a:hover {
-  color: var(--aroma-skin);
+  color: var(--aroma-light-brown);
 }
 .aroma-footer h6 {
   color: var(--aroma-skin);
@@ -510,16 +524,29 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
   font-size: 0.8rem;
 }
 .aroma-footer hr {
-  border-color: rgba(243, 232, 213, 0.15);
+  border-color: rgba(255, 229, 202, 0.15);
 }
 .aroma-footer .form-control {
   background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(243, 232, 213, 0.2);
-  color: var(--aroma-skin);
+  border-color: rgba(255, 229, 202, 0.2);
+  color: var(--aroma-white);
 }
 .aroma-footer .form-control::placeholder {
-  color: rgba(243, 232, 213, 0.5);
+  color: rgba(255, 229, 202, 0.5);
 }
+.aroma-footer-payment-icons { align-items: center; }
+.aroma-footer-payment-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.65rem;
+  padding: 0 0.5rem;
+  border-radius: 0.35rem;
+  background: var(--aroma-white);
+}
+.aroma-footer-payment-chip svg { height: 0.95rem; width: auto; }
+.aroma-footer-payment-chip .aroma-payment-chip { height: 1.15rem; padding: 0 0.4rem; }
+.aroma-footer-payment-chip .aroma-payment-chip-text { font-size: 0.62rem; }
 .aroma-footer .aroma-footer-brand {
   font-family: var(--aroma-script);
   color: var(--aroma-skin);
@@ -613,12 +640,12 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
 .checkout-page .aroma-card {
   border: 1px solid var(--aroma-border);
   border-radius: var(--checkout-radius);
-  box-shadow: 0 1px 2px rgba(31, 77, 61, 0.04);
+  box-shadow: 0 1px 2px rgba(112, 79, 47, 0.04);
   transition: none;
 }
 .checkout-page .aroma-card:hover {
   transform: none;
-  box-shadow: 0 1px 2px rgba(31, 77, 61, 0.04);
+  box-shadow: 0 1px 2px rgba(112, 79, 47, 0.04);
 }
 .checkout-page .aroma-card > .card-body {
   padding: clamp(1.1rem, 3vw, 1.6rem);
@@ -805,8 +832,8 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--aroma-muted, #8a7c68);
-  background: rgba(31, 77, 61, 0.08);
+  color: var(--aroma-muted, #90765D);
+  background: rgba(112, 79, 47, 0.08);
   padding: 0.12rem 0.5rem;
   border-radius: 7px;
   white-space: nowrap;
@@ -814,12 +841,12 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
 .btn-check:checked + .aroma-pay-method {
   border-color: var(--aroma-brown);
   background: var(--aroma-white);
-  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.12);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
 }
 .btn-check:checked + .aroma-pay-method .aroma-pay-check { opacity: 1; }
 .btn-check:focus-visible + .aroma-pay-method {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.35);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
 }
 .aroma-pay-secure {
   display: flex;
@@ -858,11 +885,11 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
 .aroma-slot-option:hover { border-color: var(--aroma-light-brown); }
 .btn-check:checked + .aroma-slot-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.12);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
 }
 .btn-check:focus-visible + .aroma-slot-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.35);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
 }
 
 /* The sticky order summary must sit BELOW the sticky navbar, never over it. */
@@ -905,7 +932,7 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
   border: 1px solid var(--aroma-border);
   border-inline-start: 4px solid var(--aroma-success);
   border-radius: 0.7rem;
-  box-shadow: 0 14px 34px rgba(31, 77, 61, 0.2);
+  box-shadow: 0 14px 34px rgba(112, 79, 47, 0.2);
   padding: 0.85rem 1.05rem;
   transform: translateY(1rem);
   opacity: 0;
@@ -1135,7 +1162,7 @@ select,
 .tooltip .tooltip-inner {
   font-weight: 600;
   letter-spacing: 0.01em;
-  box-shadow: var(--aroma-shadow-sm, 0 2px 10px rgba(31, 77, 61, 0.15));
+  box-shadow: var(--aroma-shadow-sm, 0 2px 10px rgba(112, 79, 47, 0.15));
 }
 
 /* --- SweetAlert2 (brand-themed, replaces the native window.confirm()) --------
@@ -1161,7 +1188,7 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
   font-family: var(--aroma-heading-ar);
 }
 .aroma-swal-popup .swal2-html-container {
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
 }
 .aroma-swal-popup .swal2-icon.swal2-warning {
   border-color: var(--aroma-danger, #a6432b);
@@ -1172,17 +1199,17 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
 }
 /* Success toast (admin.js flash → toast) — olive, not SweetAlert2's stock green. */
 .aroma-swal-popup .swal2-icon.swal2-success {
-  border-color: var(--aroma-success, #5b7a4a);
-  color: var(--aroma-success, #5b7a4a);
+  border-color: var(--aroma-success, #4A7856);
+  color: var(--aroma-success, #4A7856);
 }
 .aroma-swal-popup .swal2-icon.swal2-success [class^="swal2-success-line"] {
-  background-color: var(--aroma-success, #5b7a4a);
+  background-color: var(--aroma-success, #4A7856);
 }
 .aroma-swal-popup .swal2-icon.swal2-success .swal2-success-ring {
-  border-color: rgba(91, 122, 74, 0.3);
+  border-color: rgba(74, 120, 86, 0.3);
 }
 .aroma-swal-popup.swal2-toast .swal2-timer-progress-bar {
-  background: var(--aroma-success, #5b7a4a);
+  background: var(--aroma-success, #4A7856);
 }
 /* Toast mode is compact — the full-dialog title/padding rules above would
    look oversized here, so scale them back down for .swal2-toast specifically. */
@@ -1204,10 +1231,10 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
   box-shadow: none;
 }
 
-/* A warm ink tint instead of SweetAlert2's default flat black backdrop. */
+/* A warm dark-brown tint instead of SweetAlert2's default flat black backdrop. */
 .swal2-container.swal2-backdrop-show,
 .swal2-container.swal2-backdrop-hide {
-  background: rgba(27, 26, 23, 0.45);
+  background: rgba(26, 18, 10, 0.45);
 }
 
 .aroma-swal-btn {
@@ -1223,7 +1250,7 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
 .aroma-swal-btn:active { transform: translateY(1px); }
 .aroma-swal-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.25);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.25);
 }
 
 .aroma-swal-btn-danger {
@@ -1264,18 +1291,18 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
   cursor: pointer;
   border-radius: 50%;
   transition: color 0.15s ease, background-color 0.15s ease;
 }
 .aroma-password-toggle:hover {
-  color: var(--aroma-brown, #1F4D3D);
-  background: rgba(31, 77, 61, 0.08);
+  color: var(--aroma-brown, #704F2F);
+  background: rgba(112, 79, 47, 0.08);
 }
 .aroma-password-toggle:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.35);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
 }
 .aroma-password-toggle i { font-size: 1.05rem; }
 

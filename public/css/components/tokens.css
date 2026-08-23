@@ -7,9 +7,9 @@
 :root {
   /* Semantic colors — warm-toned so states never read as generic Bootstrap
      blue/green/red (Brand Guidelines: "Avoid generic Bootstrap colors").
-     Success is deliberately a distinct, warmer green from --aroma-brown
-     (now Deep Emerald) — a "this succeeded" state shouldn't be mistaken for
-     "this is the brand color" just because both are green. */
+     Success is deliberately a distinct green, clearly not --aroma-brown
+     (now Dark Brown) — a "this succeeded" state shouldn't be mistaken for
+     "this is the brand color". */
   --aroma-success: #4A7856;
   --aroma-success-deep: #3A5E43;   /* hover shade for .btn-aroma-success — same hue, darker */
   --aroma-success-bg: #EAF1EA;
@@ -24,13 +24,14 @@
   /* Button backgrounds — every Aroma button gets an explicit, named default
      AND hover color (never a filter/opacity/gradient standing in for one),
      so background-color itself is what the browser interpolates on hover.
-     Emerald aliases --aroma-brown (the single source of truth for the brand
-     primary); the hover shade is its own distinct value, not a computed
-     darken, so it's exact and designer-controlled. */
-  --aroma-btn-emerald-bg: var(--aroma-brown);       /* rgb(31 77 61) */
-  --aroma-btn-emerald-bg-hover: rgb(27 62 50);      /* #1B3E32 */
-  --aroma-btn-gold-bg: var(--aroma-light-brown);    /* rgb(212 175 106) */
-  --aroma-btn-gold-bg-hover: rgb(174 144 87);       /* #AE9057 — proportional darken of the new champagne gold */
+     --aroma-btn-emerald-bg aliases --aroma-brown (the single source of truth
+     for the brand primary, now Dark Brown — name kept stable across two
+     rebrands this session); the hover shade is its own distinct value, not a
+     computed darken, so it's exact and designer-controlled. */
+  --aroma-btn-emerald-bg: var(--aroma-brown);       /* rgb(112 79 47) */
+  --aroma-btn-emerald-bg-hover: rgb(90 63 38);      /* #5A3F26 */
+  --aroma-btn-gold-bg: var(--aroma-light-brown);    /* rgb(211 161 122) */
+  --aroma-btn-gold-bg-hover: rgb(173 132 100);      /* #AD8464 — proportional darken of the new warm tan */
 
   /* Selection blue — deliberately not brand-brown: used only for "this option
      is the active choice" states (size/variant pickers) where a universally
@@ -38,11 +39,17 @@
   --aroma-select: #2563eb;
   --aroma-select-bg: #eff6ff;
 
-  /* Neutral scale — warm-tinted grays derived from the ink color, used for
-     borders, muted text, and disabled states instead of Bootstrap's cool grays. */
+  /* Neutral scale — warm-tinted, used for borders, muted text, and disabled
+     states instead of Bootstrap's cool grays. --aroma-muted is a genuine
+     tint of --aroma-brown (not an independent gray) per the brand brief's
+     "secondary text: softer brown variations derived from #704F2F" — a
+     lightened Dark Brown rather than a desaturated neutral, so secondary
+     copy still reads as warm/brand rather than washed-out. Border/disabled
+     tones were already warm tan-neutrals that harmonise with the new
+     palette unchanged, so only --aroma-muted moves. */
   --aroma-border: #e7dccc;
   --aroma-border-strong: #d8c7ae;
-  --aroma-muted: #8a7c68;
+  --aroma-muted: #90765D;
   --aroma-disabled-bg: #f2eae0;
   --aroma-disabled-text: #b8aa97;
 
@@ -63,23 +70,25 @@
   --aroma-radius-lg: 1.25rem;
   --aroma-radius-xl: 1.75rem;
 
-  /* Elevation system — depth comes from soft, emerald-tinted shadow, not
+  /* Elevation system — depth comes from soft, dark-brown-tinted shadow, not
      borders or hard edges. Five tiers, resting → cinematic, so every
      component in the platform reaches for one of these instead of
      inventing its own box-shadow. */
-  --aroma-shadow-xs: 0 1px 3px rgba(31, 77, 61, 0.06);
-  --aroma-shadow-sm: 0 4px 16px rgba(31, 77, 61, 0.07);
-  --aroma-shadow-lg: 0 24px 60px rgba(31, 77, 61, 0.16);
-  --aroma-shadow-xl: 0 40px 100px rgba(20, 50, 40, 0.28);
+  --aroma-shadow-xs: 0 1px 3px rgba(112, 79, 47, 0.06);
+  --aroma-shadow-sm: 0 4px 16px rgba(112, 79, 47, 0.07);
+  --aroma-shadow-lg: 0 24px 60px rgba(112, 79, 47, 0.16);
+  --aroma-shadow-xl: 0 40px 100px rgba(73, 51, 31, 0.28);
 
   /* Button elevation pair, used by the .btn-aroma* family: a real (not
-     zero-alpha) subtle shadow at rest that deepens on hover — ink-tinted
-     rather than emerald-tinted, so it reads as neutral depth rather than a
-     brand-colored glow. Both states already carry a value, so box-shadow
-     transitions rest → hover smoothly with no "animating from none" edge
-     case to worry about. */
-  --aroma-shadow-hover-rest: 0 4px 12px rgba(27, 26, 23, 0.08);
-  --aroma-shadow-hover: 0 8px 24px rgba(27, 26, 23, 0.14);
+     zero-alpha) subtle shadow at rest that deepens on hover. Uses the same
+     Dark Brown tint as the rest of the elevation system above (previously
+     a separate near-black "ink" tint, back when --aroma-ink was a distinct
+     color from --aroma-brown — now that ink IS brown, one shadow tint for
+     the whole platform is simpler and reads as one system, not two). Both
+     states already carry a value, so box-shadow transitions rest → hover
+     smoothly with no "animating from none" edge case to worry about. */
+  --aroma-shadow-hover-rest: 0 4px 12px rgba(112, 79, 47, 0.08);
+  --aroma-shadow-hover: 0 8px 24px rgba(112, 79, 47, 0.14);
 
   /* Motion — one easing curve, four durations. Fast for micro-feedback
      (press states), slow/slower for anything that should read as a

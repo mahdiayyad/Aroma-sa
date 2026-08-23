@@ -33,7 +33,7 @@
 
 .aroma-alert-success { background: var(--aroma-success-bg); color: #3e5230; }
 .aroma-alert-success i { color: var(--aroma-success); }
-.aroma-alert-danger { background: #fff/*var(--aroma-danger-bg)*/; color: #6e2e1d; border:1px solid #6e2e1d; }
+.aroma-alert-danger { background: var(--aroma-danger-bg); color: #6e2e1d; border:1px solid #6e2e1d; }
 .aroma-alert-danger i { color: var(--aroma-danger); }
 .aroma-alert-warning { background: var(--aroma-warning-bg); color: #6b4e22; }
 .aroma-alert-warning i { color: var(--aroma-warning); }

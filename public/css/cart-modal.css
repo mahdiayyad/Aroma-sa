@@ -6,7 +6,7 @@
 .aroma-payments {
   margin-top: 1.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(31, 77, 61, 0.12);
+  border-top: 1px solid rgba(112, 79, 47, 0.12);
 }
 .aroma-payments-title {
   display: flex;
@@ -33,7 +33,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.8rem;
-  border: 1px solid var(--aroma-border, #ebe2d4);
+  border: 1px solid var(--aroma-border, #e7dccc);
   border-radius: 0.5rem;
   background: #fff;
   font-size: 0.78rem;
@@ -81,15 +81,15 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--aroma-muted, #8a7c68);
-  background: rgba(31, 77, 61, 0.08);
+  color: var(--aroma-muted, #90765D);
+  background: rgba(112, 79, 47, 0.08);
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
 }
 .aroma-payments-note {
   margin: 0.7rem 0 0;
   font-size: 0.76rem;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
 }
 
 /* --- Modal shell ----------------------------------------------------------- */
@@ -98,7 +98,7 @@
 .aroma-cart-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(27, 26, 23, 0.5);
+  background: rgba(26, 18, 10, 0.5);
   opacity: 0;
   transition: opacity 0.25s ease;
 }
@@ -117,7 +117,7 @@
   flex-direction: column;
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 30px 70px rgba(27, 26, 23, 0.32);
+  box-shadow: 0 30px 70px rgba(26, 18, 10, 0.32);
   overflow: hidden;
   transition: opacity 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
               transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -132,7 +132,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--aroma-border, #ebe2d4);
+  border-bottom: 1px solid var(--aroma-border, #e7dccc);
 }
 .aroma-cart-modal-title {
   flex: 1;
@@ -144,11 +144,11 @@
   align-items: center;
   gap: 0.5rem;
 }
-.aroma-cart-modal-title i { color: #5b7a4a; font-size: 1.1rem; }
+.aroma-cart-modal-title i { color: var(--aroma-success, #4A7856); font-size: 1.1rem; }
 .aroma-cart-modal-close {
   border: none;
   background: transparent;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
   padding: 0.35rem;
   border-radius: 0.4rem;
   cursor: pointer;
@@ -176,7 +176,7 @@
 .aroma-added-meta { flex: 1; min-width: 0; }
 .aroma-added-name { margin: 0; font-weight: 600; font-size: 0.95rem; color: var(--aroma-ink); }
 .aroma-added-variant,
-.aroma-added-qty { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--aroma-muted, #8a7c68); }
+.aroma-added-qty { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--aroma-muted, #90765D); }
 .aroma-added-price { font-weight: 700; color: var(--aroma-brown); white-space: nowrap; }
 
 .aroma-cart-modal-total {
@@ -203,7 +203,7 @@
 .aroma-gift-suggest-hint {
   margin: 0.15rem 0 0.75rem;
   font-size: 0.8rem;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
 }
 .aroma-suggest-strip {
   display: flex;
@@ -220,7 +220,7 @@
   width: 132px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  border: 1px solid var(--aroma-border, #ebe2d4);
+  border: 1px solid var(--aroma-border, #e7dccc);
   border-radius: 0.7rem;
   overflow: hidden;
   background: #fff;
@@ -228,7 +228,7 @@
   flex-direction: column;
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
-.aroma-suggest-card:hover { border-color: var(--aroma-light-brown); box-shadow: 0 6px 16px rgba(31, 77, 61, 0.1); }
+.aroma-suggest-card:hover { border-color: var(--aroma-light-brown); box-shadow: 0 6px 16px rgba(112, 79, 47, 0.1); }
 .aroma-suggest-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: var(--aroma-skin); display: block; }
 .aroma-suggest-body { padding: 0.5rem 0.6rem 0.6rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
 .aroma-suggest-name {
@@ -297,7 +297,7 @@ a.aroma-suggest-name:hover { color: var(--aroma-brown); }
   display: flex;
   gap: 0.6rem;
   padding: 0.9rem 1.25rem;
-  border-top: 1px solid var(--aroma-border, #ebe2d4);
+  border-top: 1px solid var(--aroma-border, #e7dccc);
   background: #fdfaf5;
 }
 .aroma-cart-modal-foot .btn { flex: 1; justify-content: center; }

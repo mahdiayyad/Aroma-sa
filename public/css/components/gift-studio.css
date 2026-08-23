@@ -32,11 +32,11 @@
 .aroma-gift-toggle-option:hover { border-color: var(--aroma-light-brown); }
 .btn-check:checked + .aroma-gift-toggle-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.12);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
 }
 .btn-check:focus-visible + .aroma-gift-toggle-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.35);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
 }
 
 /* --- Greeting card picker ------------------------------------------------ */
@@ -104,7 +104,7 @@
 .aroma-gift-card-option:hover { border-color: var(--aroma-light-brown); }
 .btn-check:checked + .aroma-gift-card-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.12);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
 }
 
 /* Zoom/preview button — same corner-reveal-on-hover language as
@@ -118,7 +118,7 @@
   height: 1.85rem;
   border-radius: 50%;
   border: none;
-  background: rgba(27, 26, 23, 0.55);
+  background: rgba(26, 18, 10, 0.55);
   color: #fff;
   display: flex;
   align-items: center;
@@ -128,7 +128,7 @@
   transition: opacity var(--aroma-transition-fast, 0.15s ease), background var(--aroma-transition-fast, 0.15s ease);
 }
 .aroma-gift-card-zoom:hover,
-.aroma-gift-card-zoom:focus-visible { background: rgba(27, 26, 23, 0.8); outline: none; }
+.aroma-gift-card-zoom:focus-visible { background: rgba(26, 18, 10, 0.8); outline: none; }
 .aroma-gift-card-option:hover .aroma-gift-card-zoom,
 .aroma-gift-card-option:focus-within .aroma-gift-card-zoom { opacity: 1; }
 @media (hover: none) {

@@ -126,7 +126,7 @@
                         <i class="bi bi-eye me-2"></i>{{ __('checkout.view_order') }}
                     </a>
                 @endauth
-                <a href="{{ route('home', app()->getLocale()) }}" class="btn" style="background:var(--aroma-brown);color:white">
+                <a href="{{ route('home', app()->getLocale()) }}" class="btn btn-aroma">
                     <i class="bi bi-shop me-2"></i>{{ __('checkout.continue_shopping') }}
                 </a>
             </div>

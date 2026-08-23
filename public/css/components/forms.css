@@ -20,7 +20,7 @@
 .form-control:focus,
 .form-select:focus {
   border-color: var(--aroma-light-brown);
-  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.25);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
 }
 
 textarea.form-control {
@@ -64,7 +64,7 @@ textarea.form-control {
   background-image: none;
 }
 .form-control.is-valid:focus, .form-select.is-valid:focus {
-  box-shadow: 0 0 0 3px rgba(91, 122, 74, 0.2);
+  box-shadow: 0 0 0 3px rgba(74, 120, 86, 0.2);
 }
 .form-control.is-invalid, .form-select.is-invalid {
   background-color: #fff;
@@ -72,7 +72,7 @@ textarea.form-control {
   background-image: none;
 }
 .form-control.is-invalid:focus, .form-select.is-invalid:focus {
-  box-shadow: 0 0 0 3px rgba(31, 77, 61, 0.2);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.2);
 }
 .valid-feedback {
   color: var(--aroma-success);
@@ -107,7 +107,7 @@ textarea.form-control {
 }
 .form-check-input:focus {
   border-color: var(--aroma-light-brown);
-  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.25);
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
 }
 .form-check-label {
   cursor: pointer;
@@ -155,7 +155,7 @@ textarea.form-control {
   justify-content: center;
   width: 2.5rem;
   border: none;
-  background: var(--aroma-white, #FAF3E7);
+  background: var(--aroma-white, #FFF3E2);
   color: var(--aroma-brown);
   /* Latin-first stack: the Arabic display face has no proper glyphs for
      "+"/"−" and renders them as a distorted shape (see --aroma-input-font). */
