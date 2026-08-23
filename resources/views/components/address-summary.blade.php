@@ -28,7 +28,16 @@
 <div {{ $attributes }}>
     <div class="{{ $nameClass }}">{{ $address['recipient_name'] ?? '' }}</div>
     @if ($hasCode)
-        <div>{{ $address['formatted_address'] ?? '' }}</div>
+        <div>
+            {{ $address['formatted_address'] ?? '' }}
+            @if ($address['is_stub'] ?? false)
+                {{-- LocationLookupService::stubLookup() — no real Saudi Post/SPL
+                     credentials configured, so this address is canned demo data,
+                     not a real resolution. Shown here so ops (admin/orders/show)
+                     and the shopper both know not to treat it as verified. --}}
+                <span class="badge bg-light text-aroma-brown border ms-1">{{ __('location.preview.demo_badge') }}</span>
+            @endif
+        </div>
         <div>
             @if (!empty($address['district'])){{ $address['district'] }}, @endif{{ $address['city'] ?? '' }}, {{ $address['region'] ?? '' }}
         </div>

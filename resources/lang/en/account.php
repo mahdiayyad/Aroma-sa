@@ -61,6 +61,7 @@ return [
         'confirm_delete' => 'Delete this address?',
         'delete'   => 'Delete',
         'saved'    => 'Address saved.',
+        'saved_stub' => 'Address saved. Note: location details are demo/preview data until live address verification is enabled.',
         'deleted'  => 'Address deleted.',
         'default_updated' => 'Default address updated.',
     ],

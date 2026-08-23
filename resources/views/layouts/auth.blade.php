@@ -42,6 +42,14 @@
 
                 <div class="card aroma-auth-card">
                     <div class="card-body p-4 p-md-5">
+                        {{-- CheckoutController::redirectToLogin()/redirectToRegister() are
+                             the only two places anywhere in the app that set url.intended —
+                             so this is an unambiguous "arrived from checkout" signal. Without
+                             it, a guest sent here from checkout had no way back except the
+                             brand logo above, which abandons checkout context entirely. --}}
+                        @if (session('url.intended') === route('checkout.address'))
+                            <x-back-link :href="route('checkout.address')" :label="__('checkout.auth.back_to_checkout')" class="small mb-3" />
+                        @endif
                         @include('partials.flash')
                         @yield('content')
                     </div>

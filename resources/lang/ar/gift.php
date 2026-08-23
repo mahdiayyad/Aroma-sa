@@ -48,6 +48,10 @@ return [
     'preview_empty'  => 'اختر تصميم بطاقة لتظهر هنا.',
     'preview_to'     => 'إلى :name',
     'preview_from'   => 'من :name',
+    'preview_prev'   => 'التصميم السابق',
+    'preview_next'   => 'التصميم التالي',
+    'preview_select' => 'اختر هذا التصميم',
+    'preview_selected' => 'تم الاختيار ✓',
 
     'continue' => 'حفظ ومتابعة',
     'skip'     => 'تخطي — ليست هدية',

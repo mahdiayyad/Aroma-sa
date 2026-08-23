@@ -67,11 +67,15 @@ class CheckoutController extends Controller
                 return null;
             }
 
+            // billing_address/shipping_address are JSON-cast Order columns
+            // (no fixed schema), so is_stub is safe to store as-is — it
+            // surfaces later via <x-address-summary> so ops/the shopper can
+            // tell a demo-mode resolution apart from a real one.
             return array_merge($contact, [
                 'location_code'  => strtoupper(trim($locationCode)),
                 'street_address' => null,
                 'postal_code'    => null,
-            ], $result['data']);
+            ], $result['data'], ['is_stub' => $result['is_stub'] ?? false]);
         }
 
         return array_merge($contact, [
@@ -85,6 +89,8 @@ class CheckoutController extends Controller
             'formatted_address' => null,
             'street_address'    => null,
             'postal_code'       => null,
+            // A pinned-on-map location never goes through lookup() — never stub data.
+            'is_stub'           => false,
         ]);
     }
 
@@ -178,9 +184,16 @@ class CheckoutController extends Controller
         $user = auth()->user();
         $addresses = $user ? $user->addresses()->get() : collect();
 
+        // Authenticated shoppers skip auth-choice entirely (see start() above),
+        // so their predecessor step is review; a guest actually passed through
+        // auth-choice, so that's their true predecessor — hardcoding this to
+        // checkout.review always would silently skip auth-choice for guests.
+        $backRoute = $user ? route('checkout.review') : route('checkout.start');
+
         return view('checkout.address', [
             'addresses' => $addresses,
             'user' => $user,
+            'backRoute' => $backRoute,
         ]);
     }
 

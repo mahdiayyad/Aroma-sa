@@ -58,7 +58,8 @@
                    data-lang-loading="{{ __('location.preview.loading') }}"
                    data-lang-not-found="{{ __('location.errors.not_found') }}"
                    data-lang-invalid="{{ __('location.errors.invalid_format') }}"
-                   data-lang-failed="{{ __('location.errors.lookup_failed') }}">
+                   data-lang-failed="{{ __('location.errors.lookup_failed') }}"
+                   data-lang-demo-badge="{{ __('location.preview.demo_badge') }}">
             <div class="aroma-location-preview" hidden></div>
         </div>
         <div class="form-text">{{ __('location.hint') }}</div>
@@ -70,7 +71,12 @@
             <div class="aroma-map-search">
                 <div class="input-group">
                     <input type="text" id="addressMapSearch" class="form-control" autocomplete="off"
-                           placeholder="{{ __('location.map.search_placeholder') }}">
+                           placeholder="{{ __('location.map.search_placeholder') }}"
+                           data-lang-loading="{{ __('location.map.search_loading') }}"
+                           data-lang-no-results="{{ __('location.map.search_no_results') }}"
+                           data-lang-error="{{ __('location.map.search_error') }}"
+                           data-lang-rate-limited="{{ __('location.map.search_rate_limited') }}"
+                           data-lang-retry="{{ __('location.map.search_retry') }}">
                     <button type="button" id="addressMapLocateBtn" class="btn btn-aroma-outline"
                             data-bs-toggle="tooltip" data-bs-placement="top"
                             title="{{ __('location.map.use_current') }}">

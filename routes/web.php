@@ -154,6 +154,13 @@ Route::view('terms', 'pages.terms')->name('terms');
 Route::view('about', 'pages.about')->name('about');
 Route::view('privacy-policy', 'pages.privacy-policy')->name('privacy-policy');
 
+/* Customer Guide ------------------------------------------------------------ */
+Route::view('guides', 'pages.guides.index')->name('guides.index');
+Route::view('guides/sizing', 'pages.guides.sizing')->name('guides.sizing');
+Route::view('guides/fit', 'pages.guides.fit')->name('guides.fit');
+Route::view('guides/care', 'pages.guides.care')->name('guides.care');
+Route::view('guides/returns', 'pages.guides.returns')->name('guides.returns');
+
 Route::get('contact', [ContactController::class, 'show'])->name('contact');
 Route::post('contact', [ContactController::class, 'send'])->middleware('throttle:5,1')->name('contact.send');
 

@@ -5,6 +5,13 @@
     $isAr = $locale === 'ar';
     $contactEmail = config('aroma.contact.email');
     $waDigits = preg_replace('/\D+/', '', (string) config('aroma.contact.whatsapp'));
+
+    // Same footer-reachable-from-checkout gap as terms.blade.php — see the
+    // comment there for why url()->previous() is the right signal here.
+    $backUrl = url()->previous();
+    $showBack = $backUrl !== url()->current()
+        && $backUrl !== url('/')
+        && parse_url($backUrl, PHP_URL_HOST) === request()->getHost();
 @endphp
 
 @section('title', ($isAr ? 'السياسات والخصوصية' : 'Policies & Privacy').' — '.$brand['name'])
@@ -39,6 +46,7 @@
                 'A return handling fee of 50 SAR will be deducted from your refund to cover return processing and shipping costs, regardless of the reason for return. Refunds are issued to the original payment method once the returned item has been received and inspected.',
                 'Perishable items (fresh flowers) and personalized or made-to-order products are not eligible for return.',
             ],
+            'cta' => ['route' => 'guides.returns', 'label' => $isAr ? 'اطّلعي على دليل الاستبدال والإرجاع خطوة بخطوة' : 'See our step-by-step Exchange & Returns guide'],
         ],
         [
             'id' => 'complaints',
@@ -78,6 +86,14 @@
 @endphp
 
 <div class="container my-5">
+    @if ($showBack)
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <x-back-link :href="$backUrl" class="mb-4" />
+            </div>
+        </div>
+    @endif
+
     <div class="text-center mb-5">
         <span class="aroma-eyebrow d-block mb-2">{{ $brand['name'] }}</span>
         <h1 class="aroma-section-title d-inline-block">{{ $isAr ? 'السياسات والخصوصية' : 'Policies & Privacy' }}</h1>
@@ -102,8 +118,11 @@
                              aria-labelledby="heading-{{ $s['id'] }}" data-bs-parent="#policyAccordion">
                             <div class="accordion-body">
                                 @foreach ($s['paragraphs'] as $p)
-                                    <p class="text-aroma-muted {{ $loop->last ? 'mb-0' : 'mb-3' }}" style="line-height:1.9">{{ $p }}</p>
+                                    <p class="text-aroma-muted {{ $loop->last && !isset($s['cta']) ? 'mb-0' : 'mb-3' }}" style="line-height:1.9">{{ $p }}</p>
                                 @endforeach
+                                @isset($s['cta'])
+                                    <a href="{{ route($s['cta']['route']) }}" class="fw-semibold">{{ $s['cta']['label'] }}</a>
+                                @endisset
                             </div>
                         </div>
                     </div>

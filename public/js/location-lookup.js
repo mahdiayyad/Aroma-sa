@@ -38,9 +38,15 @@
             var timer = null;
             var lastRequested = '';
 
-            function setPreview(text, state) {
+            function setPreview(text, state, isStub) {
                 if (!preview) { return; }
-                preview.innerHTML = '<i class="bi bi-geo-alt" aria-hidden="true"></i><span>' + escapeHtml(text) + '</span>';
+                // The resolved address stays legible; the badge is a clearly
+                // separate marker rather than mutating the address text itself
+                // — see LocationLookupService's is_stub contract.
+                var badge = isStub
+                    ? ' <span class="badge bg-light text-aroma-brown border ms-1">' + escapeHtml(input.dataset.langDemoBadge || '') + '</span>'
+                    : '';
+                preview.innerHTML = '<i class="bi bi-geo-alt" aria-hidden="true"></i><span>' + escapeHtml(text) + '</span>' + badge;
                 preview.hidden = false;
                 preview.className = 'aroma-location-preview is-' + state;
             }
@@ -67,7 +73,7 @@
                     if (code !== lastRequested) { return; } // a newer keystroke superseded this request
                     if (res && res.success) {
                         var d = res.data || {};
-                        setPreview(d.formatted_address || [d.district, d.city, d.region].filter(Boolean).join(', '), 'success');
+                        setPreview(d.formatted_address || [d.district, d.city, d.region].filter(Boolean).join(', '), 'success', res.is_stub);
                     } else {
                         setPreview(errorText(res && res.error), 'error');
                     }

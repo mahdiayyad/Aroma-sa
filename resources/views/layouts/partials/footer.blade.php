@@ -11,14 +11,31 @@
                     <i class="bi bi-envelope"></i>{{ config('aroma.contact.email') }}
                 </a>
                 <div class="d-flex gap-3 fs-5">
-                    <a href="#"><i class="bi bi-instagram"></i></a>
-                    <a href="#"><i class="bi bi-tiktok"></i></a>
+                    @if (config('aroma.contact.instagram'))
+                        <a href="{{ config('aroma.contact.instagram') }}" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
+                    @else
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                    @endif
+                    @if (config('aroma.contact.tiktok'))
+                        <a href="{{ config('aroma.contact.tiktok') }}" target="_blank" rel="noopener"><i class="bi bi-tiktok"></i></a>
+                    @else
+                        <a href="#"><i class="bi bi-tiktok"></i></a>
+                    @endif
                     @if ($waDigits !== '')
                         <a href="https://wa.me/{{ $waDigits }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
                     @else
                         <a href="#"><i class="bi bi-whatsapp"></i></a>
                     @endif
-                    <a href="#"><i class="bi bi-snapchat"></i></a>
+                    @if (config('aroma.contact.snapchat'))
+                        <a href="{{ config('aroma.contact.snapchat') }}" target="_blank" rel="noopener"><i class="bi bi-snapchat"></i></a>
+                    @else
+                        <a href="#"><i class="bi bi-snapchat"></i></a>
+                    @endif
+                    @if (config('aroma.contact.facebook'))
+                        <a href="{{ config('aroma.contact.facebook') }}" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
+                    @else
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                    @endif
                 </div>
             </div>
 
@@ -36,6 +53,7 @@
                     <li class="mb-2"><a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}">{{ __('storefront.nav.account') }}</a></li>
                     <li class="mb-2"><a href="{{ route('privacy-policy') }}">{{ __('storefront.footer.policies') }}</a></li>
                     <li class="mb-2"><a href="{{ route('terms') }}">{{ __('storefront.footer.terms') }}</a></li>
+                    <li class="mb-2"><a href="{{ route('guides.index') }}">{{ __('storefront.footer.guides') }}</a></li>
                 </ul>
             </div>
 

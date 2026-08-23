@@ -19,6 +19,11 @@ return [
         'detected_near' => 'Near: :place',
         'no_pin_yet' => 'Tap the map to drop a pin.',
         'pinned_label' => 'Pinned location',
+        'search_loading' => 'Searching…',
+        'search_no_results' => 'No matches found for ":query". Try a different spelling or search term.',
+        'search_error' => 'We couldn\'t search right now. Please check your connection and try again.',
+        'search_rate_limited' => 'Too many searches at once — please wait a moment and try again.',
+        'search_retry' => 'Retry',
     ],
 
     'preview' => [
@@ -28,6 +33,7 @@ return [
         'district' => 'District',
         'address' => 'Address',
         'loading' => 'Looking up your address…',
+        'demo_badge' => 'Demo data',
     ],
 
     'errors' => [

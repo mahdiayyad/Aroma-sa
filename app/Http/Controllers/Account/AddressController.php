@@ -51,6 +51,9 @@ class AddressController extends Controller
             return back()->withErrors(['location_code' => __('location.errors.not_found')])->withInput();
         }
 
+        $isStub = (bool) ($data['is_stub'] ?? false);
+        unset($data['is_stub']); // no column on `addresses` — flash message is the only consumer
+
         if ($data['is_default'] || $user->addresses()->doesntExist()) {
             $this->clearDefault($user->id);
             $data['is_default'] = true;
@@ -58,7 +61,8 @@ class AddressController extends Controller
 
         $user->addresses()->create($data);
 
-        return redirect()->route('account.addresses.index')->with('status', __('account.addresses.saved'));
+        return redirect()->route('account.addresses.index')
+            ->with('status', __($isStub ? 'account.addresses.saved_stub' : 'account.addresses.saved'));
     }
 
     public function edit(Address $address): View
@@ -78,13 +82,17 @@ class AddressController extends Controller
             return back()->withErrors(['location_code' => __('location.errors.not_found')])->withInput();
         }
 
+        $isStub = (bool) ($data['is_stub'] ?? false);
+        unset($data['is_stub']); // no column on `addresses` — flash message is the only consumer
+
         if ($data['is_default']) {
             $this->clearDefault($address->user_id);
         }
 
         $address->update($data);
 
-        return redirect()->route('account.addresses.index')->with('status', __('account.addresses.saved'));
+        return redirect()->route('account.addresses.index')
+            ->with('status', __($isStub ? 'account.addresses.saved_stub' : 'account.addresses.saved'));
     }
 
     public function destroy(Address $address): RedirectResponse
@@ -146,7 +154,10 @@ class AddressController extends Controller
             $data['street_address'] = null;
             $data['postal_code'] = null;
 
-            return array_merge($data, $result['data']);
+            // is_stub has no column on `addresses` — store()/update() strip
+            // it before persistence. It rides along on this return value only
+            // so those two callers can pick a stub-aware flash message.
+            return array_merge($data, $result['data'], ['is_stub' => $result['is_stub'] ?? false]);
         }
 
         $data['location_code'] = null;
@@ -157,6 +168,8 @@ class AddressController extends Controller
         $data['formatted_address'] = null;
         $data['street_address'] = null;
         $data['postal_code'] = null;
+        // A pinned-on-map location never goes through lookup() — never stub data.
+        $data['is_stub'] = false;
 
         return $data;
     }

@@ -146,41 +146,90 @@
         // rate limit. Only moves the pin; never fills a text field (none exist).
         var searchTimer = null;
         if (searchInput) {
+            var lang = searchInput.dataset;
+
+            function renderRow(text, extraClass, onClick) {
+                var item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'aroma-map-search-item' + (extraClass ? ' ' + extraClass : '');
+                item.textContent = text;
+                if (onClick) { item.addEventListener('click', onClick); }
+                else { item.disabled = true; }
+                return item;
+            }
+
+            function renderResults(results, query) {
+                searchResults.innerHTML = '';
+
+                if (!results || !results.length) {
+                    searchResults.appendChild(renderRow(
+                        (lang.langNoResults || '').replace(':query', query)
+                    , 'aroma-map-search-empty'));
+                    searchResults.classList.remove('d-none');
+                    return;
+                }
+
+                results.forEach(function (r) {
+                    searchResults.appendChild(renderRow(r.display_name, null, function () {
+                        placeMarker(parseFloat(r.lat), parseFloat(r.lon), 16);
+                        searchInput.value = r.display_name;
+                        searchResults.classList.add('d-none');
+                        searchResults.innerHTML = '';
+                    }));
+                });
+                searchResults.classList.remove('d-none');
+            }
+
+            function renderError(rateLimited, query) {
+                searchResults.innerHTML = '';
+                var message = rateLimited ? (lang.langRateLimited || '') : (lang.langError || '');
+                searchResults.appendChild(renderRow(message, 'aroma-map-search-empty'));
+                searchResults.appendChild(renderRow(lang.langRetry || '', 'aroma-map-search-retry', function () {
+                    runSearch(query);
+                }));
+                searchResults.classList.remove('d-none');
+            }
+
+            function renderLoading() {
+                searchResults.innerHTML = '';
+                searchResults.appendChild(renderRow(lang.langLoading || '', 'aroma-map-search-loading'));
+                searchResults.classList.remove('d-none');
+            }
+
+            function runSearch(q) {
+                renderLoading();
+
+                // A soft proximity bias, not a hard filter: ranks results near
+                // wherever the map is currently centered (its own default, the
+                // last pin, or wherever the shopper has already panned to)
+                // higher, without excluding a genuine match elsewhere in the
+                // country the way bounded=1 would. [lon1,lat1,lon2,lat2].
+                var offset = 0.5; // ≈55km at Riyadh's latitude — wide, deliberately soft
+                var viewbox = (center[1] - offset) + ',' + (center[0] + offset) + ',' +
+                              (center[1] + offset) + ',' + (center[0] - offset);
+                var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=sa' +
+                          '&limit=8&viewbox=' + encodeURIComponent(viewbox) + '&bounded=0&q=' + encodeURIComponent(q);
+
+                fetch(url, { headers: { 'Accept': 'application/json' } })
+                    .then(function (res) {
+                        if (res.status === 429) { var e = new Error('rate_limited'); e.rateLimited = true; throw e; }
+                        if (!res.ok) { throw new Error('network'); }
+                        return res.json();
+                    })
+                    .then(function (results) { renderResults(results, q); })
+                    .catch(function (err) { renderError(!!(err && err.rateLimited), q); });
+            }
+
             searchInput.addEventListener('input', function () {
                 var q = searchInput.value.trim();
                 clearTimeout(searchTimer);
-                if (q.length < 3) {
+                if (q.length < 2) {
                     searchResults.classList.add('d-none');
                     searchResults.innerHTML = '';
                     return;
                 }
 
-                searchTimer = setTimeout(function () {
-                    fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&countrycodes=sa&limit=5&q=' + encodeURIComponent(q), {
-                        headers: { 'Accept': 'application/json' }
-                    })
-                        .then(function (res) { return res.json(); })
-                        .then(function (results) {
-                            searchResults.innerHTML = '';
-                            if (!results || !results.length) { searchResults.classList.add('d-none'); return; }
-
-                            results.forEach(function (r) {
-                                var item = document.createElement('button');
-                                item.type = 'button';
-                                item.className = 'aroma-map-search-item';
-                                item.textContent = r.display_name;
-                                item.addEventListener('click', function () {
-                                    placeMarker(parseFloat(r.lat), parseFloat(r.lon), 16);
-                                    searchInput.value = r.display_name;
-                                    searchResults.classList.add('d-none');
-                                    searchResults.innerHTML = '';
-                                });
-                                searchResults.appendChild(item);
-                            });
-                            searchResults.classList.remove('d-none');
-                        })
-                        .catch(function () { searchResults.classList.add('d-none'); });
-                }, 500);
+                searchTimer = setTimeout(function () { runSearch(q); }, 500);
             });
 
             document.addEventListener('click', function (e) {

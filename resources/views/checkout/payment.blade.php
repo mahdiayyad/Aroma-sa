@@ -5,6 +5,8 @@
 
 @section('content')
 @php($locale = app()->getLocale())
+{{-- pages.partials.terms-content (included by #termsModal below) needs $isAr. --}}
+@php($isAr = $locale === 'ar')
 <div class="container checkout-page my-4 my-lg-5">
     @include('checkout.partials.stepper', ['step' => 7])
 
@@ -158,21 +160,47 @@
                     </div>
                 </div>
 
-                {{-- Terms & Conditions --}}
+                {{-- Terms & Conditions — opens in a modal (matching #signatureModal/
+                     #suggestionsModal in gift-options.blade.php's own multi-step
+                     form) instead of navigating away, so the shopper never leaves
+                     /checkout/payment and loses the gateway/shipping selections
+                     above or has to re-click through the wizard to get back. --}}
                 <div class="form-check mb-4">
-                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <input class="form-check-input @error('terms_accepted') is-invalid @enderror" type="checkbox"
+                           name="terms_accepted" id="terms" value="1" required
+                           {{ old('terms_accepted') ? 'checked' : '' }}>
                     <label class="form-check-label" for="terms">
-                        {{-- The translation embeds an <a> tag, so render unescaped; the
-                             interpolated URL is escaped to keep it injection-safe. --}}
-                        {!! __('checkout.agree_terms', ['link' => e(route('terms'))]) !!}
+                        {{ __('checkout.agree_terms_prefix') }}
+                        <button type="button" class="btn btn-link p-0 align-baseline" data-bs-toggle="modal" data-bs-target="#termsModal">{{ __('checkout.agree_terms_link') }}</button>
                     </label>
+                    @error('terms_accepted')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                </div>
+
+                {{-- Same content as pages/terms.blade.php, via the shared partial —
+                     one source of legal text, two presentations. --}}
+                <div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">{{ __('checkout.terms_modal_title') }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                @include('pages.partials.terms-content')
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-aroma" data-bs-dismiss="modal">{{ __('checkout.terms_modal_close') }}</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Action Buttons --}}
                 <div class="d-flex gap-3 justify-content-between">
-                    <a href="{{ route('checkout.address') }}" class="btn btn-aroma-outline">
-                        <i class="bi {{ $locale === 'ar' ? 'bi-chevron-right' : 'bi-chevron-left' }} me-2"></i>{{ __('checkout.buttons.back') }}
-                    </a>
+                    {{-- Payment is step 7 — its predecessor is order-review (step 6),
+                         not address (step 3). Was pointing at address, silently
+                         skipping gift-options/delivery/order-review. --}}
+                    <x-back-link :href="route('checkout.order-review')" />
                     <button type="submit" class="btn btn-aroma btn-lg">
                         {{ __('checkout.buttons.place_order') }} <i class="bi {{ $locale === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }} ms-2"></i>
                     </button>

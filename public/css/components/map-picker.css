@@ -78,6 +78,30 @@
 .aroma-map-search-item:hover,
 .aroma-map-search-item:focus-visible { background: var(--aroma-skin); outline: none; }
 
+/* Loading / no-results rows are informational, not a real result — disabled
+   (so they're skipped in keyboard/click interaction) and styled quieter than
+   a real, selectable place. */
+.aroma-map-search-item:disabled {
+  cursor: default;
+  color: var(--aroma-muted, #8a7c68);
+}
+.aroma-map-search-item.aroma-map-search-loading {
+  color: var(--aroma-muted, #8a7c68);
+  font-style: italic;
+}
+.aroma-map-search-item.aroma-map-search-empty {
+  color: var(--aroma-muted, #8a7c68);
+  white-space: normal;
+  line-height: 1.4;
+}
+.aroma-map-search-item.aroma-map-search-retry {
+  color: var(--aroma-brown);
+  font-weight: 600;
+  cursor: pointer;
+}
+.aroma-map-search-item.aroma-map-search-retry:hover,
+.aroma-map-search-item.aroma-map-search-retry:focus-visible { background: var(--aroma-skin); outline: none; }
+
 .aroma-map-canvas-wrap { position: relative; }
 
 .aroma-map-canvas {

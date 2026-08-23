@@ -67,8 +67,10 @@
                 </div>
             </div>
 
-            {{-- Continue as Guest --}}
-            <div class="text-center">
+            {{-- Back / Continue as Guest — this step previously had no way
+                 back at all, unlike every other step in the wizard. --}}
+            <div class="d-flex gap-3 justify-content-between align-items-center aroma-actions-stack">
+                <x-back-link :href="route('checkout.review')" />
                 <a href="{{ route('checkout.address') }}" class="text-decoration-none" style="color:var(--aroma-ink)">
                     {{ __('checkout.auth.continue_as_guest') }} <i class="bi {{ $locale === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }} small"></i>
                 </a>

@@ -130,6 +130,11 @@
                     <i class="bi bi-shop me-2"></i>{{ __('checkout.continue_shopping') }}
                 </a>
             </div>
+
+            <p class="text-center text-aroma-muted small mt-3 mb-0">
+                {{ __('checkout.returns_note') }}
+                <a href="{{ route('guides.returns') }}">{{ __('checkout.returns_note_link') }}</a>
+            </p>
         </div>
     </div>
 </div>

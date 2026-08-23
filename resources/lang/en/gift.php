@@ -48,6 +48,10 @@ return [
     'preview_empty'  => 'Choose a card design to see it here.',
     'preview_to'     => 'To :name',
     'preview_from'   => 'From :name',
+    'preview_prev'   => 'Previous design',
+    'preview_next'   => 'Next design',
+    'preview_select' => 'Select this design',
+    'preview_selected' => 'Selected ✓',
 
     'continue' => 'Save & continue',
     'skip'     => 'Skip — this isn’t a gift',

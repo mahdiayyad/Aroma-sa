@@ -100,21 +100,43 @@ class CheckoutTest extends TestCase
             ->assertSessionHasErrors('billing_address.location_code');
     }
 
-    /* ---- The payment page must render (terms route exists) ----------------- */
+    /* ---- Terms & Conditions open in a modal, not a navigation away --------- */
 
-    public function test_payment_page_renders_with_a_working_terms_link(): void
+    public function test_payment_page_renders_with_a_terms_modal_not_a_link_away(): void
     {
         $this->seedCart();
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
 
+        // Note: the page footer legitimately still links to /terms directly
+        // (a real "leave the site to read terms" context) — this only checks
+        // that the checkout *form itself* opens a modal now, not that the
+        // route never appears anywhere on the page.
         $this->get(route('checkout.payment'))
             ->assertOk()
-            ->assertSee(route('terms')); // link resolved, no RouteNotFoundException
+            ->assertSee('id="termsModal"', false) // the modal exists on this page...
+            ->assertSee('data-bs-target="#termsModal"', false) // ...triggered from within the form...
+            ->assertSee(__('checkout.agree_terms_link')); // ...via a real, translated label
     }
 
-    public function test_the_terms_page_itself_renders(): void
+    public function test_the_terms_page_itself_still_renders_standalone(): void
     {
+        // The footer links here directly — a legitimate "leave checkout to
+        // read terms" context distinct from the in-checkout modal above, so
+        // this route/view must keep working on its own.
         $this->get(route('terms'))->assertOk()->assertSee('Aroma');
+    }
+
+    public function test_placing_an_order_without_accepting_terms_is_rejected(): void
+    {
+        $this->seedCart();
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
+
+        $this->post(route('checkout.payment.store'), [
+            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard',
+            // terms_accepted deliberately omitted
+        ])->assertSessionHasErrors('terms_accepted');
+
+        $this->assertDatabaseCount('orders', 0);
     }
 
     /* ---- Full happy path creates an order and remembers it ---------------- */
@@ -137,6 +159,7 @@ class CheckoutTest extends TestCase
             'gateway'         => 'moyasar',
             'method'          => 'mada',
             'shipping_method' => 'standard',
+            'terms_accepted'  => '1',
         ])->assertRedirect('https://moyasar.test/pay/inv_123');
 
         $this->assertDatabaseCount('orders', 1);
@@ -191,7 +214,7 @@ class CheckoutTest extends TestCase
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
 
         $this->post(route('checkout.payment.store'), [
-            'gateway' => 'tabby', 'method' => 'tabby', 'shipping_method' => 'standard',
+            'gateway' => 'tabby', 'method' => 'tabby', 'shipping_method' => 'standard', 'terms_accepted' => '1',
         ])->assertRedirect('https://checkout.tabby.ai/pay/pay_tabby_1');
 
         $this->assertDatabaseHas('payments', ['gateway' => 'tabby']);
@@ -213,7 +236,7 @@ class CheckoutTest extends TestCase
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
 
         $this->post(route('checkout.payment.store'), [
-            'gateway' => 'tamara', 'method' => 'tamara', 'shipping_method' => 'standard',
+            'gateway' => 'tamara', 'method' => 'tamara', 'shipping_method' => 'standard', 'terms_accepted' => '1',
         ])->assertRedirect('https://checkout.tamara.co/c/chk_1');
 
         $this->assertDatabaseHas('payments', ['gateway' => 'tamara']);

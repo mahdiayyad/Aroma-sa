@@ -154,6 +154,10 @@
 
             {{-- طرق الدفع --}}
             @include('catalog.partials.payment-methods')
+
+            @if ($product->category && $product->category->slug === 'abayas')
+                @include('catalog.partials.guide-links')
+            @endif
         </div>
     </div>
 </div>

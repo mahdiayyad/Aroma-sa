@@ -82,6 +82,7 @@ return [
         'help'     => 'Help & Support',
         'policies' => 'Policies & Privacy',
         'terms'    => 'Terms & Conditions',
+        'guides'   => 'Customer Guide',
         'contact'  => 'Contact us',
         'rights'   => 'All rights reserved.',
         'tagline'  => 'Awaken your Senses',

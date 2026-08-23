@@ -22,7 +22,7 @@ trait MocksLocationLookup
                 $normalized = strtoupper(trim($code));
 
                 if ($normalized === 'ZZZZ0000') {
-                    return ['success' => false, 'data' => null, 'error' => 'not_found'];
+                    return ['success' => false, 'data' => null, 'error' => 'not_found', 'is_stub' => false];
                 }
 
                 $known = [
@@ -39,6 +39,10 @@ trait MocksLocationLookup
                         'formatted_address' => $resolved['district'].', '.$resolved['city'].', '.$resolved['region'],
                     ]),
                     'error' => null,
+                    // Matches LocationLookupService's real contract (see its
+                    // lookup() docblock) — this fake resolves deterministic
+                    // fixture data, not literal stub-mode canned data, so false.
+                    'is_stub' => false,
                 ];
             });
         });

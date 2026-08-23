@@ -42,27 +42,10 @@
                         <h5 class="card-title mb-0">{{ __('checkout.order_review.delivering_to') }}</h5>
                         <a href="{{ route($isGift ? 'checkout.gift-options' : 'checkout.address') }}" class="small">{{ __('checkout.order_review.edit') }}</a>
                     </div>
-                    <div>{{ $shipping['recipient_name'] ?? '' }}</div>
-                    <div class="text-aroma-muted small">{{ $shipping['phone'] ?? '' }}</div>
-                    @if(!empty($shipping['location_code']))
-                        <div class="text-aroma-muted small">{{ $shipping['formatted_address'] ?? '' }}</div>
-                        <div class="text-aroma-muted small">
-                            @if(!empty($shipping['district'])){{ $shipping['district'] }}, @endif{{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}
-                        </div>
-                    @elseif(!empty($shipping['latitude']) && !empty($shipping['longitude']))
-                        {{-- Pinned via the map — coordinates only, no address text. --}}
-                        <div class="text-aroma-muted small">
-                            <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
-                            <a href="https://www.google.com/maps?q={{ $shipping['latitude'] }},{{ $shipping['longitude'] }}" target="_blank" rel="noopener">
-                                {{ __('location.map.pinned_label') }}
-                            </a>
-                        </div>
-                    @else
-                        <div class="text-aroma-muted small">
-                            {{ $shipping['street_address'] ?? '' }}, {{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}
-                            @if(!empty($shipping['postal_code'])) {{ $shipping['postal_code'] }} @endif
-                        </div>
-                    @endif
+                    {{-- Shared with confirmation/orders/admin so this branching
+                         logic (location-code vs pinned vs legacy address, plus
+                         the demo-data badge) lives in exactly one place. --}}
+                    <x-address-summary class="text-aroma-muted small" :address="$shipping" />
                 </div>
             </div>
 
@@ -183,9 +166,7 @@
     </div>
 
     <div class="mt-3">
-        <a href="{{ route('checkout.delivery') }}" class="btn btn-aroma-outline">
-            <i class="bi {{ $locale === 'ar' ? 'bi-chevron-right' : 'bi-chevron-left' }} me-2"></i>{{ __('checkout.buttons.back') }}
-        </a>
+        <x-back-link :href="route('checkout.delivery')" />
     </div>
 </div>
 @endsection
