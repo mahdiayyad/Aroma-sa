@@ -2,6 +2,23 @@
 <html lang="{{ app()->getLocale() }}" dir="{{ $direction ?? 'ltr' }}">
 <head>
     <meta charset="utf-8">
+    {{-- Safari detection, as early as possible so aroma.css's html.is-safari
+         rules apply before first paint (no flash of the wrong font). The
+         licensed AligarhArabic file on hand is a trial build whose Arabic
+         shaping renders visibly broken specifically on Safari — see the note
+         next to --aroma-heading-ar in aroma.css. Excludes the other browsers
+         that also carry "Safari" in their UA on iOS (Chrome/Firefox/Edge/
+         Opera), where WebKit is required by Apple but the bug doesn't show.
+         Mirrors layouts/app.blade.php's own script — auth pages render
+         through this separate layout, not that one, so they need their own
+         copy of the same detection. --}}
+    <script>
+        (function () {
+            var ua = navigator.userAgent;
+            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua);
+            if (isSafari) { document.documentElement.classList.add('is-safari'); }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', $brand['name'])</title>
     {{-- Auth pages carry no unique content worth ranking — keep them out of

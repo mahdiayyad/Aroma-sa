@@ -2,6 +2,18 @@
 <html lang="{{ app()->getLocale() }}" dir="{{ $direction ?? 'ltr' }}">
 <head>
     <meta charset="utf-8">
+    {{-- Safari detection, as early as possible so aroma.css's html.is-safari
+         rules apply before first paint — see the identical script (and full
+         explanation) in layouts/app.blade.php. This admin layout loads
+         aroma.css too, so it needs the same class for the same Arabic-font
+         workaround to take effect here. --}}
+    <script>
+        (function () {
+            var ua = navigator.userAgent;
+            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua);
+            if (isSafari) { document.documentElement.classList.add('is-safari'); }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Aroma Admin')</title>
