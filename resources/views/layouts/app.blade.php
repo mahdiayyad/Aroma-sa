@@ -127,6 +127,10 @@
       data-cart-error="{{ __('cart.error') }}"
       data-wishlist-url="{{ route('wishlist.index') }}"
       data-wishlist-label="{{ __('storefront.nav.wishlist') }}">
+
+    <div class="sbc-verify-seal" data-token="NmU3U1ZDbCtNMGIxb0M1V01IWVlGQT09" data-position="bottom-left"></div>
+    <script src="https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js" async></script>
+
     @include('layouts.partials.intro')
     @include('layouts.partials.header')
 
