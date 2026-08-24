@@ -101,6 +101,7 @@ class CheckoutService extends BaseService
      *     is_anonymous?: bool,
      *     gift_wrap_fee?: float|string,
      *     greeting_card_id?: ?int,
+     *     greeting_card_fee?: float|string,
      *     gift_card_to?: ?string,
      *     gift_card_from?: ?string,
      *     gift_signature?: ?string,
@@ -122,8 +123,9 @@ class CheckoutService extends BaseService
             }
 
             $giftWrapFee = (float) ($details['gift_wrap_fee'] ?? 0);
+            $greetingCardFee = (float) ($details['greeting_card_fee'] ?? 0);
             $totals = $this->calculateTotals();
-            $totals['total_amount'] += $giftWrapFee;
+            $totals['total_amount'] += $giftWrapFee + $greetingCardFee;
 
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
@@ -149,6 +151,7 @@ class CheckoutService extends BaseService
                 'is_anonymous' => (bool) ($details['is_anonymous'] ?? false),
                 'gift_wrap_fee' => $giftWrapFee,
                 'greeting_card_id' => $details['greeting_card_id'] ?? null,
+                'greeting_card_fee' => $greetingCardFee,
                 'gift_card_to' => $details['gift_card_to'] ?? null,
                 'gift_card_from' => $details['gift_card_from'] ?? null,
                 'gift_signature' => $details['gift_signature'] ?? null,

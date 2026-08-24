@@ -119,6 +119,11 @@ return [
         // Digits only, incl. country code — e.g. 9665XXXXXXXX. The floating
         // WhatsApp button only appears once this is set.
         'whatsapp' => env('AROMA_WHATSAPP', ''),
-        'instagram' => 'aroma',
+        // Full profile URLs. Each footer icon falls back to an inert "#" link
+        // until its URL is set — see layouts/partials/footer.blade.php.
+        'instagram' => env('AROMA_INSTAGRAM', ''),
+        'tiktok' => env('AROMA_TIKTOK', ''),
+        'snapchat' => env('AROMA_SNAPCHAT', ''),
+        'facebook' => env('AROMA_FACEBOOK', ''),
     ],
 ];

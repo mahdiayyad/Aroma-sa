@@ -5,21 +5,26 @@ namespace Tests\Feature\Account;
 use App\Models\Address;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
 
 class AddressTest extends TestCase
 {
     use RefreshDatabase;
+    use MocksLocationLookup;
 
     private array $payload = [
         'label' => 'Home',
         'recipient_name' => 'Sara Al Qahtani',
-        'phone' => '0500000000',
-        'street_address' => 'King Fahd Rd',
-        'city' => 'Riyadh',
-        'region' => 'Riyadh',
-        'postal_code' => '12211',
+        'phone' => '+966500000000',
+        'location_code' => 'RAHA1234',
     ];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockLocationLookup();
+    }
 
     public function test_guest_is_redirected_from_the_address_book(): void
     {
@@ -85,7 +90,7 @@ class AddressTest extends TestCase
         $address = Address::first();
 
         $this->actingAs($user)->put(route('account.addresses.update', $address), array_merge($this->payload, [
-            'city' => 'Jeddah',
+            'location_code' => 'JEDD5678',
         ]))->assertRedirect(route('account.addresses.index'));
 
         $this->assertSame('Jeddah', $address->fresh()->city);
@@ -131,5 +136,42 @@ class AddressTest extends TestCase
         $this->actingAs($user)->get(route('checkout.address'))
             ->assertOk()
             ->assertSee('Sara Al Qahtani');
+    }
+
+    public function test_a_user_can_add_an_address_by_pinning_a_location_instead_of_a_code(): void
+    {
+        $user = User::factory()->create();
+
+        // Strings, not floats — a real browser form submission sends every
+        // field as a string.
+        $this->actingAs($user)->post(route('account.addresses.store'), [
+            'recipient_name' => 'Sara Al Qahtani',
+            'phone' => '+966500000000',
+            'latitude' => '24.7136',
+            'longitude' => '46.6753',
+        ])->assertRedirect(route('account.addresses.index'));
+
+        $address = Address::first();
+        $this->assertNull($address->location_code);
+        $this->assertNull($address->city);
+        $this->assertNull($address->region);
+        $this->assertNull($address->district);
+        $this->assertNull($address->formatted_address);
+        $this->assertNull($address->street_address);
+        $this->assertNull($address->postal_code);
+        $this->assertEqualsWithDelta(24.7136, $address->latitude, 0.0001);
+        $this->assertEqualsWithDelta(46.6753, $address->longitude, 0.0001);
+    }
+
+    public function test_neither_a_code_nor_coordinates_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('account.addresses.store'), [
+            'recipient_name' => 'Sara Al Qahtani',
+            'phone' => '+966500000000',
+        ])->assertSessionHasErrors('location_code');
+
+        $this->assertDatabaseCount('addresses', 0);
     }
 }

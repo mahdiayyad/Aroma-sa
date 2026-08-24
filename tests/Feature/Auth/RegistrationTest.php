@@ -18,7 +18,7 @@ class RegistrationTest extends TestCase
     {
         $response = $this->post('/register', [
             'name'                  => 'Layla Ahmed',
-            'phone'                 => '0512345678',
+            'phone'                 => '+966512345678',
             'password'              => 'Passw0rd1',
             'password_confirmation' => 'Passw0rd1',
             'gender'                => 'female',
@@ -26,7 +26,7 @@ class RegistrationTest extends TestCase
 
         $response->assertRedirect(route('account.dashboard'));
         $this->assertAuthenticated();
-        $this->assertDatabaseHas('users', ['name' => 'Layla Ahmed', 'phone' => '0512345678']);
+        $this->assertDatabaseHas('users', ['name' => 'Layla Ahmed', 'phone' => '+966512345678']);
     }
 
     public function test_registration_requires_email_or_phone(): void
@@ -40,7 +40,7 @@ class RegistrationTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_invalid_saudi_phone_is_rejected(): void
+    public function test_invalid_phone_is_rejected(): void
     {
         $this->post('/register', [
             'name'                  => 'Bad Phone',

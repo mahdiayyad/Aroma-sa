@@ -23,6 +23,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LocationLookupController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SitemapController;
@@ -153,6 +154,13 @@ Route::view('terms', 'pages.terms')->name('terms');
 Route::view('about', 'pages.about')->name('about');
 Route::view('privacy-policy', 'pages.privacy-policy')->name('privacy-policy');
 
+/* Customer Guide ------------------------------------------------------------ */
+Route::view('guides', 'pages.guides.index')->name('guides.index');
+Route::view('guides/sizing', 'pages.guides.sizing')->name('guides.sizing');
+Route::view('guides/fit', 'pages.guides.fit')->name('guides.fit');
+Route::view('guides/care', 'pages.guides.care')->name('guides.care');
+Route::view('guides/returns', 'pages.guides.returns')->name('guides.returns');
+
 Route::get('contact', [ContactController::class, 'show'])->name('contact');
 Route::post('contact', [ContactController::class, 'send'])->middleware('throttle:5,1')->name('contact.send');
 
@@ -188,6 +196,10 @@ Route::prefix('assistant')->name('assistant.')->middleware('throttle:20,1')->gro
     Route::post('chat', [AssistantController::class, 'chat'])->name('chat');
     Route::post('reset', [AssistantController::class, 'reset'])->name('reset');
 });
+
+/* Saudi National Address location-code preview (checkout + account forms) - */
+Route::post('location/lookup', [LocationLookupController::class, 'lookup'])
+    ->middleware('throttle:30,1')->name('location.lookup');
 
 /* Orders (authenticated) ------------------------------------------------- */
 Route::middleware('auth')->prefix('orders')->name('order.')->group(function () {

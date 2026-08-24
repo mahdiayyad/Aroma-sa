@@ -12,6 +12,7 @@ use App\Models\GiftCard;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Services\LocationLookupService;
 use App\Services\Payment\PaymentGatewayManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -25,15 +26,83 @@ class CheckoutController extends Controller
     private CartService $cart;
     private CheckoutService $checkout;
     private PaymentGatewayManager $gateways;
+    private LocationLookupService $locationLookup;
 
     public function __construct(
         CartService $cart,
         CheckoutService $checkout,
-        PaymentGatewayManager $gateways
+        PaymentGatewayManager $gateways,
+        LocationLookupService $locationLookup
     ) {
         $this->cart = $cart;
         $this->checkout = $checkout;
         $this->gateways = $gateways;
+        $this->locationLookup = $locationLookup;
+    }
+
+    /**
+     * Resolve one of the two location methods into the full address array
+     * stored in the checkout session / order snapshot. Every key is always
+     * present (even when null) so downstream direct-array reads on the
+     * order's JSON snapshot never warn on a missing key.
+     *
+     * - location_code present: resolved via LocationLookupService (city/
+     *   region/district/formatted_address/coordinates). Returns null on
+     *   lookup failure — callers translate that into a field-specific
+     *   validation error; there is no manual-entry fallback.
+     * - No code, only coordinates: the shopper pinned a spot on the map.
+     *   Stored as coordinates ONLY — no lookup, no street/city/region/
+     *   district/formatted_address text. Delivery for these addresses is
+     *   coordinate-based (Aramex or another carrier), not text-based.
+     *
+     * Exactly one of these is guaranteed present by the FormRequest's
+     * withValidator check before this is ever called.
+     */
+    private function resolveAddress(array $contact, ?string $locationCode, ?float $latitude, ?float $longitude): ?array
+    {
+        if (filled($locationCode)) {
+            $result = $this->locationLookup->lookup($locationCode);
+
+            if (! $result['success']) {
+                return null;
+            }
+
+            // billing_address/shipping_address are JSON-cast Order columns
+            // (no fixed schema), so is_stub is safe to store as-is — it
+            // surfaces later via <x-address-summary> so ops/the shopper can
+            // tell a demo-mode resolution apart from a real one.
+            return array_merge($contact, [
+                'location_code'  => strtoupper(trim($locationCode)),
+                'street_address' => null,
+                'postal_code'    => null,
+            ], $result['data'], ['is_stub' => $result['is_stub'] ?? false]);
+        }
+
+        return array_merge($contact, [
+            'location_code'     => null,
+            'latitude'          => $latitude,
+            'longitude'         => $longitude,
+            'city'              => null,
+            'region'            => null,
+            'district'          => null,
+            'country'           => null,
+            'formatted_address' => null,
+            'street_address'    => null,
+            'postal_code'       => null,
+            // A pinned-on-map location never goes through lookup() — never stub data.
+            'is_stub'           => false,
+        ]);
+    }
+
+    /**
+     * $request->validated() returns 'numeric' fields as whatever raw type
+     * they arrived as (a string, from HTML form submission) — Laravel's
+     * 'numeric' rule validates but never casts. resolveAddress() takes a
+     * strict ?float, so every coordinate must pass through this first.
+     */
+    private function toFloatOrNull($value): ?float
+    {
+        return $value !== null && $value !== '' ? (float) $value : null;
     }
 
     /**
@@ -115,9 +184,16 @@ class CheckoutController extends Controller
         $user = auth()->user();
         $addresses = $user ? $user->addresses()->get() : collect();
 
+        // Authenticated shoppers skip auth-choice entirely (see start() above),
+        // so their predecessor step is review; a guest actually passed through
+        // auth-choice, so that's their true predecessor — hardcoding this to
+        // checkout.review always would silently skip auth-choice for guests.
+        $backRoute = $user ? route('checkout.review') : route('checkout.start');
+
         return view('checkout.address', [
             'addresses' => $addresses,
             'user' => $user,
+            'backRoute' => $backRoute,
         ]);
     }
 
@@ -134,16 +210,40 @@ class CheckoutController extends Controller
 
         $data = $request->validated();
 
-        $billingAddress = $data['billing_address'];
+        $billingAddress = $this->resolveAddress([
+            'recipient_name' => $data['billing_address']['recipient_name'],
+            'phone'          => $data['billing_address']['phone'],
+            'email'          => $data['billing_address']['email'] ?? null,
+        ], $data['billing_address']['location_code'] ?? null, $this->toFloatOrNull($data['billing_address']['latitude'] ?? null), $this->toFloatOrNull($data['billing_address']['longitude'] ?? null));
+
+        if ($billingAddress === null) {
+            return back()
+                ->withErrors(['billing_address.location_code' => __('location.errors.not_found')])
+                ->withInput();
+        }
 
         // The address form collects a single address; a distinct shipping
         // address is optional. Fall back to the billing address whenever the
         // customer hasn't entered a separate one (this also avoids the
         // "Undefined index: shipping_address" when the field isn't submitted).
         $sameAsBilling = (bool) ($data['use_shipping_for_billing'] ?? true);
-        $shippingAddress = (! $sameAsBilling && ! empty($data['shipping_address']))
-            ? $data['shipping_address']
-            : $billingAddress;
+        $shippingHasCode = ! empty($data['shipping_address']['location_code']);
+        $shippingHasCoordinates = ! empty($data['shipping_address']['latitude']) && ! empty($data['shipping_address']['longitude']);
+
+        if (! $sameAsBilling && ($shippingHasCode || $shippingHasCoordinates)) {
+            $shippingAddress = $this->resolveAddress([
+                'recipient_name' => $data['shipping_address']['recipient_name'],
+                'phone'          => $data['shipping_address']['phone'],
+            ], $data['shipping_address']['location_code'] ?? null, $this->toFloatOrNull($data['shipping_address']['latitude'] ?? null), $this->toFloatOrNull($data['shipping_address']['longitude'] ?? null));
+
+            if ($shippingAddress === null) {
+                return back()
+                    ->withErrors(['shipping_address.location_code' => __('location.errors.not_found')])
+                    ->withInput();
+            }
+        } else {
+            $shippingAddress = $billingAddress;
+        }
 
         // Store in session for next step
         session([
@@ -207,9 +307,20 @@ class CheckoutController extends Controller
         $isAnonymous = $isGift && (bool) ($data['is_anonymous'] ?? false);
 
         if ($isGift) {
+            $recipientAddress = $this->resolveAddress([
+                'recipient_name' => $data['recipient']['recipient_name'],
+                'phone'          => $data['recipient']['phone'],
+            ], $data['recipient']['location_code'] ?? null, $this->toFloatOrNull($data['recipient']['latitude'] ?? null), $this->toFloatOrNull($data['recipient']['longitude'] ?? null));
+
+            if ($recipientAddress === null) {
+                return back()
+                    ->withErrors(['recipient.location_code' => __('location.errors.not_found')])
+                    ->withInput();
+            }
+
             // The recipient's own address IS checkout.shipping_address — see
             // the "Recipient model" decision in the checkout refactor analysis.
-            session(['checkout.shipping_address' => $data['recipient']]);
+            session(['checkout.shipping_address' => $recipientAddress]);
         }
 
         // An anonymous sender never has their name or signature attached,
@@ -227,12 +338,23 @@ class CheckoutController extends Controller
             }
         }
 
+        $cardId = $isGift ? ($data['greeting_card_id'] ?? null) : null;
+        // Snapshot the price at selection time, not at order time — matches
+        // wrap_fee's own reasoning below (see the migration comment on
+        // orders.greeting_card_fee for why this shouldn't re-read live).
+        $cardFee = 0;
+        if ($cardId) {
+            $selectedCard = GiftCard::find($cardId);
+            $cardFee = $selectedCard ? (float) $selectedCard->price : 0;
+        }
+
         session(['checkout.gift' => [
             'is_gift'      => $isGift,
             'message'      => $isGift ? ($data['gift_message'] ?? null) : null,
             'is_anonymous' => $isAnonymous,
             'wrap_fee'     => $isGift && ($data['gift_wrap'] ?? false) ? (float) config('aroma.gifting.wrap_fee', 0) : 0,
-            'card_id'      => $isGift ? ($data['greeting_card_id'] ?? null) : null,
+            'card_id'      => $cardId,
+            'card_fee'     => $cardFee,
             'to'           => $isGift ? ($data['gift_to'] ?? null) : null,
             'from'         => $isGift && !$isAnonymous ? ($data['gift_from'] ?? null) : null,
             'signature'    => $signaturePath,
@@ -323,7 +445,7 @@ class CheckoutController extends Controller
         $gift = session('checkout.gift', []);
 
         return view('checkout.order-review', [
-            'totals'   => $this->totalsWithGiftWrap(),
+            'totals'   => $this->totalsWithGiftExtras(),
             'shipping' => session('checkout.shipping_address', []),
             'gift'     => $gift,
             'giftCard' => !empty($gift['card_id']) ? GiftCard::find($gift['card_id']) : null,
@@ -332,17 +454,19 @@ class CheckoutController extends Controller
     }
 
     /**
-     * calculateTotals() is cart-only math; the gift wrap fee lives in the
-     * checkout session (set in storeGiftOptions()), so it's layered on here
-     * for display — the same way createOrder() layers it on when charging.
-     * Keeps the Order Review / Payment totals from ever understating what
-     * the customer is actually about to pay.
+     * calculateTotals() is cart-only math; the gift wrap fee and the chosen
+     * greeting card's fee both live in the checkout session (set in
+     * storeGiftOptions()), so they're layered on here for display — the
+     * same way createOrder() layers them on when charging. Keeps the Order
+     * Review / Payment totals from ever understating what the customer is
+     * actually about to pay.
      */
-    private function totalsWithGiftWrap(): array
+    private function totalsWithGiftExtras(): array
     {
         $totals = $this->checkout->calculateTotals();
         $totals['gift_wrap_fee'] = (float) session('checkout.gift.wrap_fee', 0);
-        $totals['total_amount'] += $totals['gift_wrap_fee'];
+        $totals['greeting_card_fee'] = (float) session('checkout.gift.card_fee', 0);
+        $totals['total_amount'] += $totals['gift_wrap_fee'] + $totals['greeting_card_fee'];
 
         return $totals;
     }
@@ -364,7 +488,7 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.address');
         }
 
-        $totals = $this->totalsWithGiftWrap();
+        $totals = $this->totalsWithGiftExtras();
 
         return view('checkout.payment', [
             'totals' => $totals,
@@ -407,6 +531,7 @@ class CheckoutController extends Controller
                     'is_anonymous'          => session('checkout.gift.is_anonymous', false),
                     'gift_wrap_fee'         => session('checkout.gift.wrap_fee', 0),
                     'greeting_card_id'      => session('checkout.gift.card_id'),
+                    'greeting_card_fee'     => session('checkout.gift.card_fee', 0),
                     'gift_card_to'          => session('checkout.gift.to'),
                     'gift_card_from'        => session('checkout.gift.from'),
                     'gift_signature'        => session('checkout.gift.signature'),

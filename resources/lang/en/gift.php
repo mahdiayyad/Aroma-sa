@@ -20,6 +20,9 @@ return [
 
     'card_title'     => 'Choose a greeting card',
     'card_none'      => 'No card',
+    'card_free'      => 'Free',
+    'blank_note_caption' => 'Write whatever you like',
+    'card_fee_title' => 'Greeting card',
 
     'message_title'  => 'Your message',
     'to_label'       => 'To (optional)',
@@ -48,6 +51,10 @@ return [
     'preview_empty'  => 'Choose a card design to see it here.',
     'preview_to'     => 'To :name',
     'preview_from'   => 'From :name',
+    'preview_prev'   => 'Previous design',
+    'preview_next'   => 'Next design',
+    'preview_select' => 'Select this design',
+    'preview_selected' => 'Selected ✓',
 
     'continue' => 'Save & continue',
     'skip'     => 'Skip — this isn’t a gift',

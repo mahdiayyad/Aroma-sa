@@ -29,6 +29,7 @@ return [
         'benefit_tracking' => 'تتبع طلباتك',
         'benefit_faster' => 'شراء أسرع في المرة القادمة',
         'benefit_addresses' => 'احفظ عناوينك',
+        'back_to_checkout' => 'العودة إلى إتمام الطلب',
     ],
 
     'recipient_name' => 'الاسم الكامل',
@@ -36,6 +37,8 @@ return [
     'street_address' => 'عنوان الشارع',
     'city' => 'المدينة',
     'region' => 'المنطقة',
+    'district' => 'الحي',
+    'formatted_address' => 'العنوان',
     'postal_code' => 'الرمز البريدي',
     'email' => 'عنوان البريد الإلكتروني',
 
@@ -81,6 +84,7 @@ return [
         'payment_failed' => 'فشل معالجة الدفع. يرجى المحاولة مرة أخرى.',
         'invalid_address' => 'يرجى تقديم عنوان شحن صحيح.',
         'bnpl_unavailable' => ':gateway غير متاح لهذا الطلب. يرجى اختيار وسيلة دفع أخرى.',
+        'terms_required' => 'يرجى الموافقة على الشروط والأحكام للمتابعة.',
     ],
 
     'payment_methods' => [
@@ -103,8 +107,13 @@ return [
     'order_summary' => 'ملخص الطلب',
     'view_order' => 'عرض الطلب',
     'continue_shopping' => 'متابعة التسوق',
+    'returns_note' => 'هل تحتاجين إلى إرجاع أو استبدال؟',
+    'returns_note_link' => 'اطّلعي على دليل الاستبدال والإرجاع',
     'back' => 'رجوع',
-    'agree_terms' => 'أوافق على <a href=":link">الشروط والأحكام</a>',
+    'agree_terms_prefix' => 'أوافق على',
+    'agree_terms_link' => 'الشروط والأحكام',
+    'terms_modal_title' => 'الشروط والأحكام',
+    'terms_modal_close' => 'إغلاق',
     'placeholder' => 'نموذج الدفع لـ :gateway سيتم عرضه هنا',
     'payment_gateway_placeholder' => 'نموذج الدفع',
     'shipping_methods' => [

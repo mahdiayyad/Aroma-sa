@@ -6,9 +6,6 @@
 </div>
 
 <div class="d-grid gap-2">
-    <a href="{{ route('social.redirect', 'apple') }}" class="btn btn-aroma-outline">
-        <i class="bi bi-apple me-1"></i>{{ __('auth_ui.social.apple') }}
-    </a>
     <a href="{{ route('social.redirect', 'google') }}" class="btn btn-aroma-outline">
         <i class="bi bi-google me-1"></i>{{ __('auth_ui.social.google') }}
     </a>

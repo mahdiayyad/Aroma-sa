@@ -86,15 +86,8 @@
             <div class="aroma-card">
                 <div class="card-body p-4">
                     <h5 class="card-title mb-3 text-aroma-brown">{{ __('checkout.shipping_address_label') }}</h5>
-                    <div class="text-aroma-muted small lh-lg">
-                        <div class="fw-bold text-aroma-ink">{{ $order->shipping_address['recipient_name'] }}</div>
-                        <div>{{ $order->shipping_address['street_address'] }}</div>
-                        <div>{{ $order->shipping_address['city'] }}, {{ $order->shipping_address['region'] }}</div>
-                        @if($order->shipping_address['postal_code'])
-                            <div>{{ $order->shipping_address['postal_code'] }}</div>
-                        @endif
-                        <div>{{ $order->customer_phone }}</div>
-                    </div>
+                    <x-address-summary class="text-aroma-muted small lh-lg" name-class="fw-bold text-aroma-ink"
+                        :address="$order->shipping_address" :phone="$order->customer_phone" />
 
                     @if($order->tracking_number)
                         <div class="mt-3 pt-3 border-top">

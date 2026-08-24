@@ -28,8 +28,12 @@
     <link href="{{ asset('css/components/badges-alerts.css') }}" rel="stylesheet">
     <link href="{{ asset('css/components/navigation.css') }}" rel="stylesheet">
     <link href="{{ asset('css/components/animations.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/css/intlTelInput.min.css" rel="stylesheet">
+    <link href="{{ asset('css/components/intl-phone.css') }}" rel="stylesheet">
 </head>
-<body class="aroma-auth-shell">
+<body class="aroma-auth-shell" data-flash-success="{{ session('status') }}"
+      data-show-password="{{ __('auth_ui.show_password') }}"
+      data-hide-password="{{ __('auth_ui.hide_password') }}">
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
@@ -40,6 +44,14 @@
 
                 <div class="card aroma-auth-card">
                     <div class="card-body p-4 p-md-5">
+                        {{-- CheckoutController::redirectToLogin()/redirectToRegister() are
+                             the only two places anywhere in the app that set url.intended —
+                             so this is an unambiguous "arrived from checkout" signal. Without
+                             it, a guest sent here from checkout had no way back except the
+                             brand logo above, which abandons checkout context entirely. --}}
+                        @if (session('url.intended') === route('checkout.address'))
+                            <x-back-link :href="route('checkout.address')" :label="__('checkout.auth.back_to_checkout')" class="small mb-3" />
+                        @endif
                         @include('partials.flash')
                         @yield('content')
                     </div>
@@ -60,6 +72,8 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ asset('js/select2-init.js') }}"></script>
     <script src="{{ asset('js/aroma-ui.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/js/intlTelInputWithUtils.min.js"></script>
+    <script src="{{ asset('js/intl-phone.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

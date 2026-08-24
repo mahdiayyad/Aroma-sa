@@ -33,11 +33,11 @@ class LoginTest extends TestCase
     {
         $user = User::factory()->create([
             'email'    => null,
-            'phone'    => '0555555555',
+            'phone'    => '+966555555555',
             'password' => Hash::make('Passw0rd1'),
         ]);
 
-        $this->post('/login', ['login' => '0555555555', 'password' => 'Passw0rd1']);
+        $this->post('/login', ['login' => '+966555555555', 'password' => 'Passw0rd1']);
 
         $this->assertAuthenticatedAs($user);
     }

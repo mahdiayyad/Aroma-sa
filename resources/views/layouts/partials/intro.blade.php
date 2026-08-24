@@ -43,9 +43,17 @@
         var el = document.getElementById('aromaIntro');
         if (!el) { return; }
 
-        // Plays on every page load. To show it only once per visit, uncomment:
-        // try { if (sessionStorage.getItem('aromaIntroSeen')) { el.parentNode.removeChild(el); return; }
-        //       sessionStorage.setItem('aromaIntroSeen', '1'); } catch (e) {}
+        // Show only on the shopper's first-ever visit, not on every new tab.
+        // localStorage (not sessionStorage) is what makes that true: sessionStorage
+        // is scoped per-tab, so a new tab counts as a fresh session and would
+        // still replay the intro every time.
+        try {
+            if (localStorage.getItem('aromaIntroSeen')) {
+                el.parentNode.removeChild(el);
+                return;
+            }
+            localStorage.setItem('aromaIntroSeen', '1');
+        } catch (e) { /* storage blocked (private mode, etc.) — just play the intro */ }
 
         var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         document.documentElement.classList.add('aroma-intro-lock');

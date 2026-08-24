@@ -1,0 +1,220 @@
+/* ============================================================================
+   Aroma Customer Guide — hub + Size / Fit / Care / Returns detail pages.
+   Loaded via @push('head') only on these 5 pages (see gift-studio.css /
+   map-picker.css for the same per-feature convention). Built entirely from
+   existing --aroma-* tokens — no new colors, fonts, radii, or shadows.
+   ========================================================================== */
+
+/* --- Icon badge — hub cards + detail-page section headers ----------------- */
+.aroma-guide-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--aroma-skin);
+  color: var(--aroma-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+/* --- Hub cards -------------------------------------------------------------- */
+.aroma-guide-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  height: 100%;
+}
+.aroma-guide-card .aroma-guide-card-title {
+  font-family: var(--aroma-heading-en);
+  font-size: 1.15rem;
+  color: var(--aroma-ink);
+  margin: 0;
+}
+html[lang="ar"] .aroma-guide-card .aroma-guide-card-title { font-family: var(--aroma-heading-ar); }
+.aroma-guide-card .aroma-guide-card-link {
+  margin-top: auto;
+  font-weight: 600;
+  color: var(--aroma-brown);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+/* Bootstrap's .stretched-link already owns ::after on this same <a> (the
+   full-card click target) — the arrow is a real inline <i> in the markup
+   instead of a second ::after, so the two never collide. */
+.aroma-guide-card .stretched-link::after { border-radius: inherit; }
+
+/* --- Sub-nav tab strip (present on the 4 detail pages, not the hub) -------- */
+.aroma-guide-subnav {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 0.35rem;
+  margin-bottom: var(--aroma-space-md);
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+}
+.aroma-guide-subnav::-webkit-scrollbar { height: 6px; }
+.aroma-guide-subnav::-webkit-scrollbar-thumb { background: var(--aroma-border-strong); border-radius: 999px; }
+.aroma-guide-tab {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--aroma-border);
+  background: #fff;
+  color: var(--aroma-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: border-color var(--aroma-transition-fast), background var(--aroma-transition-fast), color var(--aroma-transition-fast);
+}
+.aroma-guide-tab:hover { border-color: var(--aroma-light-brown); color: var(--aroma-ink); }
+.aroma-guide-tab.is-active {
+  background: var(--aroma-brown);
+  border-color: var(--aroma-brown);
+  color: var(--aroma-white);
+}
+
+/* --- Size Guide: measuring steps ------------------------------------------- */
+.aroma-measure-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.aroma-measure-step {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+.aroma-measure-step-num {
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--aroma-brown);
+  color: var(--aroma-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: var(--aroma-heading-en);
+}
+
+/* --- Size Guide: original abaya technical-flat diagram --------------------- */
+.aroma-size-diagram {
+  max-width: 320px;
+  margin-inline: auto;
+}
+.aroma-size-diagram svg { width: 100%; height: auto; overflow: visible; }
+.aroma-size-diagram-garment {
+  fill: var(--aroma-skin);
+  stroke: var(--aroma-brown);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.aroma-size-diagram-dim {
+  stroke: var(--aroma-muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+.aroma-size-diagram-tick { stroke: var(--aroma-muted); stroke-width: 1; }
+.aroma-size-diagram-label {
+  fill: var(--aroma-brown);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--aroma-body-en);
+}
+
+/* --- Size Guide: full size-conversion table ---------------------------------
+   Dense reference data (13 sizes × 3 measurements × cm/in) — this is exactly
+   the "genuinely large/dense tabular data" case .aroma-table-responsive
+   already exists for. The size column stays sticky so it's never scrolled
+   out of view while comparing measurement columns on a narrow screen. */
+.aroma-size-table-wrap { position: relative; }
+.aroma-size-table th,
+.aroma-size-table td {
+  text-align: center;
+  white-space: nowrap;
+}
+.aroma-size-table thead tr:first-child th { border-bottom: 1px solid var(--aroma-border); }
+/* Physical (not logical) sides on purpose: the numeric <td>s carry their own
+   dir="ltr" (to keep digits left-to-right), which makes border-inline-start
+   resolve against THAT cell's direction instead of the page's — flipping the
+   divider to the wrong edge in Arabic. html[dir] scoping sidesteps that. */
+.aroma-size-table-divider { border-left: 1px solid var(--aroma-border-strong); }
+html[dir="rtl"] .aroma-size-table-divider { border-left: none; border-right: 1px solid var(--aroma-border-strong); }
+.aroma-size-table .aroma-size-table-unit {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--aroma-muted);
+  text-transform: uppercase;
+  background: #fff;
+}
+.aroma-size-table .aroma-size-table-size-col {
+  position: sticky;
+  inset-inline-start: 0;
+  background: var(--aroma-brown);
+  color: var(--aroma-white);
+  font-family: var(--aroma-heading-en);
+  font-size: 1.05rem;
+  z-index: 1;
+}
+.aroma-size-table thead .aroma-size-table-size-col { background: var(--aroma-emerald-deep, var(--aroma-brown)); }
+.aroma-size-table-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--aroma-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* --- Fit Guide: preference cards -------------------------------------------- */
+.aroma-fit-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--aroma-brown);
+  margin-top: 0.5rem;
+}
+
+/* --- Care Guide: do/avoid quick reference ----------------------------------- */
+.aroma-do-avoid-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.aroma-do-avoid-row .aroma-badge-success i,
+.aroma-do-avoid-row .aroma-badge-danger i { margin-inline-end: 0.35rem; }
+
+/* --- Returns Guide: numbered step flow -------------------------------------- */
+.aroma-return-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.aroma-return-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.aroma-return-step-num {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: var(--aroma-skin);
+  color: var(--aroma-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: var(--aroma-heading-en);
+  font-size: 1.1rem;
+}

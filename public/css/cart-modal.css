@@ -31,9 +31,9 @@
 .aroma-payment-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid var(--aroma-border, #ebe2d4);
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--aroma-border, #e7dccc);
   border-radius: 0.5rem;
   background: #fff;
   font-size: 0.78rem;
@@ -41,13 +41,47 @@
   color: var(--aroma-ink);
 }
 .aroma-payment-badge i { font-size: 1rem; color: var(--aroma-brown); }
+/* Real brand marks in their own colors (see components/payment-icon.blade.php)
+   — a fixed height with width:auto keeps every mark the same visual weight
+   regardless of how wide/square its own shape naturally is (mada is a wide
+   lockup; Visa/Mastercard/Apple Pay are closer to square). Color now comes
+   from each mark's own fill, not currentColor — these are brand colors, not
+   the site accent. */
+.aroma-payment-badge svg {
+  height: 1.15rem;
+  width: auto;
+  flex-shrink: 0;
+}
+/* tabby / Tamara — shown as their real self-branding: a gradient chip with
+   the wordmark in dark bold type, not an icon-plus-label pair. */
+.aroma-payment-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+  padding: 0 0.6rem;
+  border-radius: 0.4rem;
+  flex-shrink: 0;
+}
+.aroma-payment-chip-text {
+  font-family: var(--aroma-heading-en);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+/* Tamara's wordmark is Arabic branding regardless of site locale — it needs
+   the Arabic display face to render its glyphs at all, let alone cleanly. */
+.aroma-payment-chip-text[dir="rtl"] {
+  font-family: var(--aroma-heading-ar);
+}
 .aroma-payment-badge.is-soon { opacity: 0.55; }
 .aroma-payment-soon {
   font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
   background: rgba(112, 79, 47, 0.08);
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
@@ -55,7 +89,7 @@
 .aroma-payments-note {
   margin: 0.7rem 0 0;
   font-size: 0.76rem;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
 }
 
 /* --- Modal shell ----------------------------------------------------------- */
@@ -64,7 +98,7 @@
 .aroma-cart-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(43, 32, 22, 0.5);
+  background: rgba(26, 18, 10, 0.5);
   opacity: 0;
   transition: opacity 0.25s ease;
 }
@@ -83,7 +117,7 @@
   flex-direction: column;
   background: #fff;
   border-radius: 1rem;
-  box-shadow: 0 30px 70px rgba(43, 32, 22, 0.32);
+  box-shadow: 0 30px 70px rgba(26, 18, 10, 0.32);
   overflow: hidden;
   transition: opacity 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
               transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -98,7 +132,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--aroma-border, #ebe2d4);
+  border-bottom: 1px solid var(--aroma-border, #e7dccc);
 }
 .aroma-cart-modal-title {
   flex: 1;
@@ -110,11 +144,11 @@
   align-items: center;
   gap: 0.5rem;
 }
-.aroma-cart-modal-title i { color: #5b7a4a; font-size: 1.1rem; }
+.aroma-cart-modal-title i { color: var(--aroma-success, #4A7856); font-size: 1.1rem; }
 .aroma-cart-modal-close {
   border: none;
   background: transparent;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
   padding: 0.35rem;
   border-radius: 0.4rem;
   cursor: pointer;
@@ -142,7 +176,7 @@
 .aroma-added-meta { flex: 1; min-width: 0; }
 .aroma-added-name { margin: 0; font-weight: 600; font-size: 0.95rem; color: var(--aroma-ink); }
 .aroma-added-variant,
-.aroma-added-qty { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--aroma-muted, #8a7c68); }
+.aroma-added-qty { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--aroma-muted, #90765D); }
 .aroma-added-price { font-weight: 700; color: var(--aroma-brown); white-space: nowrap; }
 
 .aroma-cart-modal-total {
@@ -169,7 +203,7 @@
 .aroma-gift-suggest-hint {
   margin: 0.15rem 0 0.75rem;
   font-size: 0.8rem;
-  color: var(--aroma-muted, #8a7c68);
+  color: var(--aroma-muted, #90765D);
 }
 .aroma-suggest-strip {
   display: flex;
@@ -186,7 +220,7 @@
   width: 132px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  border: 1px solid var(--aroma-border, #ebe2d4);
+  border: 1px solid var(--aroma-border, #e7dccc);
   border-radius: 0.7rem;
   overflow: hidden;
   background: #fff;
@@ -227,6 +261,7 @@ a.aroma-suggest-name:hover { color: var(--aroma-brown); }
   text-align: center;
   text-decoration: none;
   display: block;
+  transition-duration: 0.15s !important;
 }
 .aroma-suggest-add:hover { background: var(--aroma-brown); color: #fff; }
 .aroma-suggest-add:disabled { opacity: 0.55; cursor: wait; }
@@ -262,7 +297,7 @@ a.aroma-suggest-name:hover { color: var(--aroma-brown); }
   display: flex;
   gap: 0.6rem;
   padding: 0.9rem 1.25rem;
-  border-top: 1px solid var(--aroma-border, #ebe2d4);
+  border-top: 1px solid var(--aroma-border, #e7dccc);
   background: #fdfaf5;
 }
 .aroma-cart-modal-foot .btn { flex: 1; justify-content: center; }

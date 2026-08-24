@@ -20,6 +20,7 @@ class PaymentRequest extends FormRequest
             'method' => 'required|string',
             'coupon_code' => 'nullable|string|max:50',
             'shipping_method' => 'required|string',
+            'terms_accepted' => 'accepted',
         ];
     }
 
@@ -29,6 +30,7 @@ class PaymentRequest extends FormRequest
             'gateway.required' => __('validation.required', ['attribute' => __('checkout.payment_gateway')]),
             'method.required' => __('validation.required', ['attribute' => __('checkout.payment_method')]),
             'shipping_method.required' => __('validation.required', ['attribute' => __('checkout.shipping_method')]),
+            'terms_accepted.accepted' => __('checkout.errors.terms_required'),
         ];
     }
 }

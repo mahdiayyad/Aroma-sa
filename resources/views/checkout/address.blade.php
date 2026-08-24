@@ -3,6 +3,7 @@
 @section('title', __('checkout.address').' — '.$brand['name'])
 @section('robots', 'noindex, follow')
 
+
 @section('content')
 @php($locale = app()->getLocale())
 <div class="container checkout-page my-4 my-lg-5">
@@ -31,11 +32,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">{{ __('checkout.phone') }}</label>
-                                <input type="tel" name="billing_address[phone]" class="form-control @error('billing_address.phone') is-invalid @enderror"
-                                       value="{{ old('billing_address.phone', optional(auth()->user())->phone) }}" required>
-                                @error('billing_address.phone')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
+                                <x-phone-input name="billing_address[phone]" :value="optional(auth()->user())->phone" required />
                             </div>
 
                             <div class="col-12">
@@ -51,36 +48,8 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label fw-semibold">{{ __('checkout.street_address') }}</label>
-                                <input type="text" name="billing_address[street_address]" class="form-control @error('billing_address.street_address') is-invalid @enderror"
-                                       value="{{ old('billing_address.street_address') }}" required>
-                                @error('billing_address.street_address')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">{{ __('checkout.city') }}</label>
-                                <input type="text" name="billing_address[city]" class="form-control @error('billing_address.city') is-invalid @enderror"
-                                       value="{{ old('billing_address.city') }}" required>
-                                @error('billing_address.city')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">{{ __('checkout.region') }}</label>
-                                <input type="text" name="billing_address[region]" class="form-control @error('billing_address.region') is-invalid @enderror"
-                                       value="{{ old('billing_address.region') }}" required>
-                                @error('billing_address.region')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold">{{ __('checkout.postal_code') }}</label>
-                                <input type="text" name="billing_address[postal_code]" class="form-control"
-                                       value="{{ old('billing_address.postal_code') }}">
+                                <label class="form-label fw-semibold">{{ __('location.label') }}</label>
+                                <x-location-picker field-prefix="billing_address" dom-id="billing" />
                             </div>
 
                             <div class="col-12">
@@ -101,12 +70,14 @@
                                 @foreach($addresses as $address)
                                     <button type="button" class="list-group-item list-group-item-action d-flex align-items-start gap-3 border-0 p-3"
                                             onclick="loadAddress(this)" data-recipient="{{ $address->recipient_name }}"
-                                            data-phone="{{ $address->phone }}" data-street="{{ $address->street_address }}"
-                                            data-city="{{ $address->city }}" data-region="{{ $address->region }}"
-                                            data-postal="{{ $address->postal_code }}">
+                                            data-phone="{{ $address->phone }}"
+                                            data-location-code="{{ $address->location_code }}"
+                                            data-lat="{{ $address->latitude }}" data-lng="{{ $address->longitude }}">
                                         <div>
                                             <strong>{{ $address->label ?? 'Address' }}</strong>
-                                            <div class="small text-aroma-muted">{{ $address->street_address }}, {{ $address->city }}</div>
+                                            <div class="small text-aroma-muted">
+                                                {{ $address->formatted_address ?: ($address->street_address ?: ($address->hasCoordinates() ? __('location.map.pinned_label') : '')) }}
+                                            </div>
                                         </div>
                                     </button>
                                 @endforeach
@@ -117,9 +88,7 @@
 
                 {{-- Action Buttons --}}
                 <div class="d-flex gap-3 justify-content-between aroma-actions-stack">
-                    <a href="{{ route('checkout.review') }}" class="btn btn-aroma-outline">
-                        <i class="bi {{ $locale === 'ar' ? 'bi-chevron-right' : 'bi-chevron-left' }} me-2"></i>{{ __('checkout.buttons.back') }}
-                    </a>
+                    <x-back-link :href="$backRoute" />
                     <button type="submit" class="btn btn-aroma btn-lg">
                         {{ __('checkout.buttons.continue') }} <i class="bi {{ $locale === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }} ms-2"></i>
                     </button>
@@ -130,14 +99,25 @@
 </div>
 
 @push('scripts')
+<script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script>
 function loadAddress(btn) {
     document.querySelector('[name="billing_address[recipient_name]"]').value = btn.dataset.recipient;
-    document.querySelector('[name="billing_address[phone]"]').value = btn.dataset.phone;
-    document.querySelector('[name="billing_address[street_address]"]').value = btn.dataset.street;
-    document.querySelector('[name="billing_address[city]"]').value = btn.dataset.city;
-    document.querySelector('[name="billing_address[region]"]').value = btn.dataset.region;
-    document.querySelector('[name="billing_address[postal_code]"]').value = btn.dataset.postal;
+
+    // Parse the saved address's full stored number and let intl-tel-input
+    // pick the matching flag/country itself, rather than assuming a format.
+    var phoneInput = document.querySelector('[name="billing_address[phone]"]');
+    if (phoneInput._iti && btn.dataset.phone) {
+        phoneInput._iti.setNumber(btn.dataset.phone);
+    } else {
+        phoneInput.value = btn.dataset.phone || '';
+    }
+
+    if (btn.dataset.locationCode) {
+        var codeInput = document.querySelector('.js-location-code');
+        codeInput.value = btn.dataset.locationCode;
+        codeInput.dispatchEvent(new Event('aroma:location-code-set'));
+    }
 }
 </script>
 @endpush

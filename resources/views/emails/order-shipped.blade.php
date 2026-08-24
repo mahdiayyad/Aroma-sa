@@ -86,13 +86,20 @@
 
         <h3>{{ __('emails.order_shipped.shipping_address') }}</h3>
         <p>
-            {{ $order->shipping_address['recipient_name'] }}<br>
-            {{ $order->shipping_address['street_address'] }}<br>
-            {{ $order->shipping_address['city'] }}, {{ $order->shipping_address['region'] }}<br>
-            @if($order->shipping_address['postal_code'])
-                {{ $order->shipping_address['postal_code'] }}<br>
+            {{ $order->shipping_address['recipient_name'] ?? '' }}<br>
+            @if(!empty($order->shipping_address['location_code']))
+                {{ $order->shipping_address['formatted_address'] ?? '' }}<br>
+                @if(!empty($order->shipping_address['district'])){{ $order->shipping_address['district'] }}, @endif{{ $order->shipping_address['city'] ?? '' }}, {{ $order->shipping_address['region'] ?? '' }}<br>
+            @elseif(!empty($order->shipping_address['latitude']) && !empty($order->shipping_address['longitude']))
+                <a href="https://www.google.com/maps?q={{ $order->shipping_address['latitude'] }},{{ $order->shipping_address['longitude'] }}">{{ __('location.map.pinned_label') }}</a><br>
+            @else
+                {{ $order->shipping_address['street_address'] ?? '' }}<br>
+                {{ $order->shipping_address['city'] ?? '' }}, {{ $order->shipping_address['region'] ?? '' }}<br>
+                @if($order->shipping_address['postal_code'] ?? null)
+                    {{ $order->shipping_address['postal_code'] }}<br>
+                @endif
             @endif
-            {{ $order->customer_phone }}
+            <span dir="ltr">{{ $order->shipping_address['phone'] ?? $order->customer_phone }}</span>
         </p>
 
         <p>{{ __('emails.order_shipped.tracking_info') }}</p>

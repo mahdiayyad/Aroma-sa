@@ -38,6 +38,14 @@ html[lang="ar"] .select2-container--default .select2-selection--single .select2-
   box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
 }
 
+/* Select2 hides the original <select> and inserts .select2-container as its
+   next sibling, so a server-flagged "is-invalid" select never shows through
+   on its own — this mirrors that state onto the visible Select2 box. */
+select.is-invalid + .select2-container--default .select2-selection--single {
+  background-color: #fff;
+  border-color: var(--aroma-brown);
+}
+
 .select2-dropdown {
   border: 1px solid var(--aroma-border);
   border-radius: var(--aroma-radius-sm);

@@ -1,0 +1,284 @@
+/* ============================================================================
+   Aroma — homepage hero carousel
+   Built on Bootstrap 5.3's Carousel (already loaded sitewide — no new JS
+   dependency) with a full brand reskin: circular glass arrows, slim dot
+   indicators, a dedicated CTA button per slide, and the same soft hover-zoom
+   language already used on product cards. RTL-safe via logical properties
+   throughout, so it mirrors correctly with zero direction-specific rules.
+   ========================================================================== */
+
+.aroma-hero-carousel {
+  position: relative;
+  border-radius: var(--aroma-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--aroma-shadow-xl);
+}
+
+.aroma-hero-carousel .carousel-inner {
+  border-radius: var(--aroma-radius-lg);
+  cursor: grab;
+  touch-action: pan-y; /* leave vertical page scroll to the browser, horizontal to the drag/swipe handlers */
+}
+.aroma-hero-carousel .carousel-inner.is-dragging {
+  cursor: grabbing;
+}
+.aroma-hero-carousel .carousel-inner.is-dragging .aroma-hero-slide-cta {
+  cursor: grabbing;
+}
+
+/* --- Hero media box ---------------------------------------------------------
+   Cinematic, not banner: a tall, immersive band that scales from ~600px at
+   laptop width to ~740px at large desktop, deliberately closer to a luxury
+   homepage's full-bleed hero than a modest promotional strip. Height stays
+   explicit + fluid via clamp() (not aspect-ratio) so it never shifts while
+   an image loads or between slides.
+
+   The box is still kept wider than the images' native 16:9 (see
+   HeroImageProcessor, which standardizes every slide to 1920x1080): a
+   narrower-than-16:9 box forces object-fit:cover to crop width as well as
+   height, stacking a second crop on whatever HeroImageProcessor's own crop
+   already did — on the slides cropped hardest from source, that second crop
+   pushed baked-in text past the edge. A wider-than-16:9 box only ever crops
+   top/bottom, which these landscape banners tolerate far better. */
+.aroma-hero-slide {
+  position: relative;
+  height: clamp(540px, 10vw + 430px, 660px);
+  background: var(--aroma-skin); /* shows while an image loads — same height, so no jump once it's in */
+  overflow: hidden;
+}
+.aroma-hero-slide img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform var(--aroma-transition-slower);
+  -webkit-user-drag: none; /* no native drag-ghost fighting the custom pointer drag */
+  user-select: none;
+}
+
+/* The slide itself is not a link — only the CTA button is clickable (an <a>
+   wrapping the whole image is natively draggable in the browser, which
+   fights the custom drag-to-navigate handling). A slow, considered zoom on
+   hover reinforces the carousel is interactive without feeling like a UI
+   hover state — luxury motion takes its time. */
+.aroma-hero-slide:hover img {
+  transform: scale(1.045);
+}
+
+/* A permanent gradient scrim (not just a hover effect) across the lower
+   two-thirds — this is what lets the caption sit directly on the image as
+   an editorial poster treatment instead of needing its own backdrop-blur
+   card. Deliberately reaches high and dark: several slides carry their own
+   baked-in campaign copy (a tagline, a small feature-icon strip) low in the
+   frame, and this needs to fully read over that, not just tint it. Tinted
+   toward the deep-emerald end of true black so it reads as "this brand's
+   shadow", not a generic dark overlay. */
+.aroma-hero-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(26, 18, 10, 0.94) 0%, rgba(26, 18, 10, 0.78) 32%, rgba(26, 18, 10, 0.4) 58%, rgba(26, 18, 10, 0) 82%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- Caption (title + CTA) --------------------------------------------------
+   A full-width editorial block sitting directly on the scrim — large,
+   confident type standing on the image itself, the way a print campaign
+   spread would set a headline over its own photography, rather than a
+   floating UI card layered on top of it. */
+.aroma-hero-slide-caption {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 2;
+  padding: clamp(1.75rem, 3.5vw, 3.25rem);
+  padding-inline-end: clamp(4rem, 9vw, 7rem); /* keep clear of the arrow controls */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+  pointer-events: none; /* title is decorative — only the CTA link (below) is clickable */
+}
+.aroma-hero-slide-title {
+  color: #fff;
+  font-family: var(--aroma-heading-en);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.6rem, 2.7vw, 2.5rem);
+  margin: 0;
+  max-width: 460px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+  /* Flex children default to min-width:auto, which lets long text overflow
+     its box instead of wrapping — this is what makes it actually wrap. */
+  min-width: 0;
+}
+html[lang="ar"] .aroma-hero-slide-title {
+  font-family: var(--aroma-heading-ar);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+/* Ghost/outline CTA — a thin gold-on-translucent border rather than a
+   filled pill, the signature "restrained luxury" button treatment used
+   wherever a CTA sits on top of imagery. */
+.aroma-hero-slide-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: transparent;
+  border: 1px solid rgba(255, 243, 226, 0.65);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto; /* re-enables clicks within the otherwise pointer-events:none caption */
+  transition: background-color var(--aroma-transition), border-color var(--aroma-transition), transform var(--aroma-transition-fast);
+}
+.aroma-hero-slide-cta:hover,
+.aroma-hero-slide-cta:focus-visible {
+  background-color: var(--aroma-gold);
+  border-color: var(--aroma-gold);
+  color: var(--aroma-ink);
+  transform: translateX(4px);
+}
+html[dir="rtl"] .aroma-hero-slide-cta:hover,
+html[dir="rtl"] .aroma-hero-slide-cta:focus-visible {
+  transform: translateX(-4px);
+}
+.aroma-hero-slide-cta i {
+  transition: transform var(--aroma-transition-fast);
+}
+html[dir="rtl"] .aroma-hero-slide-cta i {
+  transform: scaleX(-1);
+}
+
+@media (max-width: 575.98px) {
+  .aroma-hero-slide { height: clamp(440px, 100vw, 580px); }
+  .aroma-hero-slide-caption { padding: 1.5rem 1.25rem; padding-inline-end: 1.25rem; gap: 0.85rem; }
+  .aroma-hero-slide-title { font-size: clamp(1.5rem, 7vw, 2rem); max-width: 100%; }
+  .aroma-hero-slide-cta { padding: 0.6rem 1.35rem; font-size: 0.72rem; }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+  .aroma-hero-slide { height: clamp(440px, 30vw + 280px, 540px); }
+  .aroma-hero-slide-caption { padding: 2rem; padding-inline-end: 3.5rem; }
+  .aroma-hero-slide-title { font-size: clamp(1.6rem, 4.5vw, 2.2rem); }
+}
+.aroma-hero-slide-cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.85);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aroma-hero-slide img { transition: none; }
+}
+
+/* --- Controls (circular glass buttons, replacing Bootstrap's default
+       gradient-mask arrow icons with real Bootstrap Icons glyphs) --------- */
+.aroma-hero-carousel .carousel-control-prev,
+.aroma-hero-carousel .carousel-control-next {
+  width: auto;
+  height: auto;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  opacity: 1;
+}
+.aroma-hero-carousel .carousel-control-prev { inset-inline-start: 1rem; }
+.aroma-hero-carousel .carousel-control-next { inset-inline-end: 1rem; }
+
+.aroma-hero-carousel .carousel-control-prev-icon,
+.aroma-hero-carousel .carousel-control-next-icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  background-image: none; /* drop Bootstrap's default SVG mask */
+  border-radius: 50%;
+  background-color: rgba(255, 243, 226, 0.9); /* --aroma-white, translucent */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(10, 26, 20, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--aroma-transition-fast), transform var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
+}
+.aroma-hero-carousel .carousel-control-prev-icon::before,
+.aroma-hero-carousel .carousel-control-next-icon::before {
+  font-family: "bootstrap-icons", sans-serif;
+  font-size: 1.15rem;
+  color: var(--aroma-brown);
+  line-height: 1;
+}
+/* Logical (start/end) glyphs so the arrows point the right way in RTL too —
+   Bootstrap's carousel JS already reverses slide *order* for RTL; this just
+   keeps the icon glyph consistent with "previous/next" rather than
+   literal left/right. */
+.aroma-hero-carousel .carousel-control-prev-icon::before { content: "\f284"; } /* chevron-left */
+.aroma-hero-carousel .carousel-control-next-icon::before { content: "\f285"; } /* chevron-right */
+html[dir="rtl"] .aroma-hero-carousel .carousel-control-prev-icon::before { content: "\f285"; }
+html[dir="rtl"] .aroma-hero-carousel .carousel-control-next-icon::before { content: "\f284"; }
+
+.aroma-hero-carousel .carousel-control-prev:hover .carousel-control-prev-icon,
+.aroma-hero-carousel .carousel-control-next:hover .carousel-control-next-icon {
+  background-color: var(--aroma-white);
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(26, 18, 10, 0.24);
+}
+.aroma-hero-carousel .carousel-control-prev:active .carousel-control-prev-icon,
+.aroma-hero-carousel .carousel-control-next:active .carousel-control-next-icon {
+  transform: scale(0.96);
+}
+.aroma-hero-carousel .carousel-control-prev:focus-visible .carousel-control-prev-icon,
+.aroma-hero-carousel .carousel-control-next:focus-visible .carousel-control-next-icon {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 4px 16px rgba(26, 18, 10, 0.18);
+}
+
+/* --- Indicators (slim dots, not Bootstrap's default fat bars) ------------
+   Moved to the top edge (Bootstrap defaults them to the bottom) — the bottom
+   is where the caption card and, on several slides, baked-in artwork detail
+   already live, so the top edge is the one spot every slide keeps clear. */
+.aroma-hero-carousel .carousel-indicators {
+  top: 1.5rem;
+  bottom: auto;
+  margin: 0;
+  gap: 0.5rem;
+  /* The bottom scrim doesn't reach this high, so a light image can leave a
+     white dot with nothing to read against — a soft drop-shadow keeps every
+     dot legible regardless of what's directly behind it. */
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.45));
+}
+.aroma-hero-carousel .carousel-indicators [data-bs-target] {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.6);
+  opacity: 1;
+  transition: background-color var(--aroma-transition-fast), width var(--aroma-transition-fast);
+}
+.aroma-hero-carousel .carousel-indicators .active {
+  width: 1.5rem;
+  border-radius: 999px;
+  background-color: var(--aroma-gold);
+}
+
+@media (max-width: 575.98px) {
+  .aroma-hero-carousel { border-radius: var(--aroma-radius, 0.85rem); }
+  .aroma-hero-carousel .carousel-inner { border-radius: var(--aroma-radius, 0.85rem); }
+  .aroma-hero-carousel .carousel-control-prev-icon,
+  .aroma-hero-carousel .carousel-control-next-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .aroma-hero-carousel .carousel-control-prev { inset-inline-start: 0.6rem; }
+  .aroma-hero-carousel .carousel-control-next { inset-inline-end: 0.6rem; }
+}

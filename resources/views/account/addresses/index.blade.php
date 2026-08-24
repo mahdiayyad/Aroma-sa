@@ -39,8 +39,15 @@
                                 </div>
                                 <div class="text-aroma-muted small flex-grow-1">
                                     <div>{{ $address->recipient_name }}</div>
-                                    <div>{{ $address->street_address }}</div>
-                                    <div>{{ $address->city }}, {{ $address->region }} {{ $address->postal_code }}</div>
+                                    @if ($address->formatted_address || $address->street_address)
+                                        {{-- formatted_address covers location-code rows; street_address
+                                             is the fallback for rows saved before this cutover. --}}
+                                        <div>{{ $address->formatted_address ?: $address->street_address }}</div>
+                                        <div>{{ $address->city }}, {{ $address->region }}</div>
+                                    @elseif ($address->hasCoordinates())
+                                        {{-- Pinned via the map — coordinates only, no address text. --}}
+                                        <div><i class="bi bi-geo-alt-fill me-1"></i>{{ __('location.map.pinned_label') }}</div>
+                                    @endif
                                     <div dir="ltr">{{ $address->phone }}</div>
                                 </div>
                                 <div class="d-flex gap-2 mt-3">
@@ -50,7 +57,7 @@
                                     @unless ($address->is_default)
                                         <form method="post" action="{{ route('account.addresses.default', $address) }}">
                                             @csrf @method('PATCH')
-                                            <button type="submit" class="btn btn-aroma-outline btn-sm" title="{{ __('account.addresses.make_default') }}">
+                                            <button type="submit" class="btn btn-aroma-outline btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('account.addresses.make_default') }}">
                                                 <i class="bi bi-star"></i>
                                             </button>
                                         </form>
@@ -58,7 +65,7 @@
                                     <form method="post" action="{{ route('account.addresses.destroy', $address) }}"
                                           data-confirm="{{ __('account.addresses.confirm_delete') }}">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="{{ __('account.addresses.delete') }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('account.addresses.delete') }}">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>

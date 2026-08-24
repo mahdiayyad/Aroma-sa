@@ -43,15 +43,7 @@
                     {{-- Shipping Address --}}
                     <div class="mb-4 pb-4 border-bottom">
                         <h6 class="fw-bold mb-3" style="color:var(--aroma-brown)">{{ __('checkout.shipping_address_label') }}</h6>
-                        <div class="text-aroma-muted small">
-                            <div>{{ $order->shipping_address['recipient_name'] }}</div>
-                            <div>{{ $order->shipping_address['street_address'] }}</div>
-                            <div>{{ $order->shipping_address['city'] }}, {{ $order->shipping_address['region'] }}</div>
-                            @if($order->shipping_address['postal_code'])
-                                <div>{{ $order->shipping_address['postal_code'] }}</div>
-                            @endif
-                            <div>{{ $order->customer_phone }}</div>
-                        </div>
+                        <x-address-summary class="text-aroma-muted small" :address="$order->shipping_address" :phone="$order->customer_phone" />
                     </div>
 
                     {{-- Order Items --}}
@@ -134,10 +126,15 @@
                         <i class="bi bi-eye me-2"></i>{{ __('checkout.view_order') }}
                     </a>
                 @endauth
-                <a href="{{ route('home', app()->getLocale()) }}" class="btn" style="background:var(--aroma-brown);color:white">
+                <a href="{{ route('home', app()->getLocale()) }}" class="btn btn-aroma">
                     <i class="bi bi-shop me-2"></i>{{ __('checkout.continue_shopping') }}
                 </a>
             </div>
+
+            <p class="text-center text-aroma-muted small mt-3 mb-0">
+                {{ __('checkout.returns_note') }}
+                <a href="{{ route('guides.returns') }}">{{ __('checkout.returns_note_link') }}</a>
+            </p>
         </div>
     </div>
 </div>

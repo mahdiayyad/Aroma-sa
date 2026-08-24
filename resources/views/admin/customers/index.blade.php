@@ -45,7 +45,7 @@
                                 </td>
                                 <td>
                                     <div>{{ $customer->email ?? '—' }}</div>
-                                    <div class="admin-cell-sub">{{ $customer->phone }}</div>
+                                    <div class="admin-cell-sub" dir="ltr">{{ $customer->phone }}</div>
                                 </td>
                                 <td class="text-center">{{ $customer->orders_count }}</td>
                                 <td class="text-center">{{ $customer->loyalty_points }}</td>

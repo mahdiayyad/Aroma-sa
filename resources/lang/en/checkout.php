@@ -29,13 +29,18 @@ return [
         'benefit_tracking' => 'Track your orders',
         'benefit_faster' => 'Faster checkout next time',
         'benefit_addresses' => 'Save your addresses',
+        'back_to_checkout' => 'Back to checkout',
     ],
 
     'recipient_name' => 'Full Name',
     'phone' => 'Phone Number',
+    // street_address/city/region/postal_code kept for orders placed before the
+    // location-code cutover — new orders display district/formatted_address instead.
     'street_address' => 'Street Address',
     'city' => 'City',
     'region' => 'Region',
+    'district' => 'District',
+    'formatted_address' => 'Address',
     'postal_code' => 'Postal Code',
     'email' => 'Email Address',
 
@@ -81,6 +86,7 @@ return [
         'payment_failed' => 'Payment processing failed. Please try again.',
         'invalid_address' => 'Please provide a valid shipping address.',
         'bnpl_unavailable' => ':gateway isn’t available for this order. Please choose another payment method.',
+        'terms_required' => 'Please agree to the terms and conditions to continue.',
     ],
 
     'payment_methods' => [
@@ -103,8 +109,13 @@ return [
     'order_summary' => 'Order Summary',
     'view_order' => 'View Order',
     'continue_shopping' => 'Continue Shopping',
+    'returns_note' => 'Need to make a return or exchange?',
+    'returns_note_link' => 'See our Exchange & Returns guide',
     'back' => 'Back',
-    'agree_terms' => 'I agree to the <a href=":link">terms and conditions</a>',
+    'agree_terms_prefix' => 'I agree to the',
+    'agree_terms_link' => 'terms and conditions',
+    'terms_modal_title' => 'Terms & Conditions',
+    'terms_modal_close' => 'Close',
     'placeholder' => 'Payment form for :gateway will be shown here',
     'payment_gateway_placeholder' => 'Payment form placeholder',
     'shipping_methods' => [

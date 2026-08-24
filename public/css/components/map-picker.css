@@ -1,0 +1,160 @@
+/* ============================================================================
+   Aroma — address location toggle + map picker
+   Used on checkout/address, checkout/gift-options, and account/addresses/
+   form — anywhere the shopper picks a location. Loaded on-demand via
+   @push('head') so the ~150KB Leaflet payload never ships to pages that
+   don't need it.
+   ========================================================================== */
+
+/* --- Method toggle: "location code" vs "pin my location" -------------------
+   Compact segmented control (not the big card-style .aroma-gift-toggle) —
+   this is a sub-choice within an address section, not a page-level decision. */
+.aroma-location-toggle {
+  display: inline-flex;
+  border: 1px solid var(--aroma-border);
+  border-radius: 999px;
+  padding: 0.25rem;
+  gap: 0.25rem;
+  margin-bottom: 0.85rem;
+}
+.aroma-location-toggle-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--aroma-muted, #90765D);
+  cursor: pointer;
+  transition: background-color var(--aroma-transition-fast, 0.15s ease), color var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-location-toggle-option i { font-size: 0.95rem; }
+.aroma-location-toggle-option:hover { color: var(--aroma-brown); }
+.btn-check:checked + .aroma-location-toggle-option {
+  background: var(--aroma-brown);
+  color: #fff;
+}
+.btn-check:focus-visible + .aroma-location-toggle-option {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+}
+
+.aroma-map-picker {
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius);
+  padding: 1rem;
+  background: var(--aroma-white, #FFF3E2);
+}
+
+.aroma-map-search { position: relative; margin-bottom: 0.75rem; }
+
+.aroma-map-search-results {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 5;
+  background: #fff;
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm);
+  box-shadow: var(--aroma-shadow);
+  max-height: 260px;
+  overflow-y: auto;
+}
+.aroma-map-search-item {
+  display: block;
+  width: 100%;
+  text-align: start;
+  padding: 0.6rem 0.85rem;
+  border: none;
+  border-bottom: 1px solid var(--aroma-border);
+  background: #fff;
+  color: var(--aroma-ink);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.aroma-map-search-item:last-child { border-bottom: none; }
+.aroma-map-search-item:hover,
+.aroma-map-search-item:focus-visible { background: var(--aroma-skin); outline: none; }
+
+/* Loading / no-results rows are informational, not a real result — disabled
+   (so they're skipped in keyboard/click interaction) and styled quieter than
+   a real, selectable place. */
+.aroma-map-search-item:disabled {
+  cursor: default;
+  color: var(--aroma-muted, #90765D);
+}
+.aroma-map-search-item.aroma-map-search-loading {
+  color: var(--aroma-muted, #90765D);
+  font-style: italic;
+}
+.aroma-map-search-item.aroma-map-search-empty {
+  color: var(--aroma-muted, #90765D);
+  white-space: normal;
+  line-height: 1.4;
+}
+.aroma-map-search-item.aroma-map-search-retry {
+  color: var(--aroma-brown);
+  font-weight: 600;
+  cursor: pointer;
+}
+.aroma-map-search-item.aroma-map-search-retry:hover,
+.aroma-map-search-item.aroma-map-search-retry:focus-visible { background: var(--aroma-skin); outline: none; }
+
+.aroma-map-canvas-wrap { position: relative; }
+
+.aroma-map-canvas {
+  width: 100%;
+  height: 320px;
+  border-radius: var(--aroma-radius-sm);
+  border: 1px solid var(--aroma-border);
+  z-index: 0; /* keep Leaflet's internal panes below sticky header/dropdowns */
+}
+.aroma-map-canvas:focus,
+.aroma-map-canvas:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--aroma-select-bg, rgba(37, 99, 235, 0.15));
+}
+.aroma-map-canvas .leaflet-control-attribution {
+  font-size: 0.65rem;
+}
+
+/* Scroll-to-zoom is off until the shopper clicks/focuses the map (so the
+   page keeps scrolling normally while they're just skimming past it) — this
+   hint explains why, and fades out for good on first interaction. */
+.aroma-map-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  background: rgba(26, 18, 10, 0.45);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--aroma-radius-sm);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--aroma-transition);
+}
+.aroma-map-hint.is-hidden { opacity: 0; }
+
+.aroma-map-detected {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--aroma-select-bg, var(--aroma-skin));
+  border-radius: var(--aroma-radius-sm);
+  font-size: 0.85rem;
+  color: var(--aroma-ink);
+}
+.aroma-map-detected i { color: var(--aroma-select, var(--aroma-brown)); margin-top: 0.15rem; }
+
+@media (max-width: 576px) {
+  .aroma-map-canvas { height: 240px; }
+}

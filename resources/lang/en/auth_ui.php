@@ -16,9 +16,9 @@ return [
         'title'    => 'Create your account',
         'subtitle' => 'Join Aroma and awaken your senses.',
         'name'     => 'Full name',
-        'email'    => 'Email (optional if phone provided)',
+        'email'    => 'Email',
         'phone'    => 'Mobile number',
-        'phone_hint' => 'Format: 05XXXXXXXX or +9665XXXXXXXX',
+        'contact_hint' => 'Please provide at least one: mobile number or email.',
         'password' => 'Password',
         'confirm'  => 'Confirm password',
         'gender'   => 'Gender',
@@ -32,7 +32,6 @@ return [
     'social' => [
         'or'     => 'or continue with',
         'google' => 'Continue with Google',
-        'apple'  => 'Continue with Apple',
         'unavailable' => 'This sign-in method is not configured yet.',
         'failed' => 'We could not sign you in with that provider. Please try again.',
     ],
@@ -48,8 +47,10 @@ return [
         'back_to_login' => 'Back to sign in',
     ],
     'validation' => [
-        'phone' => 'Enter a valid Saudi mobile number (05XXXXXXXX or +9665XXXXXXXX).',
+        'phone' => 'Enter a valid phone number, including the country code.',
     ],
+    'show_password' => 'Show password',
+    'hide_password' => 'Hide password',
     'errors' => [
         'invalid' => 'These credentials do not match our records.',
     ],

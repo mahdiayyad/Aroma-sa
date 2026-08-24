@@ -10,18 +10,30 @@
 .btn-aroma-secondary,
 .btn-aroma-success,
 .btn-aroma-danger,
-.btn-aroma-ghost {
+.btn-aroma-ghost,
+.btn-aroma-light {
   letter-spacing: 0.02em;
   font-family: var(--aroma-body-en);
-  transition: background-color var(--aroma-transition), border-color var(--aroma-transition),
-    color var(--aroma-transition), transform var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
+  /* Duration lives on the base rule (not :hover) so it governs BOTH
+     directions — fading in on hover and fading back out on mouse-leave.
+     Scoping it to :hover only would leave the leave-transition undurationed
+     (an instant snap back). background-color/border-color/color share
+     background-color's 350ms beat with box-shadow; transform gets its own
+     slightly-quicker 300ms so the 1px lift settles a touch before the
+     shadow finishes blooming in — smooth and premium, not sluggish. */
+  transition: background-color 350ms ease, border-color 350ms ease, color 350ms ease,
+    box-shadow 350ms ease, transform 300ms ease;
+
+  transition-duration: .15s !important;
 }
+
 html[lang="ar"] .btn-aroma,
 html[lang="ar"] .btn-aroma-outline,
 html[lang="ar"] .btn-aroma-secondary,
 html[lang="ar"] .btn-aroma-success,
 html[lang="ar"] .btn-aroma-danger,
-html[lang="ar"] .btn-aroma-ghost {
+html[lang="ar"] .btn-aroma-ghost,
+html[lang="ar"] .btn-aroma-light {
   font-family: var(--aroma-body-ar);
   letter-spacing: normal;
 }
@@ -44,19 +56,31 @@ html[lang="ar"] .btn-aroma-ghost {
   box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.25);
 }
 
-/* --- Secondary (soft accent) ------------------------------------------------ */
+/* --- Secondary / Tan ------------------------------------------------------
+   The named "Accent Button": a solid --aroma-btn-gold-bg default that
+   darkens to --aroma-btn-gold-bg-hover on hover, same two-explicit-colors
+   pattern as the brown primary. Text uses a dedicated darker brown rather
+   than the shared --aroma-ink (now #704F2F, same as the brand primary) —
+   ink-on-tan only clears ~3.3:1 with the new, more saturated Warm Tan
+   (the old champagne gold was pale enough to clear ~7:1 with the same ink;
+   this tan isn't), which fails WCAG AA for normal text. #3D2A19 (the
+   darkest stop already used in --aroma-gradient) clears ~6.1:1 against tan
+   at both rest and hover, so it stays comfortably legible in both states. */
 .btn-aroma-secondary {
-  background-color: var(--aroma-skin);
-  border: 1px solid var(--aroma-light-brown);
-  color: var(--aroma-brown);
+  background-color: var(--aroma-btn-gold-bg, rgb(211 161 122));
+  border: 1px solid var(--aroma-btn-gold-bg, rgb(211 161 122));
+  color: #3D2A19;
   border-radius: 999px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
 }
 .btn-aroma-secondary:hover {
-  background-color: var(--aroma-light-brown);
-  border-color: var(--aroma-light-brown);
-  color: #fff;
+  background-color: var(--aroma-btn-gold-bg-hover, rgb(173 132 100));
+  border-color: var(--aroma-btn-gold-bg-hover, rgb(173 132 100));
+  color: #3D2A19;
+  transform: translateY(-1px);
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
 }
 
 /* --- Semantic (success / danger) -------------------------------------------- */
@@ -66,11 +90,12 @@ html[lang="ar"] .btn-aroma-ghost {
   padding: 0.65rem 1.6rem;
   font-weight: 600;
   color: #fff;
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
 }
 .btn-aroma-success { background-color: var(--aroma-success); border: 1px solid var(--aroma-success); }
-.btn-aroma-success:hover { filter: brightness(0.92); color: #fff; }
+.btn-aroma-success:hover { background-color: var(--aroma-success-deep); border-color: var(--aroma-success-deep); color: #fff; transform: translateY(-1px); box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14)); }
 .btn-aroma-danger { background-color: var(--aroma-danger); border: 1px solid var(--aroma-danger); }
-.btn-aroma-danger:hover { filter: brightness(0.92); color: #fff; }
+.btn-aroma-danger:hover { background-color: var(--aroma-danger-deep); border-color: var(--aroma-danger-deep); color: #fff; transform: translateY(-1px); box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14)); }
 
 /* --- Light (for use on dark/colored backgrounds — hero, newsletter) ----------- */
 .btn-aroma-light {
@@ -80,11 +105,14 @@ html[lang="ar"] .btn-aroma-ghost {
   border-radius: 999px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
 }
 .btn-aroma-light:hover {
   background-color: var(--aroma-skin);
   border-color: var(--aroma-skin);
   color: var(--aroma-brown);
+  transform: translateY(-1px);
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
 }
 
 /* --- Ghost / text button ----------------------------------------------------- */
@@ -95,8 +123,13 @@ html[lang="ar"] .btn-aroma-ghost {
   font-weight: 600;
   padding: 0.65rem 1.2rem;
   border-radius: 999px;
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
 }
-.btn-aroma-ghost:hover { background-color: var(--aroma-skin); }
+.btn-aroma-ghost:hover {
+  background-color: var(--aroma-skin);
+  transform: translateY(-1px);
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
+}
 
 /* --- Sizes -------------------------------------------------------------------- */
 .btn-aroma.btn-sm, .btn-aroma-outline.btn-sm, .btn-aroma-secondary.btn-sm,
@@ -108,6 +141,33 @@ html[lang="ar"] .btn-aroma-ghost {
 .btn-aroma-success.btn-lg, .btn-aroma-danger.btn-lg {
   padding: 0.85rem 2.2rem;
   font-size: 1.05rem;
+}
+
+/* --- Selectable options (size/variant pickers: .btn-check + .btn-aroma-outline) -
+   Bootstrap's .btn-check hides the native radio/checkbox; the sibling <label>
+   is styled directly so the checked option is unmistakably the active one. */
+.btn-check:checked + .btn-aroma-outline,
+.btn-check:active + .btn-aroma-outline {
+  background-color: var(--aroma-gold);
+  border-color: var(--aroma-gold);
+  /* Same contrast fix as .btn-aroma-secondary: white-on-tan is ~2.3:1 with
+     the new, more saturated Warm Tan (fine with the old, paler champagne
+     gold) — this drives every "selected" radio-pill across the storefront
+     (PDP variant picker, delivery slots, payment method), so it's a
+     platform-wide legibility bug otherwise, not a one-off. */
+  color: #3D2A19;
+  /* box-shadow: 0 0 0 3px var(--aroma-select-bg); */
+}
+.btn-check:focus-visible + .btn-aroma-outline {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--aroma-select-bg);
+}
+.btn-check:disabled + .btn-aroma-outline,
+.btn-check[disabled] + .btn-aroma-outline {
+  background-color: var(--aroma-disabled-bg);
+  border-color: var(--aroma-disabled-bg);
+  color: var(--aroma-disabled-text);
+  cursor: not-allowed;
 }
 
 /* --- Disabled ------------------------------------------------------------------ */
@@ -144,8 +204,8 @@ html[lang="ar"] .btn-aroma-ghost {
   animation: aroma-spin 0.6s linear infinite;
 }
 .btn-aroma.is-loading::after { color: #fff; }
-.btn-aroma-outline.is-loading::after,
-.btn-aroma-secondary.is-loading::after { color: var(--aroma-brown); }
+.btn-aroma-outline.is-loading::after { color: var(--aroma-brown); }
+.btn-aroma-secondary.is-loading::after { color: #3D2A19; }
 
 @keyframes aroma-spin {
   to { transform: rotate(360deg); }

@@ -35,37 +35,15 @@
 
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">{{ __('checkout.phone') }}</label>
-                            <input type="tel" name="phone" dir="ltr" value="{{ old('phone', $address->phone) }}"
-                                   class="form-control @error('phone') is-invalid @enderror" placeholder="05XXXXXXXX" required>
-                            @error('phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <x-phone-input name="phone" :value="$address->phone" required />
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold">{{ __('checkout.street_address') }}</label>
-                            <input type="text" name="street_address" value="{{ old('street_address', $address->street_address) }}"
-                                   class="form-control @error('street_address') is-invalid @enderror" required>
-                            @error('street_address')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">{{ __('checkout.city') }}</label>
-                            <input type="text" name="city" value="{{ old('city', $address->city) }}"
-                                   class="form-control @error('city') is-invalid @enderror" required>
-                            @error('city')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">{{ __('checkout.region') }}</label>
-                            <input type="text" name="region" value="{{ old('region', $address->region) }}"
-                                   class="form-control @error('region') is-invalid @enderror" required>
-                            @error('region')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                        </div>
-
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">{{ __('checkout.postal_code') }}</label>
-                            <input type="text" name="postal_code" value="{{ old('postal_code', $address->postal_code) }}"
-                                   class="form-control @error('postal_code') is-invalid @enderror">
-                            @error('postal_code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <label class="form-label fw-semibold">{{ __('location.label') }}</label>
+                            <x-location-picker dom-id="address"
+                                :code="$address->location_code"
+                                :latitude="$address->latitude"
+                                :longitude="$address->longitude" />
                         </div>
 
                         <div class="col-12">
@@ -86,4 +64,8 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
+@endpush
 @endsection

@@ -27,6 +27,7 @@ class GiftCard extends Model
     protected $casts = [
         'is_active'  => 'boolean',
         'sort_order' => 'integer',
+        'price'      => 'decimal:2',
     ];
 
     public function getRouteKeyName(): string

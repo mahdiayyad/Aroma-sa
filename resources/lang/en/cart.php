@@ -9,6 +9,8 @@ return [
     'qty'      => 'Qty',
     'total'    => 'Total',
     'remove'   => 'Remove',
+    'decrease' => 'Decrease quantity',
+    'increase' => 'Increase quantity',
     'update'   => 'Update',
     'clear'    => 'Clear cart',
     'view'     => 'View cart',

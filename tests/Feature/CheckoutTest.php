@@ -7,11 +7,19 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
 
 class CheckoutTest extends TestCase
 {
     use RefreshDatabase;
+    use MocksLocationLookup;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockLocationLookup();
+    }
 
     private function seedCart(int $qty = 1): Product
     {
@@ -24,11 +32,8 @@ class CheckoutTest extends TestCase
     private array $validBilling = [
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
-        'phone'          => '0500000000',
-        'street_address' => 'King Fahd Rd',
-        'city'           => 'Riyadh',
-        'region'         => 'Riyadh',
-        'postal_code'    => '12211',
+        'phone'          => '+966500000000',
+        'location_code'  => 'RAHA1234',
     ];
 
     /* ---- The reported bug: shipping_address must default to billing -------- */
@@ -56,21 +61,82 @@ class CheckoutTest extends TestCase
             ->assertSessionHasErrors('billing_address.email');
     }
 
-    /* ---- The payment page must render (terms route exists) ----------------- */
+    public function test_a_pinned_location_can_replace_the_location_code(): void
+    {
+        $this->seedCart();
 
-    public function test_payment_page_renders_with_a_working_terms_link(): void
+        $billing = $this->validBilling;
+        unset($billing['location_code']);
+        // Strings, not floats: a real browser form submission sends every
+        // field as a string — $request->validated()'s 'numeric' rule
+        // validates but never casts. A float literal here would silently
+        // skip over the exact TypeError this test exists to catch (see
+        // CheckoutController::toFloatOrNull()).
+        $billing['latitude'] = '24.7136';
+        $billing['longitude'] = '46.6753';
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
+            ->assertRedirect(route('checkout.gift-options'))
+            ->assertSessionHasNoErrors();
+
+        $shipping = session('checkout.shipping_address');
+        $this->assertNull($shipping['location_code']);
+        $this->assertNull($shipping['city']);
+        $this->assertNull($shipping['formatted_address']);
+        $this->assertIsFloat($shipping['latitude']);
+        $this->assertIsFloat($shipping['longitude']);
+        $this->assertEqualsWithDelta(24.7136, $shipping['latitude'], 0.0001);
+        $this->assertEqualsWithDelta(46.6753, $shipping['longitude'], 0.0001);
+    }
+
+    public function test_neither_a_code_nor_coordinates_is_rejected(): void
+    {
+        $this->seedCart();
+
+        $billing = $this->validBilling;
+        unset($billing['location_code']);
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
+            ->assertSessionHasErrors('billing_address.location_code');
+    }
+
+    /* ---- Terms & Conditions open in a modal, not a navigation away --------- */
+
+    public function test_payment_page_renders_with_a_terms_modal_not_a_link_away(): void
     {
         $this->seedCart();
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
 
+        // Note: the page footer legitimately still links to /terms directly
+        // (a real "leave the site to read terms" context) — this only checks
+        // that the checkout *form itself* opens a modal now, not that the
+        // route never appears anywhere on the page.
         $this->get(route('checkout.payment'))
             ->assertOk()
-            ->assertSee(route('terms')); // link resolved, no RouteNotFoundException
+            ->assertSee('id="termsModal"', false) // the modal exists on this page...
+            ->assertSee('data-bs-target="#termsModal"', false) // ...triggered from within the form...
+            ->assertSee(__('checkout.agree_terms_link')); // ...via a real, translated label
     }
 
-    public function test_the_terms_page_itself_renders(): void
+    public function test_the_terms_page_itself_still_renders_standalone(): void
     {
+        // The footer links here directly — a legitimate "leave checkout to
+        // read terms" context distinct from the in-checkout modal above, so
+        // this route/view must keep working on its own.
         $this->get(route('terms'))->assertOk()->assertSee('Aroma');
+    }
+
+    public function test_placing_an_order_without_accepting_terms_is_rejected(): void
+    {
+        $this->seedCart();
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
+
+        $this->post(route('checkout.payment.store'), [
+            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard',
+            // terms_accepted deliberately omitted
+        ])->assertSessionHasErrors('terms_accepted');
+
+        $this->assertDatabaseCount('orders', 0);
     }
 
     /* ---- Full happy path creates an order and remembers it ---------------- */
@@ -93,6 +159,7 @@ class CheckoutTest extends TestCase
             'gateway'         => 'moyasar',
             'method'          => 'mada',
             'shipping_method' => 'standard',
+            'terms_accepted'  => '1',
         ])->assertRedirect('https://moyasar.test/pay/inv_123');
 
         $this->assertDatabaseCount('orders', 1);
@@ -147,7 +214,7 @@ class CheckoutTest extends TestCase
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
 
         $this->post(route('checkout.payment.store'), [
-            'gateway' => 'tabby', 'method' => 'tabby', 'shipping_method' => 'standard',
+            'gateway' => 'tabby', 'method' => 'tabby', 'shipping_method' => 'standard', 'terms_accepted' => '1',
         ])->assertRedirect('https://checkout.tabby.ai/pay/pay_tabby_1');
 
         $this->assertDatabaseHas('payments', ['gateway' => 'tabby']);
@@ -169,7 +236,7 @@ class CheckoutTest extends TestCase
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
 
         $this->post(route('checkout.payment.store'), [
-            'gateway' => 'tamara', 'method' => 'tamara', 'shipping_method' => 'standard',
+            'gateway' => 'tamara', 'method' => 'tamara', 'shipping_method' => 'standard', 'terms_accepted' => '1',
         ])->assertRedirect('https://checkout.tamara.co/c/chk_1');
 
         $this->assertDatabaseHas('payments', ['gateway' => 'tamara']);
@@ -205,7 +272,7 @@ class CheckoutTest extends TestCase
             'status'          => Order::STATUS_PENDING,
             'customer_name'   => 'Sara',
             'customer_email'  => 'sara@example.com',
-            'customer_phone'  => '0500000000',
+            'customer_phone'  => '+966500000000',
             'billing_address' => $this->validBilling,
             'shipping_address' => $this->validBilling,
             'subtotal'        => 200,
