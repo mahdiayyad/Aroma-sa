@@ -26,8 +26,17 @@
     // in that case (confirmed live: showSelectedCountryOnLeft is computed
     // from isRTL and can't be overridden via the init option of the same
     // name — passing it has no effect). So the flag box's position and the
-    // input's reserved padding are corrected by hand here instead, re-run
-    // whenever the dial code's on-screen width can change (country switch).
+    // input's reserved padding are corrected by hand here instead.
+    //
+    // A field that starts inside a hidden panel (e.g. checkout's "is this a
+    // gift?" recipient section, toggled via a d-none class) has zero size at
+    // DOMContentLoaded, when this first runs — offsetWidth reads 0, so
+    // "correcting" the padding to 0 would instead reserve no space for the
+    // flag box at all, and once the panel is revealed the typed number
+    // renders underneath it. Guarding on width > 0 avoids ever writing that
+    // wrong value, and the ResizeObserver below re-measures whenever the
+    // box's real size becomes known — whenever the field is revealed, by
+    // whatever mechanism reveals it, not just this one toggle.
     function keepFlagOnLeft(input) {
         if (document.documentElement.dir !== 'rtl') {
             return;
@@ -38,6 +47,9 @@
             return;
         }
         var width = container.offsetWidth;
+        if (!width) {
+            return;
+        }
         container.style.right = 'auto';
         container.style.left = '0px';
         input.style.paddingRight = '';
@@ -65,6 +77,14 @@
 
         keepFlagOnLeft(input);
         input.addEventListener('countrychange', function () { keepFlagOnLeft(input); });
+
+        if (window.ResizeObserver) {
+            var wrap = input.closest('.iti');
+            var container = wrap && wrap.querySelector('.iti__country-container');
+            if (container) {
+                new ResizeObserver(function () { keepFlagOnLeft(input); }).observe(container);
+            }
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
