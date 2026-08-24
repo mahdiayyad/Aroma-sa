@@ -135,6 +135,8 @@
     <link href="{{ \App\Support\Assets::versioned('css/assistant.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/components/hero-carousel.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/css/intlTelInput.min.css" rel="stylesheet">
+    <link href="{{ \App\Support\Assets::versioned('css/components/intl-phone.css') }}" rel="stylesheet">
 
     @stack('head')
 </head>
@@ -148,6 +150,10 @@
       data-flash-success="{{ session('status') }}"
       data-show-password="{{ __('auth_ui.show_password') }}"
       data-hide-password="{{ __('auth_ui.hide_password') }}">
+      
+    <div class="sbc-verify-seal" data-token="NmU3U1ZDbCtNMGIxb0M1V01IWVlGQT09" data-position="bottom-left"></div>
+    <script src="https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js" async></script>
+    
     @include('layouts.partials.intro')
     @include('layouts.partials.header')
 
@@ -170,7 +176,8 @@
     <script src="{{ \App\Support\Assets::versioned('js/aroma-http.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/cart-modal.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/aroma-ui.js') }}"></script>
-    <script src="{{ \App\Support\Assets::versioned('js/phone-prefix.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/js/intlTelInputWithUtils.min.js"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/intl-phone.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/assistant.js') }}" defer></script>
     @stack('scripts')
 </body>

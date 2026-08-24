@@ -103,11 +103,15 @@
 <script>
 function loadAddress(btn) {
     document.querySelector('[name="billing_address[recipient_name]"]').value = btn.dataset.recipient;
-    // The phone field only shows the local part next to a fixed "+966"
-    // badge (see the phone-input component) — strip whichever prefix the
-    // saved address's stored number happens to have.
-    document.querySelector('[name="billing_address[phone]"]').value =
-        (btn.dataset.phone || '').replace(/^(\+966|0)/, '');
+
+    // Parse the saved address's full stored number and let intl-tel-input
+    // pick the matching flag/country itself, rather than assuming a format.
+    var phoneInput = document.querySelector('[name="billing_address[phone]"]');
+    if (phoneInput._iti && btn.dataset.phone) {
+        phoneInput._iti.setNumber(btn.dataset.phone);
+    } else {
+        phoneInput.value = btn.dataset.phone || '';
+    }
 
     if (btn.dataset.locationCode) {
         var codeInput = document.querySelector('.js-location-code');

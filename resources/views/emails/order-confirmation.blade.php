@@ -147,7 +147,7 @@
                     {{ $order->shipping_address['postal_code'] }}<br>
                 @endif
             @endif
-            {{ $order->shipping_address['phone'] ?? $order->customer_phone }}
+            <span dir="ltr">{{ $order->shipping_address['phone'] ?? $order->customer_phone }}</span>
         </p>
 
         <center>

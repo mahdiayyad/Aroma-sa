@@ -1,0 +1,64 @@
+/* ============================================================================
+   Aroma — international phone input (intl-tel-input re-skin)
+   Re-themes the library's default flag/dropdown chrome to Aroma's tokens.
+   Class names are the library's own (.iti*) — verified against the live
+   rendered DOM, not guessed from docs alone.
+   ========================================================================== */
+
+.iti { width: 100%; }
+
+/* Flag/dial-code box position + the input's reserved padding for it are both
+   set inline — by the library itself for LTR, and by keepFlagOnLeft() in
+   intl-phone.js for RTL (a phone number reads dial-code-first left-to-right
+   even on an RTL page, same reason every stored-phone display in this app
+   forces dir="ltr" — intl-tel-input's own RTL auto-detection puts the flag
+   on the right instead, which keepFlagOnLeft() corrects). Nothing to set
+   here for either case; only the box's own look is themed below. */
+
+/* --- Flag + dial-code button — box always sits on the left, so its border/
+   radius stay physical (not logical), unlike almost everything else here.
+   direction:ltr forces the button's own internal flex row to read as a true
+   left-to-right row — inside an RTL page, "flex-direction: row" resolves
+   right-to-left instead, which is what put the dial code before the flag
+   (DOM order is already flag-then-code; only the reading direction was wrong). */
+.iti__selected-country {
+  direction: ltr;
+  border-right: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm) 0 0 var(--aroma-radius-sm);
+}
+.iti__selected-country:hover,
+.iti__selected-country:focus-visible { background-color: var(--aroma-skin); }
+.iti__dial-code { color: var(--aroma-muted); font-weight: 600; }
+.iti__selected-country-primary { gap: 0.4rem; }
+
+/* --- Dropdown panel ------------------------------------------------------ */
+.iti__dropdown-content {
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm);
+  box-shadow: var(--aroma-shadow);
+  overflow: hidden;
+}
+.iti__search-input {
+  border: 1px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm);
+  padding: 0.55rem 0.85rem;
+  font-family: var(--aroma-input-font);
+  color: var(--aroma-ink);
+}
+.iti__search-input:focus {
+  border-color: var(--aroma-light-brown);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.25);
+}
+.iti__country-list {
+  max-height: 16rem;
+}
+.iti__country.iti__highlight,
+.iti__country:hover { background-color: var(--aroma-skin); }
+.iti__country-name { color: var(--aroma-ink); }
+.iti__dial-code { color: var(--aroma-muted); }
+
+/* Touch-friendly on small screens — same breakpoint forms.css already uses. */
+@media (max-width: 576px) {
+  .iti__country-list { max-height: 12rem; }
+}

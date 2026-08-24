@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Checkout;
 
+use App\Rules\InternationalPhone;
 use App\Rules\LocationCode;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,7 +23,7 @@ class AddressRequest extends FormRequest
             // Guests must supply an email so the order confirmation can reach
             // them; authenticated users already have one on their account.
             'billing_address.email' => [auth()->check() ? 'nullable' : 'required', 'email', 'max:255'],
-            'billing_address.phone' => 'required|string|max:20',
+            'billing_address.phone' => ['required', 'string', new InternationalPhone()],
             // The actual address (city/region/district/coordinates) is
             // resolved server-side by CheckoutController — never collected
             // as free text. Exactly one location method is required per
@@ -35,7 +36,7 @@ class AddressRequest extends FormRequest
             'use_shipping_for_billing' => 'boolean',
 
             'shipping_address.recipient_name' => 'required_if:use_shipping_for_billing,false|string|max:100',
-            'shipping_address.phone' => 'required_if:use_shipping_for_billing,false|string|max:20',
+            'shipping_address.phone' => ['required_if:use_shipping_for_billing,false', 'string', new InternationalPhone()],
             'shipping_address.location_code' => ['nullable', 'string', new LocationCode()],
             'shipping_address.latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'shipping_address.longitude' => ['nullable', 'numeric', 'between:-180,180'],

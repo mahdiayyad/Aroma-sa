@@ -22,7 +22,7 @@ class DeliveryTest extends TestCase
     private array $validBilling = [
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
-        'phone'          => '0500000000',
+        'phone'          => '+966500000000',
         'location_code'  => 'RAHA1234',
     ];
 

@@ -32,7 +32,7 @@ class CheckoutTest extends TestCase
     private array $validBilling = [
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
-        'phone'          => '0500000000',
+        'phone'          => '+966500000000',
         'location_code'  => 'RAHA1234',
     ];
 
@@ -272,7 +272,7 @@ class CheckoutTest extends TestCase
             'status'          => Order::STATUS_PENDING,
             'customer_name'   => 'Sara',
             'customer_email'  => 'sara@example.com',
-            'customer_phone'  => '0500000000',
+            'customer_phone'  => '+966500000000',
             'billing_address' => $this->validBilling,
             'shipping_address' => $this->validBilling,
             'subtotal'        => 200,

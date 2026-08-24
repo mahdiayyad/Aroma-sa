@@ -4,7 +4,7 @@
         <span class="aroma-avatar">{{ auth()->user()->initials() }}</span>
         <div>
             <div class="fw-semibold">{{ auth()->user()->name }}</div>
-            <div class="small text-aroma-muted">{{ auth()->user()->email ?? auth()->user()->phone }}</div>
+            <div class="small text-aroma-muted" dir="ltr">{{ auth()->user()->email ?? auth()->user()->phone }}</div>
         </div>
     </div>
     <nav class="nav flex-column gap-1">

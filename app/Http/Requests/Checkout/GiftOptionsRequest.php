@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Checkout;
 
+use App\Rules\InternationalPhone;
 use App\Rules\LocationCode;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -43,7 +44,7 @@ class GiftOptionsRequest extends FormRequest
             // 'nullable' the 'string' rule below fails on that null instead of
             // being skipped — which is exactly the bug this fixes.
             'recipient.recipient_name'  => [Rule::requiredIf($isGift), 'nullable', 'string', 'max:100'],
-            'recipient.phone'           => [Rule::requiredIf($isGift), 'nullable', 'string', 'regex:/^(\+9665|05)\d{8}$/'],
+            'recipient.phone'           => [Rule::requiredIf($isGift), 'nullable', 'string', new InternationalPhone()],
             // Resolved server-side via LocationLookupService (code) or stored
             // directly (map pin) — not collected as free text. Exactly one of
             // location_code / (latitude+longitude) is required when it's a
@@ -85,12 +86,5 @@ class GiftOptionsRequest extends FormRequest
                 $validator->errors()->add('recipient.location_code', __('location.errors.required_one'));
             }
         });
-    }
-
-    public function messages(): array
-    {
-        return [
-            'recipient.phone.regex' => __('auth_ui.validation.phone'),
-        ];
     }
 }

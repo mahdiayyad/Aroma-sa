@@ -121,7 +121,7 @@
             <x-admin.card :title="__('admin.orders.customer_info')">
                 <div class="admin-cell-main">{{ $order->customer_name }}</div>
                 <div class="admin-cell-sub">{{ $order->customer_email }}</div>
-                <div class="admin-cell-sub">{{ $order->customer_phone }}</div>
+                <div class="admin-cell-sub" dir="ltr">{{ $order->customer_phone }}</div>
                 @if (!$order->user_id)<span class="admin-badge admin-badge-neutral mt-2">{{ __('admin.orders.guest') }}</span>@endif
                 @if ($order->customer_notes)
                     <hr class="my-2">

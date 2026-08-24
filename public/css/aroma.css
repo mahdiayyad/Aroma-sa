@@ -201,7 +201,7 @@ a:hover {
   color: var(--aroma-light-brown);
 }
 
-.aroma-script {
+html[dir="ltr"] .aroma-script {
   font-family: var(--aroma-script);
   font-weight: 400;
 }
@@ -1142,7 +1142,9 @@ select,
 .aroma-badge-discount,
 .aroma-badge-status,
 .footer-rights,
-.aroma-phone-plus {
+.aroma-phone-plus,
+.iti__selected-dial-code,
+.iti__dial-code {
   font-family: var(--aroma-input-font);
 }
 

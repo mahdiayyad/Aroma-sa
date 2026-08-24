@@ -23,13 +23,13 @@ class OrderReviewTest extends TestCase
     private array $validBilling = [
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
-        'phone'          => '0500000000',
+        'phone'          => '+966500000000',
         'location_code'  => 'RAHA1234', // resolves to Riyadh, see MocksLocationLookup
     ];
 
     private array $validRecipient = [
         'recipient_name' => 'Layla Al Otaibi',
-        'phone'          => '0511111111',
+        'phone'          => '+966511111111',
         'location_code'  => 'JEDD5678', // resolves to Jeddah, see MocksLocationLookup
     ];
 
@@ -125,7 +125,7 @@ class OrderReviewTest extends TestCase
         $this->post(route('checkout.address.store'), ['billing_address' => [
             'recipient_name' => 'Geo Test',
             'email'          => 'geo@example.com',
-            'phone'          => '0500000000',
+            'phone'          => '+966500000000',
             // Strings, matching a real form submission.
             'latitude'       => '24.7136',
             'longitude'      => '46.6753',

@@ -16,7 +16,7 @@ class AddressTest extends TestCase
     private array $payload = [
         'label' => 'Home',
         'recipient_name' => 'Sara Al Qahtani',
-        'phone' => '0500000000',
+        'phone' => '+966500000000',
         'location_code' => 'RAHA1234',
     ];
 
@@ -146,7 +146,7 @@ class AddressTest extends TestCase
         // field as a string.
         $this->actingAs($user)->post(route('account.addresses.store'), [
             'recipient_name' => 'Sara Al Qahtani',
-            'phone' => '0500000000',
+            'phone' => '+966500000000',
             'latitude' => '24.7136',
             'longitude' => '46.6753',
         ])->assertRedirect(route('account.addresses.index'));
@@ -169,7 +169,7 @@ class AddressTest extends TestCase
 
         $this->actingAs($user)->post(route('account.addresses.store'), [
             'recipient_name' => 'Sara Al Qahtani',
-            'phone' => '0500000000',
+            'phone' => '+966500000000',
         ])->assertSessionHasErrors('location_code');
 
         $this->assertDatabaseCount('addresses', 0);

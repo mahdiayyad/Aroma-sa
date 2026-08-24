@@ -47,7 +47,7 @@ return [
         'back_to_login' => 'Back to sign in',
     ],
     'validation' => [
-        'phone' => 'Enter a valid Saudi mobile number, e.g. 5XXXXXXXX.',
+        'phone' => 'Enter a valid phone number, including the country code.',
     ],
     'show_password' => 'Show password',
     'hide_password' => 'Hide password',

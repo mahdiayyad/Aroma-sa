@@ -52,5 +52,5 @@
         <div>{{ $address['street_address'] ?? '' }}</div>
         <div>{{ $address['city'] ?? '' }}, {{ $address['region'] ?? '' }} {{ $address['postal_code'] ?? '' }}</div>
     @endif
-    <div>{{ $address['phone'] ?? $phone }}</div>
+    <div dir="ltr">{{ $address['phone'] ?? $phone }}</div>
 </div>
