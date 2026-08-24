@@ -4,28 +4,30 @@
    component CSS. Warm, editorial, premium — matching the Aroma brand.
    ========================================================================== */
 :root {
-  --admin-bg: #f7f4ef;
+  --admin-bg: #f6f4ef;
   --admin-surface: #ffffff;
-  --admin-border: #ebe2d4;
-  --admin-border-strong: #dccbb2;
-  --admin-text: #2b2016;
-  --admin-muted: #8a7c68;
-  --admin-brand: #704f2f;
-  --admin-brand-hover: #5c3f24;
-  --admin-brand-soft: #f1e8dd;
-  --admin-skin: #ffe5ca;
+  --admin-border: #e5e2d8;
+  --admin-border-strong: #cfc9b8;
+  --admin-text: #1B1A17;
+  --admin-muted: #746d5f;
+  --admin-brand: #1F4D3D;
+  --admin-brand-hover: #1B3E32; /* matches the storefront's --aroma-btn-emerald-bg-hover exactly */
+  --admin-brand-soft: #E7F0EC;
+  --admin-skin: #FAF3E7;
+  --admin-gold: #C9A24B;
+  --admin-gold-soft: #F7EFDC;
   --admin-radius: 0.7rem;
   --admin-radius-sm: 0.45rem;
-  --admin-shadow: 0 1px 2px rgba(112, 79, 47, .05), 0 10px 30px rgba(112, 79, 47, .06);
-  --admin-shadow-sm: 0 1px 2px rgba(112, 79, 47, .06);
+  --admin-shadow: 0 1px 2px rgba(31, 77, 61, .05), 0 10px 30px rgba(31, 77, 61, .07);
+  --admin-shadow-sm: 0 1px 2px rgba(31, 77, 61, .06);
   --admin-sidebar-w: 262px;
   --admin-topbar-h: 68px;
 
-  --admin-success: #5b7a4a; --admin-success-bg: #eef3e7;
+  --admin-success: #4A7856; --admin-success-bg: #eaf1ea;
   --admin-warning: #b8863c; --admin-warning-bg: #fbf0de;
   --admin-danger:  #a6432b; --admin-danger-bg:  #f7e9e4;
   --admin-info:    #6b5a8c; --admin-info-bg:    #efeaf6;
-  --admin-neutral: #8a7c68; --admin-neutral-bg: #efeae1;
+  --admin-neutral: #746d5f; --admin-neutral-bg: #eeece5;
 }
 
 * { box-sizing: border-box; }
@@ -39,6 +41,9 @@
   font-size: 0.925rem;
 }
 html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabic", "Tahoma", sans-serif; }
+/* Safari-only override — AligarhArabic is a trial build that renders broken
+   Arabic shaping specifically there; see the note in aroma.css. */
+html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Tahoma", sans-serif; }
 
 .admin-shell { display: flex; min-height: 100vh; }
 
@@ -109,27 +114,40 @@ html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabi
 
 /* --- Page header ----------------------------------------------------------- */
 .admin-page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
-.admin-page-title { font-size: 1.5rem; font-weight: 700; margin: 0; }
-.admin-page-subtitle { color: var(--admin-muted); margin: .2rem 0 0; font-size: .875rem; }
+.admin-page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+.admin-page-subtitle { color: var(--admin-muted); margin: .25rem 0 0; font-size: .875rem; }
 .admin-page-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 .admin-back-link { display: inline-flex; align-items: center; font-size: .8rem; color: var(--admin-muted); text-decoration: none; margin-bottom: .25rem; }
 .admin-back-link:hover { color: var(--admin-brand); }
 
 /* --- Cards ----------------------------------------------------------------- */
-.admin-card { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: var(--admin-radius); box-shadow: var(--admin-shadow-sm); margin-bottom: 1.25rem; }
+.admin-card {
+  background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-sm); margin-bottom: 1.25rem;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
 .admin-card-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--admin-border); }
 .admin-card-title { font-size: .95rem; font-weight: 700; margin: 0; }
 .admin-card-body { padding: 1.25rem; }
 
 /* --- Stat tiles ------------------------------------------------------------ */
 .admin-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
-.admin-stat { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: var(--admin-radius); box-shadow: var(--admin-shadow-sm); padding: 1.15rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
+.admin-stat {
+  background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-sm); padding: 1.15rem 1.25rem; display: flex; align-items: center; gap: 1rem;
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.admin-stat:hover { transform: translateY(-3px); box-shadow: var(--admin-shadow); border-color: var(--admin-border-strong); }
 .admin-stat-icon { width: 46px; height: 46px; border-radius: var(--admin-radius-sm); display: inline-flex; align-items: center; justify-content: center; font-size: 1.35rem; background: var(--admin-brand-soft); color: var(--admin-brand); flex-shrink: 0; }
 .admin-stat-label { font-size: .78rem; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .04em; }
-.admin-stat-value { font-size: 1.5rem; font-weight: 800; line-height: 1.1; margin-top: .15rem; }
+.admin-stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; margin-top: .15rem; letter-spacing: -0.01em; }
 .admin-stat-hint { font-size: .75rem; color: var(--admin-muted); margin-top: .1rem; }
 .admin-stat-success .admin-stat-icon { background: var(--admin-success-bg); color: var(--admin-success); }
 .admin-stat-warning .admin-stat-icon { background: var(--admin-warning-bg); color: var(--admin-warning); }
+/* Reserved for the one or two genuinely most-important figures on a page
+   (e.g. revenue) — gold as "important highlight", never the default tone. */
+.admin-stat-gold .admin-stat-icon { background: var(--admin-gold-soft); color: var(--admin-gold); }
+.admin-stat-gold { border-color: rgba(201, 162, 75, 0.35); }
 .admin-stat-info .admin-stat-icon { background: var(--admin-info-bg); color: var(--admin-info); }
 
 /* --- Tables ---------------------------------------------------------------- */
@@ -145,21 +163,46 @@ html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabi
 .admin-table-actions { display: inline-flex; gap: .35rem; }
 
 /* --- Badges ---------------------------------------------------------------- */
-.admin-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 700; line-height: 1.4; }
+/* Latin-first font: badges often carry symbols (-X%) the Arabic display
+   face has no proper glyphs for — see .admin-input above for the same fix. */
+.admin-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 700; line-height: 1.4; font-family: var(--aroma-input-font, "Inter", Helvetica, Arial, sans-serif); }
 .admin-badge-success { background: var(--admin-success-bg); color: var(--admin-success); }
 .admin-badge-warning { background: var(--admin-warning-bg); color: var(--admin-warning); }
 .admin-badge-danger  { background: var(--admin-danger-bg);  color: var(--admin-danger); }
 .admin-badge-info    { background: var(--admin-info-bg);    color: var(--admin-info); }
 .admin-badge-neutral { background: var(--admin-neutral-bg); color: var(--admin-neutral); }
 
-/* --- Buttons --------------------------------------------------------------- */
-.admin-btn { --bs-btn-focus-box-shadow: none; display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; font-weight: 600; font-size: .85rem; padding: .5rem 1.15rem; border: 1px solid transparent; text-decoration: none; cursor: pointer; transition: all .15s ease; }
+/* --- Buttons ---------------------------------------------------------------
+   Same two-explicit-colors pattern as the storefront's .btn-aroma* family:
+   every variant declares a real default AND hover background (never a
+   filter/opacity standing in for one), background-color/box-shadow/transform
+   transition on their own named properties (not "all", which would also
+   animate padding/etc. on any future rule change), 300-400ms so it reads as
+   smooth rather than instant or sluggish. */
+.admin-btn {
+  --bs-btn-focus-box-shadow: none;
+  display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px;
+  font-weight: 600; font-size: .85rem; padding: .5rem 1.15rem;
+  border: 1px solid transparent; text-decoration: none; cursor: pointer;
+  box-shadow: var(--admin-shadow-sm);
+  transition: background-color 350ms ease, border-color 350ms ease, color 350ms ease,
+    box-shadow 350ms ease, transform 300ms ease;
+}
 .admin-btn-primary { background: var(--admin-brand); border-color: var(--admin-brand); color: #fff; }
-.admin-btn-primary:hover { background: var(--admin-brand-hover); border-color: var(--admin-brand-hover); color: #fff; }
+.admin-btn-primary:hover {
+  background: var(--admin-brand-hover); border-color: var(--admin-brand-hover); color: #fff;
+  box-shadow: var(--admin-shadow); transform: translateY(-1px);
+}
 .admin-btn-outline { background: #fff; border-color: var(--admin-border-strong); color: var(--admin-text); }
-.admin-btn-outline:hover { border-color: var(--admin-brand); color: var(--admin-brand); }
+.admin-btn-outline:hover {
+  background: var(--admin-brand-soft); border-color: var(--admin-brand); color: var(--admin-brand);
+  box-shadow: var(--admin-shadow); transform: translateY(-1px);
+}
 .admin-btn-danger { background: #fff; border-color: var(--admin-danger); color: var(--admin-danger); }
-.admin-btn-danger:hover { background: var(--admin-danger); color: #fff; }
+.admin-btn-danger:hover {
+  background: var(--admin-danger); color: #fff;
+  box-shadow: var(--admin-shadow); transform: translateY(-1px);
+}
 .admin-btn-icon { padding: .4rem .55rem; border-radius: var(--admin-radius-sm); }
 .admin-btn.btn-sm { padding: .35rem .8rem; font-size: .8rem; }
 
@@ -178,9 +221,9 @@ html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabi
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .admin-input:focus, .admin-select:focus, textarea.admin-input:focus {
-  outline: none; border-color: var(--admin-brand); box-shadow: 0 0 0 3px rgba(112, 79, 47, .12);
+  outline: none; border-color: var(--admin-brand); box-shadow: 0 0 0 3px rgba(31, 77, 61, .12);
 }
-.admin-input.is-invalid { border-color: var(--admin-danger); }
+.admin-input.is-invalid { background: #fff; border-color: var(--admin-brand); }
 .admin-bilingual { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
 .admin-bilingual-field { position: relative; }
 .admin-bilingual-tag { position: absolute; top: -.55rem; inset-inline-start: .6rem; background: #fff; padding: 0 .35rem; font-size: .66rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .04em; }
@@ -206,14 +249,14 @@ html[lang="ar"] .admin-body { font-family: "AligarhArabic", "IBM Plex Sans Arabi
 .admin-alert-danger i { color: var(--admin-danger); }
 
 /* --- Login ----------------------------------------------------------------- */
-.admin-login { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; background: linear-gradient(135deg, #704f2f 0%, #d3a17a 60%, #ffe5ca 100%); }
-.admin-login-card { background: #fff; border-radius: 1rem; box-shadow: 0 30px 60px rgba(43, 32, 22, .25); width: 100%; max-width: 400px; padding: 2.25rem; }
+.admin-login { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; background: linear-gradient(135deg, #1F4D3D 0%, #17402F 55%, #0F2820 100%); }
+.admin-login-card { background: #fff; border-radius: 1rem; box-shadow: 0 30px 60px rgba(27, 26, 23, .25); width: 100%; max-width: 400px; padding: 2.25rem; }
 .admin-login-brand { text-align: center; margin-bottom: 1.5rem; }
 .admin-login-brand .mark { font-size: 1.8rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--admin-brand); }
 .admin-login-brand p { color: var(--admin-muted); font-size: .85rem; margin: .25rem 0 0; }
 
 /* --- Backdrop (mobile sidebar) --------------------------------------------- */
-.admin-backdrop { display: none; position: fixed; inset: 0; background: rgba(43, 32, 22, .4); z-index: 1044; }
+.admin-backdrop { display: none; position: fixed; inset: 0; background: rgba(27, 26, 23, .4); z-index: 1044; }
 .admin-backdrop.show { display: block; }
 
 /* --- Responsive ------------------------------------------------------------ */

@@ -60,20 +60,37 @@
 .aroma-navbar .nav-link {
   position: relative;
   color: var(--aroma-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding-block: 0.6rem !important;
+}
+html[lang="ar"] .aroma-navbar .nav-link {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.92rem;
 }
 .aroma-navbar .nav-link:hover { color: var(--aroma-brown); }
 .aroma-navbar .nav-link.active {
   color: var(--aroma-brown);
   font-weight: 700;
 }
-.aroma-navbar .nav-link.active::after {
+/* A gold underline that draws in from the center on hover, and stays drawn
+   for the active link — one elegant motion instead of two unrelated states. */
+.aroma-navbar .nav-link::after {
   content: "";
   position: absolute;
   inset-inline: 0.75rem;
-  bottom: 0;
-  height: 2px;
-  background: var(--aroma-light-brown);
-  border-radius: 2px;
+  bottom: 0.15rem;
+  height: 1px;
+  background: var(--aroma-gold);
+  transform: scaleX(0);
+  transition: transform var(--aroma-transition, 0.25s ease);
+}
+.aroma-navbar .nav-link:hover::after,
+.aroma-navbar .nav-link.active::after {
+  transform: scaleX(1);
 }
 
 /* --- Mobile offcanvas nav ------------------------------------------------------------ */
@@ -87,8 +104,8 @@
   font-weight: 600;
   transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
 }
-.aroma-mobile-nav-link:hover { background: var(--aroma-skin); color: var(--aroma-brown); }
-.aroma-mobile-nav-link.active { background: var(--aroma-skin); color: var(--aroma-brown); }
+.aroma-mobile-nav-link:hover { background: rgba(112, 79, 47, 0.08); color: var(--aroma-brown); }
+.aroma-mobile-nav-link.active { background: rgba(112, 79, 47, 0.08); color: var(--aroma-brown); }
 
 /* --- Account sidebar nav ------------------------------------------------------------- */
 .aroma-account-nav-link {

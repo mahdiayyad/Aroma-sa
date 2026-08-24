@@ -42,12 +42,10 @@
                         <h5 class="card-title mb-0">{{ __('checkout.order_review.delivering_to') }}</h5>
                         <a href="{{ route($isGift ? 'checkout.gift-options' : 'checkout.address') }}" class="small">{{ __('checkout.order_review.edit') }}</a>
                     </div>
-                    <div>{{ $shipping['recipient_name'] ?? '' }}</div>
-                    <div class="text-aroma-muted small">{{ $shipping['phone'] ?? '' }}</div>
-                    <div class="text-aroma-muted small">
-                        {{ $shipping['street_address'] ?? '' }}, {{ $shipping['city'] ?? '' }}, {{ $shipping['region'] ?? '' }}
-                        @if(!empty($shipping['postal_code'])) {{ $shipping['postal_code'] }} @endif
-                    </div>
+                    {{-- Shared with confirmation/orders/admin so this branching
+                         logic (location-code vs pinned vs legacy address, plus
+                         the demo-data badge) lives in exactly one place. --}}
+                    <x-address-summary class="text-aroma-muted small" :address="$shipping" />
                 </div>
             </div>
 
@@ -149,6 +147,13 @@
                                 <span>@price($totals['gift_wrap_fee'])</span>
                             </div>
                         @endif
+
+                        @if(($totals['greeting_card_fee'] ?? 0) > 0)
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-aroma-muted">{{ __('gift.card_fee_title') }}</span>
+                                <span>@price($totals['greeting_card_fee'])</span>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="checkout-summary-total mb-3">
@@ -168,9 +173,7 @@
     </div>
 
     <div class="mt-3">
-        <a href="{{ route('checkout.delivery') }}" class="btn btn-aroma-outline">
-            <i class="bi {{ $locale === 'ar' ? 'bi-chevron-right' : 'bi-chevron-left' }} me-2"></i>{{ __('checkout.buttons.back') }}
-        </a>
+        <x-back-link :href="route('checkout.delivery')" />
     </div>
 </div>
 @endsection

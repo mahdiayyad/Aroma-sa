@@ -49,6 +49,8 @@ return [
         'reset'   => 'Reset',
         'confirm_delete' => 'Are you sure you want to delete this? This cannot be undone.',
         'showing' => 'Showing :count of :total',
+        'show_password' => 'Show password',
+        'hide_password' => 'Hide password',
     ],
 
     'dashboard' => [
@@ -211,6 +213,7 @@ return [
         'gift_from'         => 'From',
         'gift_message'      => 'Message',
         'gift_wrap'         => 'Gift wrapped',
+        'card_fee'          => 'Card fee',
         'gift_signature'    => 'Signature',
         'gift_media'        => 'Song / video link',
 

@@ -64,14 +64,15 @@ textarea.form-control {
   background-image: none;
 }
 .form-control.is-valid:focus, .form-select.is-valid:focus {
-  box-shadow: 0 0 0 3px rgba(91, 122, 74, 0.2);
+  box-shadow: 0 0 0 3px rgba(74, 120, 86, 0.2);
 }
 .form-control.is-invalid, .form-select.is-invalid {
-  border-color: var(--aroma-danger);
+  background-color: #fff;
+  border-color: var(--aroma-brown);
   background-image: none;
 }
 .form-control.is-invalid:focus, .form-select.is-invalid:focus {
-  box-shadow: 0 0 0 3px rgba(166, 67, 43, 0.2);
+  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.2);
 }
 .valid-feedback {
   color: var(--aroma-success);
@@ -119,9 +120,121 @@ textarea.form-control {
   border-radius: var(--aroma-radius-sm);
 }
 
+/* --- Saudi phone prefix (see <x-phone-input>) ----------------------------------- */
+.aroma-phone-input .input-group-text {
+  background: var(--aroma-skin);
+  color: var(--aroma-brown);
+  border: 1px solid var(--aroma-border);
+  border-inline-end: none;
+  font-weight: 600;
+  padding-inline: 0.85rem;
+}
+
 /* --- Touch-friendly minimum size on small screens ------------------------------- */
 @media (max-width: 576px) {
   .form-control, .form-select, .btn-aroma, .btn-aroma-outline, .btn-aroma-secondary {
     min-height: 44px;
   }
+}
+
+/* --- Quantity stepper (product page + cart rows) --------------------------------
+   Replaces the native number-input spin arrows with explicit +/- buttons —
+   the up/down chevrons are unreliable on mobile and easy to mis-tap. */
+.aroma-qty-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1.5px solid var(--aroma-border);
+  border-radius: var(--aroma-radius-sm);
+  overflow: hidden;
+  background: #fff;
+  width: fit-content;
+}
+.aroma-qty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  border: none;
+  background: var(--aroma-white, #FFF3E2);
+  color: var(--aroma-brown);
+  /* Latin-first stack: the Arabic display face has no proper glyphs for
+     "+"/"−" and renders them as a distorted shape (see --aroma-input-font). */
+  font-family: var(--aroma-input-font);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.aroma-qty-btn:hover:not(:disabled) { background: var(--aroma-skin); }
+.aroma-qty-btn:active:not(:disabled) { background: var(--aroma-light-brown); color: #fff; }
+.aroma-qty-btn:disabled {
+  color: var(--aroma-disabled-text);
+  cursor: not-allowed;
+}
+.aroma-qty-btn:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--aroma-light-brown);
+}
+
+.aroma-qty-input {
+  width: 3rem;
+  min-height: 0 !important;
+  border: none !important;
+  border-inline: 1.5px solid var(--aroma-border) !important;
+  border-radius: 0 !important;
+  text-align: center;
+  padding: 0.5rem 0.25rem !important;
+  font-weight: 600;
+  -moz-appearance: textfield;
+}
+.aroma-qty-input:focus { box-shadow: none !important; }
+/* Hide native number spinners — the +/- buttons replace them. */
+.aroma-qty-input::-webkit-outer-spin-button,
+.aroma-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Compact variant for the cart table row. */
+.aroma-qty-stepper.aroma-qty-sm .aroma-qty-btn { width: 2rem; font-size: 1rem; }
+.aroma-qty-stepper.aroma-qty-sm .aroma-qty-input { width: 2.5rem; padding: 0.35rem 0.15rem !important; }
+
+@media (max-width: 576px) {
+  .aroma-qty-btn { width: 2.75rem; }
+  .aroma-qty-stepper.aroma-qty-sm .aroma-qty-btn { width: 2.25rem; }
+}
+
+/* --- Location-code field (Saudi National Address) --------------------------
+   Wraps a single .js-location-code input; public/js/location-lookup.js fills
+   .aroma-location-preview in with the live-resolved address as the shopper
+   types. Preview-only — the server always re-resolves before persisting. */
+.aroma-location-field .js-location-code {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--aroma-input-font);
+}
+.aroma-location-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--aroma-radius-sm);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.aroma-location-preview[hidden] { display: none; }
+.aroma-location-preview.is-loading {
+  color: var(--aroma-muted);
+  background: var(--aroma-skin);
+}
+.aroma-location-preview.is-success {
+  color: var(--aroma-brown);
+  background: var(--aroma-info-bg, var(--aroma-skin));
+  font-weight: 600;
+}
+.aroma-location-preview.is-error {
+  color: var(--aroma-danger);
+  background: var(--aroma-danger-bg);
 }

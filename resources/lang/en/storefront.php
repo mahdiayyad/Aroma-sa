@@ -4,6 +4,11 @@ return [
 
     'admin_no_shop' => 'Admin accounts manage the store and cannot place orders.',
 
+    'confirm' => [
+        'yes'    => 'Yes, delete',
+        'cancel' => 'Cancel',
+    ],
+
     'payment' => [
         'title' => 'Payment methods',
         'note'  => 'Secure checkout — your details are always protected.',
@@ -38,6 +43,9 @@ return [
         'title'    => 'Awaken your Senses',
         'subtitle' => 'Captivating fragrances, floral arrangements, and beauty — curated in Saudi Arabia.',
         'cta'      => 'Shop the collection',
+        'slide'    => 'Slide',
+        'prev'     => 'Previous slide',
+        'next'     => 'Next slide',
     ],
 
     'sections' => [
@@ -74,6 +82,7 @@ return [
         'help'     => 'Help & Support',
         'policies' => 'Policies & Privacy',
         'terms'    => 'Terms & Conditions',
+        'guides'   => 'Customer Guide',
         'contact'  => 'Contact us',
         'rights'   => 'All rights reserved.',
         'tagline'  => 'Awaken your Senses',
@@ -85,6 +94,8 @@ return [
         'sold_out'     => 'Sold out',
         'in_stock'     => 'In stock',
         'total'        => 'Total',
+        'qty_decrease' => 'Decrease quantity',
+        'qty_increase' => 'Increase quantity',
         'sale'         => 'Sale',
         'brand'        => 'Brand',
         'sku'          => 'SKU',

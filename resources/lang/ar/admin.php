@@ -49,6 +49,8 @@ return [
         'reset'   => 'إعادة تعيين',
         'confirm_delete' => 'هل أنت متأكد من الحذف؟ لا يمكن التراجع.',
         'showing' => 'عرض :count من :total',
+        'show_password' => 'إظهار كلمة المرور',
+        'hide_password' => 'إخفاء كلمة المرور',
     ],
 
     'dashboard' => [
@@ -211,6 +213,7 @@ return [
         'gift_from'         => 'من',
         'gift_message'      => 'الرسالة',
         'gift_wrap'         => 'مُغلّف كهدية',
+        'card_fee'          => 'رسوم البطاقة',
         'gift_signature'    => 'التوقيع',
         'gift_media'        => 'رابط أغنية / فيديو',
 

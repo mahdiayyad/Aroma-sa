@@ -2,6 +2,20 @@
 <html lang="{{ $locale ?? app()->getLocale() }}" dir="{{ $direction ?? 'ltr' }}">
 <head>
     <meta charset="utf-8">
+    {{-- Safari detection, as early as possible so aroma.css's html.is-safari
+         rules apply before first paint (no flash of the wrong font). The
+         licensed AligarhArabic file on hand is a trial build whose Arabic
+         shaping renders visibly broken specifically on Safari — see the note
+         next to --aroma-heading-ar in aroma.css. Excludes the other browsers
+         that also carry "Safari" in their UA on iOS (Chrome/Firefox/Edge/
+         Opera), where WebKit is required by Apple but the bug doesn't show. --}}
+    <script>
+        (function () {
+            var ua = navigator.userAgent;
+            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua);
+            if (isSafari) { document.documentElement.classList.add('is-safari'); }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -93,7 +107,7 @@
          Tangerine stands in for the Snell Roundhand script accent. --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Tangerine:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Tangerine:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
     {{-- ?v=<mtime> so a changed stylesheet is never served from browser cache. --}}
     <link href="{{ \App\Support\Assets::versioned('css/aroma.css') }}" rel="stylesheet">
 
@@ -119,6 +133,10 @@
     <link href="{{ asset('css/components/animations.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/cart-modal.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/assistant.css') }}" rel="stylesheet">
+    <link href="{{ \App\Support\Assets::versioned('css/components/hero-carousel.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/css/intlTelInput.min.css" rel="stylesheet">
+    <link href="{{ \App\Support\Assets::versioned('css/components/intl-phone.css') }}" rel="stylesheet">
 
     @stack('head')
 </head>
@@ -126,7 +144,12 @@
       data-cart-label="{{ __('cart.view') }}"
       data-cart-error="{{ __('cart.error') }}"
       data-wishlist-url="{{ route('wishlist.index') }}"
-      data-wishlist-label="{{ __('storefront.nav.wishlist') }}">
+      data-wishlist-label="{{ __('storefront.nav.wishlist') }}"
+      data-confirm-yes="{{ __('storefront.confirm.yes') }}"
+      data-confirm-cancel="{{ __('storefront.confirm.cancel') }}"
+      data-flash-success="{{ session('status') }}"
+      data-show-password="{{ __('auth_ui.show_password') }}"
+      data-hide-password="{{ __('auth_ui.hide_password') }}">
 
     <div class="sbc-verify-seal" data-token="NmU3U1ZDbCtNMGIxb0M1V01IWVlGQT09" data-position="bottom-left"></div>
     <script src="https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js" async></script>
@@ -147,11 +170,14 @@
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ asset('js/select2-init.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/aroma-http.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/cart-modal.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/aroma-ui.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/js/intlTelInputWithUtils.min.js"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/intl-phone.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/assistant.js') }}" defer></script>
     @stack('scripts')
 </body>

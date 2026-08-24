@@ -16,7 +16,14 @@ class Address extends Model
 
     protected $casts = [
         'is_default' => 'boolean',
+        'latitude'   => 'float',
+        'longitude'  => 'float',
     ];
+
+    public function hasCoordinates(): bool
+    {
+        return $this->latitude !== null && $this->longitude !== null;
+    }
 
     public function user(): BelongsTo
     {
@@ -28,10 +35,16 @@ class Address extends Model
         return [
             'recipient_name' => $this->recipient_name,
             'phone' => $this->phone,
+            'location_code' => $this->location_code,
             'street_address' => $this->street_address,
             'city' => $this->city,
             'region' => $this->region,
+            'district' => $this->district,
+            'country' => $this->country,
+            'formatted_address' => $this->formatted_address,
             'postal_code' => $this->postal_code,
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
         ];
     }
 }

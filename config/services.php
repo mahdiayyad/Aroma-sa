@@ -95,15 +95,37 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Maps (address location picker)
+    |--------------------------------------------------------------------------
+    | Powers the map tiles on account/addresses/form.blade.php. Without a
+    | token the picker still fully works — it just falls back to the free
+    | OpenStreetMap tile style instead of Mapbox's more polished basemap.
+    | Get a free public token at https://account.mapbox.com/access-tokens/.
+    */
+    'mapbox' => [
+        'access_token' => env('MAPBOX_ACCESS_TOKEN'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | National Address (Saudi Post / SPL) location-code lookup
+    |--------------------------------------------------------------------------
+    | Resolves a Saudi National Address short code (AAAA1234) to coordinates +
+    | city/region/district via LocationLookupService. Leave base_url/api_key
+    | blank to run in stub mode (deterministic canned responses, so checkout
+    | and account addresses keep working before real SPL credentials exist).
+    */
+    'national_address' => [
+        'base_url' => env('NATIONAL_ADDRESS_BASE_URL', ''),
+        'api_key'  => env('NATIONAL_ADDRESS_API_KEY', ''),
+        'timeout'  => (int) env('NATIONAL_ADDRESS_TIMEOUT', 10),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Social login
     |--------------------------------------------------------------------------
     */
-    'apple' => [
-        'client_id'     => env('APPLE_CLIENT_ID'),
-        'client_secret' => env('APPLE_CLIENT_SECRET'),
-        'redirect'      => env('APPLE_REDIRECT_URI'),
-    ],
-
     'google' => [
         'client_id'     => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),

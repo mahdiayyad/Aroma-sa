@@ -6,29 +6,31 @@ use App\Models\GiftCard;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
 
 class OrderReviewTest extends TestCase
 {
     use RefreshDatabase;
+    use MocksLocationLookup;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->mockLocationLookup();
+    }
 
     private array $validBilling = [
         'recipient_name' => 'Sara Al Qahtani',
         'email'          => 'sara@example.com',
-        'phone'          => '0500000000',
-        'street_address' => 'King Fahd Rd',
-        'city'           => 'Riyadh',
-        'region'         => 'Riyadh',
-        'postal_code'    => '12211',
+        'phone'          => '+966500000000',
+        'location_code'  => 'RAHA1234', // resolves to Riyadh, see MocksLocationLookup
     ];
 
     private array $validRecipient = [
         'recipient_name' => 'Layla Al Otaibi',
-        'phone'          => '0511111111',
-        'street_address' => 'Tahlia St',
-        'city'           => 'Jeddah',
-        'region'         => 'Makkah',
-        'postal_code'    => '23411',
+        'phone'          => '+966511111111',
+        'location_code'  => 'JEDD5678', // resolves to Jeddah, see MocksLocationLookup
     ];
 
     private function seedCartAndAddress(int $qty = 1): void
@@ -113,5 +115,31 @@ class OrderReviewTest extends TestCase
 
         $this->get(route('checkout.order-review'))
             ->assertRedirect(route('checkout.address'));
+    }
+
+    public function test_a_pinned_location_shows_as_a_map_link_not_a_blank_address(): void
+    {
+        $product = Product::factory()->create(['base_price' => 200, 'stock_quantity' => 10]);
+        $this->post('/cart', ['product_id' => $product->id, 'qty' => 1])->assertRedirect();
+
+        $this->post(route('checkout.address.store'), ['billing_address' => [
+            'recipient_name' => 'Geo Test',
+            'email'          => 'geo@example.com',
+            'phone'          => '+966500000000',
+            // Strings, matching a real form submission.
+            'latitude'       => '24.7136',
+            'longitude'      => '46.6753',
+        ]])->assertSessionHasNoErrors();
+
+        $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
+        $this->post(route('checkout.delivery.store'), [
+            'delivery_date'      => now()->addDays(2)->toDateString(),
+            'delivery_time_slot' => Order::DELIVERY_SLOT_MORNING,
+        ]);
+
+        $this->get(route('checkout.order-review'))
+            ->assertOk()
+            ->assertSee(__('location.map.pinned_label'))
+            ->assertSee('google.com/maps?q=24.7136,46.6753', false);
     }
 }

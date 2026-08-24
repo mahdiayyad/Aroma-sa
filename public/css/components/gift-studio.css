@@ -42,10 +42,11 @@
 /* --- Greeting card picker ------------------------------------------------ */
 .aroma-gift-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
 }
 .aroma-gift-card-option {
+  position: relative; /* anchors the zoom button below */
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -70,14 +71,34 @@
   font-weight: 600;
   color: var(--aroma-ink);
   text-align: center;
+  /* Two-line clamp instead of one-line ellipsis, matching
+     .aroma-product-title in cards.css — a design's full name stays
+     legible instead of being truncated at this larger tile size. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .aroma-gift-card-none {
   align-items: center;
   justify-content: center;
   min-height: 100%;
+}
+/* Caption (blank-note only) and price — scoped under .aroma-gift-card-option
+   so they win over the generic "span" name-styling rule above. */
+.aroma-gift-card-option .aroma-gift-card-caption {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--aroma-muted);
+  margin-top: -0.25rem;
+}
+.aroma-gift-card-option .aroma-gift-card-price {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--aroma-brown);
+}
+.aroma-gift-card-option .aroma-gift-card-price.is-free {
+  color: var(--aroma-success);
 }
 .aroma-gift-card-none i { font-size: 1.6rem; color: var(--aroma-muted); margin-top: 1rem; }
 .aroma-gift-card-option:hover { border-color: var(--aroma-light-brown); }
@@ -85,6 +106,68 @@
   border-color: var(--aroma-brown);
   box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
 }
+
+/* Zoom/preview button — same corner-reveal-on-hover language as
+   .aroma-quick-add in cards.css, sized for a small circular icon rather
+   than a full-width bar. Always visible on touch (no hover to reveal it). */
+.aroma-gift-card-zoom {
+  position: absolute;
+  top: 0.5rem;
+  inset-inline-end: 0.5rem;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(26, 18, 10, 0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity var(--aroma-transition-fast, 0.15s ease), background var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-gift-card-zoom:hover,
+.aroma-gift-card-zoom:focus-visible { background: rgba(26, 18, 10, 0.8); outline: none; }
+.aroma-gift-card-option:hover .aroma-gift-card-zoom,
+.aroma-gift-card-option:focus-within .aroma-gift-card-zoom { opacity: 1; }
+@media (hover: none) {
+  .aroma-gift-card-zoom { opacity: 1; }
+}
+
+/* --- Preview modal (#giftCardPreviewModal) -------------------------------- */
+.aroma-gift-card-preview-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.aroma-gift-card-preview-large {
+  max-width: 100%;
+  max-height: 60vh;
+  /* contain, not the grid thumbnails' cover/crop — this is the one place
+     a design's full source art shows uncropped. */
+  object-fit: contain;
+  border-radius: var(--aroma-radius-sm, 0.5rem);
+  background: var(--aroma-skin);
+}
+.aroma-gift-card-nav {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--aroma-border);
+  background: #fff;
+  color: var(--aroma-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--aroma-transition-fast, 0.15s ease), border-color var(--aroma-transition-fast, 0.15s ease);
+}
+.aroma-gift-card-nav:hover,
+.aroma-gift-card-nav:focus-visible { background: var(--aroma-skin); border-color: var(--aroma-light-brown); outline: none; }
+html[dir="rtl"] .aroma-gift-card-nav-prev i { transform: scaleX(-1); }
+html[dir="rtl"] .aroma-gift-card-nav-next i { transform: scaleX(-1); }
 
 /* --- Message counters ----------------------------------------------------- */
 .aroma-gift-counters { white-space: nowrap; }
@@ -152,11 +235,22 @@
 }
 .aroma-gift-preview-message {
   font-family: var(--aroma-script, "Tangerine", cursive);
-  font-size: 1.6rem;
-  line-height: 1.3;
+  font-size: 1.35rem;
+  line-height: 1.4;
   color: var(--aroma-ink);
   white-space: pre-wrap;
   overflow-wrap: break-word;
+}
+/* Tangerine has no Arabic glyphs, so an Arabic message would otherwise fall
+   back to the plain body font — Aref Ruqaa is a calligraphic Naskh/Ruqaa
+   face that actually reads as "handwritten" in Arabic, sized down from the
+   Latin script (its letterforms run visually larger at the same rem value)
+   and given extra line-height for its ascenders/descenders. */
+html[lang="ar"] .aroma-gift-preview-message {
+  font-family: "Aref Ruqaa", var(--aroma-heading-ar), serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.9;
 }
 .aroma-gift-preview-signature {
   display: block;

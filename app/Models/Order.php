@@ -29,6 +29,7 @@ class Order extends Model
         'is_gift' => 'boolean',
         'is_anonymous' => 'boolean',
         'gift_wrap_fee' => 'decimal:2',
+        'greeting_card_fee' => 'decimal:2',
         'delivery_date' => 'date',
     ];
 

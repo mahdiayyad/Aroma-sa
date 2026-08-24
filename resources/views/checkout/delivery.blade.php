@@ -59,9 +59,7 @@
                 </div>
 
                 <div class="d-flex gap-3 justify-content-between aroma-actions-stack">
-                    <a href="{{ route('checkout.gift-options') }}" class="btn btn-aroma-outline">
-                        <i class="bi {{ $locale === 'ar' ? 'bi-chevron-right' : 'bi-chevron-left' }} me-2"></i>{{ __('checkout.buttons.back') }}
-                    </a>
+                    <x-back-link :href="route('checkout.gift-options')" />
                     <button type="submit" class="btn btn-aroma btn-lg">
                         {{ __('checkout.buttons.continue') }} <i class="bi {{ $locale === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }} ms-2"></i>
                     </button>

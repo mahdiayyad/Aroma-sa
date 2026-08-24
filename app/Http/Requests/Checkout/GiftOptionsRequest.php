@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Checkout;
 
+use App\Rules\InternationalPhone;
+use App\Rules\LocationCode;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,12 +38,21 @@ class GiftOptionsRequest extends FormRequest
             // When it's a gift, the recipient's own shipping address is
             // collected here — it replaces checkout.shipping_address (see the
             // "Recipient model" decision: shipping_address IS the recipient).
-            'recipient.recipient_name'  => [Rule::requiredIf($isGift), 'string', 'max:100'],
-            'recipient.phone'           => [Rule::requiredIf($isGift), 'string', 'regex:/^(\+9665|05)\d{8}$/'],
-            'recipient.street_address'  => [Rule::requiredIf($isGift), 'string', 'max:255'],
-            'recipient.city'            => [Rule::requiredIf($isGift), 'string', 'max:100'],
-            'recipient.region'          => [Rule::requiredIf($isGift), 'string', 'max:100'],
-            'recipient.postal_code'     => ['nullable', 'string', 'max:20'],
+            // 'nullable' matters here even though requiredIf already governs
+            // whether the field is mandatory: when it's not a gift, the empty
+            // input becomes null (ConvertEmptyStringsToNull), and without
+            // 'nullable' the 'string' rule below fails on that null instead of
+            // being skipped — which is exactly the bug this fixes.
+            'recipient.recipient_name'  => [Rule::requiredIf($isGift), 'nullable', 'string', 'max:100'],
+            'recipient.phone'           => [Rule::requiredIf($isGift), 'nullable', 'string', new InternationalPhone()],
+            // Resolved server-side via LocationLookupService (code) or stored
+            // directly (map pin) — not collected as free text. Exactly one of
+            // location_code / (latitude+longitude) is required when it's a
+            // gift (see withValidator below); neither is individually
+            // required here so either can be omitted.
+            'recipient.location_code'   => ['nullable', 'string', new LocationCode()],
+            'recipient.latitude'        => ['nullable', 'numeric', 'between:-90,90'],
+            'recipient.longitude'       => ['nullable', 'numeric', 'between:-180,180'],
 
             'is_anonymous'     => ['boolean'],
             'gift_wrap'        => ['boolean'],
@@ -60,10 +72,19 @@ class GiftOptionsRequest extends FormRequest
         ];
     }
 
-    public function messages(): array
+    public function withValidator(Validator $validator): void
     {
-        return [
-            'recipient.phone.regex' => __('auth_ui.validation.phone'),
-        ];
+        $validator->after(function (Validator $validator) {
+            if (! $this->boolean('is_gift')) {
+                return;
+            }
+
+            $hasCode = filled($this->input('recipient.location_code'));
+            $hasCoordinates = filled($this->input('recipient.latitude')) && filled($this->input('recipient.longitude'));
+
+            if (! $hasCode && ! $hasCoordinates) {
+                $validator->errors()->add('recipient.location_code', __('location.errors.required_one'));
+            }
+        });
     }
 }

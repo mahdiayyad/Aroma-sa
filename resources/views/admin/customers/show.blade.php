@@ -15,7 +15,7 @@
                     <div class="admin-field">
                         <span class="admin-label">{{ __('admin.customers.email') }}</span>
                         <div class="admin-cell-sub">{{ $customer->email ?? '—' }}</div>
-                        <div class="admin-cell-sub">{{ $customer->phone ?? '—' }}</div>
+                        <div class="admin-cell-sub" dir="ltr">{{ $customer->phone ?? '—' }}</div>
                     </div>
 
                     <x-admin.form.group :label="__('admin.customers.role')" name="role">

@@ -23,7 +23,7 @@
                             <tr class="small text-aroma-muted">
                                 <th>{{ __('cart.product') }}</th>
                                 <th>{{ __('cart.price') }}</th>
-                                <th style="width:130px">{{ __('cart.qty') }}</th>
+                                <th style="width:150px">{{ __('cart.qty') }}</th>
                                 <th class="text-end">{{ __('cart.total') }}</th>
                                 <th></th>
                             </tr>
@@ -49,10 +49,14 @@
                                     <td>@price($row['unit_price'])</td>
                                     <td>
                                         {{-- Live: changing the quantity updates totals without a reload (Item 3) --}}
-                                        <input type="number" value="{{ $row['qty'] }}" min="0" max="99"
-                                               class="form-control form-control-sm js-cart-qty" style="width:72px"
-                                               data-url="{{ route('cart.update', $rowId) }}"
-                                               aria-label="{{ __('cart.qty') }}">
+                                        <div class="aroma-qty-stepper aroma-qty-sm">
+                                            <button type="button" class="aroma-qty-btn aroma-qty-minus" aria-label="{{ __('cart.decrease') }}">&minus;</button>
+                                            <input type="number" value="{{ $row['qty'] }}" min="0" max="99"
+                                                   class="form-control form-control-sm js-cart-qty aroma-qty-input"
+                                                   data-url="{{ route('cart.update', $rowId) }}"
+                                                   aria-label="{{ __('cart.qty') }}">
+                                            <button type="button" class="aroma-qty-btn aroma-qty-plus" aria-label="{{ __('cart.increase') }}">+</button>
+                                        </div>
                                     </td>
                                     <td class="text-end fw-semibold js-line-total">@price($row['unit_price'] * $row['qty'])</td>
                                     <td class="text-end">
@@ -60,7 +64,7 @@
                                         <form method="post" action="{{ route('cart.remove', $rowId) }}" class="js-cart-remove">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="btn btn-sm btn-link text-danger" type="submit" title="{{ __('cart.remove') }}">
+                                            <button class="btn btn-sm btn-link text-danger" type="submit" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('cart.remove') }}">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>

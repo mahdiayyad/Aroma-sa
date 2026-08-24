@@ -20,6 +20,9 @@ return [
 
     'card_title'     => 'اختر بطاقة معايدة',
     'card_none'      => 'بدون بطاقة',
+    'card_free'      => 'مجاناً',
+    'blank_note_caption' => 'اكتب ما يحلو لك',
+    'card_fee_title' => 'بطاقة المعايدة',
 
     'message_title'  => 'رسالتك',
     'to_label'       => 'إلى (اختياري)',
@@ -48,6 +51,10 @@ return [
     'preview_empty'  => 'اختر تصميم بطاقة لتظهر هنا.',
     'preview_to'     => 'إلى :name',
     'preview_from'   => 'من :name',
+    'preview_prev'   => 'التصميم السابق',
+    'preview_next'   => 'التصميم التالي',
+    'preview_select' => 'اختر هذا التصميم',
+    'preview_selected' => 'تم الاختيار ✓',
 
     'continue' => 'حفظ ومتابعة',
     'skip'     => 'تخطي — ليست هدية',

@@ -210,6 +210,60 @@
         }
     });
 
+    /* --- Greeting card large preview modal ----------------------------------- *
+     * Populated per-click via Bootstrap's own relatedTarget convention (one
+     * shared modal, not one per design) — see .aroma-gift-card-zoom buttons
+     * in gift-options.blade.php. Selecting a design from inside the modal
+     * checks the matching grid radio and dispatches `change` on it, which is
+     * what keeps applyCardPreview() above in sync — no duplicated preview
+     * logic between the grid and the modal. */
+    var previewModalEl = document.getElementById('giftCardPreviewModal');
+    if (previewModalEl) {
+        var previewTriggers = Array.prototype.slice.call(document.querySelectorAll('.aroma-gift-card-zoom'));
+        var previewImg = document.getElementById('giftCardPreviewLarge');
+        var previewName = document.getElementById('giftCardPreviewName');
+        var previewSelectBtn = document.getElementById('giftCardPreviewSelect');
+        var previewPrevBtn = document.getElementById('giftCardPreviewPrev');
+        var previewNextBtn = document.getElementById('giftCardPreviewNext');
+        var previewIndex = 0;
+
+        function showPreviewByIndex(i) {
+            if (!previewTriggers.length) { return; }
+            previewIndex = (i + previewTriggers.length) % previewTriggers.length;
+            var t = previewTriggers[previewIndex].dataset;
+            previewImg.src = t.cardImage;
+            previewImg.alt = t.cardName;
+            previewName.textContent = t.cardName;
+
+            var radio = document.getElementById('card-' + t.cardId);
+            var alreadySelected = !!(radio && radio.checked);
+            previewSelectBtn.textContent = alreadySelected ? previewSelectBtn.dataset.selectedLabel : previewSelectBtn.dataset.selectLabel;
+            previewSelectBtn.disabled = alreadySelected;
+            previewSelectBtn.dataset.cardId = t.cardId;
+        }
+
+        previewModalEl.addEventListener('show.bs.modal', function (event) {
+            var trigger = event.relatedTarget;
+            var idx = trigger ? previewTriggers.indexOf(trigger) : -1;
+            showPreviewByIndex(idx === -1 ? 0 : idx);
+        });
+
+        if (previewPrevBtn) { previewPrevBtn.addEventListener('click', function () { showPreviewByIndex(previewIndex - 1); }); }
+        if (previewNextBtn) { previewNextBtn.addEventListener('click', function () { showPreviewByIndex(previewIndex + 1); }); }
+
+        if (previewSelectBtn) {
+            previewSelectBtn.addEventListener('click', function () {
+                var radio = document.getElementById('card-' + previewSelectBtn.dataset.cardId);
+                if (radio && !radio.checked) {
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                var modalInstance = window.bootstrap && window.bootstrap.Modal.getInstance(previewModalEl);
+                if (modalInstance) { modalInstance.hide(); }
+            });
+        }
+    }
+
     /* --- Init ------------------------------------------------------------------ */
     applyToggleState();
     applyCardPreview();

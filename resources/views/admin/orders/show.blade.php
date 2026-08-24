@@ -50,13 +50,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <x-admin.card :title="__('admin.orders.shipping_address')">
-                        @php($addr = $order->shipping_address)
-                        <div class="admin-cell-sub">
-                            <div>{{ $addr['recipient_name'] ?? '' }}</div>
-                            <div>{{ $addr['street_address'] ?? '' }}</div>
-                            <div>{{ ($addr['city'] ?? '') }}, {{ $addr['region'] ?? '' }} {{ $addr['postal_code'] ?? '' }}</div>
-                            <div>{{ $addr['phone'] ?? $order->customer_phone }}</div>
-                        </div>
+                        <x-address-summary class="admin-cell-sub" :address="$order->shipping_address" :phone="$order->customer_phone" />
                     </x-admin.card>
                 </div>
                 <div class="col-md-6">
@@ -112,6 +106,7 @@
                                     @endif
                                     @if ($order->gift_media_url)<div class="admin-cell-sub mt-1"><i class="bi bi-music-note-beamed me-1"></i><a href="{{ $order->gift_media_url }}" target="_blank" rel="noopener">{{ __('admin.orders.gift_media') }}</a></div>@endif
                                     @if ($order->gift_wrap_fee > 0)<div class="admin-cell-sub mt-1"><i class="bi bi-check-circle me-1"></i>{{ __('admin.orders.gift_wrap') }} (@price($order->gift_wrap_fee))</div>@endif
+                                    @if ($order->greeting_card_fee > 0)<div class="admin-cell-sub mt-1"><i class="bi bi-tag me-1"></i>{{ __('admin.orders.card_fee') }} (@price($order->greeting_card_fee))</div>@endif
                                 </div>
                             </div>
                         @else
@@ -126,7 +121,7 @@
             <x-admin.card :title="__('admin.orders.customer_info')">
                 <div class="admin-cell-main">{{ $order->customer_name }}</div>
                 <div class="admin-cell-sub">{{ $order->customer_email }}</div>
-                <div class="admin-cell-sub">{{ $order->customer_phone }}</div>
+                <div class="admin-cell-sub" dir="ltr">{{ $order->customer_phone }}</div>
                 @if (!$order->user_id)<span class="admin-badge admin-badge-neutral mt-2">{{ __('admin.orders.guest') }}</span>@endif
                 @if ($order->customer_notes)
                     <hr class="my-2">

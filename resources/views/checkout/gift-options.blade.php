@@ -58,32 +58,14 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold">{{ __('checkout.phone') }}</label>
-                                    <input type="tel" name="recipient[phone]" class="form-control @error('recipient.phone') is-invalid @enderror"
-                                           value="{{ old('recipient.phone', $recipient['phone'] ?? '') }}">
-                                    @error('recipient.phone')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                    <x-phone-input name="recipient[phone]" :value="$recipient['phone'] ?? null" />
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label fw-semibold">{{ __('checkout.street_address') }}</label>
-                                    <input type="text" name="recipient[street_address]" class="form-control @error('recipient.street_address') is-invalid @enderror"
-                                           value="{{ old('recipient.street_address', $recipient['street_address'] ?? '') }}">
-                                    @error('recipient.street_address')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">{{ __('checkout.city') }}</label>
-                                    <input type="text" name="recipient[city]" class="form-control @error('recipient.city') is-invalid @enderror"
-                                           value="{{ old('recipient.city', $recipient['city'] ?? '') }}">
-                                    @error('recipient.city')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">{{ __('checkout.region') }}</label>
-                                    <input type="text" name="recipient[region]" class="form-control @error('recipient.region') is-invalid @enderror"
-                                           value="{{ old('recipient.region', $recipient['region'] ?? '') }}">
-                                    @error('recipient.region')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">{{ __('checkout.postal_code') }}</label>
-                                    <input type="text" name="recipient[postal_code]" class="form-control"
-                                           value="{{ old('recipient.postal_code', $recipient['postal_code'] ?? '') }}">
+                                    <label class="form-label fw-semibold">{{ __('location.label') }}</label>
+                                    <x-location-picker field-prefix="recipient" dom-id="recipient"
+                                        :code="$recipient['location_code'] ?? null"
+                                        :latitude="$recipient['latitude'] ?? null"
+                                        :longitude="$recipient['longitude'] ?? null" />
                                 </div>
                             </div>
 
@@ -130,6 +112,26 @@
                                     <label class="aroma-gift-card-option" for="card-{{ $card->id }}" data-image="{{ $card->imageUrl() }}">
                                         <img src="{{ $card->imageUrl() }}" alt="{{ $card->name }}" loading="lazy">
                                         <span>{{ $card->name }}</span>
+                                        @if ($card->slug === 'blank-note')
+                                            <span class="aroma-gift-card-caption">{{ __('gift.blank_note_caption') }}</span>
+                                        @endif
+                                        <span class="aroma-gift-card-price {{ (float) $card->price === 0.0 ? 'is-free' : '' }}">
+                                            @if ((float) $card->price === 0.0)
+                                                {{ __('gift.card_free') }}
+                                            @else
+                                                @price($card->price)
+                                            @endif
+                                        </span>
+                                        {{-- A button nested inside this <label> doesn't double-toggle
+                                             the radio — the same nesting the terms checkbox above
+                                             already relies on. Opens the shared preview modal below
+                                             so a design can be seen full-size before committing. --}}
+                                        <button type="button" class="aroma-gift-card-zoom"
+                                                data-bs-toggle="modal" data-bs-target="#giftCardPreviewModal"
+                                                data-card-id="{{ $card->id }}" data-card-image="{{ $card->imageUrl() }}" data-card-name="{{ $card->name }}"
+                                                aria-label="{{ __('gift.preview_cta') }}">
+                                            <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
+                                        </button>
                                     </label>
                                 @endforeach
                             </div>
@@ -226,9 +228,7 @@
 
         {{-- Action buttons --}}
         <div class="d-flex gap-3 justify-content-between aroma-actions-stack mt-2">
-            <a href="{{ route('checkout.address') }}" class="btn btn-aroma-outline">
-                <i class="bi {{ $locale === 'ar' ? 'bi-chevron-right' : 'bi-chevron-left' }} me-2"></i>{{ __('checkout.buttons.back') }}
-            </a>
+            <x-back-link :href="route('checkout.address')" />
             <button type="submit" class="btn btn-aroma btn-lg" id="giftSubmit">
                 <span id="giftSubmitLabel" data-continue-label="{{ __('gift.continue') }}" data-skip-label="{{ __('gift.skip') }}">{{ $isGift ? __('gift.continue') : __('gift.skip') }}</span>
                 <i class="bi {{ $locale === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }} ms-2"></i>
@@ -288,7 +288,41 @@
     </div>
 </div>
 
+{{-- One shared modal for all designs, populated per-click via Bootstrap's
+     own relatedTarget convention (see gift-studio.js) rather than one modal
+     per card. object-fit:contain (not the grid thumbnails' cover/crop) shows
+     each design's full artwork uncropped — the grid stays a fast-scanning
+     index, this is the "look closer" view. --}}
+<div class="modal fade" id="giftCardPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="giftCardPreviewName"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="aroma-gift-card-preview-stage">
+                    <button type="button" class="aroma-gift-card-nav aroma-gift-card-nav-prev" id="giftCardPreviewPrev" aria-label="{{ __('gift.preview_prev') }}">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <img id="giftCardPreviewLarge" src="" alt="" class="aroma-gift-card-preview-large">
+                    <button type="button" class="aroma-gift-card-nav aroma-gift-card-nav-next" id="giftCardPreviewNext" aria-label="{{ __('gift.preview_next') }}">
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-aroma w-100" id="giftCardPreviewSelect"
+                        data-select-label="{{ __('gift.preview_select') }}" data-selected-label="{{ __('gift.preview_selected') }}">
+                    {{ __('gift.preview_select') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
+<script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/gift-studio.js') }}"></script>
 @endpush
 @endsection

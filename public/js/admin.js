@@ -3,6 +3,31 @@
     'use strict';
 
     $(function () {
+        // Success flash → toast. Server-side redirects still set the
+        // session('status') flash the usual Laravel way; this just renders it
+        // as a brand-themed SweetAlert2 toast instead of a banner.
+        var flashSuccess = document.body.getAttribute('data-flash-success');
+        if (flashSuccess && window.Swal) {
+            Swal.fire({
+                toast: true,
+                position: document.documentElement.getAttribute('dir') === 'rtl' ? 'top-start' : 'top-end',
+                icon: 'success',
+                title: flashSuccess,
+                showConfirmButton: false,
+                timer: 3500,
+                timerProgressBar: true,
+                customClass: { popup: 'aroma-swal-popup' }
+            });
+        }
+
+        // Brand-themed tooltips (see .tooltip overrides in aroma.css) —
+        // replaces the native title="" hover tooltip on icon-only actions.
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            if (window.bootstrap && window.bootstrap.Tooltip) {
+                window.bootstrap.Tooltip.getOrCreateInstance(el);
+            }
+        });
+
         // Mobile sidebar toggle + backdrop.
         var $sidebar = $('#adminSidebar');
         var $backdrop = $('#adminBackdrop');
@@ -10,9 +35,38 @@
         $('#adminMenuToggle').on('click', function () { $sidebar.toggleClass('open'); $backdrop.toggleClass('show'); });
         $backdrop.on('click', closeSidebar);
 
-        // Confirm destructive actions: <form data-confirm="Delete this?">
+        // Confirm destructive actions: <form data-confirm="Delete this?"> —
+        // a brand-themed SweetAlert2 dialog instead of the native browser
+        // confirm(). Falls back to the native one if the CDN failed to load.
         $(document).on('submit', 'form[data-confirm]', function (e) {
-            if (!window.confirm($(this).data('confirm'))) { e.preventDefault(); }
+            var form = this;
+            var message = $(form).data('confirm');
+
+            if (!window.Swal) {
+                if (!window.confirm(message)) { e.preventDefault(); }
+                return;
+            }
+
+            e.preventDefault();
+            var isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+
+            Swal.fire({
+                title: message,
+                icon: 'warning',
+                showCancelButton: true,
+                focusCancel: true,
+                reverseButtons: isRtl,
+                confirmButtonText: document.body.getAttribute('data-confirm-yes') || 'Yes',
+                cancelButtonText: document.body.getAttribute('data-confirm-cancel') || 'Cancel',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'aroma-swal-popup',
+                    confirmButton: 'aroma-swal-btn aroma-swal-btn-danger',
+                    cancelButton: 'aroma-swal-btn aroma-swal-btn-outline'
+                }
+            }).then(function (result) {
+                if (result.isConfirmed) { form.submit(); }
+            });
         });
 
         // Image upload preview: <input type="file" data-preview="#target">

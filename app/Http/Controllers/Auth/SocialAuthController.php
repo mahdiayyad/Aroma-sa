@@ -13,43 +13,49 @@ use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
 /**
- * OAuth sign-in via Socialite. Google is supported out of the box; Apple
- * requires the socialiteproviders/apple community driver (documented). A
- * provider is only offered when its credentials are configured, so the flow
- * degrades gracefully in environments without keys.
+ * OAuth sign-in via Socialite. Currently Google only — the provider is only
+ * offered when its credentials are configured, so the flow degrades
+ * gracefully in environments without keys.
  */
 class SocialAuthController extends Controller
 {
-    private const SUPPORTED = ['google', 'apple'];
+    private const SUPPORTED = ['google'];
 
     public function redirect(string $provider): RedirectResponse
     {
+        // Remember which auth page (login vs register) sent the shopper here,
+        // so any failure below — including "not configured" — can return them
+        // there instead of always landing on the login page. Set before the
+        // config check so it's captured regardless of which branch bails.
+        session(['social_origin' => url()->previous()]);
+
         if (! $this->isConfigured($provider)) {
-            return redirect()->route('login')->withErrors(['login' => __('auth_ui.social.unavailable')]);
+            return $this->failureRedirect(__('auth_ui.social.unavailable'));
         }
 
         try {
             return Socialite::driver($provider)->redirect();
         } catch (Throwable $e) {
-            return redirect()->route('login')->withErrors(['login' => __('auth_ui.social.unavailable')]);
+            return $this->failureRedirect(__('auth_ui.social.unavailable'));
         }
     }
 
     public function callback(string $provider): RedirectResponse
     {
         if (! $this->isConfigured($provider)) {
-            return redirect()->route('login')->withErrors(['login' => __('auth_ui.social.unavailable')]);
+            return $this->failureRedirect(__('auth_ui.social.unavailable'));
         }
 
         try {
             $oauthUser = Socialite::driver($provider)->user();
         } catch (Throwable $e) {
-            return redirect()->route('login')->withErrors(['login' => __('auth_ui.social.failed')]);
+            return $this->failureRedirect(__('auth_ui.social.failed'));
         }
 
         $user = $this->findOrCreateUser($provider, $oauthUser);
 
         Auth::login($user, true);
+        session()->forget('social_origin');
 
         return redirect()->route('account.dashboard')->with('status', __('auth_ui.flash.logged_in'));
     }
@@ -58,6 +64,20 @@ class SocialAuthController extends Controller
     {
         return in_array($provider, self::SUPPORTED, true)
             && ! empty(config("services.$provider.client_id"));
+    }
+
+    /**
+     * Redirect a failed attempt back to wherever it started (login or
+     * register) rather than always defaulting to login. Uses a "social" error
+     * key — not "login" — so the message doesn't get misattributed to the
+     * login form's email/phone field (that field is literally named "login").
+     */
+    private function failureRedirect(string $message): RedirectResponse
+    {
+        $origin = session()->pull('social_origin');
+        $knownAuthPage = $origin && Str::startsWith($origin, [route('login'), route('register')]);
+
+        return redirect($knownAuthPage ? $origin : route('login'))->withErrors(['social' => $message]);
     }
 
     /** @param \Laravel\Socialite\Contracts\User $oauthUser */
@@ -80,14 +100,20 @@ class SocialAuthController extends Controller
         }
 
         // 3) Brand new account.
-        return User::create([
-            'name'              => $oauthUser->getName() ?: Str::before((string) $oauthUser->getEmail(), '@') ?: 'Aroma Customer',
-            'email'             => $oauthUser->getEmail(),
-            'provider'          => $provider,
-            'provider_id'       => $oauthUser->getId(),
-            'avatar'            => $oauthUser->getAvatar(),
-            'locale'            => app()->getLocale(),
-            'email_verified_at' => now(),
+        $user = User::create([
+            'name'        => $oauthUser->getName() ?: Str::before((string) $oauthUser->getEmail(), '@') ?: 'Aroma Customer',
+            'email'       => $oauthUser->getEmail(),
+            'provider'    => $provider,
+            'provider_id' => $oauthUser->getId(),
+            'avatar'      => $oauthUser->getAvatar(),
+            'locale'      => app()->getLocale(),
         ]);
+
+        // email_verified_at is deliberately not mass-assignable (it must
+        // never be settable from ordinary request input) — the provider has
+        // already verified this address, so it's safe to stamp explicitly.
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        return $user;
     }
 }
