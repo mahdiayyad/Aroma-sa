@@ -20,7 +20,7 @@
 .form-control:focus,
 .form-select:focus {
   border-color: var(--aroma-light-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
 }
 
 textarea.form-control {
@@ -72,7 +72,7 @@ textarea.form-control {
   background-image: none;
 }
 .form-control.is-invalid:focus, .form-select.is-invalid:focus {
-  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.2);
+  box-shadow: 0 0 0 3px rgba(51, 1, 1, 0.2);
 }
 .valid-feedback {
   color: var(--aroma-success);
@@ -107,7 +107,7 @@ textarea.form-control {
 }
 .form-check-input:focus {
   border-color: var(--aroma-light-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
 }
 .form-check-label {
   cursor: pointer;
@@ -155,7 +155,7 @@ textarea.form-control {
   justify-content: center;
   width: 2.5rem;
   border: none;
-  background: var(--aroma-white, #FFF3E2);
+  background: var(--aroma-white, #E8DDD2);
   color: var(--aroma-brown);
   /* Latin-first stack: the Arabic display face has no proper glyphs for
      "+"/"−" and renders them as a distorted shape (see --aroma-input-font). */

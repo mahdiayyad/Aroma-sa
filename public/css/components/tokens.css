@@ -25,13 +25,13 @@
      AND hover color (never a filter/opacity/gradient standing in for one),
      so background-color itself is what the browser interpolates on hover.
      --aroma-btn-emerald-bg aliases --aroma-brown (the single source of truth
-     for the brand primary, now Dark Brown — name kept stable across two
+     for the brand primary, now Deep Burgundy — name kept stable across three
      rebrands this session); the hover shade is its own distinct value, not a
      computed darken, so it's exact and designer-controlled. */
-  --aroma-btn-emerald-bg: var(--aroma-brown);       /* rgb(112 79 47) */
-  --aroma-btn-emerald-bg-hover: rgb(90 63 38);      /* #5A3F26 */
-  --aroma-btn-gold-bg: var(--aroma-light-brown);    /* rgb(211 161 122) */
-  --aroma-btn-gold-bg-hover: rgb(173 132 100);      /* #AD8464 — proportional darken of the new warm tan */
+  --aroma-btn-emerald-bg: var(--aroma-brown);       /* rgb(51 1 1) */
+  --aroma-btn-emerald-bg-hover: rgb(26 1 1);        /* #1A0101 */
+  --aroma-btn-gold-bg: var(--aroma-light-brown);    /* rgb(201 179 154) */
+  --aroma-btn-gold-bg-hover: rgb(165 147 126);      /* #A5937E — proportional darken of the new warm taupe */
 
   /* Selection blue — deliberately not brand-brown: used only for "this option
      is the active choice" states (size/variant pickers) where a universally
@@ -42,14 +42,16 @@
   /* Neutral scale — warm-tinted, used for borders, muted text, and disabled
      states instead of Bootstrap's cool grays. --aroma-muted is a genuine
      tint of --aroma-brown (not an independent gray) per the brand brief's
-     "secondary text: softer brown variations derived from #704F2F" — a
-     lightened Dark Brown rather than a desaturated neutral, so secondary
-     copy still reads as warm/brand rather than washed-out. Border/disabled
-     tones were already warm tan-neutrals that harmonise with the new
-     palette unchanged, so only --aroma-muted moves. */
+     "secondary text: softer burgundy variations derived from #330101" —
+     lightened ~45% (contrast-checked at ~3.3:1 against the new Beige
+     background, consistent with the muted-text tier from the last rebrand)
+     rather than a desaturated neutral, so secondary copy still reads as
+     warm/brand rather than washed-out. Border/disabled tones were already
+     warm tan-neutrals that harmonise with the new palette unchanged, so
+     only --aroma-muted moves. */
   --aroma-border: #e7dccc;
   --aroma-border-strong: #d8c7ae;
-  --aroma-muted: #90765D;
+  --aroma-muted: #8F7373;
   --aroma-disabled-bg: #f2eae0;
   --aroma-disabled-text: #b8aa97;
 
@@ -70,25 +72,23 @@
   --aroma-radius-lg: 1.25rem;
   --aroma-radius-xl: 1.75rem;
 
-  /* Elevation system — depth comes from soft, dark-brown-tinted shadow, not
+  /* Elevation system — depth comes from soft, burgundy-tinted shadow, not
      borders or hard edges. Five tiers, resting → cinematic, so every
      component in the platform reaches for one of these instead of
      inventing its own box-shadow. */
-  --aroma-shadow-xs: 0 1px 3px rgba(112, 79, 47, 0.06);
-  --aroma-shadow-sm: 0 4px 16px rgba(112, 79, 47, 0.07);
-  --aroma-shadow-lg: 0 24px 60px rgba(112, 79, 47, 0.16);
-  --aroma-shadow-xl: 0 40px 100px rgba(73, 51, 31, 0.28);
+  --aroma-shadow-xs: 0 1px 3px rgba(51, 1, 1, 0.06);
+  --aroma-shadow-sm: 0 4px 16px rgba(51, 1, 1, 0.07);
+  --aroma-shadow-lg: 0 24px 60px rgba(51, 1, 1, 0.16);
+  --aroma-shadow-xl: 0 40px 100px rgba(33, 1, 1, 0.28);
 
   /* Button elevation pair, used by the .btn-aroma* family: a real (not
      zero-alpha) subtle shadow at rest that deepens on hover. Uses the same
-     Dark Brown tint as the rest of the elevation system above (previously
-     a separate near-black "ink" tint, back when --aroma-ink was a distinct
-     color from --aroma-brown — now that ink IS brown, one shadow tint for
-     the whole platform is simpler and reads as one system, not two). Both
-     states already carry a value, so box-shadow transitions rest → hover
-     smoothly with no "animating from none" edge case to worry about. */
-  --aroma-shadow-hover-rest: 0 4px 12px rgba(112, 79, 47, 0.08);
-  --aroma-shadow-hover: 0 8px 24px rgba(112, 79, 47, 0.14);
+     Burgundy tint as the rest of the elevation system above, so the whole
+     platform reads as one shadow system, not two. Both states already carry
+     a value, so box-shadow transitions rest → hover smoothly with no
+     "animating from none" edge case to worry about. */
+  --aroma-shadow-hover-rest: 0 4px 12px rgba(51, 1, 1, 0.08);
+  --aroma-shadow-hover: 0 8px 24px rgba(51, 1, 1, 0.14);
 
   /* Motion — one easing curve, four durations. Fast for micro-feedback
      (press states), slow/slower for anything that should read as a
@@ -168,12 +168,35 @@ small {
 }
 .aroma-section-label .aroma-eyebrow { margin-bottom: 0.85rem; }
 .aroma-section-label h2 { margin-bottom: 0; }
+/* A small ornamental diamond+dot flourish, flanked by two hairlines, instead
+   of one plain line — the mockup's "ornamental divider" language, kept to a
+   single restrained motif rather than literal iconography so it stays
+   elegant at this size instead of reading as clip-art.
+   NOTE: .aroma-section-label/.aroma-eyebrow/.aroma-rule are pre-existing
+   component-library scaffold (see the file banner) that no view currently
+   renders — verified zero matches in resources/views/. The equivalent
+   flourish that actually ships is on .aroma-section-title::after in
+   aroma.css (the class every real section heading uses); this rule is kept
+   in sync with that one so the scaffold stays correct if it's ever wired
+   into a view, but don't rely on this selector alone to see it live. */
 .aroma-section-label .aroma-rule {
-  width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 15px;
+  margin: 1.35rem auto 0;
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3e%3cpath d='M12 3 L16 12 L12 21 L8 12 Z' fill='none' stroke='%23C9B39A' stroke-width='1.3'/%3e%3ccircle cx='12' cy='12' r='1.6' fill='%23C9B39A'/%3e%3c/svg%3e") no-repeat center / 15px 15px;
+}
+.aroma-section-label .aroma-rule::before,
+.aroma-section-label .aroma-rule::after {
+  content: "";
+  flex: 1;
   height: 1px;
   background: var(--aroma-gold);
-  margin: 1.35rem auto 0;
 }
+.aroma-section-label .aroma-rule::before { margin-inline-end: 10px; }
+.aroma-section-label .aroma-rule::after { margin-inline-start: 10px; }
 
 .text-aroma-muted { color: var(--aroma-muted) !important; }
 .text-aroma-brown { color: var(--aroma-brown) !important; }

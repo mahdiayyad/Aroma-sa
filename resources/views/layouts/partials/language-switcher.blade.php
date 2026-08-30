@@ -20,6 +20,10 @@
         $href = route('locale.switch', $other);
     }
 @endphp
+{{-- Two call sites, both always full icon+text: the header's icon row
+     (desktop only — hidden below lg there, since the icon row has no room
+     left for a 4th item alongside account/wishlist/cart on phones) and the
+     mobile offcanvas nav (mobile only, plenty of room in that list). --}}
 <a href="{{ $href }}" class="btn btn-sm aroma-icon-link border-0 bg-transparent text-decoration-none">
     <i class="bi bi-globe2 me-1"></i>{{ $locales[$other]['native'] ?? strtoupper($other) }}
 </a>

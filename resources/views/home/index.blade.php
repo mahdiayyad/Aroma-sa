@@ -28,7 +28,12 @@
                 'image' => 'images/hero/abaya-rack.jpg',
                 'alt'   => $isAr ? 'مجموعة عبايات أروما المعلّقة — أناقة خالدة' : 'The Aroma abayas collection, hung — timeless elegance',
                 'url'   => $abayasUrl,
-                'title' => $isAr ? 'اكتشف مجموعة العبايات' : 'Discover the Abaya Collection',
+                // No title here — like explore-abayas.jpg below, this artwork
+                // already has its own headline baked in ("Timeless Elegance /
+                // Abayas Collection"), and a dynamic title on top of it was
+                // overlapping/colliding with that baked-in text. Real,
+                // clickable CTA is still needed since the image itself isn't one.
+                'title' => null,
                 'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
             ],
             [
@@ -113,6 +118,29 @@
         </div>
     </section>
 
+    {{-- Perks row — mockup-style: a plain 4-item icon row right under the
+         hero, no card/border. Payment-method trust signals aren't lost by
+         moving away from the old payments/BNPL copy here — the footer's
+         payment-icon-chip row already carries that. --}}
+    <section class="container aroma-perks-row">
+        <div class="aroma-perk">
+            <i class="bi bi-gift" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.gift_wrap') }}</p>
+        </div>
+        <div class="aroma-perk">
+            <i class="bi bi-award" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.curated') }}</p>
+        </div>
+        <div class="aroma-perk">
+            <i class="bi bi-truck" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.delivery') }}</p>
+        </div>
+        <div class="aroma-perk">
+            <i class="bi bi-percent" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.offers') }}</p>
+        </div>
+    </section>
+
     {{-- Categories --}}
     <section class="container aroma-section" id="categories">
         <h2 class="aroma-section-title">{{ __('storefront.sections.categories') }}</h2>
@@ -120,12 +148,28 @@
             @foreach ($featuredCategories as $category)
                 <div class="col-6 col-md-4 col-lg-2">
                     <a href="{{ route('category.show', [app()->getLocale(), $category->slug]) }}" class="text-decoration-none">
-                        <div class="aroma-category-card text-center">
-                            <div class="card-body py-4">
-                                <i class="bi {{ $category->icon ?? 'bi-tag' }} fs-1 d-block mb-2 text-aroma-brown"></i>
-                                <span class="fw-semibold">{{ $category->name }}</span>
+                        @if ($category->image)
+                            {{-- Photo tile: real category photography, per the
+                                 mockup, with a solid caption bar rather than
+                                 text overlaid straight on the image. --}}
+                            <div class="aroma-category-card aroma-category-card-photo">
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($category->image) }}"
+                                     alt="{{ $category->name }}" loading="lazy" class="aroma-category-card-img">
+                                <div class="aroma-category-card-caption">
+                                    <span class="fw-semibold">{{ $category->name }}</span>
+                                    <i class="bi {{ app()->getLocale() === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }}" aria-hidden="true"></i>
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            {{-- No photo on file for this category yet — the
+                                 original icon-in-a-box tile, restyled. --}}
+                            <div class="aroma-category-card text-center">
+                                <div class="card-body py-4">
+                                    <i class="bi {{ $category->icon ?? 'bi-tag' }} fs-1 d-block mb-2 text-aroma-brown"></i>
+                                    <span class="fw-semibold">{{ $category->name }}</span>
+                                </div>
+                            </div>
+                        @endif
                     </a>
                 </div>
             @endforeach
@@ -146,17 +190,18 @@
         </section>
     @endif
 
-    {{-- Gifting spotlight --}}
+    {{-- Gifting spotlight — mockup-driven: centered offer copy flanked by the
+         brand's hand-drawn product/botanical pattern bleeding off both edges,
+         instead of the old two-column text+icon layout. --}}
     <section class="container aroma-section" id="gifting" style="scroll-margin-top:90px">
-        <div class="row align-items-center g-4 aroma-trust p-4">
-            <div class="col-md-7">
+        <div class="aroma-promo-panel aroma-trust p-4 p-md-5 text-center">
+            <div class="aroma-promo-pattern aroma-promo-pattern-start" aria-hidden="true"></div>
+            <div class="aroma-promo-pattern aroma-promo-pattern-end" aria-hidden="true"></div>
+            <div class="aroma-promo-content">
                 <h2 class="aroma-section-title">{{ __('storefront.sections.gifting') }}</h2>
                 <p class="fs-5 mb-2">{{ __('storefront.gifting.headline') }}</p>
                 <p class="text-aroma-muted mb-3">{{ __('storefront.gifting.body') }}</p>
                 <a href="#" class="btn btn-aroma">{{ __('storefront.gifting.cta') }}</a>
-            </div>
-            <div class="col-md-5 text-center">
-                <i class="bi bi-gift aroma-icon-xl text-aroma-light-brown"></i>
             </div>
         </div>
     </section>
@@ -174,25 +219,6 @@
             </div>
         </section>
     @endif
-
-    {{-- Trust badges --}}
-    <section class="container aroma-section">
-        <h2 class="aroma-section-title">{{ __('storefront.trust.title') }}</h2>
-        <div class="row g-0 aroma-trust text-center">
-            <div class="col-md-4 aroma-trust-item border-end">
-                <i class="bi bi-shield-check fs-2 d-block mb-2 text-aroma-brown"></i>
-                <p class="mb-0 small">{{ __('storefront.trust.payments') }}</p>
-            </div>
-            <div class="col-md-4 aroma-trust-item border-end">
-                <i class="bi bi-wallet2 fs-2 d-block mb-2 text-aroma-brown"></i>
-                <p class="mb-0 small">{{ __('storefront.trust.bnpl') }}</p>
-            </div>
-            <div class="col-md-4 aroma-trust-item">
-                <i class="bi bi-truck fs-2 d-block mb-2 text-aroma-brown"></i>
-                <p class="mb-0 small">{{ __('storefront.trust.delivery') }}</p>
-            </div>
-        </div>
-    </section>
 
     {{-- Newsletter --}}
     <section class="container aroma-section">

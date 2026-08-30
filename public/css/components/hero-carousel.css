@@ -79,7 +79,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(26, 18, 10, 0.94) 0%, rgba(26, 18, 10, 0.78) 32%, rgba(26, 18, 10, 0.4) 58%, rgba(26, 18, 10, 0) 82%);
+  background: linear-gradient(0deg, rgba(20, 4, 4, 0.94) 0%, rgba(20, 4, 4, 0.78) 32%, rgba(20, 4, 4, 0.4) 58%, rgba(20, 4, 4, 0) 82%);
   pointer-events: none;
   z-index: 1;
 }
@@ -121,16 +121,18 @@ html[lang="ar"] .aroma-hero-slide-title {
   font-weight: 600;
   letter-spacing: 0;
 }
-/* Ghost/outline CTA — a thin gold-on-translucent border rather than a
-   filled pill, the signature "restrained luxury" button treatment used
-   wherever a CTA sits on top of imagery. */
+/* Solid filled CTA — mockup-driven: a solid Burgundy pill rather than the
+   previous ghost/outline treatment. The title above keeps its white text +
+   scrim (untouched, deliberately tuned this session to stay legible across
+   all 5 campaign photos) — only the button itself changes, since a solid
+   fill reads correctly regardless of how strong the scrim is underneath. */
 .aroma-hero-slide-cta {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  background-color: transparent;
-  border: 1px solid rgba(255, 243, 226, 0.65);
-  color: #fff;
+  background-color: var(--aroma-brown);
+  border: 1px solid var(--aroma-brown);
+  color: var(--aroma-white);
   text-decoration: none;
   border-radius: 999px;
   padding: 0.75rem 1.75rem;
@@ -145,9 +147,9 @@ html[lang="ar"] .aroma-hero-slide-title {
 }
 .aroma-hero-slide-cta:hover,
 .aroma-hero-slide-cta:focus-visible {
-  background-color: var(--aroma-gold);
-  border-color: var(--aroma-gold);
-  color: var(--aroma-ink);
+  background-color: var(--aroma-emerald-deep);
+  border-color: var(--aroma-emerald-deep);
+  color: var(--aroma-white);
   transform: translateX(4px);
 }
 html[dir="rtl"] .aroma-hero-slide-cta:hover,
@@ -201,7 +203,7 @@ html[dir="rtl"] .aroma-hero-slide-cta i {
   height: 3.25rem;
   background-image: none; /* drop Bootstrap's default SVG mask */
   border-radius: 50%;
-  background-color: rgba(255, 243, 226, 0.9); /* --aroma-white, translucent */
+  background-color: rgba(232, 221, 210, 0.9); /* --aroma-white, translucent */
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 8px 24px rgba(10, 26, 20, 0.25);
@@ -230,7 +232,7 @@ html[dir="rtl"] .aroma-hero-carousel .carousel-control-next-icon::before { conte
 .aroma-hero-carousel .carousel-control-next:hover .carousel-control-next-icon {
   background-color: var(--aroma-white);
   transform: scale(1.08);
-  box-shadow: 0 6px 20px rgba(26, 18, 10, 0.24);
+  box-shadow: 0 6px 20px rgba(20, 4, 4, 0.24);
 }
 .aroma-hero-carousel .carousel-control-prev:active .carousel-control-prev-icon,
 .aroma-hero-carousel .carousel-control-next:active .carousel-control-next-icon {
@@ -239,7 +241,7 @@ html[dir="rtl"] .aroma-hero-carousel .carousel-control-next-icon::before { conte
 .aroma-hero-carousel .carousel-control-prev:focus-visible .carousel-control-prev-icon,
 .aroma-hero-carousel .carousel-control-next:focus-visible .carousel-control-next-icon {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 4px 16px rgba(26, 18, 10, 0.18);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 4px 16px rgba(20, 4, 4, 0.18);
 }
 
 /* --- Indicators (slim dots, not Bootstrap's default fat bars) ------------
