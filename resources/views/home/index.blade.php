@@ -141,60 +141,65 @@
         </div>
     </section>
 
-    {{-- Categories --}}
-    <section class="container aroma-section" id="categories">
-        <h2 class="aroma-section-title">{{ __('storefront.sections.categories') }}</h2>
-        <div class="row g-4">
-            @foreach ($featuredCategories as $category)
-                <div class="col-6 col-md-4 col-lg-2">
-                    <a href="{{ route('category.show', [app()->getLocale(), $category->slug]) }}" class="text-decoration-none">
-                        @if ($category->image)
-                            {{-- Photo tile: real category photography, per the
-                                 mockup, with a solid caption bar rather than
-                                 text overlaid straight on the image. --}}
-                            <div class="aroma-category-card aroma-category-card-photo">
-                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($category->image) }}"
-                                     alt="{{ $category->name }}" loading="lazy" class="aroma-category-card-img">
-                                <div class="aroma-category-card-caption">
-                                    <span class="fw-semibold">{{ $category->name }}</span>
-                                    <i class="bi {{ app()->getLocale() === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }}" aria-hidden="true"></i>
-                                </div>
-                            </div>
-                        @else
-                            {{-- No photo on file for this category yet — the
-                                 original icon-in-a-box tile, restyled. --}}
-                            <div class="aroma-category-card text-center">
-                                <div class="card-body py-4">
-                                    <i class="bi {{ $category->icon ?? 'bi-tag' }} fs-1 d-block mb-2 text-aroma-brown"></i>
-                                    <span class="fw-semibold">{{ $category->name }}</span>
-                                </div>
-                            </div>
-                        @endif
-                    </a>
-                </div>
-            @endforeach
-        </div>
-    </section>
-
-    {{-- New arrivals --}}
-    @if ($newArrivals->isNotEmpty())
-        <section class="container aroma-section">
-            <h2 class="aroma-section-title">{{ __('storefront.sections.new_arrivals') }}</h2>
+    {{-- Categories + New arrivals share one white band — mockup-driven: the
+         page isn't beige end-to-end, this stretch reads as its own white
+         zone (the cards already sit on white; now the section does too,
+         instead of looking like white cards floating on a beige page). --}}
+    <div class="aroma-white-band">
+        <section class="container aroma-section" id="categories">
+            <h2 class="aroma-section-title">{{ __('storefront.sections.categories') }}</h2>
             <div class="row g-4">
-                @foreach ($newArrivals as $product)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        @include('catalog.partials.product-card', ['product' => $product])
+                @foreach ($featuredCategories as $category)
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="{{ route('category.show', [app()->getLocale(), $category->slug]) }}" class="text-decoration-none">
+                            @if ($category->image)
+                                {{-- Photo tile: real category photography, per the
+                                     mockup, with a solid caption bar rather than
+                                     text overlaid straight on the image. --}}
+                                <div class="aroma-category-card aroma-category-card-photo">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($category->image) }}"
+                                         alt="{{ $category->name }}" loading="lazy" class="aroma-category-card-img">
+                                    <div class="aroma-category-card-caption">
+                                        <span class="fw-semibold">{{ $category->name }}</span>
+                                        <i class="bi {{ app()->getLocale() === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }}" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- No photo on file for this category yet — the
+                                     original icon-in-a-box tile, restyled. --}}
+                                <div class="aroma-category-card text-center">
+                                    <div class="card-body py-4">
+                                        <i class="bi {{ $category->icon ?? 'bi-tag' }} fs-1 d-block mb-2 text-aroma-brown"></i>
+                                        <span class="fw-semibold">{{ $category->name }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </a>
                     </div>
                 @endforeach
             </div>
         </section>
-    @endif
+
+        {{-- New arrivals --}}
+        @if ($newArrivals->isNotEmpty())
+            <section class="container aroma-section">
+                <h2 class="aroma-section-title">{{ __('storefront.sections.new_arrivals') }}</h2>
+                <div class="row g-4">
+                    @foreach ($newArrivals as $product)
+                        <div class="col-6 col-md-4 col-lg-3">
+                            @include('catalog.partials.product-card', ['product' => $product])
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+    </div>
 
     {{-- Gifting spotlight — mockup-driven: centered offer copy flanked by the
          brand's hand-drawn product/botanical pattern bleeding off both edges,
          instead of the old two-column text+icon layout. --}}
     <section class="container aroma-section" id="gifting" style="scroll-margin-top:90px">
-        <div class="aroma-promo-panel aroma-trust p-4 p-md-5 text-center">
+        <div class="aroma-promo-panel p-4 p-md-5 text-center">
             <div class="aroma-promo-pattern aroma-promo-pattern-start" aria-hidden="true"></div>
             <div class="aroma-promo-pattern aroma-promo-pattern-end" aria-hidden="true"></div>
             <div class="aroma-promo-content">
@@ -206,18 +211,21 @@
         </div>
     </section>
 
-    {{-- Featured / bestsellers --}}
+    {{-- Featured / bestsellers — own white band, separated from the
+         categories/new-arrivals one by the taupe promo panel in between. --}}
     @if ($featuredProducts->isNotEmpty())
-        <section class="container aroma-section">
-            <h2 class="aroma-section-title">{{ __('storefront.sections.bestsellers') }}</h2>
-            <div class="row g-4">
-                @foreach ($featuredProducts as $product)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        @include('catalog.partials.product-card', ['product' => $product])
-                    </div>
-                @endforeach
-            </div>
-        </section>
+        <div class="aroma-white-band">
+            <section class="container aroma-section">
+                <h2 class="aroma-section-title">{{ __('storefront.sections.bestsellers') }}</h2>
+                <div class="row g-4">
+                    @foreach ($featuredProducts as $product)
+                        <div class="col-6 col-md-4 col-lg-3">
+                            @include('catalog.partials.product-card', ['product' => $product])
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        </div>
     @endif
 
     {{-- Newsletter --}}

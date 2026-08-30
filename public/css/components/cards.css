@@ -266,26 +266,44 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   .aroma-gallery-main img, .aroma-gallery-thumb { transition: none; }
 }
 
-/* --- Accordion (product description) ------------------------------------------ */
+/* --- Accordion (product description) -------------------------------------------
+   One unified surface (header + body share the same background) with depth
+   from a soft shadow instead of a border, and the open/closed state read
+   from the chevron + text weight rather than a flat color-block header —
+   the old :not(.collapsed) fill made an always-open panel (this accordion
+   ships expanded) look like two mismatched halves stacked on top of each
+   other. Custom chevron SVG matches .aroma-policy-accordion's, so both of
+   this codebase's accordion styles share one icon language. */
 .accordion-item {
-  border: 1px solid rgba(51, 1, 1, 0.08);
-  border-radius: var(--aroma-radius-sm) !important;
+  border: none;
+  border-radius: var(--aroma-radius) !important;
   overflow: hidden;
   margin-bottom: 0.5rem;
+  box-shadow: var(--aroma-shadow-sm);
 }
 .accordion-button {
   font-weight: 600;
   color: var(--aroma-brown);
   background: #fff;
+  padding: 1.1rem 1.25rem;
+}
+.accordion-button::after,
+.accordion-button:not(.collapsed)::after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23330101' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M3 6l5 5 5-5'/%3e%3c/svg%3e");
 }
 .accordion-button:not(.collapsed) {
   color: var(--aroma-brown);
-  background: var(--aroma-skin);
+  background: #fff;
   box-shadow: none;
+  border-bottom: 1px solid var(--aroma-border);
 }
 .accordion-button:focus {
   box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
   border-color: var(--aroma-light-brown);
+}
+.accordion-body {
+  background: #fff;
+  padding: 1rem 1.25rem 1.25rem;
 }
 
 /* --- Policy accordion (flat list style, Privacy & Policy page) -----------------

@@ -9,9 +9,14 @@
     <h1 class="aroma-section-title">{{ __('cart.title') }}</h1>
 
     @if (empty($rows))
-        <div class="aroma-trust p-5 text-center">
-            <i class="bi bi-bag fs-1 d-block mb-3" style="color:var(--aroma-light-brown)"></i>
-            <p class="text-aroma-muted">{{ __('cart.empty') }}</p>
+        {{-- Same decorative language as the homepage promo panel (botanical
+             pattern backdrop + a real heading), not a stock icon+line+button
+             empty state — reuses .aroma-pattern-bg, no new artwork. --}}
+        <div class="aroma-trust aroma-pattern-bg aroma-empty-state p-5 text-center">
+            <div class="aroma-empty-state-icon">
+                <i class="bi bi-bag" aria-hidden="true"></i>
+            </div>
+            <p class="aroma-heading aroma-empty-state-title">{{ __('cart.empty') }}</p>
             <a href="{{ route('home', $locale) }}" class="btn btn-aroma">{{ __('cart.empty_cta') }}</a>
         </div>
     @else

@@ -48,7 +48,11 @@
 .iti__search-input:focus {
   border-color: var(--aroma-light-brown);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(212, 175, 106, 0.25);
+  /* was a stray rgba(212,175,106) — a leftover from an earlier palette pass
+     that predates this session's sweeps and didn't match any of their exact
+     old-hex search patterns. Now the same Taupe focus-ring tint used
+     everywhere else (buttons, thumbs, qty stepper). */
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
 }
 .iti__country-list {
   max-height: 16rem;

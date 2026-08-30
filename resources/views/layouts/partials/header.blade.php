@@ -126,6 +126,24 @@
             </a>
 
             <div class="d-flex align-items-center gap-3 aroma-navbar-desktop-icons">
+                {{-- Icon-only, mockup-style — opens a small reveal with the
+                     same search form the header used to carry inline. --}}
+                <div class="dropdown">
+                    <a href="#" class="aroma-icon-link text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false"
+                       data-bs-tooltip="true" data-bs-placement="bottom" title="{{ __('storefront.nav.search') }}">
+                        <i class="bi bi-search fs-5"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end aroma-search-dropdown p-3">
+                        <form class="aroma-search" role="search" action="{{ route('home', $locale) }}" method="get">
+                            <div class="input-group">
+                                <input type="search" name="q" class="form-control"
+                                       placeholder="{{ __('storefront.nav.search') }}"
+                                       aria-label="{{ __('storefront.nav.search') }}" autofocus>
+                                <button class="btn btn-aroma" type="submit"><i class="bi bi-search"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 @include('layouts.partials.language-switcher')
                 @auth
                     <div class="dropdown">
@@ -177,6 +195,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body d-flex flex-column">
+        {{-- Same reasoning as the language switcher just below: the header's
+             mobile icon row has no room for a 4th icon without pushing cart
+             off-screen on narrow phones, so search lives here on mobile. --}}
+        <form class="aroma-search mb-3" role="search" action="{{ route('home', $locale) }}" method="get">
+            <div class="input-group">
+                <input type="search" name="q" class="form-control"
+                       placeholder="{{ __('storefront.nav.search') }}"
+                       aria-label="{{ __('storefront.nav.search') }}">
+                <button class="btn btn-aroma" type="submit"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
         <ul class="nav flex-column gap-1">
             @foreach (['abayas'] as $cat)
                 <li class="nav-item">

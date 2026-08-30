@@ -167,6 +167,63 @@ html[lang="ar"] .btn-aroma-light {
   cursor: not-allowed;
 }
 
+/* --- PDP variant/size grid --------------------------------------------------
+   A real grid (auto-fill, equal-width cells) instead of ragged flex-wrap
+   pills, with the option restructured into two lines — name, then price —
+   so it reads as a considered choice rather than a run-on button label.
+   Still .btn-check + .btn-aroma-outline underneath (same focus-visible,
+   :active press, and disabled color rules above) — this only restyles the
+   label's own box and adds the two-line layout + sold-out treatment. */
+/* Explicit column counts per breakpoint, not auto-fill/minmax — auto-fill's
+   track count is computed from the *minimum* track size, but these cells'
+   actual content (two lines: name + price) can need more than that minimum,
+   so at narrow widths auto-fill was fitting a column that then had nowhere
+   to go, overflowing the PDP's mobile-width detail column. */
+.aroma-variant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+@media (min-width: 480px) {
+  .aroma-variant-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 992px) {
+  .aroma-variant-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.aroma-variant-option {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  height: auto;
+  padding: 0.75rem 0.5rem;
+  white-space: normal;
+  line-height: 1.3;
+  text-align: center;
+}
+.aroma-variant-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.aroma-variant-price {
+  font-size: 0.76rem;
+  opacity: 0.8;
+}
+.aroma-variant-oos-tag {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--aroma-danger);
+}
+.aroma-variant-option-oos .aroma-variant-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
 /* --- Disabled ------------------------------------------------------------------ */
 .btn-aroma:disabled, .btn-aroma.disabled,
 .btn-aroma-outline:disabled, .btn-aroma-outline.disabled,

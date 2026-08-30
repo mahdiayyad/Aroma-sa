@@ -75,14 +75,21 @@
 
                 @if ($product->has_variants && $product->variants->isNotEmpty())
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">{{ __('storefront.product.size') }}</label>
-                        <div class="d-flex flex-wrap gap-2">
+                        <span class="aroma-eyebrow d-block mb-2">{{ __('storefront.product.size') }}</span>
+                        <div class="aroma-variant-grid">
                             @foreach ($product->variants as $i => $variant)
                                 <input type="radio" class="btn-check" name="variant_id" id="variant-{{ $variant->id }}"
                                        value="{{ $variant->id }}" data-price="{{ $variant->price }}"
                                        {{ $i === 0 ? 'checked' : '' }} {{ $variant->inStock() ? '' : 'disabled' }} required>
-                                <label class="btn btn-aroma-outline btn-sm" for="variant-{{ $variant->id }}">
-                                    {{ $variant->name }} · {{ $variant->priceLabel() }}
+                                <label class="btn btn-aroma-outline aroma-variant-option {{ $variant->inStock() ? '' : 'aroma-variant-option-oos' }}"
+                                       for="variant-{{ $variant->id }}">
+                                    <span class="aroma-variant-name">{{ $variant->name }}</span>
+                                    <span class="aroma-variant-price">
+                                        {{ $variant->priceLabel() }}
+                                        @unless ($variant->inStock())
+                                            <span class="aroma-variant-oos-tag">{{ __('storefront.product.sold_out') }}</span>
+                                        @endunless
+                                    </span>
                                 </label>
                             @endforeach
                         </div>

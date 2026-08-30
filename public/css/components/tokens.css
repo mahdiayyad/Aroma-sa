@@ -207,3 +207,20 @@ small {
 /* --- Section rhythm — replaces ad hoc mt-4/mt-5 utility spacing ---------------- */
 .aroma-section { margin-top: var(--aroma-space-2xl); }
 .aroma-section-sm { margin-top: var(--aroma-space-xl); }
+
+/* Full-bleed white band — mockup-driven: the page isn't one flat beige
+   canvas top to bottom. Categories/New-arrivals share one band, Bestselling
+   gets its own (they're split by the taupe promo panel in between). The
+   .aroma-section children keep their own margin-top for the gap from
+   whatever came before (rendering as white now, inside the band); this
+   only adds breathing room at the band's own close before beige resumes. */
+.aroma-white-band {
+  background: #fff;
+  padding-bottom: var(--aroma-space-lg);
+  /* flow-root, not just a bare block — without a new block formatting
+     context, the first child's large margin-top (.aroma-section's
+     7-11rem gap) collapses straight through this div and escapes into
+     the beige zone above instead of creating space inside the white
+     band, leaving the heading jammed against the top edge in here. */
+  display: flow-root;
+}

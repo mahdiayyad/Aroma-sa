@@ -68,6 +68,11 @@ html[lang="ar"] .select2-dropdown {
 }
 .select2-search--dropdown .select2-search__field:focus {
   border-color: var(--aroma-light-brown);
+  /* the base rule strips the native outline unconditionally (line above) —
+     everywhere else in this codebase replaces that with a visible ring on
+     focus; this field only had the border-color change, a weaker signal
+     for keyboard users tabbing into the in-dropdown search box. */
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
 }
 
 .select2-results__option {
