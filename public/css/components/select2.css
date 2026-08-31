@@ -16,7 +16,8 @@
   transition: border-color var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-  color: var(--aroma-ink);
+  /* --aroma-text — the selected value, matching .form-control's own text color. */
+  color: var(--aroma-text);
   line-height: normal;
   padding: 0;
   font-family: var(--aroma-body-en);
@@ -80,7 +81,7 @@ html[lang="ar"] .select2-dropdown {
   font-size: 0.95rem;
 }
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
   color: var(--aroma-brown);
 }
 .select2-container--default .select2-results__option[aria-selected="true"] {
@@ -96,7 +97,7 @@ html[lang="ar"] .select2-dropdown {
   padding: 0.35rem 0.5rem;
 }
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  background-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
   border: 1px solid var(--aroma-light-brown);
   color: var(--aroma-brown);
   border-radius: 999px;

@@ -56,14 +56,15 @@ html[lang="ar"] .btn-aroma-light {
   box-shadow: 0 0 0 3px rgba(51, 1, 1, 0.25);
 }
 
-/* --- Secondary / Taupe ------------------------------------------------------
-   The named "Accent Button": a solid --aroma-btn-gold-bg default that
-   darkens to --aroma-btn-gold-bg-hover on hover, same two-explicit-colors
-   pattern as the burgundy primary. Text is the shared --aroma-ink (now
-   #330101, same as the brand primary) — a near-black burgundy clears ~9:1
-   against Warm Taupe on its own, so no dedicated override color is needed
-   here (an earlier palette's mid-tone tan didn't clear enough contrast with
-   ink and needed one; this one comfortably does). */
+/* --- Secondary / Gold-to-Wine ------------------------------------------------
+   The named "Accent Button": a solid --aroma-btn-gold-bg (Gold, resting)
+   that darkens to --aroma-btn-gold-bg-hover (Wine, the palette's own
+   "hover effects" color) on hover — genuinely two different hues now, not
+   a same-hue darken. Text flips with it: near-black --aroma-ink reads ~9:1
+   on the light resting Gold, but Wine is a genuinely dark background — the
+   same dark ink on it drops to ~2:1, so hover swaps to the light
+   --aroma-white (Background) instead, matching every other hover state
+   sitewide (all of which already land on a dark surface and use light text). */
 .btn-aroma-secondary {
   background-color: var(--aroma-btn-gold-bg, rgb(201 179 154));
   border: 1px solid var(--aroma-btn-gold-bg, rgb(201 179 154));
@@ -74,9 +75,9 @@ html[lang="ar"] .btn-aroma-light {
   box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
 .btn-aroma-secondary:hover {
-  background-color: var(--aroma-btn-gold-bg-hover, rgb(165 147 126));
-  border-color: var(--aroma-btn-gold-bg-hover, rgb(165 147 126));
-  color: var(--aroma-ink);
+  background-color: var(--aroma-btn-gold-bg-hover, rgb(122 46 61));
+  border-color: var(--aroma-btn-gold-bg-hover, rgb(122 46 61));
+  color: var(--aroma-white);
   transform: translateY(-1px);
   box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14));
 }
@@ -106,8 +107,8 @@ html[lang="ar"] .btn-aroma-light {
   box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
 .btn-aroma-light:hover {
-  background-color: var(--aroma-skin);
-  border-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
+  border-color: var(--aroma-gold);
   color: var(--aroma-brown);
   transform: translateY(-1px);
   box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14));
@@ -124,7 +125,7 @@ html[lang="ar"] .btn-aroma-light {
   box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
 .btn-aroma-ghost:hover {
-  background-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
   transform: translateY(-1px);
   box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14));
 }

@@ -6,11 +6,11 @@
         <div class="row gy-4">
             <div class="col-lg-4">
                 <div class="aroma-footer-brand mb-2">{{ $brand['name'] }}</div>
-                <p class="mb-3">{{ __('storefront.hero.subtitle') }}</p>
-                <a href="mailto:{{ config('aroma.contact.email') }}" class="d-inline-flex align-items-center gap-2 mb-3 small">
+                <p class="mb-3 aroma-footer-tagline">{{ __('storefront.hero.subtitle') }}</p>
+                <a href="mailto:{{ config('aroma.contact.email') }}" class="d-inline-flex align-items-center gap-2 mb-3 small aroma-footer-email">
                     <i class="bi bi-envelope"></i>{{ config('aroma.contact.email') }}
                 </a>
-                <div class="d-flex gap-3 fs-5">
+                <div class="d-flex gap-3 fs-5 aroma-footer-social">
                     @if (config('aroma.contact.instagram'))
                         <a href="{{ config('aroma.contact.instagram') }}" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
                     @else
@@ -41,7 +41,7 @@
 
             <div class="col-6 col-lg-2">
                 <h6 class="text-uppercase mb-3">{{ __('storefront.footer.about') }}</h6>
-                <ul class="list-unstyled small">
+                <ul class="list-unstyled small aroma-footer-links">
                     <li class="mb-2"><a href="{{ route('about') }}">{{ __('storefront.footer.about') }}</a></li>
                     <li class="mb-2"><a href="{{ route('contact') }}">{{ __('storefront.footer.contact') }}</a></li>
                 </ul>
@@ -49,7 +49,7 @@
 
             <div class="col-6 col-lg-2">
                 <h6 class="text-uppercase mb-3">{{ __('storefront.footer.help') }}</h6>
-                <ul class="list-unstyled small">
+                <ul class="list-unstyled small aroma-footer-links">
                     <li class="mb-2"><a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}">{{ __('storefront.nav.account') }}</a></li>
                     <li class="mb-2"><a href="{{ route('privacy-policy') }}">{{ __('storefront.footer.policies') }}</a></li>
                     <li class="mb-2"><a href="{{ route('terms') }}">{{ __('storefront.footer.terms') }}</a></li>

@@ -206,7 +206,11 @@
                 <h2 class="aroma-section-title">{{ __('storefront.sections.gifting') }}</h2>
                 <p class="fs-5 mb-2">{{ __('storefront.gifting.headline') }}</p>
                 <p class="text-aroma-muted mb-3">{{ __('storefront.gifting.body') }}</p>
-                <a href="#" class="btn btn-aroma">{{ __('storefront.gifting.cta') }}</a>
+                {{-- .btn-aroma-light: white/brown, hover gold — the same "for use on
+                     dark/colored backgrounds" variant the hero and newsletter CTAs
+                     already use, correct now that this panel is solid Burgundy
+                     (a solid .btn-aroma CTA would nearly vanish against it). --}}
+                <a href="#" class="btn btn-aroma-light">{{ __('storefront.gifting.cta') }}</a>
             </div>
         </div>
     </section>

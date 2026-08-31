@@ -165,7 +165,7 @@
   transition: background var(--aroma-transition-fast, 0.15s ease), border-color var(--aroma-transition-fast, 0.15s ease);
 }
 .aroma-gift-card-nav:hover,
-.aroma-gift-card-nav:focus-visible { background: var(--aroma-skin); border-color: var(--aroma-light-brown); outline: none; }
+.aroma-gift-card-nav:focus-visible { background: var(--aroma-gold); border-color: var(--aroma-light-brown); outline: none; }
 html[dir="rtl"] .aroma-gift-card-nav-prev i { transform: scaleX(-1); }
 html[dir="rtl"] .aroma-gift-card-nav-next i { transform: scaleX(-1); }
 
@@ -237,7 +237,7 @@ html[dir="rtl"] .aroma-gift-card-nav-next i { transform: scaleX(-1); }
   font-family: var(--aroma-script, "Tangerine", cursive);
   font-size: 1.35rem;
   line-height: 1.4;
-  color: var(--aroma-ink);
+  color: var(--aroma-text); /* the shopper's own written message — body content */
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }

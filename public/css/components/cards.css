@@ -362,7 +362,7 @@ html[lang="ar"] .aroma-policy-accordion .accordion-button {
   padding: 0 0.25rem 1.5rem;
 }
 .aroma-policy-accordion .accordion-body p {
-  color: var(--aroma-ink);
+  color: var(--aroma-text); /* policy/FAQ prose is body copy, not a heading */
 }
 
 /* --- Sticky mobile add-to-cart bar --------------------------------------------- */

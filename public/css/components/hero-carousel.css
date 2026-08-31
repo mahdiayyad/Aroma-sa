@@ -203,7 +203,7 @@ html[dir="rtl"] .aroma-hero-slide-cta i {
   height: 3.25rem;
   background-image: none; /* drop Bootstrap's default SVG mask */
   border-radius: 50%;
-  background-color: rgba(232, 221, 210, 0.9); /* --aroma-white, translucent */
+  background-color: rgba(250, 247, 242, 0.9); /* --aroma-white, translucent */
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 8px 24px rgba(10, 26, 20, 0.25);

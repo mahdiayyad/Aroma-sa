@@ -26,7 +26,7 @@
   text-align: center;
   transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
 }
-.page-link:hover { background: var(--aroma-skin); color: var(--aroma-brown); }
+.page-link:hover { background: var(--aroma-gold); color: var(--aroma-brown); }
 .page-item.active .page-link { background: var(--aroma-brown); color: #fff; }
 .page-item.disabled .page-link { color: var(--aroma-disabled-text); background: transparent; }
 
@@ -43,7 +43,7 @@
   font-size: 0.9rem;
   transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
 }
-.dropdown-item:hover, .dropdown-item:focus { background: var(--aroma-skin); color: var(--aroma-brown); }
+.dropdown-item:hover, .dropdown-item:focus { background: var(--aroma-gold); color: var(--aroma-brown); }
 .dropdown-item.active, .dropdown-item:active { background: var(--aroma-brown); color: #fff; }
 
 /* --- Search bar (extends .aroma-search in ../aroma.css) --------------------------- */
@@ -71,7 +71,12 @@ html[lang="ar"] .aroma-navbar .nav-link {
   letter-spacing: 0.01em;
   font-size: 0.92rem;
 }
-.aroma-navbar .nav-link:hover { color: var(--aroma-brown); }
+/* Brief's own header spec: "Navigation: #330101 / Active: #330101 /
+   Hover: #7A2E3D" — hover is a genuinely different hue (Wine) from the
+   resting/active brand color, not a same-hue darken. Declared before
+   .active below so a hover on the already-active link still wins on the
+   later, equal-specificity .active rule and stays #330101. */
+.aroma-navbar .nav-link:hover { color: var(--aroma-emerald-deep); }
 .aroma-navbar .nav-link.active {
   color: var(--aroma-brown);
   font-weight: 700;
@@ -104,7 +109,9 @@ html[lang="ar"] .aroma-navbar .nav-link {
   font-weight: 600;
   transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
 }
-.aroma-mobile-nav-link:hover { background: rgba(51, 1, 1, 0.08); color: var(--aroma-brown); }
+/* Same Wine-on-hover as the desktop nav-link above — rule #15 of the brief:
+   "Make desktop AND mobile follow the same color system." */
+.aroma-mobile-nav-link:hover { background: rgba(51, 1, 1, 0.08); color: var(--aroma-emerald-deep); }
 .aroma-mobile-nav-link.active { background: rgba(51, 1, 1, 0.08); color: var(--aroma-brown); }
 
 /* --- Account sidebar nav ------------------------------------------------------------- */
@@ -115,5 +122,5 @@ html[lang="ar"] .aroma-navbar .nav-link {
   font-weight: 500;
   transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
 }
-.aroma-account-nav-link:hover { background: var(--aroma-skin); color: var(--aroma-brown); }
+.aroma-account-nav-link:hover { background: var(--aroma-gold); color: var(--aroma-brown); }
 .aroma-account-nav-link.active { background: var(--aroma-brown); color: #fff; }

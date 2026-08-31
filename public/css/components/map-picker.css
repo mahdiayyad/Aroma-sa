@@ -45,7 +45,7 @@
   border: 1px solid var(--aroma-border);
   border-radius: var(--aroma-radius);
   padding: 1rem;
-  background: var(--aroma-white, #E8DDD2);
+  background: var(--aroma-white, #FAF7F2);
 }
 
 .aroma-map-search { position: relative; margin-bottom: 0.75rem; }
@@ -70,13 +70,13 @@
   border: none;
   border-bottom: 1px solid var(--aroma-border);
   background: #fff;
-  color: var(--aroma-ink);
+  color: var(--aroma-text); /* an address result row is informational content, not brand emphasis */
   font-size: 0.875rem;
   cursor: pointer;
 }
 .aroma-map-search-item:last-child { border-bottom: none; }
 .aroma-map-search-item:hover,
-.aroma-map-search-item:focus-visible { background: var(--aroma-skin); outline: none; }
+.aroma-map-search-item:focus-visible { background: var(--aroma-gold); outline: none; }
 
 /* Loading / no-results rows are informational, not a real result — disabled
    (so they're skipped in keyboard/click interaction) and styled quieter than
@@ -100,7 +100,7 @@
   cursor: pointer;
 }
 .aroma-map-search-item.aroma-map-search-retry:hover,
-.aroma-map-search-item.aroma-map-search-retry:focus-visible { background: var(--aroma-skin); outline: none; }
+.aroma-map-search-item.aroma-map-search-retry:focus-visible { background: var(--aroma-gold); outline: none; }
 
 .aroma-map-canvas-wrap { position: relative; }
 
@@ -151,7 +151,7 @@
   background: var(--aroma-select-bg, var(--aroma-skin));
   border-radius: var(--aroma-radius-sm);
   font-size: 0.85rem;
-  color: var(--aroma-ink);
+  color: var(--aroma-text);
 }
 .aroma-map-detected i { color: var(--aroma-select, var(--aroma-brown)); margin-top: 0.15rem; }
 

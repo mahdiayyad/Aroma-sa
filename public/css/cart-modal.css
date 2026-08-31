@@ -288,7 +288,7 @@ a.aroma-suggest-name:hover { color: var(--aroma-brown); }
   justify-content: center;
   transition: background-color 0.15s ease;
 }
-.aroma-suggest-stepper button:hover { background: var(--aroma-skin); }
+.aroma-suggest-stepper button:hover { background: var(--aroma-gold); }
 .aroma-suggest-stepper button:focus-visible { outline: 2px solid var(--aroma-brown); outline-offset: -2px; }
 .aroma-suggest-qty { font-size: 0.8rem; font-weight: 700; color: var(--aroma-ink); min-width: 1.2rem; text-align: center; }
 

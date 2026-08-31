@@ -101,27 +101,41 @@
 }
 
 :root {
-  /* Palette — 2026 Gulf abaya-fashion brand evolution, third repoint this
-     session (Deep Emerald/Gold → Dark Brown/Tan/Cream → now Deep Burgundy/
-     Warm Taupe/Elegant Beige). --aroma-brown/--aroma-light-brown keep their
-     original NAMES — 100+ rules across this file and every component in
-     css/components/ already key off them as "the primary brand color" /
-     "the accent/hover color" — so the whole platform re-themes from this one
-     block. This palette gives only THREE hues, not four: --aroma-skin and
-     --aroma-light-brown/--aroma-gold deliberately converge on the same Taupe
-     value this time — Taupe is both "accent/hover" AND "secondary surface"
-     per the brand brief's own distribution, not a leftover/bug. Heritage
-     Brown stays a reserved alias of --aroma-brown, still unused today. */
-  --aroma-brown: #330101;          /* Deep Burgundy — primary: nav, headers, primary buttons, headings, prices, footer */
-  --aroma-light-brown: #C9B39A;    /* Warm Taupe — accent: hover, badges, selected states, small highlights */
+  /* Palette — 2026 Gulf abaya-fashion brand evolution, FIFTH repoint this
+     session (…→ Deep Burgundy/Warm Taupe/Elegant Beige → now a genuine
+     5-hue system: Primary/Gold unchanged, Surface un-converges from Gold,
+     Background gets its own lighter value, and a new Secondary/Wine hue
+     arrives for hover/interactive states). --aroma-brown/--aroma-light-brown
+     keep their original NAMES — 100+ rules across this file and every
+     component in css/components/ key off them — so the whole platform
+     re-themes from this one block.
+       Primary (#330101) and Gold (#C9B39A) are UNCHANGED from the previous
+     palette — this pass only moves --aroma-skin and --aroma-white, and
+     introduces Wine. --aroma-skin was deliberately converged onto Gold last
+     pass (a 3-hue palette); now it un-converges to its own Surface value,
+     since this palette gives Surface and Background as two distinct
+     lighter tones, not one. --aroma-emerald-deep (the "darker shade a
+     primary surface hovers/actives into") repoints to Wine — the brief's
+     own "hover effects" role for that hue — not a new resting-state fill,
+     so every button/nav/card hover across the site inherits Wine for free
+     through this one token, no per-rule changes needed. */
+  --aroma-brown: #330101;          /* Primary — unchanged: nav, headers, primary buttons, headings, prices, footer */
+  --aroma-light-brown: #C9B39A;    /* Gold — unchanged: resting accents, badges, borders, dividers, decorative details */
   --aroma-gold: #C9B39A;           /* explicit alias of the above — kept for existing gold-specific rules */
-  --aroma-emerald-deep: #1A0101;   /* darker Deep Burgundy — hover/active shade for primary surfaces; same value as --aroma-btn-emerald-bg-hover in tokens.css */
+  --aroma-emerald-deep: #7A2E3D;   /* Secondary/Wine — hover/active shade for primary surfaces; same value as --aroma-btn-emerald-bg-hover in tokens.css */
   --aroma-heritage-brown: #330101; /* reserved alias of --aroma-brown — unused today, kept for a future need to distinguish a de-emphasised brand moment */
-  --aroma-skin: #C9B39A;           /* Warm Taupe — secondary surface: alt sections, selected cards, info blocks (same value as the accent token, see note above) */
-  --aroma-white: #E8DDD2;          /* Soft Elegant Beige — dominant surface (50%): main bg, header, hero, product image areas; also text-on-dark (footer) */
-  --aroma-ink: #330101;            /* Same as --aroma-brown — brief calls for primary text = headings = #330101, never pure black */
+  --aroma-skin: #E8DDD2;           /* Surface (20%) — un-converged from Gold: alt sections, selected cards, info blocks */
+  --aroma-white: #FAF7F2;          /* Background (35%) — dominant surface: main bg, header, hero, product image areas; also text-on-dark (footer) */
+  --aroma-ink: #330101;            /* Same as --aroma-brown — headings, nav, prices, CTAs, "title"-weight text = #330101, never pure black */
+  --aroma-text: #241817;           /* 6th-pass addition — dedicated BODY-copy color, distinct from --aroma-ink. The brief splits
+                                       "Headings: #330101" from "Body: #241817": headings/nav/prices/titles keep --aroma-ink
+                                       untouched (100+ rules already key off it), while plain flowing text (the base `body`
+                                       cascade, form-field values, list/description content, accordion prose) reads this
+                                       softer near-black instead. Both are near-black-on-purpose (luminance is almost
+                                       identical — #241817 is in fact marginally *lighter*), so this never touches contrast,
+                                       only the perceived warmth/hierarchy between "brand statement" and "reading" text. */
 
-  --aroma-gradient: linear-gradient(135deg, #330101 0%, #260101 55%, #1A0101 100%);
+  --aroma-gradient: linear-gradient(135deg, #330101 0%, #56171F 55%, #7A2E3D 100%);
 
   /* Font stacks — per Aroma Brand Guidelines (2024), p.15-19:
        Manier         = English headings/display   Helvetica Neue = English body/UI
@@ -146,11 +160,11 @@
   --bs-primary-rgb: 51, 1, 1;
 
   --aroma-radius: 0.85rem;
-  --aroma-shadow: 0 10px 30px rgba(51, 1, 1, 0.14);
-  /* A restrained taupe glow for the handful of genuinely premium moments
-     (badges, a primary CTA's hover) — never the default shadow, since taupe
+  --aroma-shadow: 0 14px 38px rgba(51, 1, 1, 0.16);
+  /* A restrained gold glow for the handful of genuinely premium moments
+     (badges, a primary CTA's hover) — never the default shadow, since gold
      "should never overpower the burgundy" as a resting-state treatment. */
-  --aroma-shadow-gold: 0 8px 24px rgba(201, 179, 154, 0.25);
+  --aroma-shadow-gold: 0 10px 28px rgba(201, 179, 154, 0.28);
 }
 
 /* AligarhArabic (public/fonts/) is a trial/watermarked build — its internal
@@ -170,7 +184,7 @@ html.is-safari[lang="ar"] {
 /* --- Base ------------------------------------------------------------------ */
 body {
   background-color: var(--aroma-white);
-  color: var(--aroma-ink);
+  color: var(--aroma-text);
   font-family: var(--aroma-body-en);
   -webkit-font-smoothing: antialiased;
 }
@@ -238,14 +252,14 @@ html[dir="ltr"] .aroma-script {
   font-weight: 600;
   box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
-/* Soft tint, not a solid color-invert — the brief wants secondary actions to
-   stay "visually subordinate to primary CTAs": a peach-cream wash and the
-   same dark-brown text reads as a gentle acknowledgement, not a second
-   competing solid button next to the real (.btn-aroma) primary CTA. */
+/* Solid brand-color invert on hover — the brief's own explicit spec for the
+   "Secondary button" ("Background transparent / Border #330101 / Text
+   #330101... Hover: Background #330101 / Text #FAF7F2"), superseding an
+   earlier pass's softer gold-wash hover. */
 .btn-aroma-outline:hover {
-  background-color: var(--aroma-skin);
+  background-color: var(--aroma-brown);
   border-color: var(--aroma-brown);
-  color: var(--aroma-brown);
+  color: var(--aroma-white);
   transform: translateY(-1px);
   box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14));
 }
@@ -307,7 +321,7 @@ html[dir="ltr"] .aroma-script {
 }
 .aroma-topbar .dropdown-item:hover,
 .aroma-topbar .dropdown-item:focus {
-  background: var(--aroma-skin);
+  background: var(--aroma-gold);
   color: var(--aroma-brown);
 }
 .aroma-topbar .dropdown-item.active {
@@ -361,15 +375,21 @@ html[dir="ltr"] .aroma-script {
   position: relative;
   transition: color var(--aroma-transition-fast), transform var(--aroma-transition-fast);
 }
+/* Header icon hover: the brief's own explicit header spec ("Icons: #330101 /
+   Hover: #7A2E3D") — Wine, not Gold, so hovering a header icon reads as the
+   same "this is interactive" signal every button hover already gives. */
 .aroma-icon-link:hover {
-  color: var(--aroma-gold);
+  color: var(--aroma-emerald-deep);
   transform: translateY(-1px);
 }
+/* Cart/wishlist count bubble — Wine, not Gold: the brief's color-distribution
+   table gives #7A2E3D the explicit role "badges and selected promotional
+   elements", separate from Gold's "icons, borders, dividers, accents". */
 .aroma-badge {
   position: absolute;
   top: -8px;
   inset-inline-end: -10px;
-  background: var(--aroma-light-brown);
+  background: var(--aroma-emerald-deep);
   color: #fff;
   border-radius: 7px;
   font-size: 0.65rem;
@@ -398,7 +418,7 @@ html[dir="ltr"] .aroma-script {
   color: #fff;
 }
 .aroma-auth-tagline {
-  color: var(--aroma-skin);
+  color: var(--aroma-gold);
 }
 .aroma-auth-locale-link {
   color: #fff;
@@ -410,10 +430,18 @@ html[dir="ltr"] .aroma-script {
   box-shadow: var(--aroma-shadow-lg);
 }
 
-/* --- Hero ------------------------------------------------------------------ */
+/* --- Hero ------------------------------------------------------------------
+   6th-pass repoint: light, editorial — not a dark burgundy band. The brief is
+   explicit for this section ("Background: #E8DDD2/#FAF7F2... Headlines:
+   #330101... Body text: #241817... this should feel luxurious, editorial and
+   calm"), which is the inverse of the previous dark-gradient/white-text
+   treatment. Only the small inner-page (About/Contact) title band uses this
+   class — the homepage's own hero is the photo carousel in
+   components/hero-carousel.css, deliberately untouched (a full-bleed photo
+   needs its own dark scrim for legible text regardless of page palette). */
 .aroma-hero {
-  background: var(--aroma-gradient);
-  color: #fff;
+  background: linear-gradient(135deg, var(--aroma-skin) 0%, var(--aroma-white) 100%);
+  color: var(--aroma-text);
   border-radius: var(--aroma-radius-lg, 1.25rem);
   padding: clamp(3rem, 7vw, 6rem);
   position: relative;
@@ -421,7 +449,8 @@ html[dir="ltr"] .aroma-script {
 }
 /* A faint gold hairline frames the hero — the one place gold outlines a
    large surface rather than filling it, so it reads as a finishing touch
-   (like foil-stamped card stock) instead of competing with the emerald. */
+   (like foil-stamped card stock), a subtle luxury accent on the new light
+   ground rather than competing with anything. */
 .aroma-hero::after {
   content: "";
   position: absolute;
@@ -431,7 +460,7 @@ html[dir="ltr"] .aroma-script {
   pointer-events: none;
 }
 .aroma-hero h1 {
-  color: #fff;
+  color: var(--aroma-brown);
   font-size: clamp(2.1rem, 5.5vw, 3.75rem);
 }
 .aroma-hero .aroma-hero-tagline {
@@ -473,7 +502,7 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
   border: none;
   border-radius: var(--aroma-radius);
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   height: 100%;
 }
 /* A thin gold line that draws in on hover — the platform's signature
@@ -496,10 +525,18 @@ html[lang="ar"] .aroma-section-title { font-weight: 600; }
 .aroma-product-card:hover::before {
   transform: scaleX(1);
 }
-.aroma-category-card:hover,
-.aroma-product-card:hover {
+.aroma-category-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--aroma-shadow);
+}
+/* Product cards specifically: the brief says "Do NOT add strong shadows" and
+   "Hover: Very subtle #E8DDD2 or #C9B39A effect" — a softer lift (the sm
+   shadow tier, not the punchier default) plus a faint Surface-tint wash,
+   instead of the heavier shadow category cards keep. */
+.aroma-product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--aroma-shadow-sm, 0 6px 20px rgba(51, 1, 1, 0.08));
+  background-color: var(--aroma-skin);
 }
 .aroma-category-card .card-body {
   background: var(--aroma-skin);
@@ -595,17 +632,25 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 }
 
 /* --- Gifting/promo panel: mockup-driven flanking pattern ---------------------
-   The mockup's discount banner isn't a floating white card — it's a warm,
-   flat-colored band that sits in the page's own palette (no shadow, no
-   pure white — the brief is strict about only 3 colors: Burgundy/Taupe/
-   Beige). Taupe here, since the page body is already Beige — the panel
-   needs to read as its own section, and Taupe is the only other on-palette
-   option with enough contrast against the cream page around it. */
+   6th-pass repoint: solid signature Burgundy, not Taupe. The brief is
+   explicit and specific about this exact section — "Use #330101 as the main
+   background... This section should be one of the strongest visual moments
+   on the homepage" — so it now carries the primary brand color directly,
+   the way the topbar and footer already do, rather than a lighter Surface
+   tint. Text/pattern/CTA below all flip to their light-on-dark treatment to
+   match (see the rules that follow). */
 .aroma-promo-panel {
   position: relative;
   overflow: hidden; /* clip the patterns to the panel's own rounded corners */
-  background: var(--aroma-skin);
+  background: var(--aroma-brown);
   border-radius: var(--aroma-radius-lg);
+}
+/* Heading + body copy inside the panel read light-on-dark now that the
+   background is solid Burgundy — h2 and p would otherwise inherit their
+   normal dark-ink/dark-text colors and disappear. */
+.aroma-promo-panel .aroma-section-title,
+.aroma-promo-panel p {
+  color: var(--aroma-white);
 }
 /* #gifting only gets .aroma-section's margin-TOP (7-11rem) from the shared
    class — nothing gave it a matching margin-bottom, so the beige gap above
@@ -621,12 +666,12 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 #gifting {
   margin-bottom: var(--aroma-space-2xl);
 }
-/* .text-aroma-muted's default shade was tuned for the Beige page background
-   — against this panel's darker Taupe it drops under 3:1 contrast. Scoped
-   override, not a new color: same --aroma-ink tint, just less transparent
-   so it stays legible here specifically (~5.2:1, verified). */
+/* .text-aroma-muted's default shade (a dark-ink tint) was built for light
+   surfaces — against the panel's solid Burgundy it would be all but
+   unreadable. Scoped override to the brief's own "Secondary text" tone
+   (Light Beige, the same role it plays in the footer) — ~13.7:1 here. */
 .aroma-promo-panel .text-aroma-muted {
-  color: rgba(51, 1, 1, 0.72) !important;
+  color: var(--aroma-skin) !important;
 }
 .aroma-promo-content {
   position: relative;
@@ -650,11 +695,16 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 }
 .aroma-promo-pattern-start {
   inset-inline-start: -30px;
-  background-image: url("../images/patterns/gifting-cluster.png");
+  /* -gold variants: the source line-art is Burgundy-on-transparent, which
+     would vanish against the panel's now-solid Burgundy background — these
+     are the same artwork with every non-transparent pixel recolored to
+     #C9B39A (Gold), the brief's own "decorative details" accent, alpha
+     channel untouched. Generated once via GD, not hand-redrawn. */
+  background-image: url("../images/patterns/gifting-cluster-gold.png");
 }
 .aroma-promo-pattern-end {
   inset-inline-end: -30px;
-  background-image: url("../images/patterns/gifting-cluster-mirrored.png");
+  background-image: url("../images/patterns/gifting-cluster-mirrored-gold.png");
   animation-delay: -4s; /* offset from the start pattern so the two drift
                             independently instead of moving in lockstep */
 }
@@ -679,7 +729,7 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 /* --- Newsletter ------------------------------------------------------------ */
 .aroma-newsletter {
   background: var(--aroma-gradient);
-  color: var(--aroma-skin);
+  color: var(--aroma-gold);
   border-radius: var(--aroma-radius-lg);
   position: relative;
   overflow: hidden;
@@ -735,7 +785,7 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
   z-index: 1;
 }
 .aroma-pattern-bg-dark::before {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3e%3cg fill='none' stroke='rgba(232,221,210,0.14)' stroke-width='1.1' stroke-linecap='round'%3e%3cpath d='M20 88 Q20 60 36 46 Q46 37 40 22'/%3e%3cpath d='M28 62 Q19 57 11 62'/%3e%3cpath d='M32 44 Q23 40 15 45'/%3e%3ccircle cx='40' cy='18' r='2' fill='rgba(232,221,210,0.14)'/%3e%3c/g%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3e%3cg fill='none' stroke='rgba(250,247,242,0.14)' stroke-width='1.1' stroke-linecap='round'%3e%3cpath d='M20 88 Q20 60 36 46 Q46 37 40 22'/%3e%3cpath d='M28 62 Q19 57 11 62'/%3e%3cpath d='M32 44 Q23 40 15 45'/%3e%3ccircle cx='40' cy='18' r='2' fill='rgba(250,247,242,0.14)'/%3e%3c/g%3e%3c/svg%3e");
 }
 
 /* --- Empty-state (cart, and any future "nothing here yet" panel) --------------
@@ -780,12 +830,37 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
   color: var(--aroma-light-brown);
 }
 .aroma-footer h6 {
-  color: var(--aroma-skin);
+  color: var(--aroma-gold);
   letter-spacing: 0.08em;
   font-size: 0.8rem;
 }
+/* 6th-pass addition — the brief separates footer "Text: #FAF7F2" from
+   "Secondary text: #E8DDD2": the brand tagline, the nav-list links, and the
+   email address are supporting/secondary content, so they read a touch
+   quieter than the primary white (brand name, copyright line). Hover stays
+   the existing sitewide `.aroma-footer a:hover` gold — unchanged, so these
+   still brighten to the accent color on interaction like every other footer
+   link. */
+.aroma-footer-tagline,
+.aroma-footer-email,
+.aroma-footer-links a {
+  color: var(--aroma-skin);
+}
+/* Social icon row — the brief's "Icons: #C9B39A" applies literally here (the
+   only pure icon-only links in the footer); hover brightens to full white
+   for a clear "this is interactive" pop against the already-gold resting
+   state (Wine would barely register against the equally-dark Burgundy
+   background this row sits on). Declared after .aroma-footer a:hover above
+   so it wins the tie in specificity. */
+.aroma-footer-social a {
+  color: var(--aroma-gold);
+}
+.aroma-footer-social a:hover {
+  color: var(--aroma-white);
+}
 .aroma-footer hr {
-  border-color: rgba(201, 179, 154, 0.15);
+  /* Brief: "Borders: rgba(201,179,154,0.35)" — was a much fainter 0.15. */
+  border-color: rgba(201, 179, 154, 0.35);
 }
 .aroma-footer .form-control {
   background: rgba(255, 255, 255, 0.06);
@@ -810,7 +885,7 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 .aroma-footer-payment-chip .aroma-payment-chip-text { font-size: 0.62rem; }
 .aroma-footer .aroma-footer-brand {
   font-family: var(--aroma-script);
-  color: var(--aroma-skin);
+  color: var(--aroma-gold);
   font-size: 1.6rem;
 }
 /* Closing ornamental strip — see the "Decorative patterns" section above for
@@ -819,7 +894,7 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 .aroma-footer-band {
   height: 34px;
   margin-top: 1.25rem;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3e%3cg fill='none' stroke='rgba(232,221,210,0.14)' stroke-width='1.1' stroke-linecap='round'%3e%3cpath d='M20 88 Q20 60 36 46 Q46 37 40 22'/%3e%3cpath d='M28 62 Q19 57 11 62'/%3e%3cpath d='M32 44 Q23 40 15 45'/%3e%3ccircle cx='40' cy='18' r='2' fill='rgba(232,221,210,0.14)'/%3e%3c/g%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3e%3cg fill='none' stroke='rgba(250,247,242,0.14)' stroke-width='1.1' stroke-linecap='round'%3e%3cpath d='M20 88 Q20 60 36 46 Q46 37 40 22'/%3e%3cpath d='M28 62 Q19 57 11 62'/%3e%3cpath d='M32 44 Q23 40 15 45'/%3e%3ccircle cx='40' cy='18' r='2' fill='rgba(250,247,242,0.14)'/%3e%3c/g%3e%3c/svg%3e");
   background-repeat: repeat-x;
   background-position: center;
   background-size: 70px 70px;
