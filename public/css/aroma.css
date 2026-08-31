@@ -1502,13 +1502,13 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
    legible at the same resolution, and a wider cap to match its ~2.3:1
    aspect ratio instead of the wordmark-alone image's narrower one. */
 .aroma-logo-img-combined {
-  height: 58px;
-  max-width: min(260px, 62vw);
+  height: 72px;
+  max-width: min(320px, 62vw);
 }
 @media (max-width: 991.98px) {
   .aroma-logo-img { height: 36px; }
   .aroma-logo-slogan-img { height: 12px; margin-top: 0.25rem; }
-  .aroma-logo-img-combined { height: 46px; max-width: min(210px, 62vw); }
+  .aroma-logo-img-combined { height: 56px; max-width: min(260px, 62vw); }
 }
 
 /* --- Typed input --------------------------------------------------------------
