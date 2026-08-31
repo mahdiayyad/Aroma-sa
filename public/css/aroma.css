@@ -328,14 +328,37 @@ html[dir="ltr"] .aroma-script {
   background: var(--aroma-brown);
   color: #fff;
 }
-/* Light Beige, matching the mockup's soft cream header ground (was a crisp
-   white in an earlier pass) — held up by a soft shadow rather than a hard
-   border, so the nav still reads as a layer floating above the page rather
-   than a box drawn on top of it. */
+/* Signature Burgundy — was a light cream ground; the brief now wants the
+   navbar itself dark, matching the topbar/footer treatment. Everything
+   inside it (logo, nav-links, icons — see the scoped overrides below and
+   in components/navigation.css) is recolored to gold/white to stay legible
+   against it. The soft shadow still separates the (now dark) bar from the
+   lighter page content beneath it. */
 .aroma-navbar {
-  background: var(--aroma-white);
+  background: var(--aroma-brown);
   border-bottom: none;
   box-shadow: 0 1px 0 rgba(51, 1, 1, 0.06), 0 10px 24px -18px rgba(51, 1, 1, 0.35);
+}
+/* Logo fallback text (renders only if the logo image file is ever missing)
+   and the icon row (menu toggle, search, language, account, wishlist,
+   cart — every .aroma-icon-link the navbar contains) — both need to flip
+   from the site's usual dark-ink-on-light to gold-on-dark now that this bar
+   itself is dark. Scoped to .aroma-navbar specifically: the same classes
+   are reused in the mobile offcanvas menu, which stays on a light
+   background and must keep its original dark colors. */
+.aroma-navbar .aroma-logo {
+  color: var(--aroma-gold);
+}
+.aroma-navbar .aroma-icon-link {
+  color: var(--aroma-gold);
+}
+.aroma-navbar .aroma-icon-link:hover,
+.aroma-navbar .aroma-icon-link:focus,
+.aroma-navbar .aroma-icon-link.show {
+  /* Brightens to white rather than the usual Wine hover — Wine (#7A2E3D) is
+     close enough in darkness to this bar's own Burgundy that it fails
+     contrast here (~2:1); white reads clearly against Burgundy instead. */
+  color: var(--aroma-white);
 }
 /* Desktop header — nav links, logo, and icons all on the same row/level
    (mockup-style), not stacked. A 3-column grid, not flex: with justify-
@@ -1473,9 +1496,19 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
   object-fit: contain;
   margin: 0.35rem auto 0;
 }
+/* Gold navbar lockup — wordmark + tagline baked into one image (unlike
+   .aroma-logo-img above, which pairs with a separate .aroma-logo-slogan-img
+   stacked underneath it) — so it needs more height to keep both lines
+   legible at the same resolution, and a wider cap to match its ~2.3:1
+   aspect ratio instead of the wordmark-alone image's narrower one. */
+.aroma-logo-img-combined {
+  height: 58px;
+  max-width: min(260px, 62vw);
+}
 @media (max-width: 991.98px) {
   .aroma-logo-img { height: 36px; }
   .aroma-logo-slogan-img { height: 12px; margin-top: 0.25rem; }
+  .aroma-logo-img-combined { height: 46px; max-width: min(210px, 62vw); }
 }
 
 /* --- Typed input --------------------------------------------------------------

@@ -7,17 +7,6 @@
      an RTL page and still keeps it there) via .aroma-topbar-line's forced
      ltr direction — a decorative accent glyph, not a "leading icon of the
      sentence" that should flip with reading direction. --}}
-<div class="aroma-topbar">
-    <div class="container d-flex justify-content-center align-items-center py-1">
-        <div class="aroma-topbar-line">
-            <i class="bi bi-gift" aria-hidden="true"></i>
-            {{-- Plain body font, not .aroma-script — the mockup's topbar
-                 reads as a clean, practical announcement line, not the
-                 decorative cursive tagline treatment used elsewhere. --}}
-            <span>{{ __('storefront.hero.title') }}</span>
-        </div>
-    </div>
-</div>
 
 <nav class="aroma-navbar sticky-top">
     <div class="container">
@@ -25,6 +14,15 @@
                 ? 'images/brand/aroma-wordmark.png'
                 : (is_file(public_path('images/brand/aroma-logo-mark.png')) ? 'images/brand/aroma-logo-mark.png' : null))
         @php($headerSlogan = is_file(public_path('images/brand/aroma-slogan.png')) ? 'images/brand/aroma-slogan.png' : null)
+        {{-- Gold-on-transparent lockup — wordmark + "Awaken your Senses" tagline
+             already combined in one image — for the navbar now that its
+             background is dark Burgundy (#330101): $headerLogo above is
+             burgundy-on-transparent and would be invisible there. Falls back
+             to $headerLogo (still visible, just not gold) if the asset is
+             ever missing, rather than rendering nothing. Only used for the
+             two navbar logo instances below — the offcanvas menu stays on a
+             light background, so it keeps the original $headerLogo. --}}
+        @php($headerLogoGold = is_file(public_path('images/brand/aroma-wordmark-gold.png')) ? 'images/brand/aroma-wordmark-gold.png' : $headerLogo)
 
         {{-- Mobile (below lg) — stacked: icon row (menu toggle + account/
              wishlist/cart), then a centered logo row underneath. Nav links
@@ -74,11 +72,10 @@
             </div>
             <div class="text-center py-2">
                 <a href="{{ route('home', $locale) }}" class="aroma-logo text-decoration-none d-inline-block">
-                    @if ($headerLogo)
-                        <img src="{{ \App\Support\Assets::versioned($headerLogo) }}" alt="{{ $brand['name'] }}" class="aroma-logo-img">
-                        @if ($headerSlogan)
-                            <img src="{{ \App\Support\Assets::versioned($headerSlogan) }}" alt="{{ $brand['tagline'] ?? '' }}" class="aroma-logo-slogan-img">
-                        @endif
+                    @if ($headerLogoGold)
+                        {{-- Tagline is already baked into this image — no separate
+                             .aroma-logo-slogan-img needed/wanted here. --}}
+                        <img src="{{ \App\Support\Assets::versioned($headerLogoGold) }}" alt="{{ $brand['name'] }} — {{ $brand['tagline'] ?? '' }}" class="aroma-logo-img aroma-logo-img-combined">
                     @else
                         {{ $brand['name'] }}
                     @endif
@@ -115,11 +112,8 @@
             </ul>
 
             <a href="{{ route('home', $locale) }}" class="aroma-logo aroma-navbar-desktop-logo text-decoration-none d-inline-block">
-                @if ($headerLogo)
-                    <img src="{{ \App\Support\Assets::versioned($headerLogo) }}" alt="{{ $brand['name'] }}" class="aroma-logo-img">
-                    @if ($headerSlogan)
-                        <img src="{{ \App\Support\Assets::versioned($headerSlogan) }}" alt="{{ $brand['tagline'] ?? '' }}" class="aroma-logo-slogan-img">
-                    @endif
+                @if ($headerLogoGold)
+                    <img src="{{ \App\Support\Assets::versioned($headerLogoGold) }}" alt="{{ $brand['name'] }} — {{ $brand['tagline'] ?? '' }}" class="aroma-logo-img aroma-logo-img-combined">
                 @else
                     {{ $brand['name'] }}
                 @endif

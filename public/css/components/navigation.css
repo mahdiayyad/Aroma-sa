@@ -59,7 +59,7 @@
 }
 .aroma-navbar .nav-link {
   position: relative;
-  color: var(--aroma-ink);
+  color: var(--aroma-gold);
   font-size: 0.82rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -71,14 +71,17 @@ html[lang="ar"] .aroma-navbar .nav-link {
   letter-spacing: 0.01em;
   font-size: 0.92rem;
 }
-/* Brief's own header spec: "Navigation: #330101 / Active: #330101 /
-   Hover: #7A2E3D" — hover is a genuinely different hue (Wine) from the
-   resting/active brand color, not a same-hue darken. Declared before
-   .active below so a hover on the already-active link still wins on the
-   later, equal-specificity .active rule and stays #330101. */
-.aroma-navbar .nav-link:hover { color: var(--aroma-emerald-deep); }
+/* Navbar went dark (Burgundy) — link color moved from the site's usual
+   dark-ink to Gold to read against it. Hover brightens to white rather than
+   the sitewide Wine hover: Wine (#7A2E3D) is close enough in darkness to
+   this bar's own Burgundy background to fail contrast here (~2:1); active
+   stays Gold (same as resting) since bold weight + the permanent underline
+   below already mark it as current, without needing a third color.
+   Declared before .active below so a hover on the already-active link still
+   wins on the later, equal-specificity .active rule and stays Gold. */
+.aroma-navbar .nav-link:hover { color: var(--aroma-white); }
 .aroma-navbar .nav-link.active {
-  color: var(--aroma-brown);
+  color: var(--aroma-gold);
   font-weight: 700;
 }
 /* A gold underline that draws in from the center on hover, and stays drawn
