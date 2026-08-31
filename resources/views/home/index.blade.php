@@ -7,17 +7,29 @@
     {{-- Hero carousel — each slide is full campaign artwork. Most already
          carry their own baked-in headline, so the caption below is the
          site's short, consistent *actionable* layer (title + CTA) rather
-         than a restatement — skipped only on the one slide whose artwork
-         already has its own complete "Explore Abayas" button baked in.
+         than a restatement — skipped whenever the artwork already has its
+         own complete headline/logo baked in.
 
-         Four slides (signature-style, gifting-set, packaging, fragrance-
-         beauty) are deliberately left out of this list: they were cropped
-         from a single 2172x724 collage image, so getting each quadrant to
-         HeroImageProcessor's uniform 1920x1080 (16:9) meant removing ~43%
-         of its width — enough that the baked-in headline text got cut off
-         on both edges no matter how the crop was tuned. Re-add them (see
-         git history for the exact entries) once real, individually-shot
-         source photography replaces that collage. --}}
+         Temporarily down to a single slide (abaya-arches-trio) while the
+         previous campaign set is retired — the carousel markup below still
+         loops over $heroSlides exactly as before, so it already renders
+         correctly with one, several, or many entries; adding the next slide
+         later is just another array entry here, nothing else to touch.
+         Source photography for past slides (abaya-rack, abaya-models-group,
+         explore-abayas, abaya-pastels, gift-exchange, plus the four
+         collage-cropped slides retired earlier) is untouched on disk and in
+         git history if any of them come back into rotation.
+
+         Processing note: this slide was resized/sharpened with a local GD
+         fallback, not HeroImageProcessor's normal `php artisan hero:process`
+         pipeline — this environment has no ImageMagick (`magick`) binary
+         installed. The raw source is archived at
+         storage/app/hero-incoming/abaya-arches-trio.png so the real pipeline
+         can regrade it (denoise/sharpen/contrast/saturation) on a machine
+         that has ImageMagick, if that finer pass is ever wanted; the source
+         was already ~16:9 (1672x941, within HeroImageProcessor's own
+         "close enough, no crop needed" threshold), so no cropping decision
+         was involved either way. --}}
     @php
         $locale = app()->getLocale();
         $isAr = $locale === 'ar';
@@ -25,46 +37,15 @@
         $giftingUrl = route('home', $locale).'#gifting';
         $heroSlides = [
             [
-                'image' => 'images/hero/abaya-rack.jpg',
-                'alt'   => $isAr ? 'مجموعة عبايات أروما المعلّقة — أناقة خالدة' : 'The Aroma abayas collection, hung — timeless elegance',
+                'image' => 'images/hero/abaya-arches-trio.jpg',
+                'alt'   => $isAr ? 'ثلاث عبايات أروما في ممر مقنطر — أناقة خالدة' : 'Three Aroma abayas in an arched hallway — timeless elegance',
                 'url'   => $abayasUrl,
-                // No title here — like explore-abayas.jpg below, this artwork
-                // already has its own headline baked in ("Timeless Elegance /
-                // Abayas Collection"), and a dynamic title on top of it was
-                // overlapping/colliding with that baked-in text. Real,
-                // clickable CTA is still needed since the image itself isn't one.
+                // No title here — the artwork already has the full Aroma
+                // wordmark + tagline baked in on its left side; a second,
+                // dynamic caption title would duplicate that. Still needs a
+                // real, clickable CTA since the image itself isn't a link.
                 'title' => null,
                 'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
-            ],
-            [
-                'image' => 'images/hero/abaya-models-group.jpg',
-                'alt'   => $isAr ? 'عبايات أروما — تصاميم عصرية لكل مناسبة' : 'Aroma abayas — modern designs for every occasion',
-                'url'   => $abayasUrl,
-                'title' => $isAr ? 'اكتشف تصاميم خالدة' : 'Discover Timeless Designs',
-                'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
-            ],
-            [
-                'image' => 'images/hero/explore-abayas.jpg',
-                'alt'   => $isAr ? 'أناقة خالدة، توقيعك المميز — اكتشف العبايات' : 'Timeless elegance, your signature style — explore abayas',
-                'url'   => $abayasUrl,
-                // No title here — the artwork already has its own headline baked in — but
-                // it still needs a real, clickable CTA link (the image itself no longer is one).
-                'title' => null,
-                'cta'   => $isAr ? 'استكشف العبايات' : 'Explore Abayas',
-            ],
-            [
-                'image' => 'images/hero/abaya-pastels.jpg',
-                'alt'   => $isAr ? 'أناقة خالدة، توقيعك المميز' : 'Timeless elegance, your signature style',
-                'url'   => $abayasUrl,
-                'title' => $isAr ? 'اكتشف الأناقة الهادئة' : 'Discover Soft Elegance',
-                'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
-            ],
-            [
-                'image' => 'images/hero/gift-exchange.jpg',
-                'alt'   => $isAr ? 'هدية مميزة ملفوفة بأناقة' : 'A thoughtful gift, wrapped in elegance',
-                'url'   => $giftingUrl,
-                'title' => $isAr ? 'اكتشف الهدية المثالية' : 'Discover the Perfect Gift',
-                'cta'   => $isAr ? 'أهدِ الآن' : 'Gift Now',
             ],
         ];
     @endphp

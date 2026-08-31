@@ -11,7 +11,6 @@
   position: relative;
   border-radius: var(--aroma-radius-lg);
   overflow: hidden;
-  box-shadow: var(--aroma-shadow-xl);
 }
 
 .aroma-hero-carousel .carousel-inner {
@@ -27,23 +26,27 @@
 }
 
 /* --- Hero media box ---------------------------------------------------------
-   Cinematic, not banner: a tall, immersive band that scales from ~600px at
-   laptop width to ~740px at large desktop, deliberately closer to a luxury
-   homepage's full-bleed hero than a modest promotional strip. Height stays
-   explicit + fluid via clamp() (not aspect-ratio) so it never shifts while
-   an image loads or between slides.
+   Full width, full height of its own 16:9 — no shadow, no cropping. Height
+   used to be an explicit clamp() tuned to look "tall and cinematic"
+   regardless of the image underneath, deliberately wider than the images'
+   own 16:9 so object-fit:cover would crop top/bottom to fill it; at wide
+   viewports that clamp's capped height made the box considerably wider than
+   16:9, cropping a visibly large slice off the top and bottom, and on
+   narrow phones the same clamp flips the other way (taller than wide),
+   cropping the sides instead — either way, part of the photo was always
+   being thrown away.
 
-   The box is still kept wider than the images' native 16:9 (see
-   HeroImageProcessor, which standardizes every slide to 1920x1080): a
-   narrower-than-16:9 box forces object-fit:cover to crop width as well as
-   height, stacking a second crop on whatever HeroImageProcessor's own crop
-   already did — on the slides cropped hardest from source, that second crop
-   pushed baked-in text past the edge. A wider-than-16:9 box only ever crops
-   top/bottom, which these landscape banners tolerate far better. */
+   aspect-ratio: 16/9 matches HeroImageProcessor's own standardized output
+   (every slide is processed to exactly 1920x1080) exactly, at every
+   viewport width — so the box ratio and the image ratio are always
+   identical and object-fit:cover has nothing left to crop; the whole photo
+   is always in frame. The trade-off is a hero that scales taller on very
+   wide monitors (unavoidable once cropping is off the table for a
+   full-width band), which is the correct trade for "show the whole image". */
 .aroma-hero-slide {
   position: relative;
-  height: clamp(540px, 10vw + 430px, 660px);
-  background: var(--aroma-skin); /* shows while an image loads — same height, so no jump once it's in */
+  aspect-ratio: 16 / 9;
+  background: var(--aroma-skin); /* shows while an image loads — same ratio, so no jump once it's in */
   overflow: hidden;
 }
 .aroma-hero-slide img {
@@ -79,7 +82,6 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(20, 4, 4, 0.94) 0%, rgba(20, 4, 4, 0.78) 32%, rgba(20, 4, 4, 0.4) 58%, rgba(20, 4, 4, 0) 82%);
   pointer-events: none;
   z-index: 1;
 }
@@ -163,15 +165,16 @@ html[dir="rtl"] .aroma-hero-slide-cta i {
   transform: scaleX(-1);
 }
 
+/* No height override at either breakpoint below — aspect-ratio: 16/9 above
+   already scales the box correctly at every width on its own; a fixed
+   height here would fight it and start cropping the image again. */
 @media (max-width: 575.98px) {
-  .aroma-hero-slide { height: clamp(440px, 100vw, 580px); }
   .aroma-hero-slide-caption { padding: 1.5rem 1.25rem; padding-inline-end: 1.25rem; gap: 0.85rem; }
   .aroma-hero-slide-title { font-size: clamp(1.5rem, 7vw, 2rem); max-width: 100%; }
   .aroma-hero-slide-cta { padding: 0.6rem 1.35rem; font-size: 0.72rem; }
 }
 
 @media (min-width: 576px) and (max-width: 991.98px) {
-  .aroma-hero-slide { height: clamp(440px, 30vw + 280px, 540px); }
   .aroma-hero-slide-caption { padding: 2rem; padding-inline-end: 3.5rem; }
   .aroma-hero-slide-title { font-size: clamp(1.6rem, 4.5vw, 2.2rem); }
 }
