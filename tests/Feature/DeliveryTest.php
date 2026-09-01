@@ -31,6 +31,11 @@ class DeliveryTest extends TestCase
         $product = Product::factory()->create(['base_price' => 200, 'stock_quantity' => 10]);
         $this->post('/cart', ['product_id' => $product->id, 'qty' => 1])->assertRedirect();
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
+        // Delivery now requires the gift-options step to have been completed
+        // first (see CheckoutController::missingStepRedirect) — "not a
+        // gift" is a complete, valid answer to that step, so this is the
+        // minimal real submission, not a workaround.
+        $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
     }
 
     public function test_the_delivery_page_renders(): void

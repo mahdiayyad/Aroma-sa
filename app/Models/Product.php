@@ -103,6 +103,24 @@ class Product extends Model
         return $this->stock_quantity > 0;
     }
 
+    /**
+     * Real low-stock signal for the product card — driven by the actual
+     * stock_quantity column, never a fabricated/decorative "hurry" message.
+     * Scoped to simple (non-variant) products only: a has_variants product's
+     * stock is split per-variant, so a single aggregate number here could
+     * read as "5 left" while the shopper's actual size/scent choice has
+     * plenty — misleading in the other direction. Variant-level stock is
+     * still shown correctly on the PDP's own variant picker.
+     */
+    public function isLowStock(int $threshold = 5): bool
+    {
+        if ($this->has_variants) {
+            return false;
+        }
+
+        return $this->stock_quantity > 0 && $this->stock_quantity <= $threshold;
+    }
+
     public function priceLabel(): string
     {
         return Money::format($this->base_price);

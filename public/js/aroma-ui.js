@@ -485,11 +485,16 @@
                 body.append('_method', 'PATCH');
                 body.append('qty', qty);
 
+                // .is-updating (cards.css) is purely a visual "this row is in
+                // flight" cue — a brief pulse on the line total — so a qty
+                // change feels acknowledged immediately rather than silent
+                // until the response lands.
+                var row = input.closest('[data-row]');
+                if (row) { row.classList.add('is-updating'); }
                 input.disabled = true;
                 window.AromaHttp.post(url, body)
                     .then(function (data) {
                         if (typeof data.count !== 'undefined') { updateCartCount(data.count); }
-                        var row = input.closest('[data-row]');
                         if (data.removed) {
                             removeCartRow(row);
                         } else if (row) {
@@ -499,7 +504,10 @@
                         document.querySelectorAll('.js-cart-subtotal').forEach(function (el) { el.textContent = data.subtotal; });
                     })
                     .catch(function () { showToast(document.body.getAttribute('data-cart-error') || 'Error', 'danger'); })
-                    .finally(function () { input.disabled = false; });
+                    .finally(function () {
+                        input.disabled = false;
+                        if (row) { row.classList.remove('is-updating'); }
+                    });
             });
         });
 

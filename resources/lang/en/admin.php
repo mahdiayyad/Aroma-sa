@@ -237,6 +237,8 @@ return [
         'is_active' => 'Active account',
         'no_customers' => 'No customers found.',
         'saved'     => 'Customer updated.',
+        'role_forbidden' => 'Only an administrator can change account roles.',
+        'role_self_forbidden' => 'You cannot change your own role.',
         'recent_orders' => 'Recent orders',
         'account'   => 'Account',
         'no_orders' => 'No orders yet.',

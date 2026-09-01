@@ -128,10 +128,10 @@
          instead of looking like white cards floating on a beige page). --}}
     <div class="aroma-white-band">
         <section class="container aroma-section" id="categories">
-            <h2 class="aroma-section-title">{{ __('storefront.sections.categories') }}</h2>
-            <div class="row g-4">
+            <h2 class="aroma-section-title aroma-reveal">{{ __('storefront.sections.categories') }}</h2>
+            <div class="row g-4" data-reveal-group="categories">
                 @foreach ($featuredCategories as $category)
-                    <div class="col-6 col-md-4 col-lg-2">
+                    <div class="col-6 col-md-4 col-lg-2 aroma-reveal">
                         <a href="{{ route('category.show', [app()->getLocale(), $category->slug]) }}" class="text-decoration-none">
                             @if ($category->image)
                                 {{-- Photo tile: real category photography, per the
@@ -164,10 +164,10 @@
         {{-- New arrivals --}}
         @if ($newArrivals->isNotEmpty())
             <section class="container aroma-section">
-                <h2 class="aroma-section-title">{{ __('storefront.sections.new_arrivals') }}</h2>
-                <div class="row g-4">
+                <h2 class="aroma-section-title aroma-reveal">{{ __('storefront.sections.new_arrivals') }}</h2>
+                <div class="row g-4" data-reveal-group="new-arrivals">
                     @foreach ($newArrivals as $product)
-                        <div class="col-6 col-md-4 col-lg-3">
+                        <div class="col-6 col-md-4 col-lg-3 aroma-reveal">
                             @include('catalog.partials.product-card', ['product' => $product])
                         </div>
                     @endforeach
@@ -180,7 +180,7 @@
          brand's hand-drawn product/botanical pattern bleeding off both edges,
          instead of the old two-column text+icon layout. --}}
     <section class="container aroma-section" id="gifting" style="scroll-margin-top:90px">
-        <div class="aroma-promo-panel p-4 p-md-5 text-center">
+        <div class="aroma-promo-panel p-4 p-md-5 text-center aroma-reveal">
             <div class="aroma-promo-content">
                 <h2 class="aroma-section-title">{{ __('storefront.sections.gifting') }}</h2>
                 <p class="fs-5 mb-2">{{ __('storefront.gifting.headline') }}</p>
@@ -199,10 +199,10 @@
     @if ($featuredProducts->isNotEmpty())
         <div class="aroma-white-band">
             <section class="container aroma-section">
-                <h2 class="aroma-section-title">{{ __('storefront.sections.bestsellers') }}</h2>
-                <div class="row g-4">
+                <h2 class="aroma-section-title aroma-reveal">{{ __('storefront.sections.bestsellers') }}</h2>
+                <div class="row g-4" data-reveal-group="bestsellers">
                     @foreach ($featuredProducts as $product)
-                        <div class="col-6 col-md-4 col-lg-3">
+                        <div class="col-6 col-md-4 col-lg-3 aroma-reveal">
                             @include('catalog.partials.product-card', ['product' => $product])
                         </div>
                     @endforeach
@@ -213,7 +213,7 @@
 
     {{-- Newsletter --}}
     <section class="container aroma-section">
-        <div class="aroma-newsletter text-center p-5">
+        <div class="aroma-newsletter text-center p-5 aroma-reveal">
             <h2 class="mb-2">{{ __('storefront.newsletter.title') }}</h2>
             <p class="mb-4">{{ __('storefront.newsletter.body') }}</p>
             <form class="row justify-content-center g-2" action="#" method="post">

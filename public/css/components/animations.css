@@ -14,6 +14,33 @@
 }
 .aroma-hover-lift:hover { transform: translateY(-4px); box-shadow: var(--aroma-shadow); }
 
+/* --- Scroll-reveal ----------------------------------------------------------
+   Progressive enhancement, never a content-visibility risk: the hidden
+   pre-reveal state below only applies under html.js-reveal-ready, a class
+   added by an inline <head> script in layouts/app.blade.php ONLY when
+   IntersectionObserver exists (see that file for why it's inline/early, not
+   in this deferred stylesheet's sibling script). No JS, old browser, or
+   JS-disabled visitor ever has content depending on a script running to
+   become visible — .aroma-reveal with no js-reveal-ready ancestor is just a
+   normal, always-visible element.
+   public/js/scroll-reveal.js is what actually adds .is-revealed as each
+   element enters the viewport; this file only owns the visual states and
+   timing. Builds on the same aroma-fade-in-up beat .aroma-animate-in already
+   uses (translateY + opacity), just entering on scroll instead of on load,
+   and per-element transition-delay (set inline by the JS, not here) is what
+   gives a grid its staggered "cascading in" feel rather than popping in
+   as one block. */
+html.js-reveal-ready .aroma-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.65s var(--aroma-ease), transform 0.65s var(--aroma-ease);
+  will-change: opacity, transform;
+}
+html.js-reveal-ready .aroma-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;

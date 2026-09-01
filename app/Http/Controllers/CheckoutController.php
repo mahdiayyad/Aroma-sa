@@ -41,6 +41,34 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Redirect target if a required earlier checkout step hasn't actually
+     * been completed in this session yet — null when everything needed is
+     * present. Every step already checked checkout.billing_address this
+     * way; gift/delivery had no equivalent gate, which meant a shopper
+     * could jump straight from the address step to payment and place an
+     * order with delivery_date/delivery_time_slot left null (the step-
+     * skipping audit finding). storeGiftOptions/storeDelivery always write
+     * their session key regardless of the choices made on that step (e.g.
+     * "not a gift" still sets checkout.gift, just with is_gift=false), so
+     * session()->has(...) is a reliable "was this step ever completed"
+     * check, not a truthiness check on the step's answer.
+     */
+    private function missingStepRedirect(bool $requireGift = false, bool $requireDelivery = false): ?RedirectResponse
+    {
+        if (!session()->has('checkout.billing_address')) {
+            return redirect()->route('checkout.address');
+        }
+        if ($requireGift && !session()->has('checkout.gift')) {
+            return redirect()->route('checkout.gift-options');
+        }
+        if ($requireDelivery && !session()->has('checkout.delivery')) {
+            return redirect()->route('checkout.delivery');
+        }
+
+        return null;
+    }
+
+    /**
      * Resolve one of the two location methods into the full address array
      * stored in the checkout session / order snapshot. Every key is always
      * present (even when null) so downstream direct-array reads on the
@@ -271,8 +299,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if (!session()->has('checkout.billing_address')) {
-            return redirect()->route('checkout.address');
+        if ($redirect = $this->missingStepRedirect()) {
+            return $redirect;
         }
 
         $gift = session('checkout.gift', []);
@@ -391,8 +419,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if (!session()->has('checkout.billing_address')) {
-            return redirect()->route('checkout.address');
+        if ($redirect = $this->missingStepRedirect(true)) {
+            return $redirect;
         }
 
         return view('checkout.delivery', [
@@ -438,8 +466,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if (!session()->has('checkout.billing_address')) {
-            return redirect()->route('checkout.address');
+        if ($redirect = $this->missingStepRedirect(true, true)) {
+            return $redirect;
         }
 
         $gift = session('checkout.gift', []);
@@ -484,8 +512,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if (!session()->has('checkout.billing_address')) {
-            return redirect()->route('checkout.address');
+        if ($redirect = $this->missingStepRedirect(true, true)) {
+            return $redirect;
         }
 
         $totals = $this->totalsWithGiftExtras();
@@ -507,8 +535,8 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if (!session()->has('checkout.billing_address')) {
-            return redirect()->route('checkout.address');
+        if ($redirect = $this->missingStepRedirect(true, true)) {
+            return $redirect;
         }
 
         $data = $request->validated();
@@ -544,20 +572,18 @@ class CheckoutController extends Controller
 
                 $this->checkout->createPayment($order, $gatewayKey, $data['method']);
 
-                $this->cart->clear();
-                session()->forget([
-                    'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
-                    'checkout.gift', 'checkout.delivery',
-                ]);
-
                 return $order;
             });
 
-            // Remember the order for this session so the customer can view its
-            // confirmation after returning from the gateway (without IDOR).
-            session()->push('checkout.completed_orders', $order->id);
-
-            // Route to whichever gateway the customer selected.
+            // Route to whichever gateway the customer selected. Deliberately
+            // NOT clearing the cart / checkout session, or marking this order
+            // "completed" for confirmation-page access, until the gateway
+            // actually confirms the checkout below — doing that beforehand
+            // (the old behaviour) meant a gateway failure left the customer
+            // bounced to an already-empty cart with their real error message
+            // overwritten, address/gift/delivery session state gone (no
+            // coherent way to retry), while the order was simultaneously
+            // viewable at its "confirmed" URL despite never being paid.
             $result = $this->gateways->for($gatewayKey)->createCheckout($order);
 
             if (! ($result['success'] ?? false)) {
@@ -567,11 +593,27 @@ class CheckoutController extends Controller
                     'error'    => $result['error'] ?? null,
                 ]);
 
+                // Never flash the raw gateway error to the customer — it can
+                // be an internal/config detail (e.g. "API keys not
+                // configured"), not something safe to show a shopper. The
+                // real message is already logged above for diagnosis. Cart
+                // and checkout session are untouched, so the customer lands
+                // back on the payment step able to actually retry.
                 return redirect()->route('checkout.payment')->with(
                     'error',
-                    $result['error'] ?? __('checkout.errors.payment_failed')
+                    __('checkout.errors.payment_failed')
                 );
             }
+
+            // Gateway accepted the checkout — now it's safe to consume the
+            // cart/checkout-session state and let this session view the
+            // order's confirmation page once the customer returns.
+            $this->cart->clear();
+            session()->forget([
+                'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
+                'checkout.gift', 'checkout.delivery',
+            ]);
+            session()->push('checkout.completed_orders', $order->id);
 
             // Keep what the callback needs to verify + finalise this order.
             session([

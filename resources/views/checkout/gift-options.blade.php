@@ -16,7 +16,7 @@
 
     <h2 class="aroma-section-title">{{ __('gift.toggle_title') }}</h2>
 
-    <form method="POST" action="{{ route('checkout.gift-options.store') }}" id="giftForm" class="needs-validation" novalidate>
+    <form method="POST" action="{{ route('checkout.gift-options.store') }}" id="giftForm" class="needs-validation">
         @csrf
 
         {{-- Gift toggle --}}

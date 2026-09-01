@@ -86,6 +86,24 @@
   box-shadow: 0 4px 10px rgba(166, 67, 43, 0.25);
 }
 
+/* Bottom-start corner, not top-end — top-end is the wishlist button's spot.
+   Sits under the quick-add panel that slides up on hover, same as any
+   e-commerce card where a transient hover overlay can cover a resting badge. */
+.aroma-badge-low-stock {
+  position: absolute;
+  bottom: 0.75rem;
+  inset-inline-start: 0.75rem;
+  background: var(--aroma-white);
+  color: var(--aroma-danger);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  z-index: 2;
+  box-shadow: 0 4px 10px rgba(51, 1, 1, 0.15);
+}
+
 .aroma-wishlist-btn {
   position: absolute;
   top: 0.75rem;

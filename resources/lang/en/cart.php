@@ -20,6 +20,7 @@ return [
     'checkout' => 'Proceed to checkout',
     'continue' => 'Continue shopping',
     'bnpl'     => 'Or split with Tabby & Tamara at checkout.',
+    'trust_secure' => 'Secure payment, every time',
     'modal' => [
         'added'    => 'Added to your cart',
         'perfect'  => 'Make your gift perfect',

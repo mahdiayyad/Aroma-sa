@@ -99,6 +99,7 @@ return [
         'from'         => 'From',
         'add_to_cart'  => 'Add to cart',
         'sold_out'     => 'Sold out',
+        'low_stock'    => 'Only :count left',
         'in_stock'     => 'In stock',
         'total'        => 'Total',
         'qty_decrease' => 'Decrease quantity',
@@ -127,6 +128,7 @@ return [
         'sort_price_desc'=> 'Price: high to low',
         'results'    => ':count products',
         'empty'      => 'No products found. Please check back soon.',
+        'remove_filter' => 'Remove filter',
     ],
 
     'currency' => 'SAR',

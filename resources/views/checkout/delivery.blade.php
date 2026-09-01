@@ -14,7 +14,7 @@
 
             <h2 class="aroma-section-title">{{ __('delivery.title') }}</h2>
 
-            <form method="POST" action="{{ route('checkout.delivery.store') }}" class="needs-validation" novalidate>
+            <form method="POST" action="{{ route('checkout.delivery.store') }}" class="needs-validation">
                 @csrf
 
                 <div class="aroma-card mb-4">

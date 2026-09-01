@@ -1,0 +1,116 @@
+/* ============================================================================
+   Aroma — category / PLP page
+   Section-header treatment, a proper filter-sidebar layout, active-filter
+   chips, and a desktop toolbar (result count + quick sort) — all still
+   submitting the existing full-page GET filter form; nothing here talks to
+   a new endpoint. .aroma-product-card itself (catalog/partials/product-card)
+   is untouched — it was already strong going into this pass.
+   ========================================================================== */
+
+.aroma-category-header {
+  max-width: 720px;
+  margin-bottom: 0.5rem;
+}
+.aroma-category-description {
+  max-width: 640px;
+  margin-top: 0.5rem;
+}
+
+/* --- Mobile filter trigger badge ------------------------------------------- */
+.aroma-filter-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.4rem;
+  margin-inline-start: 0.5rem;
+  border-radius: 999px;
+  background: var(--aroma-brown);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* --- Filter sidebar/drawer -------------------------------------------------- */
+.aroma-filter-panel {
+  background: #fff;
+  border-radius: var(--aroma-radius);
+  box-shadow: var(--aroma-shadow-sm);
+  padding: 1.25rem;
+}
+/* The offcanvas-lg drawer already has its own header/close chrome below lg;
+   above lg it sits inline as the sidebar, so the card treatment above only
+   needs to lose its shadow there — a static sidebar card floating with a
+   shadow next to the grid read heavier than intended. */
+@media (min-width: 992px) {
+  .aroma-filter-panel { box-shadow: none; border: 1px solid var(--aroma-border); position: sticky; top: 1.5rem; }
+}
+.aroma-filter-group {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--aroma-border);
+}
+.aroma-filter-group:first-child { padding-top: 0; }
+.aroma-filter-group:last-of-type { border-bottom: none; padding-bottom: 0.25rem; }
+.aroma-filter-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--aroma-brown);
+  margin-bottom: 0.6rem;
+}
+
+/* --- Toolbar: result count + chips (start) / sort (end) --------------------- */
+.aroma-catalog-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.aroma-catalog-toolbar-info { min-width: 0; }
+.aroma-catalog-toolbar-sort { width: 200px; }
+.aroma-catalog-toolbar-sort .form-select { cursor: pointer; }
+
+.aroma-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.aroma-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: var(--aroma-skin);
+  color: var(--aroma-brown);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
+}
+.aroma-filter-chip i { font-size: 0.9rem; }
+.aroma-filter-chip:hover {
+  background: var(--aroma-emerald-deep);
+  color: var(--aroma-white);
+}
+.aroma-filter-chip-clear {
+  background: transparent;
+  border: 1px solid var(--aroma-border-strong);
+  color: var(--aroma-muted);
+}
+.aroma-filter-chip-clear:hover {
+  background: var(--aroma-brown);
+  border-color: var(--aroma-brown);
+  color: var(--aroma-white);
+}
+
+/* --- Pagination --------------------------------------------------------------
+   .page-link/.page-item are already brand-themed globally (navigation.css) —
+   this just centers the block under the grid. */
+.aroma-catalog-pagination nav { display: flex; justify-content: center; }

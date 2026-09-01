@@ -145,6 +145,15 @@ class MoyasarPaymentService implements PaymentGateway
      */
     public function verifyWebhookSignature(string $body, string $signature): bool
     {
+        // Fail closed: an unset secret must never verify as valid. Without
+        // this, a misconfigured deployment (MOYASAR_WEBHOOK_SECRET unset)
+        // would silently HMAC every payload with an empty key — and since
+        // an attacker can compute hash_hmac('sha256', $body, '', true) too,
+        // that's a forgeable signature, not a missing one.
+        if ($this->webhookSecret === '' || $this->webhookSecret === null) {
+            return false;
+        }
+
         $computed = hash_hmac('sha256', $body, $this->webhookSecret, true);
         $expected = base64_decode($signature);
 

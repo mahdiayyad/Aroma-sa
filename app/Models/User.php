@@ -29,6 +29,17 @@ class User extends Authenticatable
         'provider',
         'provider_id',
         'role',
+        // Admin-only fields (set exclusively by Admin\CustomerController /
+        // Api\Admin\CustomerController, both gated behind ['auth','admin']
+        // route middleware and — for 'role' specifically — the extra
+        // admin-only check in CustomerController::update). Without these in
+        // $fillable, Eloquent's mass-assignment guard was silently dropping
+        // every admin loyalty-points/active-toggle save — a real, verified
+        // bug (caught by a test asserting the value actually persisted),
+        // not a hypothetical one. No customer-facing controller references
+        // either field, so this doesn't widen what a shopper can self-set.
+        'is_active',
+        'loyalty_points',
     ];
 
     public const ROLE_CUSTOMER = 'customer';
