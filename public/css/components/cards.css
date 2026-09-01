@@ -200,10 +200,21 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 0.25s ease;
+  /* Thumbnail clicks slide this in from the left/right (see the script in
+     catalog/product.blade.php) rather than crossfading — .aroma-gallery-main's
+     overflow:hidden above is what clips the image while it's off to one side
+     mid-transition. The script toggles this off (transition:none) for the
+     instant, invisible reposition to the opposite edge between the outgoing
+     and incoming halves of the slide, then clears the inline override so it
+     falls back to this transition for the actual animated move. */
+  transition: transform 0.32s var(--aroma-ease, ease);
 }
 
-/* Caption (used for the packaging / thank-you shots). */
+/* Caption — currently always empty/hidden (.is-empty below): it only ever
+   had content for the packaging/thank-you-card shots the gallery used to
+   append after a product's own photos, which no longer happens (gallery is
+   the product's own uploaded images only). Left in place rather than
+   ripped out — harmless, and a real per-image label may want it again. */
 .aroma-gallery-caption {
   position: absolute;
   inset-inline: 0;

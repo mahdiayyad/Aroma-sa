@@ -198,16 +198,50 @@
         var thumbs = document.querySelectorAll('.aroma-gallery-thumb');
         if (!main || !thumbs.length) { return; }
 
+        var thumbList = Array.prototype.slice.call(thumbs);
+        var isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+        var SLIDE_MS = 320; // keep in sync with .aroma-gallery-main img's transition duration in cards.css
+
         function select(thumb) {
             var full = thumb.dataset.full;
-            if (main.getAttribute('src') !== full) {
-                // Crossfade: fade out, swap once the new image is decoded, fade in.
-                main.style.opacity = '0';
-                var pre = new Image();
-                pre.onload = function () { main.src = full; main.alt = thumb.querySelector('img').alt; main.style.opacity = '1'; };
-                pre.onerror = function () { main.src = full; main.style.opacity = '1'; };
-                pre.src = full;
-            }
+
+            // Ignored, not queued, while a slide is already mid-flight — a
+            // second click landing inside that ~320ms window would otherwise
+            // desync the active-thumbnail highlight/caption (updated below)
+            // from whichever image actually ends up on screen.
+            if (main.dataset.sliding) { return; }
+            if (main.getAttribute('src') === full) { return; }
+
+            var newAlt = thumb.querySelector('img').alt;
+
+            // Direction follows the thumbnail's position relative to the one
+            // currently showing — later in the strip slides in from the
+            // right (current image exits left), earlier slides in from the
+            // left; mirrored for RTL, where "later in the strip" reads
+            // right-to-left instead.
+            var fromIndex = thumbList.indexOf(document.querySelector('.aroma-gallery-thumb.active'));
+            var toIndex = thumbList.indexOf(thumb);
+            var forward = toIndex > fromIndex;
+            if (isRtl) { forward = !forward; }
+            var exitSign = forward ? -1 : 1; // the outgoing image's exit direction
+
+            main.dataset.sliding = '1';
+            main.style.transform = 'translateX(' + (exitSign * 100) + '%)';
+
+            window.setTimeout(function () {
+                main.src = full;
+                main.alt = newAlt;
+                // Instant, invisible jump to the opposite edge, then let the
+                // CSS transition (restored by clearing this inline override)
+                // carry it back to center — the actual "slide in".
+                main.style.transition = 'none';
+                main.style.transform = 'translateX(' + (-exitSign * 100) + '%)';
+                void main.offsetWidth; // force reflow so the jump above applies before re-enabling the transition
+                main.style.transition = '';
+                main.style.transform = 'translateX(0)';
+                delete main.dataset.sliding;
+            }, SLIDE_MS);
+
             if (caption) {
                 caption.textContent = thumb.dataset.label || '';
                 caption.classList.toggle('is-empty', !thumb.dataset.label);

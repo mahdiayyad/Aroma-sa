@@ -89,5 +89,4 @@
     {{-- Closing ornamental band — the same botanical motif used sitewide,
          beige-on-burgundy, full-bleed edge to edge as a quiet signature at
          the very bottom of the page. Decorative only. --}}
-    <div class="aroma-footer-band" aria-hidden="true"></div>
 </footer>

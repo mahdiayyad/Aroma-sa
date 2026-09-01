@@ -181,8 +181,6 @@
          instead of the old two-column text+icon layout. --}}
     <section class="container aroma-section" id="gifting" style="scroll-margin-top:90px">
         <div class="aroma-promo-panel p-4 p-md-5 text-center">
-            <div class="aroma-promo-pattern aroma-promo-pattern-start" aria-hidden="true"></div>
-            <div class="aroma-promo-pattern aroma-promo-pattern-end" aria-hidden="true"></div>
             <div class="aroma-promo-content">
                 <h2 class="aroma-section-title">{{ __('storefront.sections.gifting') }}</h2>
                 <p class="fs-5 mb-2">{{ __('storefront.gifting.headline') }}</p>
