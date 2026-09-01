@@ -25,7 +25,8 @@ class PrepareLogoCommand extends Command
     protected $signature = 'aroma:prepare-logo
                             {source? : Path under public/ of the flat logo (auto-detected if omitted)}
                             {--tolerance= : Colour distance treated as pure background (auto: 26 PNG / 36 JPEG)}
-                            {--feather=48 : Distance over which edges fade in}';
+                            {--feather=48 : Distance over which edges fade in}
+                            {--recolor= : Hex colour (e.g. 330101) to repaint the extracted ink, alpha preserved — for a flat source drawn in a colour meant for a different surface than these assets ship to (e.g. a light-on-dark export, needed dark-on-light for the site header/intro)}';
 
     protected $description = 'Remove the logo background and split it into transparent wordmark + slogan assets';
 
@@ -47,6 +48,13 @@ class PrepareLogoCommand extends Command
             return self::FAILURE;
         }
 
+        $recolor = $this->option('recolor');
+        if ($recolor !== null && ! preg_match('/^[0-9a-fA-F]{6}$/', ltrim($recolor, '#'))) {
+            $this->error('Invalid --recolor value — expected a 6-digit hex, e.g. 330101.');
+
+            return self::FAILURE;
+        }
+
         $this->line('Source: '.str_replace(public_path(), 'public', $source));
 
         $image = $this->load($source);
@@ -64,7 +72,10 @@ class PrepareLogoCommand extends Command
             : ($isJpeg ? 36 : 26);
 
         $transparent = $this->removeBackground($image, $tolerance);
-        $trimmed     = $this->trim($transparent);
+        if ($recolor !== null) {
+            $transparent = $this->recolorInk($transparent, ltrim($recolor, '#'));
+        }
+        $trimmed = $this->trim($transparent);
 
         $dir = dirname($source);
         $this->savePng($trimmed, $dir.'/aroma-logo-mark.png');
@@ -184,6 +195,43 @@ class PrepareLogoCommand extends Command
                 $gdAlpha = 127 - (int) round($opacity * 127);
 
                 imagesetpixel($out, $x, $y, imagecolorallocatealpha($out, $r, $g, $b, $gdAlpha));
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Repaint every non-fully-transparent pixel to one flat colour, keeping
+     * each pixel's own alpha exactly as removeBackground() computed it — so
+     * the feathered anti-aliased edges stay just as smooth, only the hue
+     * changes. Used for a flat source drawn in ink meant for a different
+     * surface than the site actually places these assets on.
+     *
+     * @param  resource|\GdImage  $img
+     * @return resource|\GdImage
+     */
+    private function recolorInk($img, string $hex)
+    {
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+
+        $w = imagesx($img);
+        $h = imagesy($img);
+
+        $out = imagecreatetruecolor($w, $h);
+        imagealphablending($out, false);
+        imagesavealpha($out, true);
+        imagefill($out, 0, 0, imagecolorallocatealpha($out, 0, 0, 0, 127));
+
+        for ($y = 0; $y < $h; $y++) {
+            for ($x = 0; $x < $w; $x++) {
+                $alpha = (imagecolorat($img, $x, $y) >> 24) & 0x7F;
+                if ($alpha >= 127) {
+                    continue; // fully transparent — leave as-is
+                }
+                imagesetpixel($out, $x, $y, imagecolorallocatealpha($out, $r, $g, $b, $alpha));
             }
         }
 

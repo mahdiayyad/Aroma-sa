@@ -37,6 +37,10 @@ return [
         'cart'        => 'Cart',
         'search'      => 'Search for products…',
         'menu'        => 'Menu',
+        'categories'  => 'Categories',
+        'shop'        => 'Shop',
+        'about'       => 'About',
+        'contact'     => 'Contact',
     ],
 
     'hero' => [
@@ -64,10 +68,13 @@ return [
     ],
 
     'trust' => [
-        'title'    => 'Shop with confidence',
-        'payments' => 'Secure payments with Mada, Apple Pay, Visa & Mastercard',
-        'bnpl'     => 'Split your payment with Tabby & Tamara',
-        'delivery' => 'Fast delivery across the Kingdom',
+        'title'     => 'Shop with confidence',
+        'payments'  => 'Secure payments with Mada, Apple Pay, Visa & Mastercard',
+        'bnpl'      => 'Split your payment with Tabby & Tamara',
+        'delivery'  => 'Fast delivery across the Kingdom',
+        'gift_wrap' => 'Luxury gift wrapping with every order',
+        'curated'   => 'Carefully selected, high-quality products',
+        'offers'    => 'Exclusive offers for our valued customers',
     ],
 
     'newsletter' => [

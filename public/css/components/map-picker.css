@@ -26,7 +26,7 @@
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--aroma-muted, #90765D);
+  color: var(--aroma-muted, #8F7373);
   cursor: pointer;
   transition: background-color var(--aroma-transition-fast, 0.15s ease), color var(--aroma-transition-fast, 0.15s ease);
 }
@@ -38,14 +38,14 @@
 }
 .btn-check:focus-visible + .aroma-location-toggle-option {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.35);
 }
 
 .aroma-map-picker {
   border: 1px solid var(--aroma-border);
   border-radius: var(--aroma-radius);
   padding: 1rem;
-  background: var(--aroma-white, #FFF3E2);
+  background: var(--aroma-white, #FAF7F2);
 }
 
 .aroma-map-search { position: relative; margin-bottom: 0.75rem; }
@@ -70,27 +70,27 @@
   border: none;
   border-bottom: 1px solid var(--aroma-border);
   background: #fff;
-  color: var(--aroma-ink);
+  color: var(--aroma-text); /* an address result row is informational content, not brand emphasis */
   font-size: 0.875rem;
   cursor: pointer;
 }
 .aroma-map-search-item:last-child { border-bottom: none; }
 .aroma-map-search-item:hover,
-.aroma-map-search-item:focus-visible { background: var(--aroma-skin); outline: none; }
+.aroma-map-search-item:focus-visible { background: var(--aroma-gold); outline: none; }
 
 /* Loading / no-results rows are informational, not a real result — disabled
    (so they're skipped in keyboard/click interaction) and styled quieter than
    a real, selectable place. */
 .aroma-map-search-item:disabled {
   cursor: default;
-  color: var(--aroma-muted, #90765D);
+  color: var(--aroma-muted, #8F7373);
 }
 .aroma-map-search-item.aroma-map-search-loading {
-  color: var(--aroma-muted, #90765D);
+  color: var(--aroma-muted, #8F7373);
   font-style: italic;
 }
 .aroma-map-search-item.aroma-map-search-empty {
-  color: var(--aroma-muted, #90765D);
+  color: var(--aroma-muted, #8F7373);
   white-space: normal;
   line-height: 1.4;
 }
@@ -100,7 +100,7 @@
   cursor: pointer;
 }
 .aroma-map-search-item.aroma-map-search-retry:hover,
-.aroma-map-search-item.aroma-map-search-retry:focus-visible { background: var(--aroma-skin); outline: none; }
+.aroma-map-search-item.aroma-map-search-retry:focus-visible { background: var(--aroma-gold); outline: none; }
 
 .aroma-map-canvas-wrap { position: relative; }
 
@@ -131,7 +131,7 @@
   justify-content: center;
   gap: 0.5rem;
   margin: 0;
-  background: rgba(26, 18, 10, 0.45);
+  background: rgba(20, 4, 4, 0.45);
   color: #fff;
   font-size: 0.9rem;
   font-weight: 600;
@@ -151,7 +151,7 @@
   background: var(--aroma-select-bg, var(--aroma-skin));
   border-radius: var(--aroma-radius-sm);
   font-size: 0.85rem;
-  color: var(--aroma-ink);
+  color: var(--aroma-text);
 }
 .aroma-map-detected i { color: var(--aroma-select, var(--aroma-brown)); margin-top: 0.15rem; }
 

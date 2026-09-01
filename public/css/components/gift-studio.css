@@ -32,11 +32,11 @@
 .aroma-gift-toggle-option:hover { border-color: var(--aroma-light-brown); }
 .btn-check:checked + .aroma-gift-toggle-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
+  box-shadow: 0 0 0 3px rgba(51, 1, 1, 0.12);
 }
 .btn-check:focus-visible + .aroma-gift-toggle-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.35);
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.35);
 }
 
 /* --- Greeting card picker ------------------------------------------------ */
@@ -104,7 +104,7 @@
 .aroma-gift-card-option:hover { border-color: var(--aroma-light-brown); }
 .btn-check:checked + .aroma-gift-card-option {
   border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.12);
+  box-shadow: 0 0 0 3px rgba(51, 1, 1, 0.12);
 }
 
 /* Zoom/preview button — same corner-reveal-on-hover language as
@@ -118,7 +118,7 @@
   height: 1.85rem;
   border-radius: 50%;
   border: none;
-  background: rgba(26, 18, 10, 0.55);
+  background: rgba(20, 4, 4, 0.55);
   color: #fff;
   display: flex;
   align-items: center;
@@ -128,7 +128,7 @@
   transition: opacity var(--aroma-transition-fast, 0.15s ease), background var(--aroma-transition-fast, 0.15s ease);
 }
 .aroma-gift-card-zoom:hover,
-.aroma-gift-card-zoom:focus-visible { background: rgba(26, 18, 10, 0.8); outline: none; }
+.aroma-gift-card-zoom:focus-visible { background: rgba(20, 4, 4, 0.8); outline: none; }
 .aroma-gift-card-option:hover .aroma-gift-card-zoom,
 .aroma-gift-card-option:focus-within .aroma-gift-card-zoom { opacity: 1; }
 @media (hover: none) {
@@ -165,7 +165,7 @@
   transition: background var(--aroma-transition-fast, 0.15s ease), border-color var(--aroma-transition-fast, 0.15s ease);
 }
 .aroma-gift-card-nav:hover,
-.aroma-gift-card-nav:focus-visible { background: var(--aroma-skin); border-color: var(--aroma-light-brown); outline: none; }
+.aroma-gift-card-nav:focus-visible { background: var(--aroma-gold); border-color: var(--aroma-light-brown); outline: none; }
 html[dir="rtl"] .aroma-gift-card-nav-prev i { transform: scaleX(-1); }
 html[dir="rtl"] .aroma-gift-card-nav-next i { transform: scaleX(-1); }
 
@@ -237,7 +237,7 @@ html[dir="rtl"] .aroma-gift-card-nav-next i { transform: scaleX(-1); }
   font-family: var(--aroma-script, "Tangerine", cursive);
   font-size: 1.35rem;
   line-height: 1.4;
-  color: var(--aroma-ink);
+  color: var(--aroma-text); /* the shopper's own written message — body content */
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }

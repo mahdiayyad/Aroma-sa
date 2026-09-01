@@ -63,8 +63,10 @@ class ProductController extends Controller
     }
 
     /**
-     * The product's own photos, followed — always — by the signature Aroma
-     * packaging and thank-you card, so every product shows how it arrives.
+     * The product's own photos only — as uploaded in the admin. Used to
+     * show the signature Aroma packaging and thank-you card here too (see
+     * git history), but the gallery is the product's own images now, full
+     * stop; nothing static gets appended.
      *
      * @return Collection<int,array{url:string,alt:string,label:string}>
      */
@@ -78,18 +80,6 @@ class ProductController extends Controller
                 'alt'   => (string) ($image->translate('alt') ?? $product->name),
                 'label' => '',
             ]);
-        }
-
-        $packaging = [
-            'packaging-gift.jpg' => __('storefront.packaging.gift'),
-            'packaging-bags.jpg' => __('storefront.packaging.bags'),
-            'thank-you-card.jpg' => __('storefront.packaging.card'),
-        ];
-
-        foreach ($packaging as $file => $label) {
-            if (is_file(public_path('images/brand/'.$file))) {
-                $gallery->push(['url' => asset('images/brand/'.$file), 'alt' => (string) $label, 'label' => (string) $label]);
-            }
         }
 
         if ($gallery->isEmpty()) {

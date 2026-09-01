@@ -7,17 +7,29 @@
     {{-- Hero carousel — each slide is full campaign artwork. Most already
          carry their own baked-in headline, so the caption below is the
          site's short, consistent *actionable* layer (title + CTA) rather
-         than a restatement — skipped only on the one slide whose artwork
-         already has its own complete "Explore Abayas" button baked in.
+         than a restatement — skipped whenever the artwork already has its
+         own complete headline/logo baked in.
 
-         Four slides (signature-style, gifting-set, packaging, fragrance-
-         beauty) are deliberately left out of this list: they were cropped
-         from a single 2172x724 collage image, so getting each quadrant to
-         HeroImageProcessor's uniform 1920x1080 (16:9) meant removing ~43%
-         of its width — enough that the baked-in headline text got cut off
-         on both edges no matter how the crop was tuned. Re-add them (see
-         git history for the exact entries) once real, individually-shot
-         source photography replaces that collage. --}}
+         Temporarily down to a single slide (abaya-arches-trio) while the
+         previous campaign set is retired — the carousel markup below still
+         loops over $heroSlides exactly as before, so it already renders
+         correctly with one, several, or many entries; adding the next slide
+         later is just another array entry here, nothing else to touch.
+         Source photography for past slides (abaya-rack, abaya-models-group,
+         explore-abayas, abaya-pastels, gift-exchange, plus the four
+         collage-cropped slides retired earlier) is untouched on disk and in
+         git history if any of them come back into rotation.
+
+         Processing note: this slide was resized/sharpened with a local GD
+         fallback, not HeroImageProcessor's normal `php artisan hero:process`
+         pipeline — this environment has no ImageMagick (`magick`) binary
+         installed. The raw source is archived at
+         storage/app/hero-incoming/abaya-arches-trio.png so the real pipeline
+         can regrade it (denoise/sharpen/contrast/saturation) on a machine
+         that has ImageMagick, if that finer pass is ever wanted; the source
+         was already ~16:9 (1672x941, within HeroImageProcessor's own
+         "close enough, no crop needed" threshold), so no cropping decision
+         was involved either way. --}}
     @php
         $locale = app()->getLocale();
         $isAr = $locale === 'ar';
@@ -25,41 +37,15 @@
         $giftingUrl = route('home', $locale).'#gifting';
         $heroSlides = [
             [
-                'image' => 'images/hero/abaya-rack.jpg',
-                'alt'   => $isAr ? 'مجموعة عبايات أروما المعلّقة — أناقة خالدة' : 'The Aroma abayas collection, hung — timeless elegance',
+                'image' => 'images/hero/abaya-arches-trio.jpg',
+                'alt'   => $isAr ? 'ثلاث عبايات أروما في ممر مقنطر — أناقة خالدة' : 'Three Aroma abayas in an arched hallway — timeless elegance',
                 'url'   => $abayasUrl,
-                'title' => $isAr ? 'اكتشف مجموعة العبايات' : 'Discover the Abaya Collection',
-                'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
-            ],
-            [
-                'image' => 'images/hero/abaya-models-group.jpg',
-                'alt'   => $isAr ? 'عبايات أروما — تصاميم عصرية لكل مناسبة' : 'Aroma abayas — modern designs for every occasion',
-                'url'   => $abayasUrl,
-                'title' => $isAr ? 'اكتشف تصاميم خالدة' : 'Discover Timeless Designs',
-                'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
-            ],
-            [
-                'image' => 'images/hero/explore-abayas.jpg',
-                'alt'   => $isAr ? 'أناقة خالدة، توقيعك المميز — اكتشف العبايات' : 'Timeless elegance, your signature style — explore abayas',
-                'url'   => $abayasUrl,
-                // No title here — the artwork already has its own headline baked in — but
-                // it still needs a real, clickable CTA link (the image itself no longer is one).
+                // No title here — the artwork already has the full Aroma
+                // wordmark + tagline baked in on its left side; a second,
+                // dynamic caption title would duplicate that. Still needs a
+                // real, clickable CTA since the image itself isn't a link.
                 'title' => null,
-                'cta'   => $isAr ? 'استكشف العبايات' : 'Explore Abayas',
-            ],
-            [
-                'image' => 'images/hero/abaya-pastels.jpg',
-                'alt'   => $isAr ? 'أناقة خالدة، توقيعك المميز' : 'Timeless elegance, your signature style',
-                'url'   => $abayasUrl,
-                'title' => $isAr ? 'اكتشف الأناقة الهادئة' : 'Discover Soft Elegance',
                 'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
-            ],
-            [
-                'image' => 'images/hero/gift-exchange.jpg',
-                'alt'   => $isAr ? 'هدية مميزة ملفوفة بأناقة' : 'A thoughtful gift, wrapped in elegance',
-                'url'   => $giftingUrl,
-                'title' => $isAr ? 'اكتشف الهدية المثالية' : 'Discover the Perfect Gift',
-                'cta'   => $isAr ? 'أهدِ الآن' : 'Gift Now',
             ],
         ];
     @endphp
@@ -113,86 +99,117 @@
         </div>
     </section>
 
-    {{-- Categories --}}
-    <section class="container aroma-section" id="categories">
-        <h2 class="aroma-section-title">{{ __('storefront.sections.categories') }}</h2>
-        <div class="row g-4">
-            @foreach ($featuredCategories as $category)
-                <div class="col-6 col-md-4 col-lg-2">
-                    <a href="{{ route('category.show', [app()->getLocale(), $category->slug]) }}" class="text-decoration-none">
-                        <div class="aroma-category-card text-center">
-                            <div class="card-body py-4">
-                                <i class="bi {{ $category->icon ?? 'bi-tag' }} fs-1 d-block mb-2 text-aroma-brown"></i>
-                                <span class="fw-semibold">{{ $category->name }}</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            @endforeach
+    {{-- Perks row — mockup-style: a plain 4-item icon row right under the
+         hero, no card/border. Payment-method trust signals aren't lost by
+         moving away from the old payments/BNPL copy here — the footer's
+         payment-icon-chip row already carries that. --}}
+    <section class="container aroma-perks-row">
+        <div class="aroma-perk">
+            <i class="bi bi-gift" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.gift_wrap') }}</p>
+        </div>
+        <div class="aroma-perk">
+            <i class="bi bi-award" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.curated') }}</p>
+        </div>
+        <div class="aroma-perk">
+            <i class="bi bi-truck" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.delivery') }}</p>
+        </div>
+        <div class="aroma-perk">
+            <i class="bi bi-percent" aria-hidden="true"></i>
+            <p>{{ __('storefront.trust.offers') }}</p>
         </div>
     </section>
 
-    {{-- New arrivals --}}
-    @if ($newArrivals->isNotEmpty())
-        <section class="container aroma-section">
-            <h2 class="aroma-section-title">{{ __('storefront.sections.new_arrivals') }}</h2>
+    {{-- Categories + New arrivals share one white band — mockup-driven: the
+         page isn't beige end-to-end, this stretch reads as its own white
+         zone (the cards already sit on white; now the section does too,
+         instead of looking like white cards floating on a beige page). --}}
+    <div class="aroma-white-band">
+        <section class="container aroma-section" id="categories">
+            <h2 class="aroma-section-title">{{ __('storefront.sections.categories') }}</h2>
             <div class="row g-4">
-                @foreach ($newArrivals as $product)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        @include('catalog.partials.product-card', ['product' => $product])
+                @foreach ($featuredCategories as $category)
+                    <div class="col-6 col-md-4 col-lg-2">
+                        <a href="{{ route('category.show', [app()->getLocale(), $category->slug]) }}" class="text-decoration-none">
+                            @if ($category->image)
+                                {{-- Photo tile: real category photography, per the
+                                     mockup, with a solid caption bar rather than
+                                     text overlaid straight on the image. --}}
+                                <div class="aroma-category-card aroma-category-card-photo">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($category->image) }}"
+                                         alt="{{ $category->name }}" loading="lazy" class="aroma-category-card-img">
+                                    <div class="aroma-category-card-caption">
+                                        <span class="fw-semibold">{{ $category->name }}</span>
+                                        <i class="bi {{ app()->getLocale() === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }}" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- No photo on file for this category yet — the
+                                     original icon-in-a-box tile, restyled. --}}
+                                <div class="aroma-category-card text-center">
+                                    <div class="card-body py-4">
+                                        <i class="bi {{ $category->icon ?? 'bi-tag' }} fs-1 d-block mb-2 text-aroma-brown"></i>
+                                        <span class="fw-semibold">{{ $category->name }}</span>
+                                    </div>
+                                </div>
+                            @endif
+                        </a>
                     </div>
                 @endforeach
             </div>
         </section>
-    @endif
 
-    {{-- Gifting spotlight --}}
+        {{-- New arrivals --}}
+        @if ($newArrivals->isNotEmpty())
+            <section class="container aroma-section">
+                <h2 class="aroma-section-title">{{ __('storefront.sections.new_arrivals') }}</h2>
+                <div class="row g-4">
+                    @foreach ($newArrivals as $product)
+                        <div class="col-6 col-md-4 col-lg-3">
+                            @include('catalog.partials.product-card', ['product' => $product])
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+    </div>
+
+    {{-- Gifting spotlight — mockup-driven: centered offer copy flanked by the
+         brand's hand-drawn product/botanical pattern bleeding off both edges,
+         instead of the old two-column text+icon layout. --}}
     <section class="container aroma-section" id="gifting" style="scroll-margin-top:90px">
-        <div class="row align-items-center g-4 aroma-trust p-4">
-            <div class="col-md-7">
+        <div class="aroma-promo-panel p-4 p-md-5 text-center">
+            <div class="aroma-promo-content">
                 <h2 class="aroma-section-title">{{ __('storefront.sections.gifting') }}</h2>
                 <p class="fs-5 mb-2">{{ __('storefront.gifting.headline') }}</p>
                 <p class="text-aroma-muted mb-3">{{ __('storefront.gifting.body') }}</p>
-                <a href="#" class="btn btn-aroma">{{ __('storefront.gifting.cta') }}</a>
-            </div>
-            <div class="col-md-5 text-center">
-                <i class="bi bi-gift aroma-icon-xl text-aroma-light-brown"></i>
+                {{-- .btn-aroma-light: white/brown, hover gold — the same "for use on
+                     dark/colored backgrounds" variant the hero and newsletter CTAs
+                     already use, correct now that this panel is solid Burgundy
+                     (a solid .btn-aroma CTA would nearly vanish against it). --}}
+                <a href="#" class="btn btn-aroma-light">{{ __('storefront.gifting.cta') }}</a>
             </div>
         </div>
     </section>
 
-    {{-- Featured / bestsellers --}}
+    {{-- Featured / bestsellers — own white band, separated from the
+         categories/new-arrivals one by the taupe promo panel in between. --}}
     @if ($featuredProducts->isNotEmpty())
-        <section class="container aroma-section">
-            <h2 class="aroma-section-title">{{ __('storefront.sections.bestsellers') }}</h2>
-            <div class="row g-4">
-                @foreach ($featuredProducts as $product)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        @include('catalog.partials.product-card', ['product' => $product])
-                    </div>
-                @endforeach
-            </div>
-        </section>
-    @endif
-
-    {{-- Trust badges --}}
-    <section class="container aroma-section">
-        <h2 class="aroma-section-title">{{ __('storefront.trust.title') }}</h2>
-        <div class="row g-0 aroma-trust text-center">
-            <div class="col-md-4 aroma-trust-item border-end">
-                <i class="bi bi-shield-check fs-2 d-block mb-2 text-aroma-brown"></i>
-                <p class="mb-0 small">{{ __('storefront.trust.payments') }}</p>
-            </div>
-            <div class="col-md-4 aroma-trust-item border-end">
-                <i class="bi bi-wallet2 fs-2 d-block mb-2 text-aroma-brown"></i>
-                <p class="mb-0 small">{{ __('storefront.trust.bnpl') }}</p>
-            </div>
-            <div class="col-md-4 aroma-trust-item">
-                <i class="bi bi-truck fs-2 d-block mb-2 text-aroma-brown"></i>
-                <p class="mb-0 small">{{ __('storefront.trust.delivery') }}</p>
-            </div>
+        <div class="aroma-white-band">
+            <section class="container aroma-section">
+                <h2 class="aroma-section-title">{{ __('storefront.sections.bestsellers') }}</h2>
+                <div class="row g-4">
+                    @foreach ($featuredProducts as $product)
+                        <div class="col-6 col-md-4 col-lg-3">
+                            @include('catalog.partials.product-card', ['product' => $product])
+                        </div>
+                    @endforeach
+                </div>
+            </section>
         </div>
-    </section>
+    @endif
 
     {{-- Newsletter --}}
     <section class="container aroma-section">

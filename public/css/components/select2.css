@@ -16,7 +16,8 @@
   transition: border-color var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
 }
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-  color: var(--aroma-ink);
+  /* --aroma-text — the selected value, matching .form-control's own text color. */
+  color: var(--aroma-text);
   line-height: normal;
   padding: 0;
   font-family: var(--aroma-body-en);
@@ -35,7 +36,7 @@ html[lang="ar"] .select2-container--default .select2-selection--single .select2-
 
 .select2-container--default.select2-container--open .select2-selection--single {
   border-color: var(--aroma-light-brown);
-  box-shadow: 0 0 0 3px rgba(211, 161, 122, 0.25);
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
 }
 
 /* Select2 hides the original <select> and inserts .select2-container as its
@@ -68,6 +69,11 @@ html[lang="ar"] .select2-dropdown {
 }
 .select2-search--dropdown .select2-search__field:focus {
   border-color: var(--aroma-light-brown);
+  /* the base rule strips the native outline unconditionally (line above) —
+     everywhere else in this codebase replaces that with a visible ring on
+     focus; this field only had the border-color change, a weaker signal
+     for keyboard users tabbing into the in-dropdown search box. */
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
 }
 
 .select2-results__option {
@@ -75,7 +81,7 @@ html[lang="ar"] .select2-dropdown {
   font-size: 0.95rem;
 }
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-  background-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
   color: var(--aroma-brown);
 }
 .select2-container--default .select2-results__option[aria-selected="true"] {
@@ -91,7 +97,7 @@ html[lang="ar"] .select2-dropdown {
   padding: 0.35rem 0.5rem;
 }
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-  background-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
   border: 1px solid var(--aroma-light-brown);
   color: var(--aroma-brown);
   border-radius: 999px;

@@ -53,34 +53,33 @@ html[lang="ar"] .btn-aroma-light {
 .btn-aroma-danger:focus-visible,
 .btn-aroma-ghost:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(112, 79, 47, 0.25);
+  box-shadow: 0 0 0 3px rgba(51, 1, 1, 0.25);
 }
 
-/* --- Secondary / Tan ------------------------------------------------------
-   The named "Accent Button": a solid --aroma-btn-gold-bg default that
-   darkens to --aroma-btn-gold-bg-hover on hover, same two-explicit-colors
-   pattern as the brown primary. Text uses a dedicated darker brown rather
-   than the shared --aroma-ink (now #704F2F, same as the brand primary) —
-   ink-on-tan only clears ~3.3:1 with the new, more saturated Warm Tan
-   (the old champagne gold was pale enough to clear ~7:1 with the same ink;
-   this tan isn't), which fails WCAG AA for normal text. #3D2A19 (the
-   darkest stop already used in --aroma-gradient) clears ~6.1:1 against tan
-   at both rest and hover, so it stays comfortably legible in both states. */
+/* --- Secondary / Gold-to-Wine ------------------------------------------------
+   The named "Accent Button": a solid --aroma-btn-gold-bg (Gold, resting)
+   that darkens to --aroma-btn-gold-bg-hover (Wine, the palette's own
+   "hover effects" color) on hover — genuinely two different hues now, not
+   a same-hue darken. Text flips with it: near-black --aroma-ink reads ~9:1
+   on the light resting Gold, but Wine is a genuinely dark background — the
+   same dark ink on it drops to ~2:1, so hover swaps to the light
+   --aroma-white (Background) instead, matching every other hover state
+   sitewide (all of which already land on a dark surface and use light text). */
 .btn-aroma-secondary {
-  background-color: var(--aroma-btn-gold-bg, rgb(211 161 122));
-  border: 1px solid var(--aroma-btn-gold-bg, rgb(211 161 122));
-  color: #3D2A19;
+  background-color: var(--aroma-btn-gold-bg, rgb(201 179 154));
+  border: 1px solid var(--aroma-btn-gold-bg, rgb(201 179 154));
+  color: var(--aroma-ink);
   border-radius: 999px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
-  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
 .btn-aroma-secondary:hover {
-  background-color: var(--aroma-btn-gold-bg-hover, rgb(173 132 100));
-  border-color: var(--aroma-btn-gold-bg-hover, rgb(173 132 100));
-  color: #3D2A19;
+  background-color: var(--aroma-btn-gold-bg-hover, rgb(122 46 61));
+  border-color: var(--aroma-btn-gold-bg-hover, rgb(122 46 61));
+  color: var(--aroma-white);
   transform: translateY(-1px);
-  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14));
 }
 
 /* --- Semantic (success / danger) -------------------------------------------- */
@@ -90,12 +89,12 @@ html[lang="ar"] .btn-aroma-light {
   padding: 0.65rem 1.6rem;
   font-weight: 600;
   color: #fff;
-  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
 .btn-aroma-success { background-color: var(--aroma-success); border: 1px solid var(--aroma-success); }
-.btn-aroma-success:hover { background-color: var(--aroma-success-deep); border-color: var(--aroma-success-deep); color: #fff; transform: translateY(-1px); box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14)); }
+.btn-aroma-success:hover { background-color: var(--aroma-success-deep); border-color: var(--aroma-success-deep); color: #fff; transform: translateY(-1px); box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14)); }
 .btn-aroma-danger { background-color: var(--aroma-danger); border: 1px solid var(--aroma-danger); }
-.btn-aroma-danger:hover { background-color: var(--aroma-danger-deep); border-color: var(--aroma-danger-deep); color: #fff; transform: translateY(-1px); box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14)); }
+.btn-aroma-danger:hover { background-color: var(--aroma-danger-deep); border-color: var(--aroma-danger-deep); color: #fff; transform: translateY(-1px); box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14)); }
 
 /* --- Light (for use on dark/colored backgrounds — hero, newsletter) ----------- */
 .btn-aroma-light {
@@ -105,14 +104,14 @@ html[lang="ar"] .btn-aroma-light {
   border-radius: 999px;
   padding: 0.65rem 1.6rem;
   font-weight: 600;
-  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
 .btn-aroma-light:hover {
-  background-color: var(--aroma-skin);
-  border-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
+  border-color: var(--aroma-gold);
   color: var(--aroma-brown);
   transform: translateY(-1px);
-  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14));
 }
 
 /* --- Ghost / text button ----------------------------------------------------- */
@@ -123,12 +122,12 @@ html[lang="ar"] .btn-aroma-light {
   font-weight: 600;
   padding: 0.65rem 1.2rem;
   border-radius: 999px;
-  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(112, 79, 47, 0.08));
+  box-shadow: var(--aroma-shadow-hover-rest, 0 4px 12px rgba(51, 1, 1, 0.08));
 }
 .btn-aroma-ghost:hover {
-  background-color: var(--aroma-skin);
+  background-color: var(--aroma-gold);
   transform: translateY(-1px);
-  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(112, 79, 47, 0.14));
+  box-shadow: var(--aroma-shadow-hover, 0 8px 24px rgba(51, 1, 1, 0.14));
 }
 
 /* --- Sizes -------------------------------------------------------------------- */
@@ -150,12 +149,11 @@ html[lang="ar"] .btn-aroma-light {
 .btn-check:active + .btn-aroma-outline {
   background-color: var(--aroma-gold);
   border-color: var(--aroma-gold);
-  /* Same contrast fix as .btn-aroma-secondary: white-on-tan is ~2.3:1 with
-     the new, more saturated Warm Tan (fine with the old, paler champagne
-     gold) — this drives every "selected" radio-pill across the storefront
-     (PDP variant picker, delivery slots, payment method), so it's a
-     platform-wide legibility bug otherwise, not a one-off. */
-  color: #3D2A19;
+  /* --aroma-ink (near-black burgundy) clears ~9:1 against Warm Taupe on its
+     own — see .btn-aroma-secondary's comment. Drives every "selected"
+     radio-pill across the storefront (PDP variant picker, delivery slots,
+     payment method). */
+  color: var(--aroma-ink);
   /* box-shadow: 0 0 0 3px var(--aroma-select-bg); */
 }
 .btn-check:focus-visible + .btn-aroma-outline {
@@ -168,6 +166,63 @@ html[lang="ar"] .btn-aroma-light {
   border-color: var(--aroma-disabled-bg);
   color: var(--aroma-disabled-text);
   cursor: not-allowed;
+}
+
+/* --- PDP variant/size grid --------------------------------------------------
+   A real grid (auto-fill, equal-width cells) instead of ragged flex-wrap
+   pills, with the option restructured into two lines — name, then price —
+   so it reads as a considered choice rather than a run-on button label.
+   Still .btn-check + .btn-aroma-outline underneath (same focus-visible,
+   :active press, and disabled color rules above) — this only restyles the
+   label's own box and adds the two-line layout + sold-out treatment. */
+/* Explicit column counts per breakpoint, not auto-fill/minmax — auto-fill's
+   track count is computed from the *minimum* track size, but these cells'
+   actual content (two lines: name + price) can need more than that minimum,
+   so at narrow widths auto-fill was fitting a column that then had nowhere
+   to go, overflowing the PDP's mobile-width detail column. */
+.aroma-variant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+}
+@media (min-width: 480px) {
+  .aroma-variant-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 992px) {
+  .aroma-variant-grid { grid-template-columns: repeat(4, 1fr); }
+}
+.aroma-variant-option {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  height: auto;
+  padding: 0.75rem 0.5rem;
+  white-space: normal;
+  line-height: 1.3;
+  text-align: center;
+}
+.aroma-variant-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.aroma-variant-price {
+  font-size: 0.76rem;
+  opacity: 0.8;
+}
+.aroma-variant-oos-tag {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--aroma-danger);
+}
+.aroma-variant-option-oos .aroma-variant-name {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
 }
 
 /* --- Disabled ------------------------------------------------------------------ */
@@ -205,7 +260,7 @@ html[lang="ar"] .btn-aroma-light {
 }
 .btn-aroma.is-loading::after { color: #fff; }
 .btn-aroma-outline.is-loading::after { color: var(--aroma-brown); }
-.btn-aroma-secondary.is-loading::after { color: #3D2A19; }
+.btn-aroma-secondary.is-loading::after { color: var(--aroma-ink); }
 
 @keyframes aroma-spin {
   to { transform: rotate(360deg); }

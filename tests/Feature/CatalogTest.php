@@ -73,17 +73,20 @@ class CatalogTest extends TestCase
             ->assertSee(__('storefront.payment.soon'));
     }
 
-    public function test_the_gallery_always_includes_the_packaging_and_thank_you_card(): void
+    public function test_the_gallery_shows_only_the_products_own_uploaded_photos(): void
     {
-        // Even a product with no photos of its own shows how it arrives.
+        // No packaging/thank-you-card shots appended anymore — a product
+        // with no photos of its own falls back to the single placeholder
+        // image instead, and (with only one image) no thumbnail strip.
         $product = Product::factory()->for(Category::factory())->create(['slug' => 'no-photos']);
 
         $this->get('/en/product/no-photos')
             ->assertOk()
-            ->assertSee('aroma-gallery-thumbs', false)
-            ->assertSee('packaging-gift.jpg', false)
-            ->assertSee('packaging-bags.jpg', false)
-            ->assertSee('thank-you-card.jpg', false);
+            ->assertSee('placeholder.svg', false)
+            ->assertDontSee('aroma-gallery-thumbs', false)
+            ->assertDontSee('packaging-gift.jpg', false)
+            ->assertDontSee('packaging-bags.jpg', false)
+            ->assertDontSee('thank-you-card.jpg', false);
     }
 
     public function test_unknown_category_and_product_return_404(): void

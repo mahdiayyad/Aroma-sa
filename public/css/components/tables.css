@@ -29,7 +29,7 @@
 .aroma-table tbody tr {
   transition: background-color var(--aroma-transition-fast);
 }
-.aroma-table tbody tr:hover { background: rgba(255, 229, 202, 0.35); }
+.aroma-table tbody tr:hover { background: rgba(201, 179, 154, 0.35); }
 .aroma-table tbody tr:first-child td { border-top: none; }
 
 .aroma-table-responsive {
