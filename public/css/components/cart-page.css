@@ -1,0 +1,212 @@
+/* ============================================================================
+   Aroma — cart page
+   Card-style line-item rows (not a <table>) so the cart reads naturally on
+   mobile with no horizontal scroll, plus a redesigned summary panel. Every
+   JS hook the old table markup carried (data-row, .js-cart-qty,
+   .js-line-total, .js-cart-remove, .js-cart-subtotal) is unchanged here —
+   see public/js/aroma-ui.js §1b/1d — so none of that behavior needed a
+   rewrite, only new markup to hang it on.
+   ========================================================================== */
+
+.aroma-cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.aroma-cart-row {
+  display: flex;
+  gap: 1rem;
+  background: #fff;
+  border-radius: var(--aroma-radius);
+  box-shadow: var(--aroma-shadow-xs, 0 2px 5px rgba(51, 1, 1, 0.05));
+  padding: 0.85rem;
+  transition: box-shadow var(--aroma-transition-fast), opacity var(--aroma-transition-fast);
+}
+/* A pulse on the total while a qty change is in flight (toggled by
+   aroma-ui.js's .js-cart-qty handler) — the response usually lands fast
+   enough that a spinner would just flicker, so a soft opacity breathe reads
+   as "acknowledged, working on it" without being heavy-handed. */
+.aroma-cart-row.is-updating .js-line-total {
+  animation: aroma-cart-pulse 0.9s ease-in-out infinite;
+}
+@keyframes aroma-cart-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.aroma-cart-row-media {
+  flex-shrink: 0;
+  width: 92px;
+  height: 92px;
+  border-radius: var(--aroma-radius-sm);
+  overflow: hidden;
+  background: var(--aroma-skin);
+  display: block;
+}
+.aroma-cart-row-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--aroma-transition-slow, 0.4s ease);
+}
+.aroma-cart-row-media:hover img { transform: scale(1.06); }
+
+.aroma-cart-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.aroma-cart-row-info {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.aroma-cart-row-title {
+  display: block;
+  font-weight: 600;
+  color: var(--aroma-ink);
+  text-decoration: none;
+  line-height: 1.35;
+}
+.aroma-cart-row-title:hover { color: var(--aroma-brown); text-decoration: underline; }
+.aroma-cart-row-variant {
+  font-size: 0.82rem;
+  color: var(--aroma-muted);
+  margin-top: 0.15rem;
+}
+.aroma-cart-row-unit-price {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--aroma-brown);
+  margin-top: 0.35rem;
+}
+
+.aroma-cart-row-price {
+  width: 90px;
+  flex-shrink: 0;
+  color: var(--aroma-muted);
+  font-weight: 500;
+}
+
+.aroma-cart-row-qty { flex-shrink: 0; }
+
+.aroma-cart-row-total {
+  flex-shrink: 0;
+  min-width: 90px;
+  text-align: end;
+  font-weight: 700;
+  color: var(--aroma-brown);
+  font-size: 1.02rem;
+}
+.aroma-cart-row-total-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--aroma-muted);
+  margin-bottom: 0.15rem;
+}
+
+.aroma-cart-row-remove { flex-shrink: 0; }
+.aroma-cart-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--aroma-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--aroma-transition-fast), color var(--aroma-transition-fast);
+}
+.aroma-cart-remove-btn:hover {
+  background: var(--aroma-danger-bg);
+  color: var(--aroma-danger);
+}
+
+/* --- Summary panel ------------------------------------------------------ */
+.aroma-cart-summary {
+  background: #fff;
+  border-radius: var(--aroma-radius);
+  box-shadow: var(--aroma-shadow-sm);
+  padding: 1.5rem;
+  position: sticky;
+  top: 1.5rem;
+}
+.aroma-cart-summary-title {
+  font-family: var(--aroma-heading-en);
+  margin-bottom: 1rem;
+}
+html[lang="ar"] .aroma-cart-summary-title { font-family: var(--aroma-heading-ar); }
+.aroma-cart-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--aroma-border);
+  margin-bottom: 1.25rem;
+}
+.aroma-cart-summary-value {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--aroma-brown);
+}
+
+.aroma-cart-trust {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.aroma-cart-trust li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--aroma-muted);
+}
+.aroma-cart-trust li i {
+  color: var(--aroma-gold);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.aroma-cart-payment-icons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--aroma-border);
+}
+.aroma-cart-payment-icons svg { height: 1.1rem; width: auto; }
+.aroma-cart-payment-icons .aroma-payment-chip { height: 1.3rem; padding: 0 0.5rem; }
+.aroma-cart-payment-icons .aroma-payment-chip-text { font-size: 0.68rem; }
+
+.aroma-cart-bnpl {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--aroma-muted);
+}
+.aroma-cart-bnpl i { color: var(--aroma-gold); margin-inline-end: 0.35rem; }
+
+/* --- Responsive ----------------------------------------------------------- */
+@media (max-width: 991.98px) {
+  .aroma-cart-summary { position: static; }
+}
+@media (max-width: 575.98px) {
+  .aroma-cart-row { flex-wrap: wrap; }
+  .aroma-cart-row-media { width: 72px; height: 72px; }
+  .aroma-cart-row-body { gap: 0.6rem 1rem; }
+  .aroma-cart-row-total { min-width: 70px; }
+}

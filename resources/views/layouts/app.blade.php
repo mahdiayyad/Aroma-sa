@@ -16,6 +16,18 @@
             if (isSafari) { document.documentElement.classList.add('is-safari'); }
         })();
     </script>
+    {{-- Scroll-reveal opt-in, same "as early as possible" reasoning as the
+         Safari check above — this is what lets animations.css hide
+         .aroma-reveal elements pre-scroll without a flash-of-visible-then-
+         hidden content: the class is on <html> before first paint, so the
+         hidden state is what actually paints first. The class is added ONLY
+         when IntersectionObserver exists — if it doesn't (or JS never runs
+         at all), .aroma-reveal elements simply stay at their normal, fully
+         visible CSS state forever; nothing in this app depends on the
+         separate deferred public/js/scroll-reveal.js running to be seen. --}}
+    <script>
+        if ('IntersectionObserver' in window) { document.documentElement.classList.add('js-reveal-ready'); }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -176,6 +188,7 @@
     <script src="{{ \App\Support\Assets::versioned('js/aroma-http.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/cart-modal.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/aroma-ui.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/scroll-reveal.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/js/intlTelInputWithUtils.min.js"></script>
     <script src="{{ \App\Support\Assets::versioned('js/intl-phone.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/assistant.js') }}" defer></script>

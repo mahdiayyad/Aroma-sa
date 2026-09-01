@@ -99,6 +99,7 @@ return [
         'from'         => 'يبدأ من',
         'add_to_cart'  => 'أضف إلى السلة',
         'sold_out'     => 'نفدت الكمية',
+        'low_stock'    => 'تبقّى :count فقط',
         'in_stock'     => 'متوفر',
         'total'        => 'الإجمالي',
         'qty_decrease' => 'إنقاص الكمية',
@@ -127,6 +128,7 @@ return [
         'sort_price_desc'=> 'السعر: من الأعلى للأقل',
         'results'    => ':count منتج',
         'empty'      => 'لا توجد منتجات. يرجى العودة قريباً.',
+        'remove_filter' => 'إزالة الفلتر',
     ],
 
     'currency' => 'ر.س',

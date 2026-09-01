@@ -47,6 +47,22 @@ class CustomerController extends Controller
             'role'           => ['required', Rule::in([User::ROLE_CUSTOMER, User::ROLE_STAFF, User::ROLE_ADMIN])],
         ]);
 
+        // Role changes are gated beyond the ['auth','admin'] route middleware:
+        // that middleware only requires isAdmin(), which is also true for
+        // 'staff' — without this extra check any staff account could grant
+        // itself (or anyone else) the admin role through this same form.
+        $roleChanged = $data['role'] !== $customer->role;
+        if ($roleChanged) {
+            if ($request->user()->id === $customer->id) {
+                return redirect()->route('admin.customers.show', $customer)
+                    ->with('error', __('admin.customers.role_self_forbidden'));
+            }
+            if ($request->user()->role !== User::ROLE_ADMIN) {
+                return redirect()->route('admin.customers.show', $customer)
+                    ->with('error', __('admin.customers.role_forbidden'));
+            }
+        }
+
         $customer->update([
             'is_active'      => $request->boolean('is_active'),
             'loyalty_points' => (int) ($data['loyalty_points'] ?? 0),

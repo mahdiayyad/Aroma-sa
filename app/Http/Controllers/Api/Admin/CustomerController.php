@@ -51,6 +51,15 @@ class CustomerController extends Controller
             'role'           => ['sometimes', Rule::in([User::ROLE_CUSTOMER, User::ROLE_STAFF, User::ROLE_ADMIN])],
         ]);
 
+        // Same gate as Admin\CustomerController::update — the route
+        // middleware only requires isAdmin(), which is also true for
+        // 'staff', so without this a staff token could grant itself (or
+        // anyone else) the admin role via this endpoint.
+        if (array_key_exists('role', $data) && $data['role'] !== $customer->role) {
+            abort_if($request->user()->id === $customer->id, 403, __('admin.customers.role_self_forbidden'));
+            abort_unless($request->user()->role === User::ROLE_ADMIN, 403, __('admin.customers.role_forbidden'));
+        }
+
         $customer->update($data);
 
         return new CustomerResource($customer->loadCount('orders'));

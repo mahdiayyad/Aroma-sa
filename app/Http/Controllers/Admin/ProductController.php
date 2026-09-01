@@ -20,7 +20,12 @@ class ProductController extends Controller
 
     public function index(Request $request): View
     {
-        $query = Product::query()->with(['category', 'brand'])->withCount('images');
+        // 'images' is eager-loaded (not just withCount) because the index
+        // view's thumbnail calls $product->primaryImageUrl(), which reads
+        // the images relation directly — without this it was a genuine N+1
+        // (one extra query per row, up to 15/page) despite the withCount
+        // already being here.
+        $query = Product::query()->with(['category', 'brand', 'images'])->withCount('images');
 
         if ($search = $request->query('q')) {
             $query->where(fn ($q) => $q->where('sku', 'like', "%{$search}%")

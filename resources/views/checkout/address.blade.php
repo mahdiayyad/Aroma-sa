@@ -54,7 +54,10 @@
 
                             <div class="col-12">
                                 <label class="form-label fw-semibold">{{ __('checkout.customer_notes') }}</label>
-                                <textarea name="customer_notes" class="form-control" rows="3" placeholder="...">{{ old('customer_notes') }}</textarea>
+                                <textarea name="customer_notes" class="form-control @error('customer_notes') is-invalid @enderror" rows="3" placeholder="...">{{ old('customer_notes') }}</textarea>
+                                @error('customer_notes')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>

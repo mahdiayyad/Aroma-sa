@@ -5,6 +5,12 @@
         @if ($product->isOnSale())
             <span class="aroma-badge-discount">-{{ $product->discountPercent() }}%</span>
         @endif
+        {{-- Real stock_quantity-driven signal, not a decorative "hurry up"
+             counter — see Product::isLowStock(). Positioned opposite the
+             discount badge so both can show at once without colliding. --}}
+        @if ($product->isLowStock())
+            <span class="aroma-badge-low-stock">{{ __('storefront.product.low_stock', ['count' => $product->stock_quantity]) }}</span>
+        @endif
 
         {{-- Wishlist toggle --}}
         @auth

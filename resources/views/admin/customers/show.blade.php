@@ -18,12 +18,24 @@
                         <div class="admin-cell-sub" dir="ltr">{{ $customer->phone ?? '—' }}</div>
                     </div>
 
+                    @php($canChangeRole = auth()->user()->role === \App\Models\User::ROLE_ADMIN && auth()->id() !== $customer->id)
                     <x-admin.form.group :label="__('admin.customers.role')" name="role">
-                        <select name="role" class="admin-select">
+                        {{-- Shown to every admin/staff viewer (so it's never a mystery
+                             what a customer's role is), but only ever editable by an
+                             actual admin, and never for one's own account — matches
+                             the same gate CustomerController::update enforces
+                             server-side. A disabled <select> submits nothing, so the
+                             hidden input is what keeps the current value intact when
+                             this viewer saves other fields (loyalty/active). --}}
+                        <select name="role" class="admin-select" @disabled(!$canChangeRole)>
                             @foreach (['customer', 'staff', 'admin'] as $role)
                                 <option value="{{ $role }}" {{ old('role', $customer->role) === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
                             @endforeach
                         </select>
+                        @unless ($canChangeRole)
+                            <input type="hidden" name="role" value="{{ $customer->role }}">
+                            <div class="admin-hint">{{ auth()->id() === $customer->id ? __('admin.customers.role_self_forbidden') : __('admin.customers.role_forbidden') }}</div>
+                        @endunless
                     </x-admin.form.group>
 
                     <x-admin.form.group :label="__('admin.customers.loyalty')" name="loyalty_points">
