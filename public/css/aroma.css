@@ -496,6 +496,54 @@ html[dir="ltr"] .aroma-script {
   margin-inline: auto;
 }
 
+/* --- Contact page: signature dark treatment ---------------------------------
+   Background #330101, text Gold — requested for "the contact page", scoped
+   to .aroma-contact-page (see resources/views/pages/contact.blade.php)
+   rather than touching .aroma-hero/.aroma-card/.aroma-trust's shared base
+   rules directly, since those are reused across ~15+ other pages (About's
+   own light hero, checkout cards, cart's empty state, etc.).
+
+   Deliberately NOT applied to the form's actual <input>/<select>/<textarea>
+   wells — those stay on their normal light background with dark text. A
+   dark-on-dark text field is genuinely hard to read while typing and reads
+   as "disabled" in virtually every UI convention, which "background is
+   burgundy, text is gold" was never really asking for; the burgundy/gold
+   treatment covers the card frames, headings, and labels around those
+   fields instead — everywhere it reads as premium rather than working
+   against the one thing a contact form actually needs to do. */
+.aroma-contact-page .aroma-hero {
+  background: var(--aroma-gradient);
+}
+.aroma-contact-page .aroma-hero h1,
+.aroma-contact-page .aroma-hero .aroma-hero-lead {
+  color: var(--aroma-gold);
+}
+/* .aroma-hero-tagline is already Gold via the shared rule above — untouched. */
+
+.aroma-contact-page .aroma-card,
+.aroma-contact-page .aroma-trust {
+  background: var(--aroma-brown);
+}
+.aroma-contact-page .aroma-card h3,
+.aroma-contact-page .aroma-trust h3,
+.aroma-contact-page .form-label {
+  color: var(--aroma-gold);
+}
+.aroma-contact-page .text-aroma-muted {
+  color: rgba(232, 221, 210, 0.75) !important; /* Light Beige — the same "secondary text on dark" role the footer uses, not full-strength Gold, so it stays visibly a tier below the labels/values around it */
+}
+.aroma-contact-value {
+  color: var(--aroma-gold) !important;
+}
+.aroma-contact-page .aroma-avatar {
+  background: var(--aroma-gold);
+  color: var(--aroma-brown); /* inverted from the shared rule's white-on-brown — brown-on-brown would vanish against this card's own now-Burgundy background */
+}
+.aroma-contact-page .aroma-trust hr {
+  border-color: rgba(201, 179, 154, 0.35);
+  opacity: 1;
+}
+
 /* --- Cards / sections ------------------------------------------------------ */
 .aroma-section-title {
   position: relative;
