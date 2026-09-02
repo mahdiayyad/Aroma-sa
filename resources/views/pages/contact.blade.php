@@ -8,6 +8,14 @@
 @section('content')
 @php($waDigits = preg_replace('/\D+/', '', (string) config('aroma.contact.whatsapp')))
 @php($contactEmail = config('aroma.contact.email'))
+{{-- .aroma-contact-page: this page's own signature dark treatment
+     (background #330101, text gold) — scoped here rather than touching
+     .aroma-hero/.aroma-card/.aroma-trust's shared base rules, since those
+     are used across ~15+ other pages (About's own light hero, checkout
+     cards, cart's empty state, etc.). See public/css/aroma.css for the
+     scoped rules themselves and the reasoning on what stayed light
+     (form input wells — legible/conventional data entry) vs went dark. --}}
+<div class="aroma-contact-page">
 
 {{-- Hero --}}
 <section class="container mt-4">
@@ -86,7 +94,12 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-aroma btn-lg w-100 mt-4">
+                    {{-- .btn-aroma-light (white/brown, hover gold) — the same
+                         "for use on dark/colored backgrounds" variant the hero
+                         and newsletter CTAs use, correct now that this card is
+                         solid Burgundy (a solid .btn-aroma button would nearly
+                         vanish against it). --}}
+                    <button type="submit" class="btn btn-aroma-light btn-lg w-100 mt-4">
                         <i class="bi bi-send me-2"></i>{{ __('contact.form.submit') }}
                     </button>
                 </form>
@@ -102,7 +115,7 @@
                     <div class="aroma-avatar flex-shrink-0"><i class="bi bi-envelope fs-5"></i></div>
                     <div>
                         <div class="small text-aroma-muted">{{ __('contact.info.email_label') }}</div>
-                        <a href="mailto:{{ $contactEmail }}" class="fw-semibold text-decoration-none" style="color:var(--aroma-ink)">
+                        <a href="mailto:{{ $contactEmail }}" class="fw-semibold text-decoration-none aroma-contact-value">
                             {{ $contactEmail }}
                         </a>
                     </div>
@@ -114,7 +127,7 @@
                         <div>
                             <div class="small text-aroma-muted">{{ __('contact.info.whatsapp_label') }}</div>
                             <a href="https://wa.me/{{ $waDigits }}" target="_blank" rel="noopener"
-                               class="fw-semibold text-decoration-none" style="color:var(--aroma-ink)" dir="ltr">
+                               class="fw-semibold text-decoration-none aroma-contact-value" dir="ltr">
                                 <span class="aroma-phone-plus">+</span>{{ $waDigits }}
                             </a>
                         </div>
@@ -130,11 +143,12 @@
 
                 <hr class="my-4">
 
-                <a href="{{ route('privacy-policy') }}#complaints" class="btn btn-aroma-outline w-100">
+                <a href="{{ route('privacy-policy') }}#complaints" class="btn btn-aroma-light w-100">
                     <i class="bi bi-chat-heart me-2"></i>{{ __('storefront.footer.policies') }}
                 </a>
             </div>
         </div>
     </div>
 </section>
+</div>
 @endsection
