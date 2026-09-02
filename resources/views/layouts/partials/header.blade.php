@@ -201,7 +201,7 @@
             </div>
         </form>
         <ul class="nav flex-column gap-1">
-            @foreach (['abayas'] as $cat)
+            @foreach (['abaya'] as $cat)
                 <li class="nav-item">
                     <a class="nav-link aroma-mobile-nav-link {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
                        href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>

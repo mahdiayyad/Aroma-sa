@@ -32,6 +32,15 @@
                     @endif
                     <img id="galleryMainImg" src="{{ $first['url'] }}" alt="{{ $first['alt'] }}">
                     <figcaption class="aroma-gallery-caption {{ $first['label'] === '' ? 'is-empty' : '' }}" id="galleryCaption">{{ $first['label'] }}</figcaption>
+                    {{-- Maximize — opens the same image full-size and uncropped
+                         (object-fit:contain, unlike this cover-cropped main
+                         view) in the lightbox below. --}}
+                    <button type="button" class="aroma-gallery-zoom-btn" id="galleryZoomBtn"
+                            data-bs-toggle="modal" data-bs-target="#galleryLightbox"
+                            data-bs-tooltip="true" data-bs-placement="top"
+                            title="{{ __('storefront.product.zoom_image') }}" aria-label="{{ __('storefront.product.zoom_image') }}">
+                        <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
+                    </button>
                 </figure>
 
                 @if ($gallery->count() > 1)
@@ -46,6 +55,38 @@
                         @endforeach
                     </div>
                 @endif
+            </div>
+        </div>
+
+        {{-- Lightbox — the product's own images shown full-size and uncropped,
+             with the same prev/next set the thumbnail strip has when there's
+             more than one. Kept outside .aroma-gallery/.col-lg-6 (a Bootstrap
+             modal is positioned relative to <body>, not its markup position),
+             but still inside the page — no separate view/route needed. --}}
+        <div class="modal fade aroma-lightbox" id="galleryLightbox" tabindex="-1" aria-hidden="true" aria-label="{{ __('storefront.product.zoom_image') }}">
+            <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+                <div class="modal-content">
+                    <button type="button" class="aroma-lightbox-close" data-bs-dismiss="modal" aria-label="{{ __('cart.modal.close') }}">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    </button>
+                    <div class="aroma-lightbox-stage">
+                        @if ($gallery->count() > 1)
+                            <button type="button" class="aroma-lightbox-nav aroma-lightbox-prev" data-dir="-1" aria-label="{{ __('storefront.product.prev_image') }}">
+                                <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                            </button>
+                        @endif
+                        <img id="lightboxImg" src="{{ $first['url'] }}" alt="{{ $first['alt'] }}">
+                        @if ($gallery->count() > 1)
+                            <button type="button" class="aroma-lightbox-nav aroma-lightbox-next" data-dir="1" aria-label="{{ __('storefront.product.next_image') }}">
+                                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                            </button>
+                        @endif
+                    </div>
+                    @if ($gallery->count() > 1)
+                        <div class="aroma-lightbox-counter" id="lightboxCounter" aria-live="polite"
+                             data-template="{{ __('storefront.product.image_of', ['current' => '{n}', 'total' => '{t}']) }}"></div>
+                    @endif
+                </div>
             </div>
         </div>
 
@@ -263,6 +304,66 @@
                 select(target);
             });
         });
+    })();
+
+    // Lightbox — full-size, uncropped view of whichever image the gallery
+    // above is currently showing, with its own prev/next (kept in sync with
+    // the main gallery by simply clicking the corresponding real thumbnail —
+    // reuses all of its existing state-keeping rather than duplicating it).
+    (function () {
+        var lightbox = document.getElementById('galleryLightbox');
+        var main = document.getElementById('galleryMainImg');
+        if (!lightbox || !main || typeof bootstrap === 'undefined') { return; }
+
+        var lightboxImg = document.getElementById('lightboxImg');
+        var counter = document.getElementById('lightboxCounter');
+        var prevBtn = lightbox.querySelector('.aroma-lightbox-prev');
+        var nextBtn = lightbox.querySelector('.aroma-lightbox-next');
+        var thumbs = Array.prototype.slice.call(document.querySelectorAll('.aroma-gallery-thumb'));
+
+        function activeIndex() {
+            var active = document.querySelector('.aroma-gallery-thumb.active');
+            var i = thumbs.indexOf(active);
+            return i === -1 ? 0 : i;
+        }
+
+        function updateCounter() {
+            if (counter && thumbs.length && counter.dataset.template) {
+                counter.textContent = counter.dataset.template
+                    .replace('{n}', activeIndex() + 1).replace('{t}', thumbs.length);
+            }
+        }
+
+        // On open: main's src/alt are already settled (no slide in flight at
+        // that point), so reading them directly is correct here.
+        lightbox.addEventListener('show.bs.modal', function () {
+            lightboxImg.src = main.getAttribute('src');
+            lightboxImg.alt = main.getAttribute('alt') || '';
+            updateCounter();
+        });
+
+        function step(delta) {
+            if (!thumbs.length) { return; }
+            var target = thumbs[(activeIndex() + delta + thumbs.length) % thumbs.length];
+            // Read the new image straight off the target thumbnail, not off
+            // main — main's own src only updates ~320ms into its slide
+            // animation (see select() above), so reading it right after
+            // target.click() would still return the outgoing image.
+            lightboxImg.src = target.dataset.full;
+            lightboxImg.alt = target.querySelector('img').alt;
+            target.click(); // drives the real thumbnail's own select() — main gallery stays in sync
+            updateCounter();
+        }
+
+        if (prevBtn) { prevBtn.addEventListener('click', function () { step(-1); }); }
+        if (nextBtn) { nextBtn.addEventListener('click', function () { step(1); }); }
+
+        lightbox.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowRight') { step(isRtlPage() ? -1 : 1); }
+            else if (e.key === 'ArrowLeft') { step(isRtlPage() ? 1 : -1); }
+        });
+
+        function isRtlPage() { return document.documentElement.getAttribute('dir') === 'rtl'; }
     })();
 
     // Live product total: price × quantity, updating with the selected variant.

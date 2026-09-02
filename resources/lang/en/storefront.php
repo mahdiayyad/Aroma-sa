@@ -30,6 +30,7 @@ return [
         'flowers'     => 'Flowers & Gifts',
         'beauty'      => 'Beauty',
         'abayas'      => 'Abayas',
+        'abaya'      => 'Abayas',
         'accessories' => 'Accessories',
         'seasonal'    => 'Seasonal',
         'account'     => 'My Account',
@@ -112,6 +113,10 @@ return [
         'gift_options' => 'Add gift options',
         'gift_hint'    => 'Add a personal message and choose a delivery time at checkout.',
         'related'      => 'You may also like',
+        'zoom_image'   => 'View full size',
+        'image_of'     => 'Image :current of :total',
+        'prev_image'   => 'Previous image',
+        'next_image'   => 'Next image',
     ],
 
     'catalog' => [
