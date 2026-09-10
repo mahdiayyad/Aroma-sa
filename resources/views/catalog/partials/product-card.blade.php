@@ -36,7 +36,7 @@
 
         {{-- Quick add — slides up on hover (desktop), always visible on touch --}}
         <div class="aroma-quick-add">
-            @if ($product->has_variants)
+            @if ($product->requiresOptionSelection())
                 <a href="{{ route('product.show', [$locale, $product->slug]) }}" class="btn btn-aroma btn-sm w-100">
                     <i class="bi bi-eye me-1"></i>{{ __('storefront.product.add_to_cart') }}
                 </a>

@@ -24,6 +24,17 @@ class GiftOptionsRequest extends FormRequest
             'is_anonymous' => $this->boolean('is_anonymous'),
             'gift_wrap'    => $this->boolean('gift_wrap'),
         ]);
+
+        // Plain-text fields: drop control characters (keep newlines) and trim.
+        // Rendered escaped ({{ }}) everywhere including the confirmation email,
+        // so no markup is interpreted — not strip_tags(), which would mangle
+        // legitimate input like "<3".
+        foreach (['gift_message', 'gift_to', 'gift_from'] as $field) {
+            if ($this->has($field) && $this->input($field) !== null) {
+                $clean = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string) $this->input($field));
+                $this->merge([$field => trim((string) $clean)]);
+            }
+        }
     }
 
     public function rules(): array

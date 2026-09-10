@@ -10,6 +10,7 @@ use App\Services\CatalogService;
 use App\Support\Formatting\Money;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class CartController extends Controller
 {
@@ -37,24 +38,29 @@ class CartController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'product_id' => ['required', 'integer', 'exists:products,id'],
-            'variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
-            'qty'        => ['nullable', 'integer', 'min:1', 'max:99'],
+            'product_id'  => ['required', 'integer', 'exists:products,id'],
+            'variant_id'  => ['nullable', 'integer', 'exists:product_variants,id'],
+            'qty'         => ['nullable', 'integer', 'min:1', 'max:99'],
+            'options'     => ['nullable', 'array'],
+            'options.*'   => ['nullable', 'integer'],
         ]);
+
+        $product = Product::active()->with('options.values')->findOrFail((int) $data['product_id']);
+        $options = $this->validatedOptions($product, $data['options'] ?? []);
 
         $rowId = $this->cart->add(
             (int) $data['product_id'],
             isset($data['variant_id']) ? (int) $data['variant_id'] : null,
-            (int) ($data['qty'] ?? 1)
+            (int) ($data['qty'] ?? 1),
+            $options
         );
 
         // Live add-to-cart: the storefront submits these via fetch and expects
         // JSON so it can open the confirmation modal and update the header count
         // without a reload. Non-JS clients still get the redirect + flash.
         if ($request->expectsJson()) {
-            $row     = $this->cart->rows()[$rowId] ?? null;
-            $product = Product::find((int) $data['product_id']);
-            $locale  = app()->getLocale();
+            $row    = $this->cart->rows()[$rowId] ?? null;
+            $locale = app()->getLocale();
 
             return response()->json([
                 'count'    => $this->cart->count(),
@@ -64,12 +70,22 @@ class CartController extends Controller
                     'row_id'     => $rowId,
                     'name'       => $row['name'][$locale] ?? reset($row['name']),
                     'variant'    => $row['variant'][$locale] ?? ($row['variant'] ? reset($row['variant']) : null),
+                    'options'    => collect($row['options'] ?? [])->map(function ($o) use ($locale) {
+                        $delta = (float) ($o['price_delta'] ?? 0);
+
+                        return [
+                            'label' => $o['label'][$locale] ?? reset($o['label']),
+                            'value' => $o['value_label'][$locale] ?? reset($o['value_label']),
+                            'price' => $delta > 0 ? '+'.Money::format($delta) : null,
+                        ];
+                    })->values()->all(),
                     'image'      => $row['image'],
                     'qty'        => $row['qty'],
+                    'unit_price' => Money::format($row['base_unit_price'] ?? $row['unit_price']),
                     'line_total' => Money::format($row['unit_price'] * $row['qty']),
                 ] : null,
                 // "Make your gift perfect" add-ons shown beneath the added item.
-                'suggestions' => $product ? $this->suggestions($product) : [],
+                'suggestions' => $this->suggestions($product),
             ]);
         }
 
@@ -124,6 +140,51 @@ class CartController extends Controller
     }
 
     /**
+     * Validate the submitted customisation options against the product's own
+     * active options: every required option must be answered, and every
+     * submitted value must belong to an active option/value of THIS product
+     * (tampering / IDOR guard). Returns the clean option_id => value_id map.
+     *
+     * @param  array<int|string,mixed>  $submitted  options[option_id] = value_id
+     * @return array<int,int>
+     */
+    private function validatedOptions(Product $product, array $submitted): array
+    {
+        $clean = [];
+
+        foreach ($submitted as $optionId => $valueId) {
+            if (! is_numeric($optionId) || ! is_numeric($valueId)) {
+                continue;
+            }
+            $clean[(int) $optionId] = (int) $valueId;
+        }
+
+        $resolved = [];
+
+        foreach ($product->options as $option) {
+            $valueId = $clean[$option->id] ?? null;
+
+            $value = $valueId
+                ? $option->values->first(fn ($v) => (int) $v->id === $valueId && $v->is_active)
+                : null;
+
+            if (! $value) {
+                if ($option->is_required) {
+                    throw ValidationException::withMessages([
+                        'options.'.$option->id => __('storefront.product.option_required', ['option' => $option->label]),
+                    ]);
+                }
+
+                continue;
+            }
+
+            $resolved[$option->id] = $value->id;
+        }
+
+        return $resolved;
+    }
+
+    /**
      * Gift add-ons for the modal, already resolved for the view layer.
      *
      * @return array<int,array<string,mixed>>
@@ -146,6 +207,9 @@ class CartController extends Controller
                     'price'      => $item->priceLabel(),
                     'url'        => route('product.show', [$locale, $item->slug]),
                     'has_variants' => (bool) $item->has_variants,
+                    // A product with a required customisation option can't be
+                    // added straight from the modal — send the shopper to the PDP.
+                    'needs_options' => (bool) $item->has_variants || (int) ($item->required_options_count ?? 0) > 0,
                 ];
             })
             ->values()

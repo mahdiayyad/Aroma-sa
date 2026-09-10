@@ -15,6 +15,16 @@ class DeliveryRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('delivery_instructions') && $this->input('delivery_instructions') !== null) {
+            // Plain-text field: drop control characters (keep newlines) and
+            // trim. Rendered escaped ({{ }}) on the admin order screen.
+            $clean = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string) $this->input('delivery_instructions'));
+            $this->merge(['delivery_instructions' => trim((string) $clean)]);
+        }
+    }
+
     public function rules(): array
     {
         $minDate = now()->addDays((int) config('aroma.delivery.min_lead_days', 1))->toDateString();

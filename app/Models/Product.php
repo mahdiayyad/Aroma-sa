@@ -57,6 +57,22 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->orderBy('sort_order');
     }
 
+    /**
+     * Active customisation options (closure style, …). Filtered to is_active
+     * here — unlike variants() — so a disabled option never reaches the PDP
+     * or the "required option" enforcement.
+     */
+    public function options(): HasMany
+    {
+        return $this->hasMany(ProductOption::class)->where('is_active', true)->orderBy('sort_order');
+    }
+
+    /** All options regardless of state — for the admin editor. */
+    public function allOptions(): HasMany
+    {
+        return $this->hasMany(ProductOption::class)->orderBy('sort_order');
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
@@ -119,6 +135,25 @@ class Product extends Model
         }
 
         return $this->stock_quantity > 0 && $this->stock_quantity <= $threshold;
+    }
+
+    /**
+     * True when the shopper must make a selection on the product page before
+     * this can be added to cart — a variant, or a required customisation
+     * option. Drives whether a listing card shows a direct "add" or a "view"
+     * link. Uses the required_options_count withCount alias when a listing
+     * eager-loaded it; otherwise falls back to a bounded count query.
+     */
+    public function requiresOptionSelection(): bool
+    {
+        if ($this->has_variants) {
+            return true;
+        }
+
+        $count = $this->required_options_count
+            ?? $this->options()->where('is_required', true)->count();
+
+        return (int) $count > 0;
     }
 
     public function priceLabel(): string

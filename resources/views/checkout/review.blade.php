@@ -53,6 +53,7 @@
                                                         @if(!empty($item['variant']))
                                                             <div class="small text-aroma-muted">{{ $item['variant'][$locale] ?? reset($item['variant']) }}</div>
                                                         @endif
+                                                        <x-option-lines :options="$item['options'] ?? []" line-class="small text-aroma-muted" />
                                                     </div>
                                                 </div>
                                             </td>
@@ -61,7 +62,7 @@
                                                     x{{ $item['qty'] }}
                                                 </span>
                                             </td>
-                                            <td class="text-end">@price($item['unit_price'])</td>
+                                            <td class="text-end">@price($item['base_unit_price'] ?? $item['unit_price'])</td>
                                             <td class="text-end pe-4 fw-semibold">@price($item['unit_price'] * $item['qty'])</td>
                                         </tr>
                                     @endforeach

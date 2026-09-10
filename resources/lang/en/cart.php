@@ -7,6 +7,7 @@ return [
     'product'  => 'Product',
     'price'    => 'Price',
     'qty'      => 'Qty',
+    'quantity' => 'Quantity',
     'total'    => 'Total',
     'remove'   => 'Remove',
     'decrease' => 'Decrease quantity',

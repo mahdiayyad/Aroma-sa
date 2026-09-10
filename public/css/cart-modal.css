@@ -176,7 +176,14 @@
 .aroma-added-meta { flex: 1; min-width: 0; }
 .aroma-added-name { margin: 0; font-weight: 600; font-size: 0.95rem; color: var(--aroma-ink); }
 .aroma-added-variant,
-.aroma-added-qty { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--aroma-muted, #8F7373); }
+.aroma-added-qty {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--aroma-muted, #8F7373);
+  /* Latin-first stack so the "+" in an add-on line ("+100.00 ر.س") has a
+     proper glyph; Arabic still falls through per-character. */
+  font-family: var(--aroma-input-font);
+}
 .aroma-added-price { font-weight: 700; color: var(--aroma-brown); white-space: nowrap; }
 
 .aroma-cart-modal-total {

@@ -53,8 +53,9 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label fw-semibold">{{ __('checkout.customer_notes') }}</label>
-                                <textarea name="customer_notes" class="form-control @error('customer_notes') is-invalid @enderror" rows="3" placeholder="...">{{ old('customer_notes') }}</textarea>
+                                <label class="form-label fw-semibold" for="customer_notes">{{ __('checkout.customer_notes') }}</label>
+                                <textarea name="customer_notes" id="customer_notes" class="form-control @error('customer_notes') is-invalid @enderror" rows="3" maxlength="500" placeholder="{{ __('checkout.customer_notes_hint') }}">{{ old('customer_notes') }}</textarea>
+                                <div class="form-text">{{ __('checkout.customer_notes_hint') }}</div>
                                 @error('customer_notes')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror

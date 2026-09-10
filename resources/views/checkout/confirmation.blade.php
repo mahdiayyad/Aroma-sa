@@ -46,6 +46,20 @@
                         <x-address-summary class="text-aroma-muted small" :address="$order->shipping_address" :phone="$order->customer_phone" />
                     </div>
 
+                    @if($order->is_gift && $order->gift_message)
+                        <div class="mb-4 pb-4 border-bottom">
+                            <h6 class="fw-bold mb-2" style="color:var(--aroma-brown)">{{ __('checkout.gift_message_label') }}</h6>
+                            <p class="text-aroma-muted small mb-0" style="white-space:pre-wrap">{{ $order->gift_message }}</p>
+                        </div>
+                    @endif
+
+                    @if($order->customer_notes)
+                        <div class="mb-4 pb-4 border-bottom">
+                            <h6 class="fw-bold mb-2" style="color:var(--aroma-brown)">{{ __('checkout.customer_notes_label') }}</h6>
+                            <p class="text-aroma-muted small mb-0" style="white-space:pre-wrap">{{ $order->customer_notes }}</p>
+                        </div>
+                    @endif
+
                     {{-- Order Items --}}
                     <div class="mb-4 pb-4 border-bottom">
                         <h6 class="fw-bold mb-3" style="color:var(--aroma-brown)">{{ __('checkout.order_items') }}</h6>
@@ -64,11 +78,12 @@
                                         <tr class="small">
                                             <td>
                                                 <strong>{{ $item->product_data['name'] ?? 'Product' }}</strong>
-                                                @if(!empty($item->variant_data))
-                                                    <div class="text-aroma-muted small">{{ $item->variant_data[app()->getLocale()] ?? reset($item->variant_data) }}</div>
+                                                @if($item->variantLabel())
+                                                    <div class="text-aroma-muted small">{{ $item->variantLabel() }}</div>
                                                 @endif
+                                                <x-option-lines :options="$item->optionRows()" line-class="text-aroma-muted small" />
                                             </td>
-                                            <td class="text-end">{{ $item->priceLabel() }}</td>
+                                            <td class="text-end">{{ $item->baseUnitPriceLabel() }}</td>
                                             <td class="text-end">{{ $item->quantity }}</td>
                                             <td class="text-end">{{ $item->totalLabel() }}</td>
                                         </tr>
