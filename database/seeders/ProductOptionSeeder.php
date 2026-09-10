@@ -9,9 +9,9 @@ use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the standard Abaya customisation options onto every simple
- * (non-variant) product in the Abayas category — the first real use of the
- * generic product-options system:
+ * Seeds the standard Abaya customisation options onto every abaya product that
+ * doesn't already have its own variants — the first real use of the generic
+ * product-options system:
  *
  *   - size          : 50–60 (every number), no price change, required
  *   - closure_style : Open / Closed, no price change, required
@@ -25,16 +25,21 @@ class ProductOptionSeeder extends Seeder
 {
     private const DRESS_ADDON_PRICE = 100.0;
 
+    /** The abaya category slug differs by environment (abaya / abayas). */
+    private const ABAYA_SLUGS = ['abaya', 'abayas'];
+
     public function run(): void
     {
-        $abayas = Category::where('slug', 'abayas')->first();
+        $categoryIds = Category::whereIn('slug', self::ABAYA_SLUGS)->pluck('id');
 
-        if (! $abayas) {
+        if ($categoryIds->isEmpty()) {
             return;
         }
 
-        Product::where('category_id', $abayas->id)
-            ->where('has_variants', false)
+        Product::whereIn('category_id', $categoryIds)
+            // Skip products that carry their own size/volume variants — those
+            // already have a picker; don't stack a second one on top.
+            ->doesntHave('variants')
             ->get()
             ->each(function (Product $product) {
                 $this->seedSize($product);
