@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GiftCardController as AdminGiftCardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ProductOptionController as AdminProductOptionController;
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -219,6 +220,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('products', AdminProductController::class);
+        Route::resource('products.options', AdminProductOptionController::class)
+            ->shallow()->except('show');
         Route::resource('categories', AdminCategoryController::class)->except('show');
         Route::resource('brands', AdminBrandController::class)->except('show');
         Route::resource('gift-cards', AdminGiftCardController::class)->except('show');

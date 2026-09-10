@@ -14,6 +14,7 @@ class WishlistController extends Controller
         $products = auth()->user()
             ->wishlistedProducts()
             ->with(['images', 'brand'])
+            ->withCount(['options as required_options_count' => fn ($q) => $q->where('is_required', true)])
             ->latest('wishlists.created_at')
             ->paginate(12);
 

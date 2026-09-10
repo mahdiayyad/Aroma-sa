@@ -137,6 +137,59 @@
                     </div>
                 @endif
 
+                {{-- Customisation options. The numeric size range renders as a
+                     dropdown; short-list choices (closure, dress add-on) render
+                     as a radio-button grid. A required option with no default
+                     forces a choice (also enforced server-side). --}}
+                @foreach ($product->options as $option)
+                    @php($optionValues = $option->values->where('is_active', true)->values())
+                    @continue($optionValues->isEmpty())
+                    @php($hasDefault = $optionValues->contains('is_default', true))
+                    <div class="mb-3 js-option-group">
+                        @if ($option->key === 'size')
+                            <label class="aroma-eyebrow d-block mb-2" for="option-{{ $option->id }}">
+                                {{ $option->label }}@if ($option->is_required) <span class="aroma-required">*</span>@endif
+                            </label>
+                            {{-- Auto-enhanced by select2-init.js to match the Aroma
+                                 select theme; the native <select> stays in the DOM
+                                 (Select2 keeps its value in sync) so form submit and
+                                 the live-total script below work unchanged. --}}
+                            <select name="options[{{ $option->id }}]" id="option-{{ $option->id }}"
+                                    class="form-select js-option-select"
+                                    data-placeholder="{{ __('storefront.product.size_placeholder') }}"
+                                    {{ $option->is_required ? 'required' : '' }}>
+                                <option value=""></option>
+                                @foreach ($optionValues as $value)
+                                    <option value="{{ $value->id }}" data-price-delta="{{ $value->price_delta }}"
+                                            {{ $hasDefault && $value->is_default ? 'selected' : '' }}>
+                                        {{ $value->label }}@if ($value->priceDeltaLabel()) — {{ $value->priceDeltaLabel() }}@endif
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <span class="aroma-eyebrow d-block mb-2">
+                                {{ $option->label }}@if ($option->is_required) <span class="aroma-required">*</span>@endif
+                            </span>
+                            <div class="aroma-variant-grid">
+                                @foreach ($optionValues as $value)
+                                    <input type="radio" class="btn-check js-option-input" name="options[{{ $option->id }}]"
+                                           id="option-{{ $option->id }}-{{ $value->id }}" value="{{ $value->id }}"
+                                           data-price-delta="{{ $value->price_delta }}"
+                                           {{ $hasDefault && $value->is_default ? 'checked' : '' }}
+                                           {{ $option->is_required ? 'required' : '' }}>
+                                    <label class="btn btn-aroma-outline aroma-variant-option" for="option-{{ $option->id }}-{{ $value->id }}">
+                                        <span class="aroma-variant-name">{{ $value->label }}</span>
+                                        @if ($value->priceDeltaLabel())
+                                            {{-- Latin-first stack: the "+" glyph has no form in the Arabic display face. --}}
+                                            <span class="aroma-variant-price" style="font-family:var(--aroma-input-font)">{{ $value->priceDeltaLabel() }}</span>
+                                        @endif
+                                    </label>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+
                 <div class="d-flex align-items-center gap-3 my-3">
                     @if ($product->inStock())
                         <span class="aroma-badge-status aroma-badge-success"><i class="bi bi-check-circle"></i>{{ __('storefront.product.in_stock') }}</span>
@@ -378,7 +431,17 @@
 
         function unitPrice() {
             var checked = document.querySelector('#addToCartForm input[name="variant_id"]:checked');
-            return checked && checked.dataset.price ? parseFloat(checked.dataset.price) : base;
+            var price = checked && checked.dataset.price ? parseFloat(checked.dataset.price) : base;
+
+            document.querySelectorAll('#addToCartForm .js-option-input:checked').forEach(function (o) {
+                price += parseFloat(o.dataset.priceDelta) || 0;
+            });
+            document.querySelectorAll('#addToCartForm .js-option-select').forEach(function (s) {
+                var opt = s.options[s.selectedIndex];
+                if (opt && opt.value) { price += parseFloat(opt.dataset.priceDelta) || 0; }
+            });
+
+            return price;
         }
         function money(v) {
             var s = v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -390,7 +453,7 @@
         }
 
         qtyEl.addEventListener('input', render);
-        document.querySelectorAll('#addToCartForm input[name="variant_id"]').forEach(function (r) {
+        document.querySelectorAll('#addToCartForm input[name="variant_id"], #addToCartForm .js-option-input, #addToCartForm .js-option-select').forEach(function (r) {
             r.addEventListener('change', render);
         });
         render();

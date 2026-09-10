@@ -27,6 +27,7 @@
                                 @if(!empty($item['variant']))
                                     <div class="small text-aroma-muted">{{ $item['variant'][$locale] ?? $item['variant']['en'] }}</div>
                                 @endif
+                                <x-option-lines :options="$item['options'] ?? []" line-class="small text-aroma-muted" />
                                 <div class="small text-aroma-muted">{{ __('checkout.quantity') }}: {{ $item['qty'] }}</div>
                             </div>
                             <div class="text-end fw-semibold">@price($item['unit_price'] * $item['qty'])</div>

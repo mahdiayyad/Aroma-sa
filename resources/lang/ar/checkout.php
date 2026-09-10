@@ -44,6 +44,9 @@ return [
 
     'use_shipping_for_billing' => 'استخدام عنوان الشحن للفواتير',
     'customer_notes' => 'تعليمات خاصة (اختياري)',
+    'customer_notes_hint' => 'ملاحظات للمندوب — مثل المبنى، أقرب معلم، أفضل وقت للاتصال.',
+    'customer_notes_label' => 'تعليمات خاصة',
+    'gift_message_label' => 'رسالة الهدية',
     'coupon_code' => 'رمز القسيمة',
     'shipping_method' => 'طريقة الشحن',
 

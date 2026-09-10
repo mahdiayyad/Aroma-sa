@@ -44,6 +44,19 @@
                     <div class="admin-hint">{{ __('admin.products.has_variants_hint') }}</div>
                 </x-admin.card>
 
+                @if ($editing)
+                    <x-admin.card :title="__('admin.product_options.title')">
+                        <div class="admin-hint mb-2">{{ __('admin.product_options.card_hint') }}</div>
+                        @php($optionCount = $product->allOptions()->count())
+                        <p class="admin-cell-sub">
+                            {{ trans_choice('admin.product_options.count', $optionCount, ['count' => $optionCount]) }}
+                        </p>
+                        <a href="{{ route('admin.products.options.index', $product) }}" class="admin-btn admin-btn-outline">
+                            <i class="bi bi-sliders"></i>{{ __('admin.product_options.manage') }}
+                        </a>
+                    </x-admin.card>
+                @endif
+
                 <x-admin.card :title="__('admin.products.media')">
                     @if ($editing && $product->images->isNotEmpty())
                         <div class="d-flex flex-wrap mb-3">

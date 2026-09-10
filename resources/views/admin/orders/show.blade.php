@@ -26,11 +26,12 @@
                                 <tr>
                                     <td>
                                         <div class="admin-cell-main">{{ $item->product_data['name'] ?? '—' }}</div>
-                                        @if (!empty($item->variant_data))
-                                            <div class="admin-cell-sub">{{ $item->variant_data[app()->getLocale()] ?? reset($item->variant_data) }}</div>
+                                        @if ($item->variantLabel())
+                                            <div class="admin-cell-sub">{{ $item->variantLabel() }}</div>
                                         @endif
+                                        <x-option-lines :options="$item->optionRows()" line-class="admin-cell-sub" />
                                     </td>
-                                    <td class="text-end">{{ $item->priceLabel() }}</td>
+                                    <td class="text-end">{{ $item->baseUnitPriceLabel() }}</td>
                                     <td class="text-center">{{ $item->quantity }}</td>
                                     <td class="text-end">{{ $item->totalLabel() }}</td>
                                 </tr>

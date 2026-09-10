@@ -112,11 +112,18 @@
                     <tr>
                         <td>
                             {{ $item->product_data['name'] ?? 'Product' }}
-                            @if($item->variant_data)
-                                <br><small>{{ $item->variant_data['name'] ?? '' }}</small>
+                            @if($item->variantLabel())
+                                <br><small>{{ $item->variantLabel() }}</small>
                             @endif
+                            @foreach($item->optionRows() as $opt)
+                                @if($opt['price_delta'] > 0)
+                                    <br><small>{{ $opt['label'] }}: +{{ number_format($opt['price_delta'], 2) }} SAR</small>
+                                @elseif($opt['value'] !== '')
+                                    <br><small>{{ $opt['label'] }}: {{ $opt['value'] }}</small>
+                                @endif
+                            @endforeach
                         </td>
-                        <td>{{ number_format($item->unit_price, 2) }} SAR</td>
+                        <td>{{ number_format($item->baseUnitPrice(), 2) }} SAR</td>
                         <td>{{ $item->quantity }}</td>
                         <td>{{ number_format($item->line_total, 2) }} SAR</td>
                     </tr>
@@ -149,6 +156,16 @@
             @endif
             <span dir="ltr">{{ $order->shipping_address['phone'] ?? $order->customer_phone }}</span>
         </p>
+
+        @if($order->is_gift && $order->gift_message)
+            <h3>{{ __('checkout.gift_message_label') }}</h3>
+            <p style="white-space:pre-wrap;">{{ $order->gift_message }}</p>
+        @endif
+
+        @if($order->customer_notes)
+            <h3>{{ __('checkout.customer_notes_label') }}</h3>
+            <p style="white-space:pre-wrap;">{{ $order->customer_notes }}</p>
+        @endif
 
         <center>
             <a href="{{ route('order.show', $order) }}" class="button">{{ __('emails.order_confirmation.view_order') }}</a>

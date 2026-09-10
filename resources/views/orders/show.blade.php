@@ -62,16 +62,17 @@
                                                 @endif
                                                 <div>
                                                     <strong>{{ $item->product_data['name'] ?? 'Product' }}</strong>
-                                                    @if($item->variant_data)
-                                                        <div class="small text-aroma-muted">{{ $item->variant_data['name'] ?? '' }}</div>
+                                                    @if($item->variantLabel())
+                                                        <div class="small text-aroma-muted">{{ $item->variantLabel() }}</div>
                                                     @endif
+                                                    <x-option-lines :options="$item->optionRows()" line-class="small text-aroma-muted" />
                                                     @if($item->product_data['sku'] ?? null)
-                                                        <div class="small text-aroma-muted">{{ __('products.sku') }}: {{ $item->product_data['sku'] }}</div>
+                                                        <div class="small text-aroma-muted">{{ __('storefront.product.sku') }}: {{ $item->product_data['sku'] }}</div>
                                                     @endif
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-end">{{ $item->priceLabel() }}</td>
+                                        <td class="text-end">{{ $item->baseUnitPriceLabel() }}</td>
                                         <td class="text-center">{{ $item->quantity }}</td>
                                         <td class="text-end"><strong>{{ $item->totalLabel() }}</strong></td>
                                     </tr>
@@ -97,6 +98,21 @@
                     @endif
                 </div>
             </div>
+
+            @if(($order->is_gift && $order->gift_message) || $order->customer_notes)
+                <div class="aroma-card mt-4">
+                    <div class="card-body p-4">
+                        @if($order->is_gift && $order->gift_message)
+                            <h5 class="card-title mb-2 text-aroma-brown">{{ __('checkout.gift_message_label') }}</h5>
+                            <p class="text-aroma-muted" style="white-space:pre-wrap">{{ $order->gift_message }}</p>
+                        @endif
+                        @if($order->customer_notes)
+                            <h5 class="card-title mb-2 text-aroma-brown {{ $order->is_gift && $order->gift_message ? 'mt-3' : '' }}">{{ __('checkout.customer_notes_label') }}</h5>
+                            <p class="text-aroma-muted mb-0" style="white-space:pre-wrap">{{ $order->customer_notes }}</p>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
 
         {{-- Summary Sidebar --}}

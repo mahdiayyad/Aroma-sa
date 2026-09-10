@@ -29,6 +29,7 @@
                 <div class="aroma-added-meta">
                     <p class="aroma-added-name" id="aromaAddedName"></p>
                     <p class="aroma-added-variant" id="aromaAddedVariant" hidden></p>
+                    <p class="aroma-added-variant" id="aromaAddedOptions" hidden></p>
                     <p class="aroma-added-qty" id="aromaAddedQty"></p>
                 </div>
                 <span class="aroma-added-price" id="aromaAddedTotal"></span>

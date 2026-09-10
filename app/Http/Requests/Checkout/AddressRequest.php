@@ -16,6 +16,20 @@ class AddressRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('customer_notes') && $this->input('customer_notes') !== null) {
+            // Plain-text field: drop control characters (keep newlines/tabs)
+            // and trim. Rendered escaped ({{ }}) at every surface — customer
+            // order detail, confirmation page, confirmation email, admin — so
+            // no markup is ever interpreted; this just keeps the stored value
+            // clean. Not strip_tags(), which mangles legitimate input like
+            // "size < 5" or a "<3".
+            $notes = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string) $this->input('customer_notes'));
+            $this->merge(['customer_notes' => trim((string) $notes)]);
+        }
+    }
+
     public function rules(): array
     {
         return [

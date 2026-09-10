@@ -25,6 +25,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ->active()
             ->featured()
             ->with(['images', 'brand'])
+            ->withCount(['options as required_options_count' => fn ($q) => $q->where('is_required', true)])
             ->latest()
             ->limit($limit)
             ->get();
@@ -36,6 +37,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ->active()
             ->newArrivals()
             ->with(['images', 'brand'])
+            ->withCount(['options as required_options_count' => fn ($q) => $q->where('is_required', true)])
             ->latest()
             ->limit($limit)
             ->get();
@@ -45,7 +47,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     {
         return $this->model->newQuery()
             ->active()
-            ->with(['images', 'brand', 'category', 'variants'])
+            ->with(['images', 'brand', 'category', 'variants', 'options.values'])
             ->where('slug', $slug)
             ->first();
     }
@@ -61,7 +63,8 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 ->where(function ($q) {
                     $q->where('stock_quantity', '>', 0)->orWhere('has_variants', true);
                 })
-                ->with(['images']);
+                ->with(['images'])
+                ->withCount(['options as required_options_count' => fn ($q) => $q->where('is_required', true)]);
         };
 
         $suggestions = $base()
@@ -93,6 +96,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         $query = $this->model->newQuery()
             ->active()
             ->with(['images', 'brand'])
+            ->withCount(['options as required_options_count' => fn ($q) => $q->where('is_required', true)])
             ->whereIn('category_id', $categoryIds);
 
         if ($brandSlug = Arr::get($filters, 'brand')) {

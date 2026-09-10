@@ -46,6 +46,9 @@ return [
 
     'use_shipping_for_billing' => 'Use shipping address for billing',
     'customer_notes' => 'Special Instructions (optional)',
+    'customer_notes_hint' => 'Delivery notes for the courier — e.g. building, landmark, best time to call.',
+    'customer_notes_label' => 'Special Instructions',
+    'gift_message_label' => 'Gift Message',
     'coupon_code' => 'Coupon Code',
     'shipping_method' => 'Shipping Method',
 

@@ -46,13 +46,14 @@
                                     @if (!empty($row['variant']))
                                         <div class="aroma-cart-row-variant">{{ $row['variant'][$locale] ?? reset($row['variant']) }}</div>
                                     @endif
-                                    {{-- Unit price — only shown here (inline with the
-                                         name) below lg; the desktop layout gets its
-                                         own dedicated column instead (see CSS). --}}
-                                    <div class="aroma-cart-row-unit-price d-lg-none">@price($row['unit_price'])</div>
+                                    <x-option-lines :options="$row['options'] ?? []" line-class="aroma-cart-row-variant" />
+                                    {{-- Unit price (before add-ons) — only shown here
+                                         (inline with the name) below lg; the desktop
+                                         layout gets its own dedicated column. --}}
+                                    <div class="aroma-cart-row-unit-price d-lg-none">@price($row['base_unit_price'] ?? $row['unit_price'])</div>
                                 </div>
 
-                                <div class="aroma-cart-row-price d-none d-lg-block">@price($row['unit_price'])</div>
+                                <div class="aroma-cart-row-price d-none d-lg-block">@price($row['base_unit_price'] ?? $row['unit_price'])</div>
 
                                 <div class="aroma-cart-row-qty">
                                     <div class="aroma-qty-stepper aroma-qty-sm">

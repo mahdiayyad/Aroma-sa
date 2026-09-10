@@ -7,6 +7,7 @@ return [
     'product'  => 'المنتج',
     'price'    => 'السعر',
     'qty'      => 'الكمية',
+    'quantity' => 'الكمية',
     'total'    => 'الإجمالي',
     'remove'   => 'إزالة',
     'decrease' => 'إنقاص الكمية',

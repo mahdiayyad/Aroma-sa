@@ -178,6 +178,7 @@ class CheckoutService extends BaseService
                         'sku' => $product->sku,
                     ],
                     'variant_data' => $row['variant'] ?? null,
+                    'options_snapshot' => $row['options'] ?? null,
                     'unit_price' => $row['unit_price'],
                     'quantity' => $row['qty'],
                     'line_total' => $row['unit_price'] * $row['qty'],

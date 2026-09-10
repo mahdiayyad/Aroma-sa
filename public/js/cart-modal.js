@@ -89,6 +89,15 @@
             variant.hidden = !item.variant;
         }
 
+        var optionsEl = document.getElementById('aromaAddedOptions');
+        if (optionsEl) {
+            var opts = item.options || [];
+            optionsEl.textContent = opts.map(function (o) {
+                return o.price ? (o.label + ' ' + o.price) : (o.label + ': ' + o.value);
+            }).join('  ·  ');
+            optionsEl.hidden = opts.length === 0;
+        }
+
         if (totalEl) { totalEl.textContent = payload.subtotal || ''; }
 
         strip.innerHTML = '';
@@ -136,8 +145,9 @@
         var slot = document.createElement('div');
         body.appendChild(slot);
 
-        // Variant products can't be chosen inside the modal — send them to the PDP.
-        if (item.has_variants) {
+        // Variant / required-option products can't be chosen inside the modal
+        // — send them to the PDP.
+        if (item.has_variants || item.needs_options) {
             var link = document.createElement('a');
             link.className = 'aroma-suggest-add';
             link.href = item.url;
