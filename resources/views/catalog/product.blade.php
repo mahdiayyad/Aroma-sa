@@ -256,7 +256,11 @@
             {{-- طرق الدفع --}}
             @include('catalog.partials.payment-methods')
 
-            @if ($product->category && $product->category->slug === 'abayas')
+            {{-- The abaya category slug differs by environment (abaya /
+                 abayas) — matches ProductOptionSeeder's own check. Moot while
+                 the category is deactivated (PerfumeCatalogSeeder), but keeps
+                 this correct on whichever environment abayas come back on. --}}
+            @if ($product->category && in_array($product->category->slug, ['abaya', 'abayas'], true))
                 @include('catalog.partials.guide-links')
             @endif
         </div>

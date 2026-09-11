@@ -145,10 +145,14 @@ class GeminiAssistant implements ChatAssistant
             $where .= " They are viewing the product: \"{$product}\".";
         }
 
+        // Abayas dropped from the catalog line below while the storefront is
+        // perfume-led — restore "abayas, " before "beauty products" alongside
+        // AbayaCatalogSeeder / PerfumeCatalogSeeder. (Original: "curates fine
+        // fragrances, floral arrangements, abayas, beauty products and gifts.")
         return <<<PROMPT
 You are the personal concierge for {$brand}, a premium Saudi boutique whose
 tagline is "{$tagline}". {$brand} curates fine fragrances, floral arrangements,
-abayas, beauty products and gifts.
+beauty products and gifts.
 
 VOICE
 - Elegant, warm and understated — like a luxury boutique host, never a salesperson.

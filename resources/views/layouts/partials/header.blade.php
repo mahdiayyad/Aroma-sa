@@ -201,7 +201,11 @@
             </div>
         </form>
         <ul class="nav flex-column gap-1">
-            @foreach (['abaya'] as $cat)
+            {{-- Config/lang-driven on purpose (see HomeController) — restore
+                 to ['abaya'] alongside AbayaCatalogSeeder if the abaya-only
+                 presentation ever comes back. --}}
+            {{-- @foreach (['abaya'] as $cat) --}}
+            @foreach (['perfumes', 'flowers', 'beauty', 'accessories', 'seasonal'] as $cat)
                 <li class="nav-item">
                     <a class="nav-link aroma-mobile-nav-link {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
                        href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>
