@@ -12,15 +12,19 @@
         && $backUrl !== url('/')
         && parse_url($backUrl, PHP_URL_HOST) === request()->getHost();
 
+    // Sizing/Fit/Care are abaya-garment guides — hidden while the storefront
+    // is perfume-led; restore alongside AbayaCatalogSeeder / PerfumeCatalogSeeder.
+    // Returns stays: it's a generic policy page linked from cart/checkout
+    // regardless of product line.
     $cards = $isAr ? [
-        ['bi-rulers', 'guides.sizing', 'دليل المقاسات', 'قيسي نفسك بثقة واعرفي المقاس الأنسب لكل قطعة.'],
-        ['bi-gem', 'guides.fit', 'اختاري قصتك', 'اكتشفي القصات والتصاميم التي تناسب حركتك اليومية ومناسباتك.'],
-        ['bi-droplet', 'guides.care', 'العناية والغسيل', 'حافظي على جمال كل قطعة غسلة بعد غسلة.'],
+        // ['bi-rulers', 'guides.sizing', 'دليل المقاسات', 'قيسي نفسك بثقة واعرفي المقاس الأنسب لكل قطعة.'],
+        // ['bi-gem', 'guides.fit', 'اختاري قصتك', 'اكتشفي القصات والتصاميم التي تناسب حركتك اليومية ومناسباتك.'],
+        // ['bi-droplet', 'guides.care', 'العناية والغسيل', 'حافظي على جمال كل قطعة غسلة بعد غسلة.'],
         ['bi-arrow-repeat', 'guides.returns', 'الاستبدال والإرجاع', 'شرح واضح وصادق لكيفية عمل الإرجاع والاستبدال في أروما.'],
     ] : [
-        ['bi-rulers', 'guides.sizing', 'Size Guide', 'Measure yourself with confidence and find the size that fits.'],
-        ['bi-gem', 'guides.fit', 'Find Your Fit', 'Discover the cuts and silhouettes that match how you move and where you\'re headed.'],
-        ['bi-droplet', 'guides.care', 'Care & Washing', 'Keep every piece looking beautiful, wash after wash.'],
+        // ['bi-rulers', 'guides.sizing', 'Size Guide', 'Measure yourself with confidence and find the size that fits.'],
+        // ['bi-gem', 'guides.fit', 'Find Your Fit', 'Discover the cuts and silhouettes that match how you move and where you\'re headed.'],
+        // ['bi-droplet', 'guides.care', 'Care & Washing', 'Keep every piece looking beautiful, wash after wash.'],
         ['bi-arrow-repeat', 'guides.returns', 'Exchange & Returns', 'A clear, honest walk-through of how returns work at Aroma.'],
     ];
 @endphp
