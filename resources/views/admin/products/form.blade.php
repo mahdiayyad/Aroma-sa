@@ -59,9 +59,21 @@
 
                 <x-admin.card :title="__('admin.products.media')">
                     @if ($editing && $product->images->isNotEmpty())
-                        <div class="d-flex flex-wrap mb-3">
+                        <div class="admin-image-grid mb-3" id="productImages" data-primary-label="{{ __('admin.products.primary_image') }}">
                             @foreach ($product->images as $img)
-                                <img src="{{ $img->url() }}" alt="" class="admin-thumb me-2 mb-2" style="width:64px;height:64px">
+                                <div class="admin-image-item" data-image-id="{{ $img->id }}">
+                                    <img src="{{ $img->url() }}" alt="">
+                                    @if ($img->is_primary)
+                                        <span class="admin-image-primary-badge">{{ __('admin.products.primary_image') }}</span>
+                                    @endif
+                                    <button type="button" class="admin-image-remove js-delete-image"
+                                            data-url="{{ route('admin.products.images.destroy', [$product, $img]) }}"
+                                            data-confirm="{{ __('admin.products.confirm_delete_image') }}"
+                                            aria-label="{{ __('admin.common.delete') }}"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('admin.common.delete') }}">
+                                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                    </button>
+                                </div>
                             @endforeach
                         </div>
                     @endif

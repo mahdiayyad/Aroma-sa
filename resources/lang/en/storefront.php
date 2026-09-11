@@ -46,7 +46,8 @@ return [
 
     'hero' => [
         'title'    => 'Awaken your Senses',
-        'subtitle' => 'Elegant abayas with luxurious details, designed to give you an exceptional presence.',
+        'subtitle' => 'Captivating fragrances, floral arrangements, and beauty — curated in Saudi Arabia.',
+        // 'subtitle' => 'Elegant abayas with luxurious details, designed to give you an exceptional presence.',
         'cta'      => 'Shop the collection',
         'slide'    => 'Slide',
         'prev'     => 'Previous slide',

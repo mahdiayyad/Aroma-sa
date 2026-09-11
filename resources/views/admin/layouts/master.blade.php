@@ -33,7 +33,7 @@
     @stack('head')
 </head>
 <body class="admin-body" data-confirm-yes="{{ __('admin.common.delete') }}" data-confirm-cancel="{{ __('admin.common.cancel') }}"
-      data-flash-success="{{ session('status') }}">
+      data-flash-success="{{ session('status') }}" data-error-generic="{{ __('admin.common.error_generic') }}">
     <div class="admin-shell" id="adminShell">
         @include('admin.layouts.sidebar')
 
