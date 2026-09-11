@@ -10,8 +10,11 @@ use App\Http\Requests\Admin\ProductRequest;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -85,6 +88,38 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('status', __('admin.products.deleted'));
+    }
+
+    /**
+     * Remove a single gallery image from a product (AJAX — the media picker
+     * lives inside the product edit form, and a nested <form> per thumbnail
+     * isn't valid HTML). Promotes the next remaining image to primary if the
+     * deleted one was it, so the storefront/admin thumbnail stays deterministic.
+     */
+    public function destroyImage(Product $product, ProductImage $image): JsonResponse
+    {
+        abort_unless($image->product_id === $product->id, 404);
+
+        $wasPrimary = (bool) $image->is_primary;
+        $path = $image->path;
+        $disk = $image->disk;
+
+        $image->delete();
+
+        // Root-relative/absolute paths (e.g. the seeded placeholder) never
+        // lived on a disk — matches ProductImage::url()'s own check.
+        if ($path && ! preg_match('#^(https?:)?/#', $path)) {
+            Storage::disk($disk)->delete($path);
+        }
+
+        if ($wasPrimary) {
+            $next = $product->images()->orderBy('sort_order')->first();
+            if ($next) {
+                $next->update(['is_primary' => true]);
+            }
+        }
+
+        return response()->json(['message' => __('admin.products.image_deleted')]);
     }
 
     /** @return array<string,mixed> */

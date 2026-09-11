@@ -35,19 +35,16 @@
         $('#adminMenuToggle').on('click', function () { $sidebar.toggleClass('open'); $backdrop.toggleClass('show'); });
         $backdrop.on('click', closeSidebar);
 
-        // Confirm destructive actions: <form data-confirm="Delete this?"> —
-        // a brand-themed SweetAlert2 dialog instead of the native browser
-        // confirm(). Falls back to the native one if the CDN failed to load.
-        $(document).on('submit', 'form[data-confirm]', function (e) {
-            var form = this;
-            var message = $(form).data('confirm');
-
+        // Shared destructive-action confirm dialog — a brand-themed SweetAlert2
+        // dialog instead of the native browser confirm(). Falls back to the
+        // native confirm() if the CDN failed to load. `onConfirmed` runs only
+        // after the user accepts.
+        function confirmDestructive(message, onConfirmed) {
             if (!window.Swal) {
-                if (!window.confirm(message)) { e.preventDefault(); }
+                if (window.confirm(message)) { onConfirmed(); }
                 return;
             }
 
-            e.preventDefault();
             var isRtl = document.documentElement.getAttribute('dir') === 'rtl';
 
             Swal.fire({
@@ -65,7 +62,65 @@
                     cancelButton: 'aroma-swal-btn aroma-swal-btn-outline'
                 }
             }).then(function (result) {
-                if (result.isConfirmed) { form.submit(); }
+                if (result.isConfirmed) { onConfirmed(); }
+            });
+        }
+
+        function toast(icon, message) {
+            if (!window.Swal || !message) { return; }
+            Swal.fire({
+                toast: true,
+                position: document.documentElement.getAttribute('dir') === 'rtl' ? 'top-start' : 'top-end',
+                icon: icon,
+                title: message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: { popup: 'aroma-swal-popup' }
+            });
+        }
+
+        // <form data-confirm="Delete this?"> — plain form submits, confirmed first.
+        $(document).on('submit', 'form[data-confirm]', function (e) {
+            var form = this;
+            e.preventDefault();
+            confirmDestructive($(form).data('confirm'), function () { form.submit(); });
+        });
+
+        // Product media manager: <button class="js-delete-image" data-url
+        // data-confirm> — no nested <form> possible inside the product edit
+        // form, so this confirms then deletes via AJAX and fades the thumbnail out.
+        $(document).on('click', '.js-delete-image', function (e) {
+            e.preventDefault();
+            var btn = this;
+            var item = $(btn).closest('.admin-image-item');
+            var grid = item.closest('.admin-image-grid');
+            var wasPrimary = item.find('.admin-image-primary-badge').length > 0;
+
+            confirmDestructive($(btn).data('confirm'), function () {
+                item.addClass('is-removing');
+
+                $.ajax({
+                    url: $(btn).data('url'),
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+                }).done(function (data) {
+                    // The server promotes the lowest-sort_order remaining
+                    // image to primary when the deleted one was it — DOM
+                    // order already matches sort_order, so mirror it here
+                    // rather than waiting for a reload.
+                    if (wasPrimary) {
+                        var next = grid.find('.admin-image-item').not(item).first();
+                        if (next.length) {
+                            $('<span class="admin-image-primary-badge"></span>').text(grid.data('primary-label')).appendTo(next);
+                        }
+                    }
+                    item.fadeOut(150, function () { $(this).remove(); });
+                    toast('success', data && data.message);
+                }).fail(function () {
+                    item.removeClass('is-removing');
+                    toast('error', document.body.getAttribute('data-error-generic') || 'Something went wrong.');
+                });
             });
         });
 

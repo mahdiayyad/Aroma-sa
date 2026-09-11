@@ -33,11 +33,24 @@
     @php
         $locale = app()->getLocale();
         $isAr = $locale === 'ar';
-        $abayasUrl = route('category.show', [$locale, 'abayas']);
+        $abayasUrl = route('category.show', [$locale, 'perfumes']);
         $giftingUrl = route('home', $locale).'#gifting';
+        // $heroSlides = [
+        //     [
+        //         'image' => 'images/hero/abaya-arches-trio.jpg',
+        //         'alt'   => $isAr ? 'ثلاث عبايات أروما في ممر مقنطر — أناقة خالدة' : 'Three Aroma abayas in an arched hallway — timeless elegance',
+        //         'url'   => $abayasUrl,
+        //         // No title here — the artwork already has the full Aroma
+        //         // wordmark + tagline baked in on its left side; a second,
+        //         // dynamic caption title would duplicate that. Still needs a
+        //         // real, clickable CTA since the image itself isn't a link.
+        //         'title' => null,
+        //         'cta'   => $isAr ? 'اختر الآن' : 'Choose Now',
+        //     ],
+        // ];
         $heroSlides = [
             [
-                'image' => 'images/hero/abaya-arches-trio.jpg',
+                'image' => 'images/hero/perfume-hero.png',
                 'alt'   => $isAr ? 'ثلاث عبايات أروما في ممر مقنطر — أناقة خالدة' : 'Three Aroma abayas in an arched hallway — timeless elegance',
                 'url'   => $abayasUrl,
                 // No title here — the artwork already has the full Aroma

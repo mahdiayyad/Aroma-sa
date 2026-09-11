@@ -220,6 +220,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('products', AdminProductController::class);
+        Route::delete('products/{product}/images/{image}', [AdminProductController::class, 'destroyImage'])
+            ->name('products.images.destroy');
         Route::resource('products.options', AdminProductOptionController::class)
             ->shallow()->except('show');
         Route::resource('categories', AdminCategoryController::class)->except('show');
