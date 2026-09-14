@@ -51,6 +51,15 @@
             </select>
         </div>
 
+        <div class="mb-3">
+            <label class="form-label">{{ __('auth_ui.register.referral_code') }}</label>
+            <input type="text" name="referral_code" value="{{ old('referral_code', $referralCode ?? '') }}"
+                   class="form-control @error('referral_code') is-invalid @enderror"
+                   placeholder="{{ __('auth_ui.register.referral_code_placeholder') }}" dir="ltr" autocomplete="off">
+            @error('referral_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            <p class="form-text mt-1 mb-0">{{ __('auth_ui.register.referral_code_hint') }}</p>
+        </div>
+
         <button type="submit" class="btn btn-aroma w-100 mb-3">{{ __('auth_ui.register.submit') }}</button>
     </form>
 

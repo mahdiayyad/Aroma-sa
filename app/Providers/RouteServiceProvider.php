@@ -59,5 +59,27 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
+
+        // OTP send: capped per phone number (the actual abuse target — an
+        // attacker can rotate IPs but not the victim's phone) AND per IP
+        // (stops one client from spamming OTPs to many different numbers).
+        // Both limits apply simultaneously — Laravel accepts an array here.
+        RateLimiter::for('otp-send', function (Request $request) {
+            return [
+                Limit::perMinutes(10, 3)->by('phone:'.$request->input('phone')),
+                Limit::perMinutes(10, 10)->by('ip:'.$request->ip()),
+            ];
+        });
+
+        // OTP verify: generous per-phone cap — the tighter brute-force gate
+        // is OtpCode.attempts (max 5 wrong guesses per code, see OtpService);
+        // this route-level limiter mainly stops flooding many send+guess
+        // cycles against the same number.
+        RateLimiter::for('otp-verify', function (Request $request) {
+            return [
+                Limit::perMinutes(10, 10)->by('phone:'.$request->input('phone')),
+                Limit::perMinutes(10, 20)->by('ip:'.$request->ip()),
+            ];
+        });
     }
 }

@@ -11,6 +11,8 @@
         <x-admin.stat :label="__('admin.dashboard.pending_orders')" :value="$ordersPending" icon="bi-hourglass-split" tone="warning" />
         <x-admin.stat :label="__('admin.dashboard.customers')" :value="$customers" icon="bi-people" tone="info" />
         <x-admin.stat :label="__('admin.dashboard.products')" :value="$productsTotal" icon="bi-box-seam" />
+        <x-admin.stat :label="__('admin.dashboard.active_promo_codes')" :value="$activePromoCodes" icon="bi-ticket-perforated" />
+        <x-admin.stat :label="__('admin.reviews.pending_count')" :value="$pendingReviews" icon="bi-chat-square-text" tone="warning" />
     </div>
 
     <div class="row g-3">

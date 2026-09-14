@@ -9,6 +9,7 @@ return [
         'dashboard' => 'نظرة عامة',
         'orders'    => 'طلباتي',
         'wishlist'  => 'المفضلة',
+        'referrals' => 'الإحالات والمكافآت',
         'addresses' => 'العناوين',
         'profile'   => 'الملف الشخصي والأمان',
         'logout'    => 'تسجيل الخروج',

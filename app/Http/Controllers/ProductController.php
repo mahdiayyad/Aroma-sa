@@ -31,11 +31,16 @@ class ProductController extends Controller
         $productSchema = $model->toSchemaOrgArray();
         $productSchema['offers']['url'] = route('product.show', [$locale, $model->slug]);
 
+        $user = auth()->user();
+
         return view('catalog.product', [
             'product' => $model,
             'gallery' => $this->gallery($model),
             'productSchema' => $productSchema,
             'breadcrumbSchema' => $this->breadcrumbSchema($model, $locale),
+            // Always newest-first, no sort/filter controls — kept simple.
+            'reviews' => $model->approvedReviews()->with('user')->latest()->paginate(10),
+            'userReview' => $user ? $model->reviews()->where('user_id', $user->id)->first() : null,
         ]);
     }
 

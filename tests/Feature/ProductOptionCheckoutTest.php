@@ -90,7 +90,7 @@ class ProductOptionCheckoutTest extends TestCase
         $cart = new CartService();
         $cart->add($product->id, null, 1, [$option->id => $closed->id]);
 
-        $order = (new CheckoutService($cart))->createOrder(null, [
+        $order = app()->makeWith(CheckoutService::class, ['cart' => $cart])->createOrder(null, [
             'billing_address' => ['recipient_name' => 'Sara', 'phone' => '0500000000'],
             'customer_name'   => 'Sara',
             'customer_email'  => 'sara@example.com',

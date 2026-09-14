@@ -24,7 +24,7 @@ class CheckoutServiceTest extends TestCase
         $this->cart->clear();
         // The service reads the cart from the session, so any CartService
         // instance sharing this session sees the same rows.
-        $this->checkout = new CheckoutService($this->cart);
+        $this->checkout = app()->makeWith(CheckoutService::class, ['cart' => $this->cart]);
     }
 
     private array $address = [

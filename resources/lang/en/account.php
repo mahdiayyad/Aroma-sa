@@ -9,6 +9,7 @@ return [
         'dashboard' => 'Overview',
         'orders'    => 'My Orders',
         'wishlist'  => 'Wishlist',
+        'referrals' => 'Referrals & Rewards',
         'addresses' => 'Addresses',
         'profile'   => 'Profile & Security',
         'logout'    => 'Sign out',
