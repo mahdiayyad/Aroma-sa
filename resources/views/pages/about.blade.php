@@ -108,7 +108,7 @@
 <section class="container aroma-section">
     <div class="aroma-newsletter text-center p-5">
         <h2 class="mb-2">{{ $isAr ? 'اكتشف مجموعتنا' : 'Discover the Collection' }}</h2>
-        <p class="mb-4">{{ $isAr ? 'عطور مصممة بعناية لتحتفي بالأناقة في كل مناسبة.' : 'Perfumes crafted with care, for every moment worth celebrating.' }}</p>
+        <p class="mb-4">{{ $isAr ? 'عبايات مصممة بعناية لتحتفي بالأناقة في كل مناسبة.' : 'Abayas crafted with care, for every moment worth celebrating.' }}</p>
         <a href="{{ route('home', $locale) }}" class="btn btn-aroma-light btn-lg px-4">
             {{ $isAr ? 'تسوّق الآن' : 'Shop Now' }}
         </a>

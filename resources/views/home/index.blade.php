@@ -33,7 +33,7 @@
     @php
         $locale = app()->getLocale();
         $isAr = $locale === 'ar';
-        $abayasUrl = route('category.show', [$locale, 'perfumes']);
+        $abayasUrl = route('category.show', [$locale, 'abayas']);
         $giftingUrl = route('home', $locale).'#gifting';
         // $heroSlides = [
         //     [
@@ -50,9 +50,8 @@
         // ];
         $heroSlides = [
             [
-                'image' => 'images/hero/perfume-hero.png',
-                'alt'   => $isAr ? 'عطرا أروما «فيلفت عود» و«وايت ماسك» — أيقظ حواسك' : 'Aroma Velvet Oud and White Musk eau de parfum — Awaken your Senses',
-                // 'alt' => $isAr ? 'ثلاث عبايات أروما في ممر مقنطر — أناقة خالدة' : 'Three Aroma abayas in an arched hallway — timeless elegance', // restore alongside the abaya-arches-trio slide above
+                'image' => 'images/hero/abaya-arches-trio.jpg',
+                'alt' => $isAr ? 'ثلاث عبايات أروما في ممر مقنطر — أناقة خالدة' : 'Three Aroma abayas in an arched hallway — timeless elegance', // restore alongside the abaya-arches-trio slide above
                 'url'   => $abayasUrl,
                 // No title here — the artwork already has the full Aroma
                 // wordmark + tagline baked in on its left side; a second,
