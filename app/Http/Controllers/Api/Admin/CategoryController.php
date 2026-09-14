@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CategoryRequest;
 use App\Http\Resources\Admin\CategoryResource;
 use App\Models\Category;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -57,13 +58,22 @@ class CategoryController extends Controller
     public function destroy(Category $category): JsonResponse
     {
         // products.category_id is restrictOnDelete — block instead of orphaning.
-        if ($category->products()->exists()) {
+        // withTrashed() because Product uses SoftDeletes: an unscoped exists()
+        // check would miss archived products, pass this guard, then hit the
+        // FK constraint anyway.
+        if ($category->products()->withTrashed()->exists()) {
             return response()->json([
-                'message' => 'Cannot delete a category that still has products. Reassign them first.',
+                'message' => 'Cannot delete a category that still has products, including archived ones. Reassign or delete those products first.',
             ], 409);
         }
 
-        $category->delete();
+        try {
+            $category->delete();
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Cannot delete a category that still has products, including archived ones. Reassign or delete those products first.',
+            ], 409);
+        }
 
         return response()->json(null, 204);
     }

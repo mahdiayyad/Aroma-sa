@@ -219,9 +219,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('products/trashed', [AdminProductController::class, 'trashed'])->name('products.trashed');
         Route::resource('products', AdminProductController::class);
         Route::delete('products/{product}/images/{image}', [AdminProductController::class, 'destroyImage'])
             ->name('products.images.destroy');
+        Route::post('products/{product}/restore', [AdminProductController::class, 'restore'])
+            ->name('products.restore')->withTrashed();
+        Route::delete('products/{product}/force', [AdminProductController::class, 'forceDestroy'])
+            ->name('products.force-destroy')->withTrashed();
         Route::resource('products.options', AdminProductOptionController::class)
             ->shallow()->except('show');
         Route::resource('categories', AdminCategoryController::class)->except('show');

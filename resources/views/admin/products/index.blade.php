@@ -6,6 +6,7 @@
 @section('content')
     <x-admin.page-header :title="__('admin.products.title')" :subtitle="__('admin.products.subtitle')">
         <x-slot name="actions">
+            <a href="{{ route('admin.products.trashed') }}" class="admin-btn admin-btn-outline"><i class="bi bi-trash"></i>{{ __('admin.products.trash') }}</a>
             <a href="{{ route('admin.products.create') }}" class="admin-btn admin-btn-primary"><i class="bi bi-plus-lg"></i>{{ __('admin.products.new') }}</a>
         </x-slot>
     </x-admin.page-header>
