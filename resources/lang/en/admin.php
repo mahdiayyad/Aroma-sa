@@ -131,7 +131,7 @@ return [
         'no_categories' => 'No categories yet.',
         'saved'      => 'Category saved.',
         'deleted'    => 'Category deleted.',
-        'cannot_delete' => 'Cannot delete a category that still has products. Reassign them first.',
+        'cannot_delete' => 'Cannot delete a category that still has products, including archived ones. Reassign or delete those products first.',
         'seo'        => 'SEO',
         'meta_title' => 'Meta title',
         'meta_description' => 'Meta description',
