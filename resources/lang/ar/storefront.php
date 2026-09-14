@@ -57,7 +57,7 @@ return [
         'categories'   => 'تسوق حسب الفئة',
         'new_arrivals' => 'وصل حديثاً',
         'gifting'      => 'فن الإهداء',
-        'bestsellers'  => 'العطور الأكثر مبيعاً',
+        'bestsellers'  => 'الأكثر مبيعاً',
         'seasonal'     => 'إطلالة الموسم',
         'brands'       => 'علاماتنا التجارية',
     ],

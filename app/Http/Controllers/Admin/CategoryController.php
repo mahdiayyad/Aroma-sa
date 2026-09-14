@@ -8,6 +8,7 @@ use App\Http\Controllers\Concerns\HandlesAdminForms;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CategoryRequest;
 use App\Models\Category;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -54,11 +55,19 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): RedirectResponse
     {
-        if ($category->products()->exists()) {
+        // products.category_id is restrictOnDelete() at the DB level, and
+        // Product uses SoftDeletes — an unscoped exists() check would miss
+        // archived products, pass this guard, then hit the FK constraint
+        // anyway. withTrashed() keeps this guard honest with the schema.
+        if ($category->products()->withTrashed()->exists()) {
             return redirect()->route('admin.categories.index')->with('error', __('admin.categories.cannot_delete'));
         }
 
-        $category->delete();
+        try {
+            $category->delete();
+        } catch (QueryException $e) {
+            return redirect()->route('admin.categories.index')->with('error', __('admin.categories.cannot_delete'));
+        }
 
         return redirect()->route('admin.categories.index')->with('status', __('admin.categories.deleted'));
     }
