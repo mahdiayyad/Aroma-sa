@@ -109,6 +109,17 @@ return [
         'saved'        => 'Product saved.',
         'deleted'      => 'Product deleted.',
         'on_sale'      => 'On sale',
+        'trash'              => 'Trash',
+        'trashed_title'      => 'Archived products',
+        'trashed_subtitle'   => 'Products removed from the catalog. Restore them or delete them permanently.',
+        'no_trashed_products' => 'No archived products.',
+        'archived_on'        => 'Archived on',
+        'restore'            => 'Restore',
+        'restored'           => 'Product restored.',
+        'force_delete'       => 'Delete permanently',
+        'confirm_force_delete' => 'Permanently delete this product? This cannot be undone and will remove its images and variants.',
+        'force_deleted'      => 'Product permanently deleted.',
+        'cannot_force_delete' => 'Cannot permanently delete a product that has order history.',
     ],
 
     'categories' => [

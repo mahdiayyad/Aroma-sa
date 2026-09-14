@@ -11,6 +11,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -88,6 +89,60 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')->with('status', __('admin.products.deleted'));
+    }
+
+    /**
+     * Archived (soft-deleted) products — invisible everywhere else, but a
+     * category whose only products are archived still can't be deleted
+     * (products.category_id is restrictOnDelete()), so admins need a way to
+     * restore or permanently remove them without developer intervention.
+     */
+    public function trashed(Request $request): View
+    {
+        $query = Product::onlyTrashed()->with(['category', 'brand']);
+
+        if ($search = $request->query('q')) {
+            $query->where(fn ($q) => $q->where('sku', 'like', "%{$search}%")
+                ->orWhere('name->en', 'like', "%{$search}%")
+                ->orWhere('name->ar', 'like', "%{$search}%"));
+        }
+
+        return view('admin.products.trashed', [
+            'products' => $query->orderByDesc('deleted_at')->paginate(15)->withQueryString(),
+            'filters'  => $request->only('q'),
+        ]);
+    }
+
+    public function restore(Product $product): RedirectResponse
+    {
+        $product->restore();
+
+        return redirect()->route('admin.products.trashed')->with('status', __('admin.products.restored'));
+    }
+
+    /**
+     * Permanent delete. Images/variants/options/wishlist rows cascade at the
+     * DB level, but that raw cascade never fires ProductImage's own storage
+     * cleanup — so uploaded files are removed here first, the same way
+     * destroyImage() does it. order_items.product_id is restrictOnDelete(),
+     * so a product with real order history is protected and reports back
+     * as a friendly error instead of a 500.
+     */
+    public function forceDestroy(Product $product): RedirectResponse
+    {
+        foreach ($product->images as $image) {
+            if ($image->path && ! preg_match('#^(https?:)?/#', $image->path)) {
+                Storage::disk($image->disk)->delete($image->path);
+            }
+        }
+
+        try {
+            $product->forceDelete();
+        } catch (QueryException $e) {
+            return redirect()->route('admin.products.trashed')->with('error', __('admin.products.cannot_force_delete'));
+        }
+
+        return redirect()->route('admin.products.trashed')->with('status', __('admin.products.force_deleted'));
     }
 
     /**
