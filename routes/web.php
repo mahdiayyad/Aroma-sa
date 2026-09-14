@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\ProfileController;
+use App\Http\Controllers\Account\ReferralController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -14,8 +15,11 @@ use App\Http\Controllers\Admin\GiftCardController as AdminGiftCardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProductOptionController as AdminProductOptionController;
+use App\Http\Controllers\Admin\ProductReviewController as AdminProductReviewController;
+use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
@@ -27,6 +31,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocationLookupController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Webhooks\MoyasarWebhookController;
@@ -97,6 +102,11 @@ Route::middleware('guest')->group(function () {
 
     Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
+
+    Route::post('otp/send', [OtpController::class, 'send'])->middleware('throttle:otp-send')->name('otp.send');
+    Route::post('otp/verify', [OtpController::class, 'verify'])->middleware('throttle:otp-verify')->name('otp.verify');
+    Route::get('otp/complete-profile', [OtpController::class, 'showCompleteProfile'])->name('otp.complete-profile');
+    Route::post('otp/complete-profile', [OtpController::class, 'completeProfile'])->name('otp.complete-profile.store');
 });
 
 Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
@@ -107,6 +117,7 @@ Route::middleware('auth')->prefix('account')->group(function () {
     Route::get('profile', [ProfileController::class, 'edit'])->name('account.profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('account.profile.update');
     Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::get('referrals', [ReferralController::class, 'index'])->name('account.referrals.index');
 
     Route::prefix('addresses')->name('account.addresses.')->group(function () {
         Route::get('/', [AddressController::class, 'index'])->name('index');
@@ -120,6 +131,8 @@ Route::middleware('auth')->prefix('account')->group(function () {
 });
 
 Route::post('wishlist/{product}', [WishlistController::class, 'toggle'])->middleware('auth')->name('wishlist.toggle');
+
+Route::post('products/{product}/reviews', [ReviewController::class, 'store'])->middleware('auth')->name('reviews.store');
 
 /* Cart (session — guests welcome; admins can't shop) ---------------------- */
 Route::prefix('cart')->middleware('not_admin')->group(function () {
@@ -143,6 +156,8 @@ Route::prefix('checkout')->name('checkout.')->middleware('not_admin')->group(fun
     Route::get('delivery', [CheckoutController::class, 'showDelivery'])->name('delivery');
     Route::post('delivery', [CheckoutController::class, 'storeDelivery'])->name('delivery.store');
     Route::get('order-review', [CheckoutController::class, 'showOrderReview'])->name('order-review');
+    Route::post('promo', [CheckoutController::class, 'applyPromo'])->name('promo.apply');
+    Route::delete('promo', [CheckoutController::class, 'removePromo'])->name('promo.remove');
     Route::get('payment', [CheckoutController::class, 'showPaymentForm'])->name('payment');
     Route::post('payment', [CheckoutController::class, 'storePayment'])->name('payment.store');
 });
@@ -232,6 +247,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('categories', AdminCategoryController::class)->except('show');
         Route::resource('brands', AdminBrandController::class)->except('show');
         Route::resource('gift-cards', AdminGiftCardController::class)->except('show');
+        Route::resource('promo-codes', AdminPromoCodeController::class);
+
+        Route::get('reviews', [AdminProductReviewController::class, 'index'])->name('reviews.index');
+        Route::patch('reviews/{review}/approve', [AdminProductReviewController::class, 'approve'])->name('reviews.approve');
+        Route::patch('reviews/{review}/reject', [AdminProductReviewController::class, 'reject'])->name('reviews.reject');
+        Route::patch('reviews/{review}/hide', [AdminProductReviewController::class, 'hide'])->name('reviews.hide');
+        Route::delete('reviews/{review}', [AdminProductReviewController::class, 'destroy'])->name('reviews.destroy');
 
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');

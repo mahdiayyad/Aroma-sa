@@ -126,4 +126,17 @@ return [
         'snapchat' => env('AROMA_SNAPCHAT', ''),
         'facebook' => env('AROMA_FACEBOOK', ''),
     ],
+
+    /*
+    | Referral & reward points -----------------------------------------------
+    | The single source of truth for the points<->SAR conversion and referral
+    | bonus amounts — RewardPointService/ReferralService read this rather
+    | than hardcoding the numbers, so the economics can change without
+    | touching application code.
+    */
+    'rewards' => [
+        'points_per_sar' => (int) env('AROMA_POINTS_PER_SAR', 10),
+        'referral_signup_bonus' => (int) env('AROMA_REFERRAL_SIGNUP_BONUS', 100), // the new (referred) customer
+        'referral_reward' => (int) env('AROMA_REFERRAL_REWARD', 100), // the referrer
+    ],
 ];

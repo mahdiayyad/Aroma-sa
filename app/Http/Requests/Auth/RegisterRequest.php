@@ -24,6 +24,10 @@ class RegisterRequest extends FormRequest
             'phone'    => ['nullable', 'required_without:email', 'string', new InternationalPhone(), 'unique:users,phone'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
             'gender'   => ['nullable', 'in:female,male'],
+            // Deliberately not validated against `exists:users,referral_code`
+            // — an unrecognized code should never block registration itself,
+            // only silently skip the reward. See ReferralService::applyReferral().
+            'referral_code' => ['nullable', 'string', 'max:50'],
         ];
     }
 }

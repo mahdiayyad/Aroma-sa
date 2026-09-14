@@ -1,0 +1,209 @@
+/* OTP verification panel (login page phone/code flow). One reusable block
+   (see resources/views/auth/partials/otp-panel.blade.php) covering the
+   step heading, phone display, the digit boxes themselves, error/success
+   feedback, and the resend/countdown footer.
+
+   The boxes are always dir="ltr" (see x-otp-input) regardless of page
+   direction — a code reads the same physical order in Arabic or English,
+   the same convention already used for phone numbers/prices elsewhere in
+   Aroma — so no separate RTL box-layout override is needed here; only the
+   surrounding sentence/footer mirror via the page's own dir. */
+
+.aroma-otp-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--aroma-ink);
+    margin: 0 0 0.35rem;
+}
+
+.aroma-otp-subtitle {
+    font-size: 0.9rem;
+    color: var(--aroma-muted);
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+}
+
+.aroma-otp-phone {
+    font-family: var(--aroma-input-font);
+    font-weight: 600;
+    color: var(--aroma-brown);
+    unicode-bidi: isolate;
+    white-space: nowrap;
+}
+
+.aroma-otp-boxes {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.aroma-otp-box {
+    /* flex + min/max makes the box width track the *card's* available
+       width rather than the viewport, so it's correctly sized whether the
+       card is full-width on a phone or a narrow fixed column on desktop. */
+    flex: 1 1 0;
+    min-width: 2.25rem;
+    max-width: 3.25rem;
+    aspect-ratio: 0.88;
+    height: auto;
+    padding: 0;
+    text-align: center;
+    /* Matches every other input's font convention on this page (the Arabic
+       display face garbles digits/Latin glyphs) — this was missing before,
+       so digits could silently render in the wrong face under Arabic. */
+    font-family: var(--aroma-input-font);
+    font-size: 1.2rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: var(--aroma-brown);
+    background: #fff;
+    border: 1.5px solid var(--aroma-border);
+    border-radius: var(--aroma-radius-sm);
+    caret-color: var(--aroma-light-brown);
+    cursor: text;
+    transition: border-color var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
+}
+
+.aroma-otp-box.is-filled {
+    border-color: var(--aroma-light-brown);
+}
+
+/* Same focus language as every .form-control on this page (forms.css) —
+   the previous version used an unrelated wine/emerald ring, which is a
+   large part of why the boxes felt disconnected from the rest of the form. */
+.aroma-otp-box:focus,
+.aroma-otp-box.preview-focus {
+    outline: none;
+    border-color: var(--aroma-light-brown);
+    box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.28);
+}
+
+/* Error — border + a small message only, never a background flood. One
+   restrained shake, not a cartoonish wobble. */
+.aroma-otp-boxes.is-error .aroma-otp-box {
+    border-color: var(--aroma-danger);
+}
+
+.aroma-otp-boxes.is-error {
+    animation: aroma-otp-shake 320ms ease;
+}
+
+@keyframes aroma-otp-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aroma-otp-boxes.is-error { animation: none; }
+}
+
+.aroma-otp-error {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--aroma-danger);
+    font-size: 0.85rem;
+    margin: -0.5rem 0 1rem;
+    animation: aroma-otp-fade-in 200ms ease;
+}
+
+.aroma-otp-boxes.is-success .aroma-otp-box {
+    border-color: var(--aroma-success);
+    color: var(--aroma-success);
+}
+
+.aroma-otp-success {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--aroma-success);
+    font-size: 0.85rem;
+    margin: -0.5rem 0 1rem;
+    animation: aroma-otp-fade-in 200ms ease;
+}
+
+@keyframes aroma-otp-fade-in {
+    from { opacity: 0; transform: translateY(-2px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aroma-otp-error, .aroma-otp-success { animation: none; }
+}
+
+.aroma-otp-submit[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.aroma-otp-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.aroma-otp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.82rem;
+    color: var(--aroma-muted);
+    transition: color var(--aroma-transition-fast);
+}
+
+.aroma-otp-link:hover {
+    color: var(--aroma-brown);
+}
+
+.aroma-otp-link i {
+    font-size: 0.75rem;
+}
+
+.aroma-otp-resend-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.aroma-otp-countdown {
+    font-size: 0.78rem;
+    color: var(--aroma-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.aroma-otp-resend {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--aroma-brown);
+    transition: opacity var(--aroma-transition-fast);
+}
+
+.aroma-otp-resend[disabled] {
+    color: var(--aroma-muted);
+    font-weight: 400;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Password / Phone-code segmented toggle on the login page */
+.aroma-auth-toggle {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+}
+
+.aroma-auth-toggle .btn-aroma-outline {
+    flex: 1;
+}

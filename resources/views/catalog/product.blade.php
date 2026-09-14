@@ -5,6 +5,10 @@
 @section('og_type', 'product')
 @section('og_image', url($product->primaryImageUrl()))
 
+@push('head')
+    <link rel="stylesheet" href="{{ \App\Support\Assets::versioned('css/components/reviews.css') }}">
+@endpush
+
 @section('content')
 @php($locale = app()->getLocale())
 <div class="container mt-4 pb-5 pb-lg-0">
@@ -265,6 +269,8 @@
             @endif
         </div>
     </div>
+
+    @include('catalog.partials.reviews')
 </div>
 
 {{-- Sticky mobile add-to-cart bar — submits the same #addToCartForm above --}}
@@ -463,5 +469,6 @@
         render();
     })();
 </script>
+<script src="{{ \App\Support\Assets::versioned('js/reviews.js') }}"></script>
 @endpush
 @endsection

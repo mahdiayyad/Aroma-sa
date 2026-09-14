@@ -63,6 +63,20 @@ class Order extends Model
         self::STATUS_CANCELLED,
     ];
 
+    /**
+     * Statuses that represent a genuinely confirmed purchase — used for
+     * "verified purchase" review badges and first-order promo eligibility.
+     * Kept as one constant (rather than each caller re-deriving its own
+     * list, as DashboardController used to) so they can never drift; mirrors
+     * isPaid()'s own logic exactly.
+     */
+    public const PAID_STATUSES = [
+        self::STATUS_PAID,
+        self::STATUS_PROCESSING,
+        self::STATUS_SHIPPED,
+        self::STATUS_DELIVERED,
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -81,6 +95,11 @@ class Order extends Model
     public function giftCard(): BelongsTo
     {
         return $this->belongsTo(GiftCard::class, 'greeting_card_id');
+    }
+
+    public function promoCode(): BelongsTo
+    {
+        return $this->belongsTo(PromoCode::class);
     }
 
     public function isPaid(): bool

@@ -181,7 +181,7 @@ class AbayaSizeAndDressTest extends TestCase
             $this->option('dress_addon')->id => $this->dressValueId(true),
         ]);
 
-        $order = (new CheckoutService($cart))->createOrder(null, [
+        $order = app()->makeWith(CheckoutService::class, ['cart' => $cart])->createOrder(null, [
             'billing_address' => ['recipient_name' => 'Sara', 'phone' => '0500000000'],
             'customer_name' => 'Sara', 'customer_email' => 'sara@example.com', 'customer_phone' => '0500000000',
         ]);

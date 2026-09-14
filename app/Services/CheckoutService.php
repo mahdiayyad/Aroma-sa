@@ -8,6 +8,7 @@ use App\Events\OrderPaid;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\PromoCode;
 use App\Models\Product;
 use App\Models\User;
 use App\Support\Services\BaseService;
@@ -16,10 +17,12 @@ use Illuminate\Support\Facades\DB;
 class CheckoutService extends BaseService
 {
     private CartService $cart;
+    private PromoCodeService $promoCodes;
 
-    public function __construct(CartService $cart)
+    public function __construct(CartService $cart, PromoCodeService $promoCodes)
     {
         $this->cart = $cart;
+        $this->promoCodes = $promoCodes;
     }
 
     /**
@@ -67,8 +70,14 @@ class CheckoutService extends BaseService
             $subtotal += $row['unit_price'] * $row['qty'];
         }
 
-        // TODO: Add discount/coupon logic, tax calculation, shipping costs
-        $discount = 0;
+        // The promo code itself (if any) was already validated server-side
+        // when it was applied at the Order Review step — this just reads the
+        // snapshotted discount amount back out for display/charging. It is
+        // re-validated again from scratch in createOrder() below before any
+        // money actually moves, since the cart can change between apply and
+        // place-order.
+        // TODO: Add tax calculation, shipping costs
+        $discount = (float) session('checkout.promo.discount_amount', 0);
         $tax = 0;
         $shipping = 0;
 
@@ -127,6 +136,27 @@ class CheckoutService extends BaseService
             $totals = $this->calculateTotals();
             $totals['total_amount'] += $giftWrapFee + $greetingCardFee;
 
+            // Re-validate the promo from scratch right before charging — the
+            // cart (or the code's own state) may have changed since it was
+            // applied at Order Review. An code that's no longer valid is
+            // silently dropped from the charge rather than failing the whole
+            // checkout; the shopper already saw the discount at Order Review,
+            // so this is a defensive re-check, not the primary UX path.
+            $promoCode = null;
+            $promoCodeText = null;
+            $sessionPromoCode = session('checkout.promo.code');
+            if ($sessionPromoCode) {
+                $revalidated = $this->promoCodes->validate($sessionPromoCode, $user);
+                if ($revalidated['valid']) {
+                    $promoCode = $revalidated['promo_code'];
+                    $promoCodeText = $promoCode->code;
+                    $totals['discount_amount'] = $revalidated['discount_amount'];
+                } else {
+                    $totals['discount_amount'] = 0;
+                }
+            }
+            $totals['total_amount'] = max(0, $totals['subtotal'] - $totals['discount_amount'] + $totals['tax_amount'] + $totals['shipping_cost'] + $giftWrapFee + $greetingCardFee);
+
             $order = Order::create([
                 'user_id' => $user ? $user->id : null,
                 'order_number' => $this->generateOrderNumber(),
@@ -138,6 +168,8 @@ class CheckoutService extends BaseService
                 'shipping_address' => $shippingAddress,
                 'subtotal' => $totals['subtotal'],
                 'discount_amount' => $totals['discount_amount'],
+                'promo_code_id' => $promoCode ? $promoCode->id : null,
+                'promo_code' => $promoCodeText,
                 'tax_amount' => $totals['tax_amount'],
                 'shipping_cost' => $totals['shipping_cost'],
                 'total_amount' => $totals['total_amount'],
@@ -225,6 +257,20 @@ class CheckoutService extends BaseService
 
             $order->update(['status' => Order::STATUS_PAID]);
             $payment->update(['status' => Payment::STATUS_CAPTURED]);
+
+            // Promo usage is only "spent" once payment is actually confirmed —
+            // never at order creation, since an abandoned/unpaid order must
+            // not burn a usage-limit slot. redeem() is itself idempotent
+            // (unique(promo_code_id, order_id) + an existence check), so the
+            // wasAlreadyPaid guard below isn't strictly required for safety,
+            // but skipping it entirely when already paid avoids a redundant
+            // locked query on the webhook/callback race.
+            if (! $wasAlreadyPaid && $order->promo_code_id) {
+                $promo = PromoCode::find($order->promo_code_id);
+                if ($promo) {
+                    $this->promoCodes->redeem($promo, $order, $order->user, (float) $order->discount_amount);
+                }
+            }
 
             // Guard against a double-dispatch race between the webhook and the
             // callback (both can independently observe "gateway says paid").

@@ -17,6 +17,32 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ __('checkout.review') }}</h5>
 
+                    <div class="aroma-promo-box mb-3 pb-3 border-bottom">
+                        @if($promo)
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="aroma-badge-status aroma-badge-success"><i class="bi bi-check-circle-fill me-1"></i>{{ __('promo.applied_label') }}</span>
+                                    <div class="fw-semibold mt-1" dir="ltr">{{ $promo['code'] }}</div>
+                                </div>
+                                <form method="post" action="{{ route('checkout.promo.remove') }}">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn btn-link text-danger btn-sm p-0">{{ __('promo.remove') }}</button>
+                                </form>
+                            </div>
+                        @else
+                            <form method="post" action="{{ route('checkout.promo.apply') }}" class="d-flex gap-2 align-items-start">
+                                @csrf
+                                <div class="flex-grow-1">
+                                    <input type="text" name="code" value="{{ old('code') }}"
+                                           class="form-control @error('code') is-invalid @enderror aroma-promo-input"
+                                           placeholder="{{ __('promo.placeholder') }}" dir="ltr" autocomplete="off">
+                                    @error('code')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <button type="submit" class="btn btn-aroma-outline flex-shrink-0">{{ __('promo.apply') }}</button>
+                            </form>
+                        @endif
+                    </div>
+
                     {{-- Items List --}}
                     <div class="mb-3 pb-3 border-bottom">
                         @foreach(session('cart', []) as $item)

@@ -34,7 +34,7 @@ class OrderPaidEventTest extends TestCase
         Event::fake([OrderPaid::class]);
 
         $cart = new CartService();
-        $checkout = new CheckoutService($cart);
+        $checkout = app()->makeWith(CheckoutService::class, ['cart' => $cart]);
         $product = Product::factory()->create(['base_price' => 100, 'stock_quantity' => 5]);
         $cart->add($product->id, null, 1);
 
@@ -53,7 +53,7 @@ class OrderPaidEventTest extends TestCase
         Event::fake([OrderPaid::class]);
 
         $cart = new CartService();
-        $checkout = new CheckoutService($cart);
+        $checkout = app()->makeWith(CheckoutService::class, ['cart' => $cart]);
         $product = Product::factory()->create(['base_price' => 100, 'stock_quantity' => 5]);
         $cart->add($product->id, null, 1);
 

@@ -4,6 +4,8 @@
     ['route' => 'admin.categories.index','match' => 'admin.categories.*','icon' => 'bi-diagram-3', 'label' => __('admin.nav.categories')],
     ['route' => 'admin.brands.index',   'match' => 'admin.brands.*',   'icon' => 'bi-award',       'label' => __('admin.nav.brands')],
     ['route' => 'admin.gift-cards.index','match' => 'admin.gift-cards.*','icon' => 'bi-postcard', 'label' => __('admin.nav.gift_cards')],
+    ['route' => 'admin.promo-codes.index','match' => 'admin.promo-codes.*','icon' => 'bi-ticket-perforated', 'label' => __('admin.nav.promo_codes')],
+    ['route' => 'admin.reviews.index',  'match' => 'admin.reviews.*',  'icon' => 'bi-chat-square-text', 'label' => __('admin.nav.reviews')],
     ['route' => 'admin.orders.index',   'match' => 'admin.orders.*',   'icon' => 'bi-receipt',     'label' => __('admin.nav.orders')],
     ['route' => 'admin.customers.index','match' => 'admin.customers.*','icon' => 'bi-people',      'label' => __('admin.nav.customers')],
 ])

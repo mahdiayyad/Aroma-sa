@@ -1,0 +1,103 @@
+/* Product Reviews & Ratings — PDP section. Kept deliberately minimal: no
+   distribution bars, no filter toolbar, no vote/report actions — just a
+   summary, a two-field form, and a plain list of cards. */
+
+/* A warm, saturated gold specifically for rating stars — distinct from
+   --aroma-light-brown (the muted brand tan used for borders/accents
+   elsewhere), the same way most premium storefronts give star ratings
+   their own dedicated gold rather than reusing a muted brand neutral.
+   Scoped to this file/feature, not the global token set — not a brand
+   color change. */
+:root {
+    --aroma-review-gold: #F5C542;
+    --aroma-review-gold-hover: #E0AE2E;
+}
+
+.aroma-stars {
+    color: var(--aroma-review-gold);
+    font-size: 1.1rem;
+    letter-spacing: 0.1rem;
+}
+
+.aroma-review-summary .aroma-review-avg {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--aroma-brown);
+    margin-bottom: 0.5rem;
+}
+
+.aroma-review-summary .aroma-stars {
+    font-size: 1.4rem;
+}
+
+/* Star-rating radio input (review submission form) — classic CSS-only
+   trick: DOM order is 5,4,3,2,1, flex row-reverse displays 1..5 left to
+   right, and the ~ sibling combinator lights up "this star and everything
+   after it in DOM order", which is visually "this star and everything to
+   its left". dir="ltr" on the wrapper keeps this consistent in Arabic too. */
+.aroma-star-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.15rem;
+}
+
+.aroma-star-input input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.aroma-star-input label {
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--aroma-border-strong);
+    cursor: pointer;
+    padding: 0.15rem; /* comfortable tap target on mobile without changing visual spacing much */
+    transition: color var(--aroma-transition-fast), transform var(--aroma-transition-fast);
+}
+
+.aroma-star-input input:checked ~ label,
+.aroma-star-input label:hover,
+.aroma-star-input label:hover ~ label {
+    color: var(--aroma-review-gold);
+}
+
+.aroma-star-input label:active {
+    transform: scale(0.92);
+}
+
+.aroma-star-input input:focus-visible + label {
+    outline: 2px solid var(--aroma-emerald-deep);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aroma-star-input label { transition: none; }
+    .aroma-star-input label:active { transform: none; }
+}
+
+.aroma-review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.aroma-review-card {
+    background: #fff;
+    border: 1px solid var(--aroma-border);
+    border-radius: var(--aroma-radius);
+    padding: 1.25rem 1.5rem;
+}
+
+@media (max-width: 575.98px) {
+    .aroma-review-card {
+        padding: 1rem;
+    }
+    .aroma-review-summary .aroma-review-avg {
+        font-size: 2.25rem;
+    }
+}

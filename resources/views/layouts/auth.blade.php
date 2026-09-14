@@ -20,6 +20,10 @@
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- Read by AromaHttp.post() (public/js/aroma-http.js) for the
+         X-CSRF-TOKEN header on AJAX requests — the OTP login flow needs
+         this here the same way layouts/app.blade.php already has it. --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', $brand['name'])</title>
     {{-- Auth pages carry no unique content worth ranking — keep them out of
          search results (they'd otherwise duplicate/compete with the storefront). --}}
@@ -47,6 +51,11 @@
     <link href="{{ asset('css/components/animations.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/css/intlTelInput.min.css" rel="stylesheet">
     <link href="{{ asset('css/components/intl-phone.css') }}" rel="stylesheet">
+    {{-- Page-specific stylesheets (e.g. login.blade.php's otp.css) — this
+         was missing entirely, so any @push('head') from an auth page was
+         silently dropped and never rendered. Matches layouts/app.blade.php's
+         own @stack('head'). --}}
+    @stack('head')
 </head>
 <body class="aroma-auth-shell" data-flash-success="{{ session('status') }}"
       data-show-password="{{ __('auth_ui.show_password') }}"
@@ -88,6 +97,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ asset('js/select2-init.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/aroma-http.js') }}"></script>
     <script src="{{ asset('js/aroma-ui.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/js/intlTelInputWithUtils.min.js"></script>
     <script src="{{ asset('js/intl-phone.js') }}"></script>

@@ -33,6 +33,8 @@ class Product extends Model
         'is_featured'       => 'boolean',
         'is_new_arrival'    => 'boolean',
         'is_gift_eligible'  => 'boolean',
+        'reviews_avg_rating' => 'decimal:2',
+        'reviews_count'     => 'integer',
     ];
 
     public function getRouteKeyName(): string
@@ -76,6 +78,16 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class)->where('status', ProductReview::STATUS_APPROVED);
     }
 
     /* Scopes -------------------------------------------------------------- */
@@ -202,6 +214,17 @@ class Product extends Model
 
         if ($this->brand) {
             $schema['brand'] = ['@type' => 'Brand', 'name' => $this->brand->name];
+        }
+
+        // Google requires aggregateRating to be backed by real review counts
+        // (reviews_count is only ever incremented via approved reviews) —
+        // omitted entirely rather than emitting a misleading 0/0 block.
+        if ($this->reviews_count > 0) {
+            $schema['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => (string) $this->reviews_avg_rating,
+                'reviewCount' => (string) $this->reviews_count,
+            ];
         }
 
         return $schema;

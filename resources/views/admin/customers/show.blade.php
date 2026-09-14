@@ -80,6 +80,51 @@
                     </div>
                 @endif
             </x-admin.card>
+
+            <x-admin.card :title="__('admin.customers.referrals_points')">
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-4">
+                        <div class="admin-label mb-1">{{ __('admin.promo_codes.code') }}</div>
+                        <div class="admin-cell-main" dir="ltr">{{ $customer->referral_code ?? '—' }}</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="admin-label mb-1">{{ __('admin.customers.referred_by') }}</div>
+                        <div class="admin-cell-main">{{ optional($customer->referredBy)->name ?? '—' }}</div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="admin-label mb-1">{{ __('admin.customers.referrals_made') }}</div>
+                        <div class="admin-cell-main">{{ $referralStats['successful'] }}</div>
+                    </div>
+                </div>
+
+                <h4 class="admin-card-title">{{ __('admin.customers.recent_points_activity') }}</h4>
+                @if ($pointTransactions->isEmpty())
+                    <x-admin.empty :message="__('admin.customers.no_points_activity')" icon="bi-gem" />
+                @else
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ __('referral.points_history.transaction') }}</th>
+                                    <th class="text-end">{{ __('referral.points_history.points') }}</th>
+                                    <th class="text-end">{{ __('referral.points_history.balance') }}</th>
+                                    <th>{{ __('referral.points_history.date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($pointTransactions as $tx)
+                                    <tr>
+                                        <td>{{ __('referral.types.'.$tx->type) }}</td>
+                                        <td class="text-end {{ $tx->points >= 0 ? 'text-success' : 'text-danger' }}">{{ $tx->points >= 0 ? '+' : '' }}{{ $tx->points }}</td>
+                                        <td class="text-end">{{ $tx->balance_after }}</td>
+                                        <td>{{ $tx->created_at->translatedFormat('j M Y') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </x-admin.card>
         </div>
     </div>
 @endsection

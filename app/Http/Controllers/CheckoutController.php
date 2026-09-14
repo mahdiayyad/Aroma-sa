@@ -8,12 +8,14 @@ use App\Http\Requests\Checkout\AddressRequest;
 use App\Http\Requests\Checkout\DeliveryRequest;
 use App\Http\Requests\Checkout\GiftOptionsRequest;
 use App\Http\Requests\Checkout\PaymentRequest;
+use App\Http\Requests\Checkout\PromoCodeRequest;
 use App\Models\GiftCard;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\CheckoutService;
 use App\Services\LocationLookupService;
 use App\Services\Payment\PaymentGatewayManager;
+use App\Services\PromoCodeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -27,17 +29,20 @@ class CheckoutController extends Controller
     private CheckoutService $checkout;
     private PaymentGatewayManager $gateways;
     private LocationLookupService $locationLookup;
+    private PromoCodeService $promoCodes;
 
     public function __construct(
         CartService $cart,
         CheckoutService $checkout,
         PaymentGatewayManager $gateways,
-        LocationLookupService $locationLookup
+        LocationLookupService $locationLookup,
+        PromoCodeService $promoCodes
     ) {
         $this->cart = $cart;
         $this->checkout = $checkout;
         $this->gateways = $gateways;
         $this->locationLookup = $locationLookup;
+        $this->promoCodes = $promoCodes;
     }
 
     /**
@@ -478,7 +483,43 @@ class CheckoutController extends Controller
             'gift'     => $gift,
             'giftCard' => !empty($gift['card_id']) ? GiftCard::find($gift['card_id']) : null,
             'delivery' => session('checkout.delivery', []),
+            'promo'    => session('checkout.promo'),
         ]);
+    }
+
+    /**
+     * Apply a promo code at the Order Review step. Non-stackable: if one is
+     * already applied, the customer must remove it first — enforced here,
+     * not just hidden in the UI, so a replayed/manipulated request can't
+     * silently combine two discounts.
+     */
+    public function applyPromo(PromoCodeRequest $request): RedirectResponse
+    {
+        if (session()->has('checkout.promo')) {
+            return back()->with('error', __('promo.errors.already_applied'));
+        }
+
+        $result = $this->promoCodes->validate($request->validated()['code'], auth()->user());
+
+        if (! $result['valid']) {
+            return back()->withErrors(['code' => $result['error']])->withInput();
+        }
+
+        session(['checkout.promo' => [
+            'code' => $result['promo_code']->code,
+            'promo_code_id' => $result['promo_code']->id,
+            'discount_amount' => $result['discount_amount'],
+            'free_shipping' => $result['free_shipping'],
+        ]]);
+
+        return back()->with('status', __('promo.applied'));
+    }
+
+    public function removePromo(): RedirectResponse
+    {
+        session()->forget('checkout.promo');
+
+        return back()->with('status', __('promo.removed'));
     }
 
     /**
@@ -521,6 +562,7 @@ class CheckoutController extends Controller
         return view('checkout.payment', [
             'totals' => $totals,
             'gateways' => config('aroma.payments.methods', []),
+            'promo' => session('checkout.promo'),
         ]);
     }
 
@@ -611,7 +653,7 @@ class CheckoutController extends Controller
             $this->cart->clear();
             session()->forget([
                 'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
-                'checkout.gift', 'checkout.delivery',
+                'checkout.gift', 'checkout.delivery', 'checkout.promo',
             ]);
             session()->push('checkout.completed_orders', $order->id);
 

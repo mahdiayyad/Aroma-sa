@@ -18,7 +18,6 @@ class PaymentRequest extends FormRequest
         return [
             'gateway' => 'required|in:moyasar,tabby,tamara',
             'method' => 'required|string',
-            'coupon_code' => 'nullable|string|max:50',
             'shipping_method' => 'required|string',
             'terms_accepted' => 'accepted',
         ];
