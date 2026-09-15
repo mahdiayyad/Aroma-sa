@@ -48,8 +48,7 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label fw-semibold">{{ __('location.label') }}</label>
-                                <x-location-picker field-prefix="billing_address" dom-id="billing" />
+                                <x-address-input field-prefix="billing_address" dom-id="billing" :method="old('billing_address.method')" />
                             </div>
 
                             <div class="col-12">
@@ -75,8 +74,15 @@
                                     <button type="button" class="list-group-item list-group-item-action d-flex align-items-start gap-3 border-0 p-3"
                                             onclick="loadAddress(this)" data-recipient="{{ $address->recipient_name }}"
                                             data-phone="{{ $address->phone }}"
+                                            data-method="{{ $address->method }}"
                                             data-location-code="{{ $address->location_code }}"
-                                            data-lat="{{ $address->latitude }}" data-lng="{{ $address->longitude }}">
+                                            data-lat="{{ $address->latitude }}" data-lng="{{ $address->longitude }}"
+                                            data-country="{{ $address->country }}" data-city="{{ $address->city }}"
+                                            data-district="{{ $address->district }}" data-street="{{ $address->street_address }}"
+                                            data-building-number="{{ $address->building_number }}"
+                                            data-apartment-number="{{ $address->apartment_number }}"
+                                            data-postal-code="{{ $address->postal_code }}"
+                                            data-additional-notes="{{ $address->additional_notes }}">
                                         <div>
                                             <strong>{{ $address->label ?? 'Address' }}</strong>
                                             <div class="small text-aroma-muted">
@@ -104,6 +110,7 @@
 
 @push('scripts')
 <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
+<script src="{{ \App\Support\Assets::versioned('js/address-method-toggle.js') }}"></script>
 <script>
 function loadAddress(btn) {
     document.querySelector('[name="billing_address[recipient_name]"]').value = btn.dataset.recipient;
@@ -117,7 +124,30 @@ function loadAddress(btn) {
         phoneInput.value = btn.dataset.phone || '';
     }
 
-    if (btn.dataset.locationCode) {
+    // A saved address can be either method — switch the toggle to match and
+    // fill in whichever panel's fields it has, so picking a saved "Full
+    // Address" entry doesn't silently leave the code panel showing instead.
+    var isManual = btn.dataset.method === '{{ \App\Models\Address::METHOD_MANUAL }}';
+    var radio = document.querySelector('[name="billing_address[method]"][value="' + (isManual ? '{{ \App\Models\Address::METHOD_MANUAL }}' : '{{ \App\Models\Address::METHOD_NATIONAL_CODE }}') + '"]');
+    if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change'));
+    }
+
+    if (isManual) {
+        var setField = function (field, value) {
+            var input = document.querySelector('[name="billing_address[' + field + ']"]');
+            if (input) { input.value = value || ''; }
+        };
+        setField('country', btn.dataset.country);
+        setField('city', btn.dataset.city);
+        setField('district', btn.dataset.district);
+        setField('street_address', btn.dataset.street);
+        setField('building_number', btn.dataset.buildingNumber);
+        setField('apartment_number', btn.dataset.apartmentNumber);
+        setField('postal_code', btn.dataset.postalCode);
+        setField('additional_notes', btn.dataset.additionalNotes);
+    } else if (btn.dataset.locationCode) {
         var codeInput = document.querySelector('.js-location-code');
         codeInput.value = btn.dataset.locationCode;
         codeInput.dispatchEvent(new Event('aroma:location-code-set'));

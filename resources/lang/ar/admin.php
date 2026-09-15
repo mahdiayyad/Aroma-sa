@@ -346,6 +346,8 @@ return [
         'points_balance' => 'رصيد النقاط',
         'recent_points_activity' => 'أحدث نشاط النقاط',
         'no_points_activity' => 'لا يوجد نشاط نقاط بعد.',
+        'saved_addresses' => 'العناوين المحفوظة',
+        'no_addresses' => 'لا توجد عناوين محفوظة.',
     ],
 
     'reviews' => [

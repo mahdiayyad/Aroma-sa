@@ -87,7 +87,14 @@
         <h3>{{ __('emails.order_shipped.shipping_address') }}</h3>
         <p>
             {{ $order->shipping_address['recipient_name'] ?? '' }}<br>
-            @if(!empty($order->shipping_address['location_code']))
+            @if(($order->shipping_address['method'] ?? null) === \App\Models\Address::METHOD_MANUAL)
+                {{ $order->shipping_address['street_address'] ?? '' }}
+                @if(!empty($order->shipping_address['building_number'])) — {{ __('location.manual.building_short', ['number' => $order->shipping_address['building_number']]) }}@endif<br>
+                @if(!empty($order->shipping_address['district'])){{ $order->shipping_address['district'] }}, @endif{{ $order->shipping_address['city'] ?? '' }}<br>
+                @if($order->shipping_address['postal_code'] ?? null)
+                    {{ $order->shipping_address['postal_code'] }}<br>
+                @endif
+            @elseif(!empty($order->shipping_address['location_code']))
                 {{ $order->shipping_address['formatted_address'] ?? '' }}<br>
                 @if(!empty($order->shipping_address['district'])){{ $order->shipping_address['district'] }}, @endif{{ $order->shipping_address['city'] ?? '' }}, {{ $order->shipping_address['region'] ?? '' }}<br>
             @elseif(!empty($order->shipping_address['latitude']) && !empty($order->shipping_address['longitude']))

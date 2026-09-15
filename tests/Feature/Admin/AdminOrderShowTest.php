@@ -78,6 +78,30 @@ class AdminOrderShowTest extends TestCase
             ->assertDontSee(__('admin.orders.anonymous'));
     }
 
+    public function test_the_order_page_shows_a_manual_address_and_its_method_badge(): void
+    {
+        $manualAddress = [
+            'method' => \App\Models\Address::METHOD_MANUAL,
+            'recipient_name' => 'Sara', 'phone' => '0500000000',
+            'country' => 'SA', 'city' => 'Jeddah', 'district' => 'Al Rawdah',
+            'street_address' => 'King Fahd Road', 'building_number' => '1234',
+            'postal_code' => '23432',
+        ];
+
+        $order = Order::create([
+            'order_number' => 'AR-2026-000103', 'status' => Order::STATUS_PENDING,
+            'customer_name' => 'Sara', 'customer_email' => 'sara@example.com', 'customer_phone' => '0500000000',
+            'billing_address' => $manualAddress, 'shipping_address' => $manualAddress,
+            'subtotal' => 200, 'total_amount' => 200,
+        ]);
+
+        $this->actingAs($this->admin())->get(route('admin.orders.show', $order))
+            ->assertOk()
+            ->assertSee(__('location.method.manual'))
+            ->assertSee('King Fahd Road')
+            ->assertSee('1234');
+    }
+
     public function test_an_anonymous_gift_hides_the_from_name_and_signature(): void
     {
         $order = Order::create([

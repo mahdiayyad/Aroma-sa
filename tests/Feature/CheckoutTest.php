@@ -116,6 +116,88 @@ class CheckoutTest extends TestCase
             ->assertSessionHasErrors('billing_address.location_code');
     }
 
+    private array $validManualBilling = [
+        'recipient_name'  => 'Sara Al Qahtani',
+        'email'           => 'sara@example.com',
+        'phone'           => '+966500000000',
+        'method'          => \App\Models\Address::METHOD_MANUAL,
+        'country'         => 'SA',
+        'city'            => 'Jeddah',
+        'district'        => 'Al Rawdah',
+        'street_address'  => 'King Fahd Road',
+        'building_number' => '1234',
+    ];
+
+    public function test_a_shopper_can_check_out_with_a_manual_billing_address(): void
+    {
+        $this->seedCart();
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validManualBilling])
+            ->assertRedirect(route('checkout.gift-options'))
+            ->assertSessionHasNoErrors();
+
+        $billing = session('checkout.billing_address');
+        $this->assertSame(\App\Models\Address::METHOD_MANUAL, $billing['method']);
+        $this->assertSame('1234', $billing['building_number']);
+        $this->assertSame('Jeddah', $billing['city']);
+        $this->assertNull($billing['location_code']);
+        // formatted_address is built server-side, not trusted from the client.
+        $this->assertNotEmpty($billing['formatted_address']);
+    }
+
+    public function test_a_manual_billing_address_requires_the_building_number(): void
+    {
+        $this->seedCart();
+
+        $billing = $this->validManualBilling;
+        unset($billing['building_number']);
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
+            ->assertSessionHasErrors('billing_address.building_number');
+    }
+
+    public function test_a_manual_shipping_address_is_validated_independently_of_billing(): void
+    {
+        $this->seedCart();
+
+        $shipping = $this->validManualBilling;
+        unset($shipping['email'], $shipping['city']);
+
+        $this->post(route('checkout.address.store'), [
+            'billing_address' => $this->validBilling,
+            'use_shipping_for_billing' => '0',
+            'shipping_address' => $shipping,
+        ])->assertSessionHasErrors('shipping_address.city');
+    }
+
+    public function test_placing_an_order_with_a_manual_address_stores_it_on_the_order(): void
+    {
+        config(['services.moyasar.secret_key' => 'sk_test']);
+        Http::fake([
+            'api.moyasar.com/*' => Http::response([
+                'id'    => 'inv_123',
+                'url'   => 'https://moyasar.test/pay/inv_123',
+                'token' => 'tok_123',
+            ], 200),
+        ]);
+
+        $this->seedCart(1);
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validManualBilling]);
+        $this->completeGiftAndDeliverySteps();
+
+        $this->post(route('checkout.payment.store'), [
+            'gateway'         => 'moyasar',
+            'method'          => 'mada',
+            'shipping_method' => 'standard',
+            'terms_accepted'  => '1',
+        ])->assertRedirect('https://moyasar.test/pay/inv_123');
+
+        $order = Order::first();
+        $this->assertSame(\App\Models\Address::METHOD_MANUAL, $order->billing_address['method']);
+        $this->assertSame('1234', $order->billing_address['building_number']);
+        $this->assertSame('King Fahd Road', $order->billing_address['street_address']);
+    }
+
     /* ---- Terms & Conditions open in a modal, not a navigation away --------- */
 
     public function test_payment_page_renders_with_a_terms_modal_not_a_link_away(): void

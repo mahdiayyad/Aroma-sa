@@ -346,6 +346,8 @@ return [
         'points_balance' => 'Points balance',
         'recent_points_activity' => 'Recent points activity',
         'no_points_activity' => 'No points activity yet.',
+        'saved_addresses' => 'Saved Addresses',
+        'no_addresses' => 'No saved addresses.',
     ],
 
     'reviews' => [

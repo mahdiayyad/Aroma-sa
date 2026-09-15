@@ -9,11 +9,12 @@ use App\Http\Requests\Checkout\DeliveryRequest;
 use App\Http\Requests\Checkout\GiftOptionsRequest;
 use App\Http\Requests\Checkout\PaymentRequest;
 use App\Http\Requests\Checkout\PromoCodeRequest;
+use App\Models\Address;
 use App\Models\GiftCard;
 use App\Models\Order;
+use App\Services\AddressResolver;
 use App\Services\CartService;
 use App\Services\CheckoutService;
-use App\Services\LocationLookupService;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Services\PromoCodeService;
 use Illuminate\Http\RedirectResponse;
@@ -28,20 +29,20 @@ class CheckoutController extends Controller
     private CartService $cart;
     private CheckoutService $checkout;
     private PaymentGatewayManager $gateways;
-    private LocationLookupService $locationLookup;
+    private AddressResolver $addressResolver;
     private PromoCodeService $promoCodes;
 
     public function __construct(
         CartService $cart,
         CheckoutService $checkout,
         PaymentGatewayManager $gateways,
-        LocationLookupService $locationLookup,
+        AddressResolver $addressResolver,
         PromoCodeService $promoCodes
     ) {
         $this->cart = $cart;
         $this->checkout = $checkout;
         $this->gateways = $gateways;
-        $this->locationLookup = $locationLookup;
+        $this->addressResolver = $addressResolver;
         $this->promoCodes = $promoCodes;
     }
 
@@ -74,64 +75,10 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Resolve one of the two location methods into the full address array
-     * stored in the checkout session / order snapshot. Every key is always
-     * present (even when null) so downstream direct-array reads on the
-     * order's JSON snapshot never warn on a missing key.
-     *
-     * - location_code present: resolved via LocationLookupService (city/
-     *   region/district/formatted_address/coordinates). Returns null on
-     *   lookup failure — callers translate that into a field-specific
-     *   validation error; there is no manual-entry fallback.
-     * - No code, only coordinates: the shopper pinned a spot on the map.
-     *   Stored as coordinates ONLY — no lookup, no street/city/region/
-     *   district/formatted_address text. Delivery for these addresses is
-     *   coordinate-based (Aramex or another carrier), not text-based.
-     *
-     * Exactly one of these is guaranteed present by the FormRequest's
-     * withValidator check before this is ever called.
-     */
-    private function resolveAddress(array $contact, ?string $locationCode, ?float $latitude, ?float $longitude): ?array
-    {
-        if (filled($locationCode)) {
-            $result = $this->locationLookup->lookup($locationCode);
-
-            if (! $result['success']) {
-                return null;
-            }
-
-            // billing_address/shipping_address are JSON-cast Order columns
-            // (no fixed schema), so is_stub is safe to store as-is — it
-            // surfaces later via <x-address-summary> so ops/the shopper can
-            // tell a demo-mode resolution apart from a real one.
-            return array_merge($contact, [
-                'location_code'  => strtoupper(trim($locationCode)),
-                'street_address' => null,
-                'postal_code'    => null,
-            ], $result['data'], ['is_stub' => $result['is_stub'] ?? false]);
-        }
-
-        return array_merge($contact, [
-            'location_code'     => null,
-            'latitude'          => $latitude,
-            'longitude'         => $longitude,
-            'city'              => null,
-            'region'            => null,
-            'district'          => null,
-            'country'           => null,
-            'formatted_address' => null,
-            'street_address'    => null,
-            'postal_code'       => null,
-            // A pinned-on-map location never goes through lookup() — never stub data.
-            'is_stub'           => false,
-        ]);
-    }
-
-    /**
      * $request->validated() returns 'numeric' fields as whatever raw type
      * they arrived as (a string, from HTML form submission) — Laravel's
-     * 'numeric' rule validates but never casts. resolveAddress() takes a
-     * strict ?float, so every coordinate must pass through this first.
+     * 'numeric' rule validates but never casts. AddressResolver::resolve()
+     * takes a strict ?float, so every coordinate must pass through this first.
      */
     private function toFloatOrNull($value): ?float
     {
@@ -243,11 +190,11 @@ class CheckoutController extends Controller
 
         $data = $request->validated();
 
-        $billingAddress = $this->resolveAddress([
+        $billingAddress = $this->addressResolver->resolve([
             'recipient_name' => $data['billing_address']['recipient_name'],
             'phone'          => $data['billing_address']['phone'],
             'email'          => $data['billing_address']['email'] ?? null,
-        ], $data['billing_address']['location_code'] ?? null, $this->toFloatOrNull($data['billing_address']['latitude'] ?? null), $this->toFloatOrNull($data['billing_address']['longitude'] ?? null));
+        ], $data['billing_address']['method'] ?? null, $data['billing_address']['location_code'] ?? null, $this->toFloatOrNull($data['billing_address']['latitude'] ?? null), $this->toFloatOrNull($data['billing_address']['longitude'] ?? null), $data['billing_address']);
 
         if ($billingAddress === null) {
             return back()
@@ -262,12 +209,13 @@ class CheckoutController extends Controller
         $sameAsBilling = (bool) ($data['use_shipping_for_billing'] ?? true);
         $shippingHasCode = ! empty($data['shipping_address']['location_code']);
         $shippingHasCoordinates = ! empty($data['shipping_address']['latitude']) && ! empty($data['shipping_address']['longitude']);
+        $shippingIsManual = ($data['shipping_address']['method'] ?? null) === Address::METHOD_MANUAL;
 
-        if (! $sameAsBilling && ($shippingHasCode || $shippingHasCoordinates)) {
-            $shippingAddress = $this->resolveAddress([
+        if (! $sameAsBilling && ($shippingHasCode || $shippingHasCoordinates || $shippingIsManual)) {
+            $shippingAddress = $this->addressResolver->resolve([
                 'recipient_name' => $data['shipping_address']['recipient_name'],
                 'phone'          => $data['shipping_address']['phone'],
-            ], $data['shipping_address']['location_code'] ?? null, $this->toFloatOrNull($data['shipping_address']['latitude'] ?? null), $this->toFloatOrNull($data['shipping_address']['longitude'] ?? null));
+            ], $data['shipping_address']['method'] ?? null, $data['shipping_address']['location_code'] ?? null, $this->toFloatOrNull($data['shipping_address']['latitude'] ?? null), $this->toFloatOrNull($data['shipping_address']['longitude'] ?? null), $data['shipping_address']);
 
             if ($shippingAddress === null) {
                 return back()
@@ -340,10 +288,10 @@ class CheckoutController extends Controller
         $isAnonymous = $isGift && (bool) ($data['is_anonymous'] ?? false);
 
         if ($isGift) {
-            $recipientAddress = $this->resolveAddress([
+            $recipientAddress = $this->addressResolver->resolve([
                 'recipient_name' => $data['recipient']['recipient_name'],
                 'phone'          => $data['recipient']['phone'],
-            ], $data['recipient']['location_code'] ?? null, $this->toFloatOrNull($data['recipient']['latitude'] ?? null), $this->toFloatOrNull($data['recipient']['longitude'] ?? null));
+            ], $data['recipient']['method'] ?? null, $data['recipient']['location_code'] ?? null, $this->toFloatOrNull($data['recipient']['latitude'] ?? null), $this->toFloatOrNull($data['recipient']['longitude'] ?? null), $data['recipient']);
 
             if ($recipientAddress === null) {
                 return back()

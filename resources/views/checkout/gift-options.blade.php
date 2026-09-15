@@ -61,11 +61,19 @@
                                     <x-phone-input name="recipient[phone]" :value="$recipient['phone'] ?? null" />
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label fw-semibold">{{ __('location.label') }}</label>
-                                    <x-location-picker field-prefix="recipient" dom-id="recipient"
+                                    <x-address-input field-prefix="recipient" dom-id="recipient"
+                                        :method="old('recipient.method', $recipient['method'] ?? null)"
                                         :code="$recipient['location_code'] ?? null"
                                         :latitude="$recipient['latitude'] ?? null"
-                                        :longitude="$recipient['longitude'] ?? null" />
+                                        :longitude="$recipient['longitude'] ?? null"
+                                        :country="$recipient['country'] ?? null"
+                                        :city="$recipient['city'] ?? null"
+                                        :district="$recipient['district'] ?? null"
+                                        :street="$recipient['street_address'] ?? null"
+                                        :building-number="$recipient['building_number'] ?? null"
+                                        :apartment-number="$recipient['apartment_number'] ?? null"
+                                        :postal-code="$recipient['postal_code'] ?? null"
+                                        :additional-notes="$recipient['additional_notes'] ?? null" />
                                 </div>
                             </div>
 
@@ -323,6 +331,7 @@
 
 @push('scripts')
 <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
+<script src="{{ \App\Support\Assets::versioned('js/address-method-toggle.js') }}"></script>
 <script src="{{ \App\Support\Assets::versioned('js/gift-studio.js') }}"></script>
 @endpush
 @endsection

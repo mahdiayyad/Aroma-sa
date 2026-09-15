@@ -85,6 +85,49 @@ class GiftOptionsTest extends TestCase
         $this->assertTrue(session('checkout.gift.is_gift'));
     }
 
+    public function test_a_manual_recipient_address_replaces_the_shipping_address(): void
+    {
+        $this->seedCartAndAddress();
+
+        $this->post(route('checkout.gift-options.store'), [
+            'is_gift'   => '1',
+            'recipient' => [
+                'recipient_name'  => 'Layla Al Otaibi',
+                'phone'           => '+966511111111',
+                'method'          => \App\Models\Address::METHOD_MANUAL,
+                'country'         => 'SA',
+                'city'            => 'Jeddah',
+                'district'        => 'Al Rawdah',
+                'street_address'  => 'King Fahd Road',
+                'building_number' => '1234',
+            ],
+        ])->assertRedirect(route('checkout.delivery'))->assertSessionHasNoErrors();
+
+        $shipping = session('checkout.shipping_address');
+        $this->assertSame(\App\Models\Address::METHOD_MANUAL, $shipping['method']);
+        $this->assertSame('Jeddah', $shipping['city']);
+        $this->assertSame('1234', $shipping['building_number']);
+        $this->assertSame('Layla Al Otaibi', $shipping['recipient_name']);
+    }
+
+    public function test_a_manual_recipient_address_requires_the_building_number(): void
+    {
+        $this->seedCartAndAddress();
+
+        $this->post(route('checkout.gift-options.store'), [
+            'is_gift'   => '1',
+            'recipient' => [
+                'recipient_name' => 'Layla Al Otaibi',
+                'phone'          => '+966511111111',
+                'method'         => \App\Models\Address::METHOD_MANUAL,
+                'country'        => 'SA',
+                'city'           => 'Jeddah',
+                'district'       => 'Al Rawdah',
+                'street_address' => 'King Fahd Road',
+            ],
+        ])->assertSessionHasErrors('recipient.building_number');
+    }
+
     public function test_gift_wrap_fee_is_pulled_from_config_not_the_client(): void
     {
         config(['aroma.gifting.wrap_fee' => 22.5]);
