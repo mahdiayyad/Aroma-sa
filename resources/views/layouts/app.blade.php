@@ -35,15 +35,17 @@
     <meta name="description" content="@yield('meta_description', $brand['tagline'])">
     <meta name="robots" content="@yield('robots', 'index, follow')">
 
-    {{-- Favicon / app icons (public/*.png, *.ico generated from the brand's
-         "A" monogram — see public/images/brand/aroma-logo-mark.png). --}}
+    {{-- Favicon / app icons — regenerated from the current logo via
+         `php artisan aroma:prepare-favicon` (see
+         App\Console\Commands\PrepareFaviconCommand), which crops the "A"
+         glyph out of public/images/brand/aroma-logo-mark.png. --}}
     {{-- Versioned so a favicon update shows immediately instead of waiting out
          the browser's aggressive favicon cache. --}}
     <link rel="icon" type="image/x-icon" href="{{ \App\Support\Assets::versioned('favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ \App\Support\Assets::versioned('favicon-16x16.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\Assets::versioned('favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="48x48" href="{{ \App\Support\Assets::versioned('favicon-48x48.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ \App\Support\Assets::versioned('apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="theme-color" content="#704F2F">
 
@@ -64,7 +66,7 @@
     <meta property="og:title" content="@yield('title', $brand['name'].' — '.$brand['tagline'])">
     <meta property="og:description" content="@yield('meta_description', $brand['tagline'])">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="@yield('og_image', asset('android-chrome-512x512.png'))">
+    <meta property="og:image" content="@yield('og_image', \App\Support\Assets::versioned('android-chrome-512x512.png'))">
     <meta property="og:locale" content="{{ app()->getLocale() === 'ar' ? 'ar_SA' : 'en_US' }}">
     @foreach (array_keys(config('aroma.locales', [])) as $ogLocale)
         @if ($ogLocale !== app()->getLocale())
@@ -74,7 +76,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', $brand['name'].' — '.$brand['tagline'])">
     <meta name="twitter:description" content="@yield('meta_description', $brand['tagline'])">
-    <meta name="twitter:image" content="@yield('og_image', asset('android-chrome-512x512.png'))">
+    <meta name="twitter:image" content="@yield('og_image', \App\Support\Assets::versioned('android-chrome-512x512.png'))">
 
     {{-- Structured data: Organization + WebSite, present on every page.
          Page-specific schema (Product, BreadcrumbList) is pushed onto
@@ -88,7 +90,7 @@
                     '@id' => url('/').'#organization',
                     'name' => $brand['name'],
                     'url' => url('/'),
-                    'logo' => asset('android-chrome-512x512.png'),
+                    'logo' => \App\Support\Assets::versioned('android-chrome-512x512.png'),
                 ],
                 [
                     '@type' => 'WebSite',

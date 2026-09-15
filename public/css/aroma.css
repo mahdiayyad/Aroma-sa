@@ -434,14 +434,12 @@ html[dir="ltr"] .aroma-script {
 
 /* --- Auth shell (login/register/password pages) ---------------------------- */
 .aroma-auth-shell {
-  background: var(--aroma-gradient);
+  /* A soft highlight above the card, layered over the existing brand
+     gradient — a lighting touch only, no new hue (rgba of white, already
+     used elsewhere in this file for overlays). */
+  background: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255, 255, 255, 0.06), transparent 60%),
+    var(--aroma-gradient);
   min-height: 100vh;
-}
-.aroma-auth-brand {
-  color: #fff;
-}
-.aroma-auth-tagline {
-  color: var(--aroma-gold);
 }
 .aroma-auth-locale-link {
   color: #fff;

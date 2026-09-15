@@ -17,13 +17,15 @@
      --aroma-ink label above the field still carries the brand accent. */
   color: var(--aroma-text);
   background-color: #fff;
-  transition: border-color var(--aroma-transition-fast), box-shadow var(--aroma-transition-fast);
+  transition: border-color var(--aroma-transition), box-shadow var(--aroma-transition);
 }
 
 .form-control:focus,
 .form-select:focus {
   border-color: var(--aroma-light-brown);
-  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.25);
+  /* Two-layer ring — a crisp 1px edge plus a softer outer glow — for more
+     depth than a single flat box-shadow, same hue throughout. */
+  box-shadow: 0 0 0 1px var(--aroma-light-brown), 0 0 0 4px rgba(201, 179, 154, 0.18);
 }
 
 textarea.form-control {
@@ -43,6 +45,20 @@ textarea.form-control {
   color: var(--aroma-danger);
   margin-inline-start: 0.2rem;
 }
+
+/* Small uppercase micro-label used to group a long single-page form (e.g.
+   registration) into logical clusters without boxed step-cards — the form
+   stays one flat flow, this just adds a rhythm marker between sections. */
+.aroma-form-section {
+  display: block;
+  color: var(--aroma-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 1.75rem 0 0.85rem;
+}
+.aroma-form-section:first-child { margin-top: 0; }
 
 .form-text { color: var(--aroma-muted); font-size: 0.825rem; }
 
@@ -67,7 +83,7 @@ textarea.form-control {
   background-image: none;
 }
 .form-control.is-valid:focus, .form-select.is-valid:focus {
-  box-shadow: 0 0 0 3px rgba(74, 120, 86, 0.2);
+  box-shadow: 0 0 0 1px var(--aroma-success), 0 0 0 4px rgba(74, 120, 86, 0.16);
 }
 .form-control.is-invalid, .form-select.is-invalid {
   background-color: #fff;
@@ -75,7 +91,7 @@ textarea.form-control {
   background-image: none;
 }
 .form-control.is-invalid:focus, .form-select.is-invalid:focus {
-  box-shadow: 0 0 0 3px rgba(51, 1, 1, 0.2);
+  box-shadow: 0 0 0 1px var(--aroma-brown), 0 0 0 4px rgba(51, 1, 1, 0.16);
 }
 .valid-feedback {
   color: var(--aroma-success);
@@ -242,14 +258,16 @@ textarea.form-control {
   background: var(--aroma-danger-bg);
 }
 
-/* --- Address method toggle: "National Address code" vs "Full Address" ----
+/* --- Segmented toggle: shared "pill of options" control ------------------
+   One consistent recipe for every "choose one of a few options" affordance
+   in the app — the address-method picker (code vs. full address) and the
+   login page's Password/Phone tab both use this (previously two different
+   recipes: this pill, and a flush-flex .aroma-auth-toggle in otp.css —
+   unified here since a shopper could plausibly meet both in one session).
    Freshly named rather than reusing the retired .aroma-location-toggle
    (map-picker.css, unloaded) — same "compact segmented pill for a
-   sub-choice" reasoning, not a resurrection of that map-specific CSS. Both
-   .aroma-address-panel elements stay in the DOM at all times; only d-none
-   (toggled by address-method-toggle.js) hides the inactive one, so
-   switching methods never clears what the shopper already typed. */
-.aroma-address-method {
+   sub-choice" reasoning, not a resurrection of that map-specific CSS. */
+.aroma-segmented {
   display: inline-flex;
   border: 1px solid var(--aroma-border);
   border-radius: 999px;
@@ -257,9 +275,10 @@ textarea.form-control {
   gap: 0.25rem;
   margin-bottom: 0.85rem;
 }
-.aroma-address-method-option {
+.aroma-segmented-option {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   margin: 0;
   padding: 0.45rem 0.9rem;
@@ -270,22 +289,31 @@ textarea.form-control {
   cursor: pointer;
   transition: background-color var(--aroma-transition-fast, 0.15s ease), color var(--aroma-transition-fast, 0.15s ease);
 }
-.aroma-address-method-option i { font-size: 0.95rem; }
-.aroma-address-method-option:hover { color: var(--aroma-brown); }
-.btn-check:checked + .aroma-address-method-option {
+.aroma-segmented-option i { font-size: 0.95rem; }
+.aroma-segmented-option:hover { color: var(--aroma-brown); }
+.btn-check:checked + .aroma-segmented-option {
   background: var(--aroma-brown);
   color: #fff;
 }
-.btn-check:focus-visible + .aroma-address-method-option {
+.btn-check:focus-visible + .aroma-segmented-option {
   outline: none;
   box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.35);
 }
+
+/* Full-width variant — the login page's two-option toggle should fill its
+   card the way .aroma-auth-toggle used to, rather than staying content-width
+   like the address picker's icon+label pills. */
+.aroma-segmented.aroma-segmented-block {
+  display: flex;
+  width: 100%;
+}
+.aroma-segmented-block .aroma-segmented-option { flex: 1; }
 
 .aroma-address-panel {
   transition: opacity var(--aroma-transition-fast, 0.15s ease);
 }
 
 @media (max-width: 576px) {
-  .aroma-address-method { width: 100%; }
-  .aroma-address-method-option { flex: 1; justify-content: center; }
+  .aroma-segmented:not(.aroma-segmented-block) { width: 100%; }
+  .aroma-segmented:not(.aroma-segmented-block) .aroma-segmented-option { flex: 1; }
 }

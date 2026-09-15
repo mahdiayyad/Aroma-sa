@@ -8,6 +8,9 @@
 
     <form method="post" action="{{ route('register.store') }}">
         @csrf
+
+        <span class="aroma-form-section">{{ __('auth_ui.register.section.details') }}</span>
+
         <div class="mb-3">
             <label class="form-label">{{ __('auth_ui.register.name') }} <span class="aroma-required">*</span></label>
             <input type="text" name="name" value="{{ old('name') }}"
@@ -15,19 +18,27 @@
             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
 
-        <p class="form-text mt-n1 mb-2">{{ __('auth_ui.register.contact_hint') }}</p>
+        {{-- Only one of phone/email is actually required (see
+             RegisterRequest::rules() — required_without on each other), so
+             neither label carries an individual asterisk; this hint is the
+             single source of truth for that either/or requirement. --}}
+        <p class="form-text mt-n1 mb-2 d-flex align-items-center gap-1">
+            <i class="bi bi-info-circle"></i> {{ __('auth_ui.register.contact_hint') }}
+        </p>
 
         <div class="mb-3">
-            <label class="form-label">{{ __('auth_ui.register.phone') }} <span class="aroma-required">*</span></label>
+            <label class="form-label">{{ __('auth_ui.register.phone') }}</label>
             <x-phone-input name="phone" />
         </div>
 
         <div class="mb-3">
-            <label class="form-label">{{ __('auth_ui.register.email') }} <span class="aroma-required">*</span></label>
+            <label class="form-label">{{ __('auth_ui.register.email') }}</label>
             <input type="email" name="email" value="{{ old('email') }}"
                    class="form-control @error('email') is-invalid @enderror">
             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
+
+        <span class="aroma-form-section">{{ __('auth_ui.register.section.security') }}</span>
 
         <div class="row">
             <div class="col-md-6 mb-3">
@@ -40,6 +51,12 @@
                 <input type="password" name="password_confirmation" class="form-control" required>
             </div>
         </div>
+
+        <p class="form-text mt-n1 mb-3 d-flex align-items-center gap-1">
+            <i class="bi bi-shield-lock"></i> {{ __('auth_ui.register.privacy_note') }}
+        </p>
+
+        <span class="aroma-form-section">{{ __('auth_ui.register.section.optional') }}</span>
 
         <div class="mb-3">
             <label class="form-label">{{ __('auth_ui.register.gender') }}</label>
@@ -60,7 +77,7 @@
             <p class="form-text mt-1 mb-0">{{ __('auth_ui.register.referral_code_hint') }}</p>
         </div>
 
-        <button type="submit" class="btn btn-aroma w-100 mb-3">{{ __('auth_ui.register.submit') }}</button>
+        <button type="submit" class="btn btn-aroma w-100 mb-3 mt-2">{{ __('auth_ui.register.submit') }}</button>
     </form>
 
     @include('auth.partials.social')
@@ -70,3 +87,7 @@
         <a href="{{ route('login') }}">{{ __('auth_ui.register.login_link') }}</a>
     </p>
 @endsection
+
+@push('scripts')
+    <script src="{{ \App\Support\Assets::versioned('js/password-confirm-match.js') }}"></script>
+@endpush

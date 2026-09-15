@@ -19,7 +19,23 @@ use Throwable;
  */
 class SocialAuthController extends Controller
 {
-    private const SUPPORTED = ['google'];
+    private const SUPPORTED = ['google', 'apple'];
+
+    /**
+     * Which SUPPORTED providers actually have credentials set right now —
+     * shared into the auth views (see AromaServiceProvider's auth.* view
+     * composer) so a button is never shown for a provider that would just
+     * fail on click. Apple has no real credentials configured anywhere yet,
+     * so its button stays hidden until real ones are provisioned.
+     *
+     * @return string[]
+     */
+    public static function configuredProviders(): array
+    {
+        return array_values(array_filter(self::SUPPORTED, function (string $provider) {
+            return ! empty(config("services.$provider.client_id"));
+        }));
+    }
 
     public function redirect(string $provider): RedirectResponse
     {
@@ -63,7 +79,7 @@ class SocialAuthController extends Controller
     private function isConfigured(string $provider): bool
     {
         return in_array($provider, self::SUPPORTED, true)
-            && ! empty(config("services.$provider.client_id"));
+            && in_array($provider, self::configuredProviders(), true);
     }
 
     /**

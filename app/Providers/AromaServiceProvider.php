@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Contracts\ChatAssistant;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Services\Ai\GeminiAssistant;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
@@ -40,6 +41,13 @@ class AromaServiceProvider extends ServiceProvider
         View::share('brand', config('aroma.brand'));
         View::share('aromaColors', config('aroma.colors'));
         View::share('locales', config('aroma.locales'));
+
+        // Which OAuth buttons to actually render — a provider only shows up
+        // once real credentials are configured, so an unconfigured button
+        // (e.g. Apple, today) never sits on the page failing on click.
+        View::composer('auth.partials.social', function ($view) {
+            $view->with('socialProviders', SocialAuthController::configuredProviders());
+        });
 
         // Usage in Blade: @price($product->price)
         Blade::directive('price', function ($expression) {
