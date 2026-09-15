@@ -197,13 +197,5 @@
     cursor: not-allowed;
 }
 
-/* Password / Phone-code segmented toggle on the login page */
-.aroma-auth-toggle {
-    display: flex;
-    gap: 0.6rem;
-    margin-bottom: 1.25rem;
-}
-
-.aroma-auth-toggle .btn-aroma-outline {
-    flex: 1;
-}
+/* Password / Phone-code segmented toggle on the login page — now the shared
+   .aroma-segmented recipe (forms.css), see login.blade.php. */

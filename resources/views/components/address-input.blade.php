@@ -44,18 +44,18 @@
 @endphp
 
 <div class="aroma-address-input" data-address-input>
-    <div class="aroma-address-method">
+    <div class="aroma-segmented">
         <input type="radio" class="btn-check" name="{{ $fieldName('method') }}" id="{{ $uid }}-code"
                value="{{ \App\Models\Address::METHOD_NATIONAL_CODE }}" data-method="{{ \App\Models\Address::METHOD_NATIONAL_CODE }}"
                {{ ! $isManual ? 'checked' : '' }}>
-        <label class="aroma-address-method-option" for="{{ $uid }}-code">
+        <label class="aroma-segmented-option" for="{{ $uid }}-code">
             <i class="bi bi-upc-scan" aria-hidden="true"></i><span>{{ __('location.method.code') }}</span>
         </label>
 
         <input type="radio" class="btn-check" name="{{ $fieldName('method') }}" id="{{ $uid }}-manual"
                value="{{ \App\Models\Address::METHOD_MANUAL }}" data-method="{{ \App\Models\Address::METHOD_MANUAL }}"
                {{ $isManual ? 'checked' : '' }}>
-        <label class="aroma-address-method-option" for="{{ $uid }}-manual">
+        <label class="aroma-segmented-option" for="{{ $uid }}-manual">
             <i class="bi bi-geo-alt" aria-hidden="true"></i><span>{{ __('location.method.manual') }}</span>
         </label>
     </div>

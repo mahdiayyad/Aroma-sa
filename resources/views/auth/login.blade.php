@@ -10,12 +10,12 @@
     <h1 class="h3 mb-1">{{ __('auth_ui.login.title') }}</h1>
     <p class="text-aroma-muted mb-4">{{ __('auth_ui.login.subtitle') }}</p>
 
-    <div class="aroma-auth-toggle" role="tablist">
+    <div class="aroma-segmented aroma-segmented-block" role="tablist">
         <input type="radio" class="btn-check" name="authMethod" id="authMethodPassword" checked>
-        <label class="btn btn-aroma-outline" for="authMethodPassword" data-auth-tab="password">{{ __('otp.tab_password') }}</label>
+        <label class="aroma-segmented-option" for="authMethodPassword" data-auth-tab="password">{{ __('otp.tab_password') }}</label>
 
         <input type="radio" class="btn-check" name="authMethod" id="authMethodPhone">
-        <label class="btn btn-aroma-outline" for="authMethodPhone" data-auth-tab="phone">{{ __('otp.tab_phone') }}</label>
+        <label class="aroma-segmented-option" for="authMethodPhone" data-auth-tab="phone">{{ __('otp.tab_phone') }}</label>
     </div>
 
     <div id="passwordLoginPanel">
@@ -28,7 +28,7 @@
                 @error('login')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <div class="d-flex justify-content-between">
                     <label class="form-label">{{ __('auth_ui.login.password') }}</label>
                     <a href="{{ route('password.request') }}" class="small">{{ __('auth_ui.login.forgot') }}</a>
@@ -65,15 +65,25 @@
         var otpPanel = document.getElementById('otpLoginPanel');
         if (!passwordTab || !phoneTab) { return; }
 
+        // Soft fade-in when a panel appears, reusing the same aroma-fade-in-up
+        // keyframe the auth card itself uses on page load — instant d-none
+        // toggling felt abrupt for a two-tab switch this visible.
+        function reveal(panel) {
+            panel.classList.remove('d-none');
+            panel.classList.remove('aroma-animate-in');
+            void panel.offsetWidth; // restart the animation on repeated switches
+            panel.classList.add('aroma-animate-in');
+        }
+
         passwordTab.addEventListener('change', function () {
             if (this.checked) {
-                passwordPanel.classList.remove('d-none');
+                reveal(passwordPanel);
                 otpPanel.classList.add('d-none');
             }
         });
         phoneTab.addEventListener('change', function () {
             if (this.checked) {
-                otpPanel.classList.remove('d-none');
+                reveal(otpPanel);
                 passwordPanel.classList.add('d-none');
             }
         });

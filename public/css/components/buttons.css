@@ -23,8 +23,6 @@
      shadow finishes blooming in — smooth and premium, not sluggish. */
   transition: background-color 350ms ease, border-color 350ms ease, color 350ms ease,
     box-shadow 350ms ease, transform 300ms ease;
-
-  transition-duration: .15s !important;
 }
 
 html[lang="ar"] .btn-aroma,
@@ -264,4 +262,20 @@ html[lang="ar"] .btn-aroma-light {
 
 @keyframes aroma-spin {
   to { transform: rotate(360deg); }
+}
+
+/* --- Social login buttons ---------------------------------------------------
+   Layered on .btn-aroma-outline (same premium hover/focus/transition system
+   as every other branded button) — this only sets consistent icon sizing and
+   gap. Icons stay monochrome (brand ink, not each provider's native colour)
+   so the row reads as one cohesive on-brand control rather than a row of
+   generic third-party OAuth buttons. */
+.btn-social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+.btn-social i {
+  font-size: 1.05rem;
 }

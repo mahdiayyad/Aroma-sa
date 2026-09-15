@@ -30,7 +30,7 @@
     <meta name="robots" content="noindex, follow">
     <link rel="icon" type="image/x-icon" href="{{ \App\Support\Assets::versioned('favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\Assets::versioned('favicon-32x32.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ \App\Support\Assets::versioned('apple-touch-icon.png') }}">
     @if (($direction ?? 'ltr') === 'rtl')
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     @else
@@ -59,16 +59,24 @@
 </head>
 <body class="aroma-auth-shell" data-flash-success="{{ session('status') }}"
       data-show-password="{{ __('auth_ui.show_password') }}"
-      data-hide-password="{{ __('auth_ui.hide_password') }}">
+      data-hide-password="{{ __('auth_ui.hide_password') }}"
+      data-passwords-match="{{ __('auth_ui.validation.passwords_match') }}"
+      data-passwords-mismatch="{{ __('auth_ui.validation.passwords_mismatch') }}">
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
                 <div class="text-center mb-4">
-                    <a href="{{ route('root') }}" class="aroma-logo aroma-auth-brand text-decoration-none">{{ $brand['name'] }}</a>
-                    <div class="aroma-script aroma-auth-tagline">{{ $brand['tagline'] }}</div>
+                    <a href="{{ route('root') }}" class="aroma-logo text-decoration-none d-inline-block">
+                        {{-- aroma-wordmark-gold.png already bakes in the tagline
+                             ("Awaken your Senses") beneath "Aroma" — a separate
+                             text tagline here would visibly duplicate it (same
+                             asset the navbar uses, see header.blade.php). --}}
+                        <img src="{{ \App\Support\Assets::versioned('images/brand/aroma-wordmark-gold.png') }}"
+                             alt="{{ $brand['name'] }} — {{ $brand['tagline'] }}" class="aroma-logo-img aroma-logo-img-combined">
+                    </a>
                 </div>
 
-                <div class="card aroma-auth-card">
+                <div class="card aroma-auth-card aroma-animate-in">
                     <div class="card-body p-4 p-md-5">
                         {{-- CheckoutController::redirectToLogin()/redirectToRegister() are
                              the only two places anywhere in the app that set url.intended —

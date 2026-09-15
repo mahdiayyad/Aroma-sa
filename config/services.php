@@ -132,4 +132,17 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    // "Sign in with Apple" — the UI button (auth/partials/social.blade.php)
+    // only renders once client_id is actually set (see
+    // SocialAuthController::configuredProviders()); real Apple sign-in also
+    // needs a community Socialite provider (socialiteproviders/apple) plus a
+    // Services ID/key/team ID from an Apple Developer account, none of which
+    // exist yet — this block just gives the "is it configured" check
+    // something to read once those arrive.
+    'apple' => [
+        'client_id'     => env('APPLE_CLIENT_ID'),
+        'client_secret' => env('APPLE_CLIENT_SECRET'),
+        'redirect'      => env('APPLE_REDIRECT_URI'),
+    ],
+
 ];
