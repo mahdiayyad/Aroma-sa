@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Account;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\AddressRequest;
 use App\Models\Address;
-use App\Services\LocationLookupService;
+use App\Services\AddressResolver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -23,11 +23,11 @@ use Illuminate\View\View;
  */
 class AddressController extends Controller
 {
-    private LocationLookupService $locationLookup;
+    private AddressResolver $addressResolver;
 
-    public function __construct(LocationLookupService $locationLookup)
+    public function __construct(AddressResolver $addressResolver)
     {
-        $this->locationLookup = $locationLookup;
+        $this->addressResolver = $addressResolver;
     }
 
     public function index(): View
@@ -124,17 +124,12 @@ class AddressController extends Controller
     }
 
     /**
-     * Resolves one of the two location methods:
-     * - location_code present: via LocationLookupService (city/region/
-     *   district/formatted_address/coordinates). Returns null on lookup
-     *   failure — store()/update() translate that into a field-specific
-     *   validation error; there is no manual fallback.
-     * - No code, only coordinates: the shopper pinned a spot on the map.
-     *   Stored as coordinates ONLY — no lookup, no street/city/region/
-     *   district/formatted_address text.
-     *
-     * Exactly one of these is guaranteed present by AddressRequest's
-     * withValidator check before this is ever called.
+     * Resolves one of the two address methods via AddressResolver, merging
+     * the result into the rest of the validated payload (label, is_default,
+     * type, recipient_name, phone, ...) so the return value is ready for
+     * direct Eloquent create()/update(). Returns null on a National Address
+     * code lookup failure — store()/update() translate that into a
+     * field-specific validation error.
      *
      * @return array<string,mixed>|null
      */
@@ -143,34 +138,24 @@ class AddressController extends Controller
         $data = $request->validated();
         $data['type'] = 'shipping';
 
-        if (filled($data['location_code'] ?? null)) {
-            $result = $this->locationLookup->lookup($data['location_code']);
+        return $this->addressResolver->resolve(
+            $data,
+            $data['method'] ?? null,
+            $data['location_code'] ?? null,
+            $this->toFloatOrNull($data['latitude'] ?? null),
+            $this->toFloatOrNull($data['longitude'] ?? null),
+            $data
+        );
+    }
 
-            if (! $result['success']) {
-                return null;
-            }
-
-            $data['location_code'] = strtoupper(trim($data['location_code']));
-            $data['street_address'] = null;
-            $data['postal_code'] = null;
-
-            // is_stub has no column on `addresses` — store()/update() strip
-            // it before persistence. It rides along on this return value only
-            // so those two callers can pick a stub-aware flash message.
-            return array_merge($data, $result['data'], ['is_stub' => $result['is_stub'] ?? false]);
-        }
-
-        $data['location_code'] = null;
-        $data['city'] = null;
-        $data['region'] = null;
-        $data['district'] = null;
-        $data['country'] = null;
-        $data['formatted_address'] = null;
-        $data['street_address'] = null;
-        $data['postal_code'] = null;
-        // A pinned-on-map location never goes through lookup() — never stub data.
-        $data['is_stub'] = false;
-
-        return $data;
+    /**
+     * validated() returns 'numeric' fields as whatever raw type they
+     * arrived as (a string, from HTML form submission) — Laravel's
+     * 'numeric' rule validates but never casts. AddressResolver::resolve()
+     * takes a strict ?float, so every coordinate must pass through this first.
+     */
+    private function toFloatOrNull($value): ?float
+    {
+        return $value !== null && $value !== '' ? (float) $value : null;
     }
 }

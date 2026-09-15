@@ -12,6 +12,9 @@ class Address extends Model
 {
     use HasFactory;
 
+    public const METHOD_NATIONAL_CODE = 'national_code';
+    public const METHOD_MANUAL = 'manual';
+
     protected $guarded = ['id'];
 
     protected $casts = [
@@ -33,16 +36,20 @@ class Address extends Model
     public function toArray(): array
     {
         return [
+            'method' => $this->method,
             'recipient_name' => $this->recipient_name,
             'phone' => $this->phone,
             'location_code' => $this->location_code,
             'street_address' => $this->street_address,
+            'building_number' => $this->building_number,
+            'apartment_number' => $this->apartment_number,
             'city' => $this->city,
             'region' => $this->region,
             'district' => $this->district,
             'country' => $this->country,
             'formatted_address' => $this->formatted_address,
             'postal_code' => $this->postal_code,
+            'additional_notes' => $this->additional_notes,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
         ];

@@ -125,6 +125,21 @@
                     </div>
                 @endif
             </x-admin.card>
+
+            <x-admin.card :title="__('admin.customers.saved_addresses')">
+                @if ($customer->addresses->isEmpty())
+                    <x-admin.empty :message="__('admin.customers.no_addresses')" icon="bi-geo-alt" />
+                @else
+                    @foreach ($customer->addresses as $address)
+                        <div class="d-flex justify-content-between align-items-start mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
+                            <x-address-summary class="admin-cell-sub" :address="$address->toArray()" />
+                            @if ($address->is_default)
+                                <span class="badge bg-light text-aroma-brown border">{{ __('account.addresses.default') }}</span>
+                            @endif
+                        </div>
+                    @endforeach
+                @endif
+            </x-admin.card>
         </div>
     </div>
 @endsection

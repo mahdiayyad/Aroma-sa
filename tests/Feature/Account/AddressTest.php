@@ -174,4 +174,77 @@ class AddressTest extends TestCase
 
         $this->assertDatabaseCount('addresses', 0);
     }
+
+    public function test_a_user_can_add_a_manual_full_address(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('account.addresses.store'), [
+            'recipient_name' => 'Sara Al Qahtani',
+            'phone' => '+966500000000',
+            'method' => Address::METHOD_MANUAL,
+            'country' => 'SA',
+            'city' => 'Jeddah',
+            'district' => 'Al Rawdah',
+            'street_address' => 'King Fahd Road',
+            'building_number' => '1234',
+            'apartment_number' => '5',
+            'postal_code' => '23432',
+            'additional_notes' => 'Near the mosque',
+        ])->assertRedirect(route('account.addresses.index'));
+
+        $this->assertDatabaseHas('addresses', [
+            'user_id' => $user->id,
+            'method' => Address::METHOD_MANUAL,
+            'city' => 'Jeddah',
+            'district' => 'Al Rawdah',
+            'street_address' => 'King Fahd Road',
+            'building_number' => '1234',
+            'apartment_number' => '5',
+            'postal_code' => '23432',
+            'additional_notes' => 'Near the mosque',
+            'location_code' => null,
+        ]);
+
+        // formatted_address is built server-side, not trusted from the client.
+        $this->assertNotNull(Address::first()->formatted_address);
+    }
+
+    public function test_a_manual_address_requires_the_building_number(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('account.addresses.store'), [
+            'recipient_name' => 'Sara Al Qahtani',
+            'phone' => '+966500000000',
+            'method' => Address::METHOD_MANUAL,
+            'country' => 'SA',
+            'city' => 'Jeddah',
+            'district' => 'Al Rawdah',
+            'street_address' => 'King Fahd Road',
+        ])->assertSessionHasErrors('building_number');
+
+        $this->assertDatabaseCount('addresses', 0);
+    }
+
+    public function test_switching_to_manual_does_not_require_a_location_code(): void
+    {
+        $user = User::factory()->create();
+
+        // A stray/blank location_code left over from switching methods in
+        // the UI must not be required or validated once method=manual.
+        $this->actingAs($user)->post(route('account.addresses.store'), [
+            'recipient_name' => 'Sara Al Qahtani',
+            'phone' => '+966500000000',
+            'method' => Address::METHOD_MANUAL,
+            'location_code' => '',
+            'country' => 'SA',
+            'city' => 'Jeddah',
+            'district' => 'Al Rawdah',
+            'street_address' => 'King Fahd Road',
+            'building_number' => '1234',
+        ])->assertRedirect(route('account.addresses.index'));
+
+        $this->assertDatabaseCount('addresses', 1);
+    }
 }

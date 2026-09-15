@@ -33,13 +33,27 @@
                             <div class="aroma-trust p-3 h-100 d-flex flex-column">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <strong>{{ $address->label ?: __('account.addresses.default_label') }}</strong>
-                                    @if ($address->is_default)
-                                        <span class="aroma-badge-status aroma-badge-success">{{ __('account.addresses.default') }}</span>
-                                    @endif
+                                    <div class="d-flex align-items-center gap-1">
+                                        @if ($address->method)
+                                            <span class="badge bg-light text-aroma-brown border">{{ __('location.method.'.($address->method === \App\Models\Address::METHOD_MANUAL ? 'manual' : 'code')) }}</span>
+                                        @endif
+                                        @if ($address->is_default)
+                                            <span class="aroma-badge-status aroma-badge-success">{{ __('account.addresses.default') }}</span>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="text-aroma-muted small flex-grow-1">
                                     <div>{{ $address->recipient_name }}</div>
-                                    @if ($address->formatted_address || $address->street_address)
+                                    @if ($address->method === \App\Models\Address::METHOD_MANUAL)
+                                        <div>
+                                            {{ $address->street_address }}
+                                            @if ($address->building_number) — {{ __('location.manual.building_short', ['number' => $address->building_number]) }}@endif
+                                        </div>
+                                        <div>
+                                            @if ($address->district){{ $address->district }}, @endif{{ $address->city }}
+                                            @if ($address->postal_code) {{ $address->postal_code }}@endif
+                                        </div>
+                                    @elseif ($address->formatted_address || $address->street_address)
                                         {{-- formatted_address covers location-code rows; street_address
                                              is the fallback for rows saved before this cutover. --}}
                                         <div>{{ $address->formatted_address ?: $address->street_address }}</div>

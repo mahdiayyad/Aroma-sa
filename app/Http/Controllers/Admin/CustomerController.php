@@ -47,7 +47,10 @@ class CustomerController extends Controller
     public function show(User $customer): View
     {
         return view('admin.customers.show', [
-            'customer' => $customer->loadCount('orders')->load(['orders' => fn ($q) => $q->latest()->limit(20)]),
+            'customer' => $customer->loadCount('orders')->load([
+                'orders' => fn ($q) => $q->latest()->limit(20),
+                'addresses' => fn ($q) => $q->orderByDesc('is_default')->latest(),
+            ]),
             'referralStats' => $this->referrals->stats($customer),
             'pointTransactions' => $customer->pointTransactions()->latest()->limit(10)->get(),
         ]);

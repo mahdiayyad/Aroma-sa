@@ -39,11 +39,19 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold">{{ __('location.label') }}</label>
-                            <x-location-picker dom-id="address"
+                            <x-address-input dom-id="address"
+                                :method="old('method', $address->method)"
                                 :code="$address->location_code"
                                 :latitude="$address->latitude"
-                                :longitude="$address->longitude" />
+                                :longitude="$address->longitude"
+                                :country="$address->country"
+                                :city="$address->city"
+                                :district="$address->district"
+                                :street="$address->street_address"
+                                :building-number="$address->building_number"
+                                :apartment-number="$address->apartment_number"
+                                :postal-code="$address->postal_code"
+                                :additional-notes="$address->additional_notes" />
                         </div>
 
                         <div class="col-12">
@@ -67,5 +75,6 @@
 
 @push('scripts')
     <script src="{{ \App\Support\Assets::versioned('js/location-lookup.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/address-method-toggle.js') }}"></script>
 @endpush
 @endsection
