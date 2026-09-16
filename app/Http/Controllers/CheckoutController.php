@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Checkout\AddressRequest;
-use App\Http\Requests\Checkout\DeliveryRequest;
 use App\Http\Requests\Checkout\GiftOptionsRequest;
 use App\Http\Requests\Checkout\PaymentRequest;
 use App\Http\Requests\Checkout\PromoCodeRequest;
@@ -50,25 +49,20 @@ class CheckoutController extends Controller
      * Redirect target if a required earlier checkout step hasn't actually
      * been completed in this session yet — null when everything needed is
      * present. Every step already checked checkout.billing_address this
-     * way; gift/delivery had no equivalent gate, which meant a shopper
-     * could jump straight from the address step to payment and place an
-     * order with delivery_date/delivery_time_slot left null (the step-
-     * skipping audit finding). storeGiftOptions/storeDelivery always write
-     * their session key regardless of the choices made on that step (e.g.
-     * "not a gift" still sets checkout.gift, just with is_gift=false), so
+     * way; gift had no equivalent gate, which meant a shopper could jump
+     * straight from the address step to payment. storeGiftOptions always
+     * writes checkout.gift regardless of the choice made on that step (e.g.
+     * "not a gift" still sets it, just with is_gift=false), so
      * session()->has(...) is a reliable "was this step ever completed"
      * check, not a truthiness check on the step's answer.
      */
-    private function missingStepRedirect(bool $requireGift = false, bool $requireDelivery = false): ?RedirectResponse
+    private function missingStepRedirect(bool $requireGift = false): ?RedirectResponse
     {
         if (!session()->has('checkout.billing_address')) {
             return redirect()->route('checkout.address');
         }
         if ($requireGift && !session()->has('checkout.gift')) {
             return redirect()->route('checkout.gift-options');
-        }
-        if ($requireDelivery && !session()->has('checkout.delivery')) {
-            return redirect()->route('checkout.delivery');
         }
 
         return null;
@@ -273,7 +267,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Save the Gift Options step and proceed to Delivery Scheduling.
+     * Save the Gift Options step and proceed to Order Review.
      */
     public function storeGiftOptions(GiftOptionsRequest $request): RedirectResponse
     {
@@ -342,7 +336,7 @@ class CheckoutController extends Controller
             'media_url'    => $isGift ? ($data['gift_media_url'] ?? null) : null,
         ]]);
 
-        return redirect()->route('checkout.delivery');
+        return redirect()->route('checkout.order-review');
     }
 
     /** Decode the signature pad's base64 PNG and store it on the public disk. */
@@ -357,57 +351,8 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Show the Delivery Scheduling step: date + time slot + instructions.
-     * UI + data capture only — an admin fulfils orders manually, there is no
-     * carrier/slot-capacity integration (see the "Delivery scheduling"
-     * decision in the checkout refactor analysis).
-     *
-     * @return View|RedirectResponse
-     */
-    public function showDelivery()
-    {
-        $validation = $this->checkout->validateCart();
-
-        if (!$validation['valid']) {
-            return redirect()->route('cart.index')->with('error', $validation['error']);
-        }
-
-        if ($redirect = $this->missingStepRedirect(true)) {
-            return $redirect;
-        }
-
-        return view('checkout.delivery', [
-            'delivery' => session('checkout.delivery', []),
-            'minDate'  => now()->addDays((int) config('aroma.delivery.min_lead_days', 1))->toDateString(),
-            'maxDate'  => now()->addDays((int) config('aroma.delivery.max_lead_days', 30))->toDateString(),
-        ]);
-    }
-
-    /**
-     * Save the Delivery Scheduling step and proceed to the Order Review.
-     */
-    public function storeDelivery(DeliveryRequest $request): RedirectResponse
-    {
-        $validation = $this->checkout->validateCart();
-
-        if (!$validation['valid']) {
-            return redirect()->route('cart.index')->with('error', $validation['error']);
-        }
-
-        $data = $request->validated();
-
-        session(['checkout.delivery' => [
-            'date'         => $data['delivery_date'],
-            'time_slot'    => $data['delivery_time_slot'],
-            'instructions' => $data['delivery_instructions'] ?? null,
-        ]]);
-
-        return redirect()->route('checkout.order-review');
-    }
-
-    /**
      * Show the consolidated Order Review: items, recipient, gift summary,
-     * delivery schedule and totals, each with an Edit link back to its step.
+     * and totals, each with an Edit link back to its step.
      *
      * @return View|RedirectResponse
      */
@@ -419,7 +364,7 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if ($redirect = $this->missingStepRedirect(true, true)) {
+        if ($redirect = $this->missingStepRedirect(true)) {
             return $redirect;
         }
 
@@ -430,7 +375,6 @@ class CheckoutController extends Controller
             'shipping' => session('checkout.shipping_address', []),
             'gift'     => $gift,
             'giftCard' => !empty($gift['card_id']) ? GiftCard::find($gift['card_id']) : null,
-            'delivery' => session('checkout.delivery', []),
             'promo'    => session('checkout.promo'),
         ]);
     }
@@ -501,16 +445,24 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if ($redirect = $this->missingStepRedirect(true, true)) {
+        if ($redirect = $this->missingStepRedirect(true)) {
             return $redirect;
         }
 
         $totals = $this->totalsWithGiftExtras();
+        $user = auth()->user();
 
         return view('checkout.payment', [
             'totals' => $totals,
             'gateways' => config('aroma.payments.methods', []),
             'promo' => session('checkout.promo'),
+            // Most-recent explicit choice wins: whatever the shopper typed/
+            // kept at the address step (guest-required, auth-optional there)
+            // over the account email, since they may have deliberately typed
+            // something different (e.g. gifting to another inbox). Only
+            // falls back to the account email when the session has none —
+            // the phone-only OTP-account case this field exists to cover.
+            'emailPrefill' => session('checkout.billing_address.email') ?: optional($user)->email,
         ]);
     }
 
@@ -525,7 +477,7 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', $validation['error']);
         }
 
-        if ($redirect = $this->missingStepRedirect(true, true)) {
+        if ($redirect = $this->missingStepRedirect(true)) {
             return $redirect;
         }
 
@@ -540,7 +492,13 @@ class CheckoutController extends Controller
                     'billing_address'  => $billing,
                     'shipping_address' => session('checkout.shipping_address'),
                     'customer_name'    => $user ? $user->name : ($billing['recipient_name'] ?? 'Guest'),
-                    'customer_email'   => $user ? $user->email : ($billing['email'] ?? 'noemail@aroma.sa'),
+                    // Always the payment step's own validated email — never
+                    // silently falls back to a possibly-null $user->email
+                    // (users.email is nullable for phone-first OTP accounts)
+                    // or a placeholder string. PaymentRequest guarantees this
+                    // is always present and a real address before an order
+                    // (against a NOT NULL customer_email column) ever exists.
+                    'customer_email'   => $data['email'],
                     'customer_phone'   => $billing['phone'] ?? '',
                     'customer_notes'   => session('checkout.customer_notes'),
 
@@ -554,10 +512,6 @@ class CheckoutController extends Controller
                     'gift_card_from'        => session('checkout.gift.from'),
                     'gift_signature'        => session('checkout.gift.signature'),
                     'gift_media_url'        => session('checkout.gift.media_url'),
-
-                    'delivery_date'         => session('checkout.delivery.date'),
-                    'delivery_time_slot'    => session('checkout.delivery.time_slot'),
-                    'delivery_instructions' => session('checkout.delivery.instructions'),
                 ]);
 
                 $this->checkout->createPayment($order, $gatewayKey, $data['method']);
@@ -571,9 +525,9 @@ class CheckoutController extends Controller
             // actually confirms the checkout below — doing that beforehand
             // (the old behaviour) meant a gateway failure left the customer
             // bounced to an already-empty cart with their real error message
-            // overwritten, address/gift/delivery session state gone (no
-            // coherent way to retry), while the order was simultaneously
-            // viewable at its "confirmed" URL despite never being paid.
+            // overwritten, address/gift session state gone (no coherent way
+            // to retry), while the order was simultaneously viewable at its
+            // "confirmed" URL despite never being paid.
             $result = $this->gateways->for($gatewayKey)->createCheckout($order);
 
             if (! ($result['success'] ?? false)) {
@@ -601,7 +555,7 @@ class CheckoutController extends Controller
             $this->cart->clear();
             session()->forget([
                 'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
-                'checkout.gift', 'checkout.delivery', 'checkout.promo',
+                'checkout.gift', 'checkout.promo',
             ]);
             session()->push('checkout.completed_orders', $order->id);
 

@@ -37,19 +37,15 @@ class CheckoutTest extends TestCase
     ];
 
     /**
-     * Payment now requires the gift-options and delivery steps to have
-     * actually been completed first (see CheckoutController::
-     * missingStepRedirect) — "not a gift" is a complete, valid answer to
-     * the gift step, so this is the minimal real submission for both, not
-     * a workaround around the gate these tests exist alongside.
+     * Payment now requires the gift-options step to have actually been
+     * completed first (see CheckoutController::missingStepRedirect) —
+     * "not a gift" is a complete, valid answer to that step, so this is
+     * the minimal real submission, not a workaround around the gate these
+     * tests exist alongside.
      */
-    private function completeGiftAndDeliverySteps(): void
+    private function completeGiftStep(): void
     {
         $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
-        $this->post(route('checkout.delivery.store'), [
-            'delivery_date'      => now()->addDays(2)->toDateString(),
-            'delivery_time_slot' => Order::DELIVERY_SLOT_MORNING,
-        ]);
     }
 
     /* ---- The reported bug: shipping_address must default to billing -------- */
@@ -183,13 +179,14 @@ class CheckoutTest extends TestCase
 
         $this->seedCart(1);
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validManualBilling]);
-        $this->completeGiftAndDeliverySteps();
+        $this->completeGiftStep();
 
         $this->post(route('checkout.payment.store'), [
             'gateway'         => 'moyasar',
             'method'          => 'mada',
             'shipping_method' => 'standard',
             'terms_accepted'  => '1',
+            'email'           => 'sara@example.com',
         ])->assertRedirect('https://moyasar.test/pay/inv_123');
 
         $order = Order::first();
@@ -204,7 +201,7 @@ class CheckoutTest extends TestCase
     {
         $this->seedCart();
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
-        $this->completeGiftAndDeliverySteps();
+        $this->completeGiftStep();
 
         // Note: the page footer legitimately still links to /terms directly
         // (a real "leave the site to read terms" context) — this only checks
@@ -238,28 +235,80 @@ class CheckoutTest extends TestCase
         $this->assertDatabaseCount('orders', 0);
     }
 
-    /* ---- Step-skipping: gift/delivery can't be bypassed -------------------- */
+    /* ---- Step-skipping: gift can't be bypassed ------------------------------ */
 
-    public function test_jumping_straight_to_payment_without_gift_or_delivery_redirects_back(): void
+    public function test_jumping_straight_to_payment_without_completing_gift_redirects_back(): void
     {
         $this->seedCart();
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
-        // Deliberately not completing gift-options or delivery.
+        // Deliberately not completing gift-options.
 
         $this->get(route('checkout.payment'))->assertRedirect(route('checkout.gift-options'));
 
-        // Completing gift but still skipping delivery: still blocked, now at
-        // the next missing step.
-        $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
-        $this->get(route('checkout.payment'))->assertRedirect(route('checkout.delivery'));
-
-        // A direct POST is gated the same way as the GET — this is the one
-        // that would otherwise create an order with null delivery fields.
+        // A direct POST is gated the same way as the GET, even when the
+        // request itself is otherwise fully valid (gateway/method/shipping/
+        // terms/email all present) — missingStepRedirect() runs inside
+        // storePayment() after PaymentRequest validation already passed.
         $this->post(route('checkout.payment.store'), [
-            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard', 'terms_accepted' => '1',
-        ])->assertRedirect(route('checkout.delivery'));
+            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard',
+            'terms_accepted' => '1', 'email' => 'sara@example.com',
+        ])->assertRedirect(route('checkout.gift-options'));
 
         $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_a_payment_submission_without_an_email_is_rejected(): void
+    {
+        $this->seedCart();
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
+        $this->completeGiftStep();
+
+        $this->post(route('checkout.payment.store'), [
+            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard',
+            'terms_accepted' => '1',
+            // email deliberately omitted
+        ])->assertSessionHasErrors('email');
+
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    /**
+     * The real gap this field closes: an authenticated, phone-only
+     * (OTP-registered) account has users.email === null by design, and
+     * previously fell through storePayment()'s old fallback chain straight
+     * into a NOT NULL customer_email column — a DB exception swallowed by a
+     * generic catch, silently failing order placement with no indication
+     * the real cause was a missing email. Now it's a normal, visible
+     * validation error, and supplying one at payment succeeds.
+     */
+    public function test_an_authenticated_user_with_no_account_email_must_supply_one_at_payment(): void
+    {
+        config(['services.moyasar.secret_key' => 'sk_test']);
+        Http::fake([
+            'api.moyasar.com/*' => Http::response([
+                'id' => 'inv_123', 'url' => 'https://moyasar.test/pay/inv_123', 'token' => 'tok_123',
+            ], 200),
+        ]);
+
+        $user = User::factory()->create(['email' => null]);
+        $this->actingAs($user);
+        $this->seedCart();
+        $billing = $this->validBilling;
+        unset($billing['email']); // nullable for authenticated users
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing]);
+        $this->completeGiftStep();
+
+        $this->post(route('checkout.payment.store'), [
+            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard', 'terms_accepted' => '1',
+        ])->assertSessionHasErrors('email');
+        $this->assertDatabaseCount('orders', 0);
+
+        $this->post(route('checkout.payment.store'), [
+            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard', 'terms_accepted' => '1',
+            'email' => 'phoneonly@example.com',
+        ])->assertRedirect('https://moyasar.test/pay/inv_123');
+
+        $this->assertSame('phoneonly@example.com', Order::first()->customer_email);
     }
 
     /* ---- Full happy path creates an order and remembers it ---------------- */
@@ -277,13 +326,14 @@ class CheckoutTest extends TestCase
 
         $this->seedCart(2);
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
-        $this->completeGiftAndDeliverySteps();
+        $this->completeGiftStep();
 
         $this->post(route('checkout.payment.store'), [
             'gateway'         => 'moyasar',
             'method'          => 'mada',
             'shipping_method' => 'standard',
             'terms_accepted'  => '1',
+            'email'           => 'sara@example.com',
         ])->assertRedirect('https://moyasar.test/pay/inv_123');
 
         $this->assertDatabaseCount('orders', 1);
@@ -313,13 +363,14 @@ class CheckoutTest extends TestCase
 
         $this->seedCart(1);
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
-        $this->completeGiftAndDeliverySteps();
+        $this->completeGiftStep();
 
         $this->post(route('checkout.payment.store'), [
             'gateway'         => 'moyasar',
             'method'          => 'mada',
             'shipping_method' => 'standard',
             'terms_accepted'  => '1',
+            'email'           => 'sara@example.com',
         ])->assertRedirect(route('checkout.payment'))->assertSessionHas('error');
 
         // A pending order/payment row is still created (recoverable later via
@@ -377,10 +428,11 @@ class CheckoutTest extends TestCase
 
         $this->seedCart(1);
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
-        $this->completeGiftAndDeliverySteps();
+        $this->completeGiftStep();
 
         $this->post(route('checkout.payment.store'), [
             'gateway' => 'tabby', 'method' => 'tabby', 'shipping_method' => 'standard', 'terms_accepted' => '1',
+            'email' => 'sara@example.com',
         ])->assertRedirect('https://checkout.tabby.ai/pay/pay_tabby_1');
 
         $this->assertDatabaseHas('payments', ['gateway' => 'tabby']);
@@ -400,10 +452,11 @@ class CheckoutTest extends TestCase
 
         $this->seedCart(1);
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
-        $this->completeGiftAndDeliverySteps();
+        $this->completeGiftStep();
 
         $this->post(route('checkout.payment.store'), [
             'gateway' => 'tamara', 'method' => 'tamara', 'shipping_method' => 'standard', 'terms_accepted' => '1',
+            'email' => 'sara@example.com',
         ])->assertRedirect('https://checkout.tamara.co/c/chk_1');
 
         $this->assertDatabaseHas('payments', ['gateway' => 'tamara']);

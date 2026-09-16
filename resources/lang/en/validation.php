@@ -205,11 +205,6 @@ return [
         'shipping_address.longitude'      => 'shipping longitude',
         'customer_notes'                  => 'order notes',
 
-        // Checkout — delivery scheduling
-        'delivery_date'          => 'delivery date',
-        'delivery_time_slot'     => 'delivery time slot',
-        'delivery_instructions'  => 'delivery instructions',
-
         // Checkout — gift options / recipient
         'is_gift'                   => 'gift option',
         'recipient.recipient_name'  => 'recipient name',

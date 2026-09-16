@@ -68,27 +68,12 @@
                 </div>
             </div>
 
-            {{-- Fulfilment relies on manual reading of these two cards — there is
-                 no carrier/slot-capacity integration (data capture only). --}}
+            {{-- Fulfilment relies on manual reading of this card — there is no
+                 carrier integration (data capture only). Delivery scheduling
+                 was removed from checkout entirely (every order ships on the
+                 same fixed timeline), so there is no longer a sibling card here. --}}
             <div class="row g-3">
-                <div class="col-md-6">
-                    <x-admin.card :title="__('admin.orders.delivery')">
-                        @if ($order->delivery_date || $order->delivery_time_slot || $order->delivery_instructions)
-                            @if ($order->delivery_date)
-                                <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">{{ __('admin.orders.delivery_date') }}</span><span>{{ $order->delivery_date->translatedFormat('l, j F Y') }}</span></div>
-                            @endif
-                            @if ($order->delivery_time_slot)
-                                <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">{{ __('admin.orders.delivery_slot') }}</span><span>{{ __('delivery.slots.'.$order->delivery_time_slot) }} ({{ __('delivery.slot_times.'.$order->delivery_time_slot) }})</span></div>
-                            @endif
-                            @if ($order->delivery_instructions)
-                                <div class="admin-cell-sub mt-2"><strong>{{ __('admin.orders.delivery_instructions') }}:</strong> {{ $order->delivery_instructions }}</div>
-                            @endif
-                        @else
-                            <p class="admin-cell-sub mb-0">{{ __('admin.orders.no_delivery') }}</p>
-                        @endif
-                    </x-admin.card>
-                </div>
-                <div class="col-md-6">
+                <div class="col-12">
                     <x-admin.card :title="__('admin.orders.gift')">
                         @if ($order->is_gift)
                             <div class="d-flex align-items-start gap-3">

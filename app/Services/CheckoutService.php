@@ -94,9 +94,9 @@ class CheckoutService extends BaseService
 
     /**
      * Create an order from the cart plus the checkout details gathered across
-     * the address / gift-options / delivery steps. One structured array
-     * rather than a growing positional-parameter list — see ai-docs checkout
-     * refactor analysis, "createOrder() signature growth".
+     * the address / gift-options steps. One structured array rather than a
+     * growing positional-parameter list — see ai-docs checkout refactor
+     * analysis, "createOrder() signature growth".
      *
      * @param array{
      *     billing_address: array<string,mixed>,
@@ -115,9 +115,6 @@ class CheckoutService extends BaseService
      *     gift_card_from?: ?string,
      *     gift_signature?: ?string,
      *     gift_media_url?: ?string,
-     *     delivery_date?: ?string,
-     *     delivery_time_slot?: ?string,
-     *     delivery_instructions?: ?string,
      * } $details
      */
     public function createOrder(?User $user, array $details): Order
@@ -188,11 +185,6 @@ class CheckoutService extends BaseService
                 'gift_card_from' => $details['gift_card_from'] ?? null,
                 'gift_signature' => $details['gift_signature'] ?? null,
                 'gift_media_url' => $details['gift_media_url'] ?? null,
-
-                // Delivery scheduling — data capture only, see config('aroma.delivery').
-                'delivery_date' => $details['delivery_date'] ?? null,
-                'delivery_time_slot' => $details['delivery_time_slot'] ?? null,
-                'delivery_instructions' => $details['delivery_instructions'] ?? null,
             ]);
 
             // Create order items from cart

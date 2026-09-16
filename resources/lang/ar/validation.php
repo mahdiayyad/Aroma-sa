@@ -130,11 +130,6 @@ return [
         'shipping_address.longitude'      => 'خط طول الشحن',
         'customer_notes'                  => 'ملاحظات الطلب',
 
-        // Checkout — delivery scheduling
-        'delivery_date'          => 'تاريخ التوصيل',
-        'delivery_time_slot'     => 'فترة التوصيل',
-        'delivery_instructions'  => 'تعليمات التوصيل',
-
         // Checkout — gift options / recipient
         'is_gift'                   => 'خيار الإهداء',
         'recipient.recipient_name'  => 'اسم المستلم',

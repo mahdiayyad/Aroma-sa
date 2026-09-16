@@ -64,7 +64,7 @@ class GiftOptionsTest extends TestCase
         $this->seedCartAndAddress();
 
         $this->post(route('checkout.gift-options.store'), ['is_gift' => '0'])
-            ->assertRedirect(route('checkout.delivery'));
+            ->assertRedirect(route('checkout.order-review'));
 
         $this->assertFalse(session('checkout.gift.is_gift'));
         // The recipient step must not have touched the billing-derived shipping address.
@@ -78,7 +78,7 @@ class GiftOptionsTest extends TestCase
         $this->post(route('checkout.gift-options.store'), [
             'is_gift'   => '1',
             'recipient' => $this->validRecipient,
-        ])->assertRedirect(route('checkout.delivery'))->assertSessionHasNoErrors();
+        ])->assertRedirect(route('checkout.order-review'))->assertSessionHasNoErrors();
 
         $this->assertSame('Jeddah', session('checkout.shipping_address')['city']);
         $this->assertSame('Layla Al Otaibi', session('checkout.shipping_address')['recipient_name']);
@@ -101,7 +101,7 @@ class GiftOptionsTest extends TestCase
                 'street_address'  => 'King Fahd Road',
                 'building_number' => '1234',
             ],
-        ])->assertRedirect(route('checkout.delivery'))->assertSessionHasNoErrors();
+        ])->assertRedirect(route('checkout.order-review'))->assertSessionHasNoErrors();
 
         $shipping = session('checkout.shipping_address');
         $this->assertSame(\App\Models\Address::METHOD_MANUAL, $shipping['method']);
@@ -137,7 +137,7 @@ class GiftOptionsTest extends TestCase
             'is_gift'   => '1',
             'recipient' => $this->validRecipient,
             'gift_wrap' => '1',
-        ])->assertRedirect(route('checkout.delivery'));
+        ])->assertRedirect(route('checkout.order-review'));
 
         $this->assertSame(22.5, session('checkout.gift.wrap_fee'));
     }
@@ -151,7 +151,7 @@ class GiftOptionsTest extends TestCase
             'recipient'    => $this->validRecipient,
             'is_anonymous' => '1',
             'gift_from'    => 'Should be dropped',
-        ])->assertRedirect(route('checkout.delivery'));
+        ])->assertRedirect(route('checkout.order-review'));
 
         $this->assertTrue(session('checkout.gift.is_anonymous'));
         $this->assertNull(session('checkout.gift.from'));
@@ -170,7 +170,7 @@ class GiftOptionsTest extends TestCase
             'is_gift'              => '1',
             'recipient'            => $this->validRecipient,
             'gift_signature_data'  => 'data:image/png;base64,'.$png,
-        ])->assertRedirect(route('checkout.delivery'))->assertSessionHasNoErrors();
+        ])->assertRedirect(route('checkout.order-review'))->assertSessionHasNoErrors();
 
         $path = session('checkout.gift.signature');
         $this->assertNotNull($path);
@@ -197,7 +197,7 @@ class GiftOptionsTest extends TestCase
             'is_gift'      => '1',
             'recipient'    => $this->validRecipient,
             'gift_message' => 'Updated message',
-        ])->assertRedirect(route('checkout.delivery'));
+        ])->assertRedirect(route('checkout.order-review'));
 
         $this->assertSame($firstPath, session('checkout.gift.signature'));
     }
@@ -228,7 +228,7 @@ class GiftOptionsTest extends TestCase
             'is_gift'          => '1',
             'recipient'        => $this->validRecipient,
             'greeting_card_id' => $card->id,
-        ])->assertRedirect(route('checkout.delivery'));
+        ])->assertRedirect(route('checkout.order-review'));
 
         $this->assertSame($card->id, session('checkout.gift.card_id'));
     }

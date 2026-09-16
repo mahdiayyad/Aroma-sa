@@ -153,8 +153,6 @@ Route::prefix('checkout')->name('checkout.')->middleware('not_admin')->group(fun
     Route::post('address', [CheckoutController::class, 'storeAddress'])->name('address.store');
     Route::get('gift-options', [CheckoutController::class, 'showGiftOptions'])->name('gift-options');
     Route::post('gift-options', [CheckoutController::class, 'storeGiftOptions'])->name('gift-options.store');
-    Route::get('delivery', [CheckoutController::class, 'showDelivery'])->name('delivery');
-    Route::post('delivery', [CheckoutController::class, 'storeDelivery'])->name('delivery.store');
     Route::get('order-review', [CheckoutController::class, 'showOrderReview'])->name('order-review');
     Route::post('promo', [CheckoutController::class, 'applyPromo'])->name('promo.apply');
     Route::delete('promo', [CheckoutController::class, 'removePromo'])->name('promo.remove');

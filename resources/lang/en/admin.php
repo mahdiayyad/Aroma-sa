@@ -283,12 +283,6 @@ return [
         'card_fee'          => 'Card fee',
         'gift_signature'    => 'Signature',
         'gift_media'        => 'Song / video link',
-
-        'delivery'              => 'Delivery',
-        'delivery_date'         => 'Date',
-        'delivery_slot'         => 'Time slot',
-        'delivery_instructions' => 'Instructions',
-        'no_delivery'           => 'No delivery preference recorded.',
     ],
 
     'product_options' => [

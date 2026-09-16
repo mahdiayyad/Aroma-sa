@@ -39,14 +39,10 @@ class PromoCodeTest extends TestCase
         return $product;
     }
 
-    private function completeAddressGiftAndDelivery(): void
+    private function completeAddressAndGift(): void
     {
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
         $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
-        $this->post(route('checkout.delivery.store'), [
-            'delivery_date'      => now()->addDays(2)->toDateString(),
-            'delivery_time_slot' => Order::DELIVERY_SLOT_MORNING,
-        ]);
     }
 
     /* ---- Apply/remove at Order Review ------------------------------------- */
@@ -55,7 +51,7 @@ class PromoCodeTest extends TestCase
     {
         PromoCode::factory()->create(['code' => 'SAVE10', 'discount_type' => 'percentage', 'discount_value' => 10]);
         $this->seedCart(1, 200);
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'save10'])
             ->assertRedirect()->assertSessionHas('status');
@@ -69,7 +65,7 @@ class PromoCodeTest extends TestCase
     public function test_an_unknown_code_is_rejected(): void
     {
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'NOPE'])
             ->assertSessionHasErrors('code');
@@ -81,7 +77,7 @@ class PromoCodeTest extends TestCase
     {
         PromoCode::factory()->create(['code' => 'OLD10', 'expires_at' => now()->subDay()]);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'OLD10'])
             ->assertSessionHasErrors('code');
@@ -91,7 +87,7 @@ class PromoCodeTest extends TestCase
     {
         PromoCode::factory()->create(['code' => 'OFF10', 'is_active' => false]);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'OFF10'])
             ->assertSessionHasErrors('code');
@@ -102,7 +98,7 @@ class PromoCodeTest extends TestCase
         PromoCode::factory()->create(['code' => 'FIRST10']);
         PromoCode::factory()->create(['code' => 'SECOND10']);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'FIRST10'])->assertSessionHas('status');
         $this->assertSame('FIRST10', session('checkout.promo.code'));
@@ -117,7 +113,7 @@ class PromoCodeTest extends TestCase
     {
         PromoCode::factory()->create(['code' => 'SAVE10']);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
         $this->post(route('checkout.promo.apply'), ['code' => 'SAVE10']);
 
         $this->delete(route('checkout.promo.remove'))->assertSessionHas('status');
@@ -131,7 +127,7 @@ class PromoCodeTest extends TestCase
     {
         PromoCode::factory()->create(['code' => 'BIG500', 'min_order_amount' => 500]);
         $this->seedCart(1, 200);
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'BIG500'])
             ->assertSessionHasErrors('code');
@@ -143,7 +139,7 @@ class PromoCodeTest extends TestCase
             'code' => 'HUGE90', 'discount_type' => 'percentage', 'discount_value' => 90, 'max_discount_amount' => 50,
         ]);
         $this->seedCart(1, 200); // 90% of 200 = 180, capped at 50
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'HUGE90']);
 
@@ -158,7 +154,7 @@ class PromoCodeTest extends TestCase
 
         $this->actingAs($user);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'WELCOME15'])
             ->assertSessionHasErrors('code');
@@ -171,7 +167,7 @@ class PromoCodeTest extends TestCase
 
         $this->actingAs($user);
         $this->seedCart(1, 200);
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'WELCOME15'])
             ->assertSessionHas('status');
@@ -183,7 +179,7 @@ class PromoCodeTest extends TestCase
     {
         PromoCode::factory()->create(['code' => 'WELCOME15', 'first_order_only' => true]);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'WELCOME15'])
             ->assertSessionHasErrors('code');
@@ -198,7 +194,7 @@ class PromoCodeTest extends TestCase
 
         $this->actingAs($stranger);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'VIPONLY'])
             ->assertSessionHasErrors('code');
@@ -212,7 +208,7 @@ class PromoCodeTest extends TestCase
 
         $this->actingAs($eligible);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'VIPONLY'])
             ->assertSessionHas('status');
@@ -222,7 +218,7 @@ class PromoCodeTest extends TestCase
     {
         $promo = PromoCode::factory()->create(['code' => 'LIMITED1', 'usage_limit' => 1, 'used_count' => 1]);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'LIMITED1'])
             ->assertSessionHasErrors('code');
@@ -237,7 +233,7 @@ class PromoCodeTest extends TestCase
 
         $this->actingAs($user);
         $this->seedCart();
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
 
         $this->post(route('checkout.promo.apply'), ['code' => 'ONCEEACH'])
             ->assertSessionHasErrors('code');
@@ -254,11 +250,12 @@ class PromoCodeTest extends TestCase
 
         PromoCode::factory()->create(['code' => 'SAVE10', 'discount_type' => 'percentage', 'discount_value' => 10]);
         $this->seedCart(1, 200);
-        $this->completeAddressGiftAndDelivery();
+        $this->completeAddressAndGift();
         $this->post(route('checkout.promo.apply'), ['code' => 'SAVE10']);
 
         $this->post(route('checkout.payment.store'), [
             'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'standard', 'terms_accepted' => '1',
+            'email' => 'sara@example.com',
         ])->assertRedirect('https://moyasar.test/pay/inv_123');
 
         $order = Order::first();

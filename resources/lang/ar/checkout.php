@@ -13,7 +13,6 @@ return [
         'account' => 'الحساب',
         'address' => 'العنوان',
         'gift' => 'الهدية',
-        'delivery' => 'التوصيل',
         'order_review' => 'المراجعة',
         'payment' => 'الدفع',
     ],
@@ -41,6 +40,7 @@ return [
     'formatted_address' => 'العنوان',
     'postal_code' => 'الرمز البريدي',
     'email' => 'عنوان البريد الإلكتروني',
+    'email_receipt_hint' => 'أضف بريدك الإلكتروني ليصلك إيصال الشراء وتحديثات الطلب.',
 
     'use_shipping_for_billing' => 'استخدام عنوان الشحن للفواتير',
     'customer_notes' => 'تعليمات خاصة (اختياري)',

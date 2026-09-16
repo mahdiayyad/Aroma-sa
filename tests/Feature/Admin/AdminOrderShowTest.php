@@ -10,8 +10,8 @@ use Tests\TestCase;
 
 /**
  * The admin order-show Blade page (not the JSON API covered by
- * AdminOrderTest) — specifically the gift + delivery cards added so an
- * admin can manually fulfil an order without any carrier integration.
+ * AdminOrderTest) — specifically the gift card added so an admin can
+ * manually fulfil an order without any carrier integration.
  */
 class AdminOrderShowTest extends TestCase
 {
@@ -38,11 +38,10 @@ class AdminOrderShowTest extends TestCase
 
         $this->actingAs($this->admin())->get(route('admin.orders.show', $order))
             ->assertOk()
-            ->assertSee(__('admin.orders.not_a_gift'))
-            ->assertSee(__('admin.orders.no_delivery'));
+            ->assertSee(__('admin.orders.not_a_gift'));
     }
 
-    public function test_the_order_page_renders_gift_and_delivery_details(): void
+    public function test_the_order_page_renders_gift_details(): void
     {
         $card = GiftCard::create([
             'name' => ['en' => 'Birthday', 'ar' => 'عيد ميلاد'],
@@ -62,10 +61,6 @@ class AdminOrderShowTest extends TestCase
             'greeting_card_id' => $card->id,
             'gift_card_to' => 'Layla',
             'gift_card_from' => 'Sara',
-
-            'delivery_date' => now()->addDays(3)->toDateString(),
-            'delivery_time_slot' => Order::DELIVERY_SLOT_EVENING,
-            'delivery_instructions' => 'Leave with the doorman',
         ]);
 
         $this->actingAs($this->admin())->get(route('admin.orders.show', $order))
@@ -73,8 +68,6 @@ class AdminOrderShowTest extends TestCase
             ->assertSee('Happy birthday, enjoy!')
             ->assertSee('Layla')
             ->assertSee('Sara')
-            ->assertSee(__('delivery.slots.evening'))
-            ->assertSee('Leave with the doorman')
             ->assertDontSee(__('admin.orders.anonymous'));
     }
 
