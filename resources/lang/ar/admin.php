@@ -283,12 +283,6 @@ return [
         'card_fee'          => 'رسوم البطاقة',
         'gift_signature'    => 'التوقيع',
         'gift_media'        => 'رابط أغنية / فيديو',
-
-        'delivery'              => 'التوصيل',
-        'delivery_date'         => 'التاريخ',
-        'delivery_slot'         => 'الوقت المفضل',
-        'delivery_instructions' => 'التعليمات',
-        'no_delivery'           => 'لا توجد تفضيلات توصيل مسجّلة.',
     ],
 
     'product_options' => [

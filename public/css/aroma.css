@@ -1274,40 +1274,6 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 }
 .aroma-pay-secure i { color: var(--aroma-success); }
 
-/* --- Delivery time slot selector -------------------------------------------- */
-.aroma-slot-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.7rem;
-}
-.aroma-slot-option {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  margin: 0;
-  padding: 1rem;
-  border: 1.5px solid var(--aroma-border);
-  border-radius: 0.6rem;
-  background: #fff;
-  cursor: pointer;
-  text-align: center;
-  transition: border-color var(--aroma-transition-fast, 0.15s ease),
-              box-shadow var(--aroma-transition-fast, 0.15s ease);
-}
-.aroma-slot-option i { font-size: 1.5rem; color: var(--aroma-brown); }
-.aroma-slot-option-label { font-weight: 600; color: var(--aroma-ink); font-size: 0.9rem; }
-.aroma-slot-option-time { font-size: 0.78rem; color: var(--aroma-muted); }
-.aroma-slot-option:hover { border-color: var(--aroma-light-brown); }
-.btn-check:checked + .aroma-slot-option {
-  border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(51, 1, 1, 0.12);
-}
-.btn-check:focus-visible + .aroma-slot-option {
-  border-color: var(--aroma-brown);
-  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.35);
-}
-
 /* The sticky order summary must sit BELOW the sticky navbar, never over it. */
 .checkout-page .checkout-summary.sticky-top {
   z-index: 1;

@@ -8,7 +8,7 @@
 {{-- pages.partials.terms-content (included by #termsModal below) needs $isAr. --}}
 @php($isAr = $locale === 'ar')
 <div class="container checkout-page my-4 my-lg-5">
-    @include('checkout.partials.stepper', ['step' => 7])
+    @include('checkout.partials.stepper', ['step' => 6])
 
     <div class="row g-4">
         {{-- Order Summary (rail on the right for desktop, on top for mobile) --}}
@@ -193,6 +193,23 @@
                     </div>
                 </div>
 
+                {{-- Receipt email — required so every order (including an
+                     authenticated phone-only account with no email on file)
+                     has a real address to send the purchase receipt to. --}}
+                <div class="aroma-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ __('checkout.email') }}</h5>
+                        <p class="text-aroma-muted small mb-3">{{ __('checkout.email_receipt_hint') }}</p>
+
+                        <input type="email" name="email" id="paymentEmail"
+                               class="form-control @error('email') is-invalid @enderror"
+                               value="{{ old('email', $emailPrefill) }}" required>
+                        @error('email')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
                 {{-- Terms & Conditions — opens in a modal (matching #signatureModal/
                      #suggestionsModal in gift-options.blade.php's own multi-step
                      form) instead of navigating away, so the shopper never leaves
@@ -230,9 +247,9 @@
 
                 {{-- Action Buttons --}}
                 <div class="d-flex gap-3 justify-content-between">
-                    {{-- Payment is step 7 — its predecessor is order-review (step 6),
+                    {{-- Payment is step 6 — its predecessor is order-review (step 5),
                          not address (step 3). Was pointing at address, silently
-                         skipping gift-options/delivery/order-review. --}}
+                         skipping gift-options/order-review. --}}
                     <x-back-link :href="route('checkout.order-review')" />
                     <button type="submit" class="btn btn-aroma btn-lg">
                         {{ __('checkout.buttons.place_order') }} <i class="bi {{ $locale === 'ar' ? 'bi-chevron-left' : 'bi-chevron-right' }} ms-2"></i>

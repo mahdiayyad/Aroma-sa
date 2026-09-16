@@ -13,7 +13,6 @@ return [
         'account' => 'Account',
         'address' => 'Address',
         'gift' => 'Gift',
-        'delivery' => 'Delivery',
         'order_review' => 'Review',
         'payment' => 'Payment',
     ],
@@ -43,6 +42,7 @@ return [
     'formatted_address' => 'Address',
     'postal_code' => 'Postal Code',
     'email' => 'Email Address',
+    'email_receipt_hint' => 'Add your email address to receive your purchase receipt and order updates.',
 
     'use_shipping_for_billing' => 'Use shipping address for billing',
     'customer_notes' => 'Special Instructions (optional)',

@@ -1,6 +1,6 @@
 {{-- Checkout progress indicator. Pass the 1-based current step:
-     1 = review, 2 = account, 3 = address, 4 = gift, 5 = delivery,
-     6 = order-review, 7 = payment.
+     1 = review, 2 = account, 3 = address, 4 = gift,
+     5 = order-review, 6 = payment.
      Uses only the inline @php directive on purpose (see project Blade note). --}}
 @php($current = $step ?? 1)
 @php($checkoutSteps = [
@@ -8,7 +8,6 @@
     'account'       => 'bi-person',
     'address'       => 'bi-geo-alt',
     'gift'          => 'bi-gift',
-    'delivery'      => 'bi-truck',
     'order_review'  => 'bi-clipboard-check',
     'payment'       => 'bi-credit-card',
 ])

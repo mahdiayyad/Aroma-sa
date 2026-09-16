@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\GiftCard;
-use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\MocksLocationLookup;
@@ -44,10 +43,6 @@ class OrderReviewTest extends TestCase
     {
         $this->seedCartAndAddress();
         $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
-        $this->post(route('checkout.delivery.store'), [
-            'delivery_date'      => now()->addDays(2)->toDateString(),
-            'delivery_time_slot' => Order::DELIVERY_SLOT_MORNING,
-        ]);
 
         $this->get(route('checkout.order-review'))
             ->assertOk()
@@ -73,16 +68,11 @@ class OrderReviewTest extends TestCase
             'gift_message'     => 'Happy birthday!',
             'gift_from'        => 'Sara',
         ]);
-        $this->post(route('checkout.delivery.store'), [
-            'delivery_date'      => now()->addDays(2)->toDateString(),
-            'delivery_time_slot' => Order::DELIVERY_SLOT_EVENING,
-        ]);
-
         $this->get(route('checkout.order-review'))
             ->assertOk()
             ->assertSee('Jeddah') // the recipient's address, not the billing one
             ->assertSee('Happy birthday!')
-            ->assertSee(__('delivery.slots.evening'));
+            ->assertSee(__('delivery.notice'));
     }
 
     public function test_the_displayed_total_includes_the_gift_wrap_fee(): void
@@ -94,10 +84,6 @@ class OrderReviewTest extends TestCase
             'is_gift'   => '1',
             'recipient' => $this->validRecipient,
             'gift_wrap' => '1',
-        ]);
-        $this->post(route('checkout.delivery.store'), [
-            'delivery_date'      => now()->addDays(2)->toDateString(),
-            'delivery_time_slot' => Order::DELIVERY_SLOT_MORNING,
         ]);
 
         // Cart subtotal is 200 (1 x 200); total must be subtotal + wrap fee.
@@ -132,10 +118,6 @@ class OrderReviewTest extends TestCase
         ]])->assertSessionHasNoErrors();
 
         $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
-        $this->post(route('checkout.delivery.store'), [
-            'delivery_date'      => now()->addDays(2)->toDateString(),
-            'delivery_time_slot' => Order::DELIVERY_SLOT_MORNING,
-        ]);
 
         $this->get(route('checkout.order-review'))
             ->assertOk()

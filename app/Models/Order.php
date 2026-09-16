@@ -25,26 +25,11 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
-        // Gifting + delivery scheduling
+        // Gifting
         'is_gift' => 'boolean',
         'is_anonymous' => 'boolean',
         'gift_wrap_fee' => 'decimal:2',
         'greeting_card_fee' => 'decimal:2',
-        'delivery_date' => 'date',
-    ];
-
-    /**
-     * Fixed delivery windows for v1 (data capture only — no slot-capacity
-     * logic; fulfilled manually via the admin. See ai-docs checkout analysis).
-     */
-    public const DELIVERY_SLOT_MORNING = 'morning';
-    public const DELIVERY_SLOT_AFTERNOON = 'afternoon';
-    public const DELIVERY_SLOT_EVENING = 'evening';
-
-    public const DELIVERY_SLOTS = [
-        self::DELIVERY_SLOT_MORNING,
-        self::DELIVERY_SLOT_AFTERNOON,
-        self::DELIVERY_SLOT_EVENING,
     ];
 
     public const STATUS_PENDING = 'pending';

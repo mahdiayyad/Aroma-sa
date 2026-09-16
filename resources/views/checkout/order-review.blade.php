@@ -7,7 +7,7 @@
 @php($locale = app()->getLocale())
 @php($isGift = $gift['is_gift'] ?? false)
 <div class="container checkout-page my-4 my-lg-5">
-    @include('checkout.partials.stepper', ['step' => 6])
+    @include('checkout.partials.stepper', ['step' => 5])
 
     <h2 class="aroma-section-title">{{ __('checkout.order_review.title') }}</h2>
 
@@ -89,23 +89,11 @@
                 </div>
             </div>
 
-            {{-- Delivery --}}
-            <div class="aroma-card mb-4">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">{{ __('delivery.title') }}</h5>
-                        <a href="{{ route('checkout.delivery') }}" class="small">{{ __('checkout.order_review.edit') }}</a>
-                    </div>
-                    @if(!empty($delivery['date']))
-                        <div>{{ \Illuminate\Support\Carbon::parse($delivery['date'])->translatedFormat('l, j F Y') }}</div>
-                    @endif
-                    @if(!empty($delivery['time_slot']))
-                        <div class="text-aroma-muted small">{{ __('delivery.slots.'.$delivery['time_slot']) }} — {{ __('delivery.slot_times.'.$delivery['time_slot']) }}</div>
-                    @endif
-                    @if(!empty($delivery['instructions']))
-                        <div class="text-aroma-muted small mt-1">{{ $delivery['instructions'] }}</div>
-                    @endif
-                </div>
+            {{-- Delivery notice (delivery scheduling was removed from checkout —
+                 every order ships on the same fixed timeline). --}}
+            <div class="aroma-alert aroma-alert-info mb-4" role="status">
+                <i class="bi bi-truck me-2"></i>
+                {{ __('delivery.notice') }}
             </div>
         </div>
 
@@ -200,7 +188,7 @@
     </div>
 
     <div class="mt-3">
-        <x-back-link :href="route('checkout.delivery')" />
+        <x-back-link :href="route('checkout.gift-options')" />
     </div>
 </div>
 @endsection
