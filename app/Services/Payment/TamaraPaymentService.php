@@ -20,12 +20,14 @@ use Illuminate\Support\Facades\Log;
 class TamaraPaymentService implements PaymentGateway
 {
     private string $apiToken;
+    private string $notificationToken;
     private string $baseUrl;
 
     public function __construct()
     {
-        $this->apiToken = (string) config('services.tamara.api_token', '');
-        $this->baseUrl  = rtrim((string) config('services.tamara.base_url', 'https://api.tamara.co'), '/');
+        $this->apiToken          = (string) config('services.tamara.api_token', '');
+        $this->notificationToken = (string) config('services.tamara.notification_token', '');
+        $this->baseUrl           = rtrim((string) config('services.tamara.base_url', 'https://api.tamara.co'), '/');
     }
 
     public function key(): string
@@ -72,6 +74,39 @@ class TamaraPaymentService implements PaymentGateway
 
     public function fetchStatus(string $reference): ?array
     {
+        $data = $this->getOrder($reference);
+
+        if (! $data) {
+            return null;
+        }
+
+        $status = strtolower((string) ($data['status'] ?? ''));
+
+        // Tamara treats "approved" as a risk pre-approval only — the order is
+        // not actually confirmed, and Tamara auto-cancels it after a short
+        // window, unless the merchant explicitly authorises it. Do that here
+        // so a shopper returning from Tamara (or the webhook, whichever gets
+        // there first) is the one call that actually locks the sale in.
+        // Idempotent on Tamara's side, so re-authorising on every check is safe.
+        if ($status === 'approved') {
+            $this->authoriseOrder((string) ($data['order_id'] ?? $reference));
+            $refetched = $this->getOrder($reference);
+            if ($refetched) {
+                $data   = $refetched;
+                $status = strtolower((string) ($data['status'] ?? $status));
+            }
+        }
+
+        return [
+            'paid'   => in_array($status, ['approved', 'authorised', 'fully_captured', 'partially_captured'], true),
+            'status' => $status,
+            'raw'    => $data,
+        ];
+    }
+
+    /** @return array<string,mixed>|null */
+    private function getOrder(string $reference): ?array
+    {
         if (! $this->apiToken) {
             return null;
         }
@@ -80,23 +115,74 @@ class TamaraPaymentService implements PaymentGateway
             $response = Http::withToken($this->apiToken)->acceptJson()
                 ->get("{$this->baseUrl}/orders/{$reference}");
 
-            if (! $response->successful()) {
-                return null;
-            }
-
-            $data   = $response->json();
-            $status = strtolower((string) ($data['status'] ?? ''));
-
-            return [
-                'paid'   => in_array($status, ['approved', 'authorised', 'fully_captured', 'partially_captured'], true),
-                'status' => $status,
-                'raw'    => $data,
-            ];
+            return $response->successful() ? $response->json() : null;
         } catch (Exception $e) {
             Log::error('Tamara status error', ['error' => $e->getMessage()]);
 
             return null;
         }
+    }
+
+    /**
+     * Locks in a Tamara order that is sitting in "approved" (pre-authorised).
+     * Without this call, Tamara auto-voids the order after its approval
+     * window expires and the merchant never gets paid despite the shopper
+     * having completed checkout on Tamara's side.
+     *
+     * Docs: POST /orders/{order_id}/authorise
+     */
+    public function authoriseOrder(string $tamaraOrderId): bool
+    {
+        if (! $this->apiToken || $tamaraOrderId === '') {
+            return false;
+        }
+
+        try {
+            $response = Http::withToken($this->apiToken)->acceptJson()
+                ->post("{$this->baseUrl}/orders/{$tamaraOrderId}/authorise");
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            $body = $response->json();
+            $message = strtolower((string) (is_array($body) ? ($body['message'] ?? '') : ''));
+
+            // A 400 here usually just means it was already authorised — by an
+            // earlier call from this same flow, or by the webhook landing
+            // first. That is success, not a failure worth alarming on.
+            $alreadyAuthorised = $response->status() === 400 && strpos($message, 'already') !== false;
+
+            if (! $alreadyAuthorised) {
+                Log::error('Tamara authorise failed', [
+                    'tamara_order_id' => $tamaraOrderId,
+                    'status'          => $response->status(),
+                    'body'            => $body,
+                ]);
+            }
+
+            return $alreadyAuthorised;
+        } catch (Exception $e) {
+            Log::error('Tamara authorise error', ['tamara_order_id' => $tamaraOrderId, 'error' => $e->getMessage()]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Verifies a Tamara IPN webhook call. Tamara authenticates its own
+     * notification requests with the token you set for the webhook URL in
+     * the merchant dashboard — sent as a bearer token; a `?token=` query
+     * param is accepted too, in case the URL was registered that way instead.
+     * Fails closed: an unset configured token never verifies as valid.
+     */
+    public function verifyNotificationToken(?string $token): bool
+    {
+        if ($this->notificationToken === '' || $token === null || $token === '') {
+            return false;
+        }
+
+        return hash_equals($this->notificationToken, $token);
     }
 
     /** @return array<string,mixed> */
@@ -148,7 +234,10 @@ class TamaraPaymentService implements PaymentGateway
                 'success'      => $callback,
                 'failure'      => $callback,
                 'cancel'       => $callback,
-                'notification' => route('payment.webhook'),
+                // Its own route, not the shared payment.webhook name — that
+                // one is wired to MoyasarWebhookController, which doesn't
+                // understand Tamara's payload shape or auth scheme.
+                'notification' => route('payment.webhook.tamara'),
             ],
         ];
     }

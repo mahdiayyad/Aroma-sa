@@ -35,6 +35,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Webhooks\MoyasarWebhookController;
+use App\Http\Controllers\Webhooks\TamaraWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -274,4 +275,5 @@ Route::prefix('{locale}')
 
 /* Webhooks (unauthenticated but verified) -------------------------------- */
 Route::post('webhooks/moyasar', [MoyasarWebhookController::class, 'handle'])->name('payment.webhook');
+Route::post('webhooks/tamara', [TamaraWebhookController::class, 'handle'])->name('payment.webhook.tamara');
 Route::get('payment/callback', [CheckoutController::class, 'paymentCallback'])->name('payment.callback');
