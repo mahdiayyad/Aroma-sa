@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $category->name.' — '.$brand['name'])
+@section('title', $category->translate('meta_title') ?: $category->name.' — '.$brand['name'])
 @section('meta_description', $category->translate('meta_description') ?? $category->translate('description'))
 
 @push('head')

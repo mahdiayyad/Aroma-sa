@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GiftCardController as AdminGiftCardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ProductImportExportController as AdminProductImportExportController;
 use App\Http\Controllers\Admin\ProductOptionController as AdminProductOptionController;
 use App\Http\Controllers\Admin\ProductReviewController as AdminProductReviewController;
 use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
@@ -234,6 +235,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('products/trashed', [AdminProductController::class, 'trashed'])->name('products.trashed');
+
+        // Bulk import / export. Must stay ABOVE Route::resource('products') or
+        // "products/import" would be read as a {product} slug. Each route is gated
+        // by an ability (config/aroma.php -> admin.abilities); the controller
+        // re-checks it.
+        Route::get('products/template', [AdminProductImportExportController::class, 'template'])
+            ->middleware('can:products.template')->name('products.template');
+        Route::match(['get', 'post'], 'products/export', [AdminProductImportExportController::class, 'export'])
+            ->middleware('can:products.export')->name('products.export');
+        Route::get('products/import/history', [AdminProductImportExportController::class, 'history'])
+            ->middleware('can:products.import.history')->name('products.import.history');
+        Route::get('products/import', [AdminProductImportExportController::class, 'create'])
+            ->middleware('can:products.import')->name('products.import.create');
+        Route::post('products/import', [AdminProductImportExportController::class, 'store'])
+            ->middleware('can:products.import')->name('products.import.store');
+        Route::get('products/import/{run}', [AdminProductImportExportController::class, 'show'])
+            ->middleware('can:products.import.history')->name('products.import.show');
+        Route::get('products/import/{run}/status', [AdminProductImportExportController::class, 'status'])
+            ->middleware('can:products.import.history')->name('products.import.status');
+        Route::get('products/import/{run}/errors', [AdminProductImportExportController::class, 'errors'])
+            ->middleware('can:products.import.history')->name('products.import.errors');
+        Route::post('products/import/{run}/confirm', [AdminProductImportExportController::class, 'confirm'])
+            ->middleware('can:products.import')->name('products.import.confirm');
+        Route::post('products/import/{run}/cancel', [AdminProductImportExportController::class, 'cancel'])
+            ->middleware('can:products.import')->name('products.import.cancel');
+
         Route::resource('products', AdminProductController::class);
         Route::delete('products/{product}/images/{image}', [AdminProductController::class, 'destroyImage'])
             ->name('products.images.destroy');

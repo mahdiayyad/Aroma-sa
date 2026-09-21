@@ -11,6 +11,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Support\ProductFilters;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -31,17 +32,8 @@ class ProductController extends Controller
         // already being here.
         $query = Product::query()->with(['category', 'brand', 'images'])->withCount('images');
 
-        if ($search = $request->query('q')) {
-            $query->where(fn ($q) => $q->where('sku', 'like', "%{$search}%")
-                ->orWhere('name->en', 'like', "%{$search}%")
-                ->orWhere('name->ar', 'like', "%{$search}%"));
-        }
-        if ($request->filled('category')) {
-            $query->where('category_id', (int) $request->query('category'));
-        }
-        if ($request->filled('active') && $request->query('active') !== 'all') {
-            $query->where('is_active', $request->query('active') === '1');
-        }
+        // Same filter object the export uses, so "Export current filter" matches this list exactly.
+        ProductFilters::apply($query, $request->only(['q', 'category', 'active']));
 
         return view('admin.products.index', [
             'products'   => $query->latest()->paginate(15)->withQueryString(),

@@ -85,6 +85,9 @@
                 <x-admin.card :title="__('admin.products.seo')">
                     <x-admin.form.bilingual name="meta_title" :label="__('admin.products.meta_title')" :translations="$product->getTranslations('meta_title')" />
                     <x-admin.form.bilingual name="meta_description" :label="__('admin.products.meta_description')" :translations="$product->getTranslations('meta_description')" type="textarea" :rows="2" />
+                    <x-admin.form.group :label="__('admin.products.meta_keywords')" name="meta_keywords" :hint="__('admin.products.meta_keywords_hint')">
+                        <input type="text" name="meta_keywords" value="{{ old('meta_keywords', $product->meta_keywords) }}" class="admin-input">
+                    </x-admin.form.group>
                 </x-admin.card>
             </div>
 
@@ -110,6 +113,9 @@
                     </x-admin.form.group>
                     <x-admin.form.group :label="__('admin.products.scent_family')" name="scent_family">
                         <input type="text" name="scent_family" value="{{ old('scent_family', $product->scent_family) }}" class="admin-input">
+                    </x-admin.form.group>
+                    <x-admin.form.group :label="__('admin.products.sort_order')" name="sort_order" :hint="__('admin.products.sort_order_hint')">
+                        <input type="number" min="0" name="sort_order" value="{{ old('sort_order', $product->sort_order ?? 0) }}" class="admin-input">
                     </x-admin.form.group>
 
                     <hr class="my-3">

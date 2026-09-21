@@ -16,6 +16,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+
+        // Old finished product-import runs (and their uploaded files) — see ProductImportRun::prunable().
+        $schedule->command('model:prune', ['--model' => [\App\Models\ProductImportRun::class]])->daily();
     }
 
     /**

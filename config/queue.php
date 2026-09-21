@@ -38,7 +38,10 @@ return [
             'driver' => 'database',
             'table' => 'jobs',
             'queue' => 'default',
-            'retry_after' => 90,
+            // Must be longer than the longest job's timeout (product imports
+            // run up to 30 min, see App\Jobs\ApplyProductImport) or a second
+            // worker would pick the still-running job up again.
+            'retry_after' => (int) env('QUEUE_RETRY_AFTER', 1900),
             'after_commit' => false,
         ],
 
