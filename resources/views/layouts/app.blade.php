@@ -41,14 +41,18 @@
     {{-- Favicon / app icons — regenerated from the current logo via
          `php artisan aroma:prepare-favicon` (see
          App\Console\Commands\PrepareFaviconCommand), which crops the "A"
-         glyph out of public/images/brand/aroma-logo-mark.png. --}}
-    {{-- Versioned so a favicon update shows immediately instead of waiting out
-         the browser's aggressive favicon cache. --}}
-    <link rel="icon" type="image/x-icon" href="{{ \App\Support\Assets::versioned('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ \App\Support\Assets::versioned('favicon-16x16.png') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\Assets::versioned('favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="48x48" href="{{ \App\Support\Assets::versioned('favicon-48x48.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ \App\Support\Assets::versioned('apple-touch-icon.png') }}">
+         glyph out of public/images/brand/aroma-logo-mark.png.
+         This is also what Google Search shows next to the site, so it follows
+         Google's favicon guidelines: only multiples of 48px are advertised
+         (never 16x16 — Google scales it down itself; browsers scale the 48px
+         and the .ico's 16/32 frames for the tab), and the URLs are stable —
+         fingerprinted by file content, not mtime, so they change only when the
+         icon does. After changing the icon, Google needs a recrawl of the
+         home page (Search Console → URL inspection → Request indexing). --}}
+    <link rel="icon" href="{{ \App\Support\Assets::stable('favicon.ico') }}" sizes="48x48">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ \App\Support\Assets::stable('favicon-48x48.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ \App\Support\Assets::stable('android-chrome-192x192.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ \App\Support\Assets::stable('apple-touch-icon.png') }}">
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="theme-color" content="#704F2F">
 
@@ -168,6 +172,9 @@
       data-show-password="{{ __('auth_ui.show_password') }}"
       data-hide-password="{{ __('auth_ui.hide_password') }}">
       
+    {{-- "Verified store" seal (Saudi Business Center): seal.js pins a fixed 120x44px iframe bottom-left.
+         public/css/assistant.css keeps the chat above it (lifted while closed, layered over it while
+         open) — revisit that file if the seal's position or size ever changes. --}}
     <div class="sbc-verify-seal" data-token="NmU3U1ZDbCtNMGIxb0M1V01IWVlGQT09" data-position="bottom-left"></div>
     <script src="https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js" async></script>
     

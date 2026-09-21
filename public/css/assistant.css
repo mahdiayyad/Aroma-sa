@@ -10,11 +10,21 @@
   /* Sits above content, below toasts (1090) and the brand intro (3000). */
   --aroma-z-fab: 1080;
   --aroma-z-chat: 1085;
+
+  /* The Saudi Business Center "verified store" seal (seal.js, mounted from
+     layouts/app.blade.php) is a fixed 120x44px iframe, 18px from the
+     bottom-left corner, at z-index 2147483000. Everything here that can reach
+     the bottom-left must stay above it: lifted clear while closed, layered over
+     it while open (the mobile sheet spans the whole bottom edge). */
+  --aroma-seal-clearance: 0px;
+  --aroma-z-open: 2147483001;
 }
+/* Arabic (RTL) puts this widget bottom-left too — sit above the seal, not under it. */
+html[dir="rtl"] { --aroma-seal-clearance: calc(18px + 44px + var(--aroma-fab-gap)); }
 
 .aroma-assistant {
   position: fixed;
-  inset-block-end: var(--aroma-fab-inset);
+  inset-block-end: max(var(--aroma-fab-inset), var(--aroma-seal-clearance));
   inset-inline-end: var(--aroma-fab-inset);
   z-index: var(--aroma-z-fab);
   display: flex;
@@ -25,8 +35,12 @@
 }
 .aroma-assistant > * { pointer-events: auto; }
 
-/* Product pages have a sticky add-to-cart bar on small screens — lift clear. */
+/* Product pages have a sticky add-to-cart bar on small screens — lift clear
+   (higher than the seal clearance, so it clears both). */
 .aroma-assistant.has-bottom-bar { inset-block-end: calc(var(--aroma-fab-inset) + 4.75rem); }
+
+/* An open conversation is above the seal, never covered by it. */
+.aroma-assistant.is-open { z-index: var(--aroma-z-open); }
 
 /* --- Floating action buttons ---------------------------------------------- */
 .aroma-fabs {
