@@ -127,4 +127,41 @@ return [
         'referral_signup_bonus' => (int) env('AROMA_REFERRAL_SIGNUP_BONUS', 100), // the new (referred) customer
         'referral_reward' => (int) env('AROMA_REFERRAL_REWARD', 100), // the referrer
     ],
+
+    /*
+    | Admin abilities -----------------------------------------------------------
+    | Which roles may do what in the back-office. Registered as Gates in
+    | AuthServiceProvider (Gate::allows('products.import')), enforced by `can:`
+    | route middleware and hidden in the UI with @can. The role list is the
+    | only thing to edit to change who can import/export.
+    */
+    'admin' => [
+        'abilities' => [
+            'products.export'         => ['admin', 'staff'],
+            'products.template'       => ['admin', 'staff'],
+            'products.import'         => ['admin'],
+            'products.import.history' => ['admin'],
+        ],
+    ],
+
+    /*
+    | Product import / export (see docs/product-import-export) ------------------
+    */
+    'import' => [
+        'max_upload_mb'      => (int) env('AROMA_IMPORT_MAX_UPLOAD_MB', 10),
+        // Files at or under BOTH thresholds run inline in the request (instant
+        // results, no queue worker needed); anything bigger goes to the queue.
+        'sync_max_rows'      => (int) env('AROMA_IMPORT_SYNC_MAX_ROWS', 100),
+        'sync_max_images'    => (int) env('AROMA_IMPORT_SYNC_MAX_IMAGES', 25),
+        'apply_sync_max_rows' => (int) env('AROMA_IMPORT_APPLY_SYNC_MAX_ROWS', 500), // apply is database-only, so it can go bigger inline
+        'queue'              => env('AROMA_IMPORT_QUEUE', 'imports'),
+        'chunk_size'         => 250,
+        'error_cap'          => 1000,   // errors kept on the run; the full list is in the downloadable report
+        'retention_days'     => 30,
+        'max_images_per_product' => 10,
+        'image_max_mb'       => 5,
+        'image_timeout'      => 15,     // seconds per download
+        'image_max_redirects' => 3,
+        'image_mimes'        => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    ],
 ];

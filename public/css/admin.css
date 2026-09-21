@@ -302,3 +302,14 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
   .admin-content { padding: 1rem; }
   .admin-bilingual { grid-template-columns: 1fr; }
 }
+
+/* Opt-in: checkboxes on the import/export screens follow the admin brand colour (Bootstrap's default is blue). */
+.form-check-input.admin-check:checked,
+.form-check-input.admin-check:indeterminate {
+  background-color: var(--admin-brand);
+  border-color: var(--admin-brand);
+}
+.form-check-input.admin-check:focus {
+  border-color: var(--admin-brand);
+  box-shadow: 0 0 0 0.2rem rgba(31, 77, 61, .2);
+}

@@ -16,6 +16,12 @@ class ProductRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // A blank Sort Order means "not provided" (default 0 on create, unchanged on update) — not NULL.
+        if ($this->has('sort_order') && ($this->input('sort_order') === null || $this->input('sort_order') === '')) {
+            // getInputSource(): the JSON body for API calls, the form bag for the admin UI.
+            $this->getInputSource()->remove('sort_order');
+        }
+
         $this->merge([
             'has_variants'     => $this->boolean('has_variants'),
             'is_active'        => $this->boolean('is_active'),
@@ -56,6 +62,8 @@ class ProductRequest extends FormRequest
             'meta_title.en'     => ['nullable', 'string', 'max:255'],
             'meta_description.ar' => ['nullable', 'string', 'max:500'],
             'meta_description.en' => ['nullable', 'string', 'max:500'],
+            'meta_keywords'     => ['nullable', 'string', 'max:1000'],
+            'sort_order'        => ['nullable', 'integer', 'min:0', 'max:4294967295'],
         ];
     }
 }

@@ -121,7 +121,9 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
                 $query->orderByDesc('base_price');
                 break;
             default:
-                $query->latest();
+                // Merchandising order first: ranked products (Sort Order 1, 2, 3…) lead in that order,
+                // unranked ones (0, the default) follow newest-first — so an all-0 catalogue is unchanged.
+                $query->orderByRaw('sort_order = 0')->orderBy('sort_order')->latest();
                 break;
         }
 

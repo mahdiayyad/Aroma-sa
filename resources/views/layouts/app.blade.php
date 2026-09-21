@@ -33,6 +33,9 @@
 
     <title>@yield('title', $brand['name'].' — '.$brand['tagline'])</title>
     <meta name="description" content="@yield('meta_description', $brand['tagline'])">
+    @if (trim($__env->yieldContent('meta_keywords')) !== '')
+        <meta name="keywords" content="@yield('meta_keywords')">
+    @endif
     <meta name="robots" content="@yield('robots', 'index, follow')">
 
     {{-- Favicon / app icons — regenerated from the current logo via

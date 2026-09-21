@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
-@section('title', $product->name.' — '.$brand['name'])
+{{-- Admin/imported SEO fields win; without them the title falls back to "name — brand". --}}
+@section('title', $product->translate('meta_title') ?: $product->name.' — '.$brand['name'])
 @section('meta_description', $product->translate('meta_description') ?? $product->translate('short_description'))
+{{-- (string): a null second argument makes Blade open a block-style section that never closes. --}}
+@section('meta_keywords', (string) $product->meta_keywords)
 @section('og_type', 'product')
 @section('og_image', url($product->primaryImageUrl()))
 
