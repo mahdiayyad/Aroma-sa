@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Order;
+use App\Services\Payment\TamaraOrderOperations;
 use InvalidArgumentException;
 
 /**
@@ -23,6 +24,29 @@ class OrderStatusService
         Order::STATUS_DELIVERED  => [],
         Order::STATUS_CANCELLED  => [],
     ];
+
+    /** @var TamaraOrderOperations */
+    private $tamara;
+
+    /** @var array<int,array{success:bool,message:string}> payment side-effect results of the last transition */
+    private $notes = [];
+
+    public function __construct(TamaraOrderOperations $tamara)
+    {
+        $this->tamara = $tamara;
+    }
+
+    /**
+     * What the last transition() did beyond changing the status (e.g. a Tamara
+     * capture or refund), for the caller to show the admin. Empty when the
+     * order has no gateway follow-up.
+     *
+     * @return array<int,array{success:bool,message:string}>
+     */
+    public function notes(): array
+    {
+        return $this->notes;
+    }
 
     /** @return array<int,string> */
     public function allowedNext(Order $order): array
@@ -61,6 +85,20 @@ class OrderStatusService
         }
 
         $order->update($attributes);
+
+        $this->notes = [];
+
+        // Money movement follows fulfilment: Tamara wants the capture when the
+        // goods ship, and a cancelled order must release/refund the customer.
+        // Failures are reported, never thrown — a gateway outage must not
+        // block the admin's status change (the capture can be retried).
+        if ($to === Order::STATUS_SHIPPED && ($note = $this->tamara->capture($order))) {
+            $this->notes[] = $note;
+        }
+
+        if ($to === Order::STATUS_CANCELLED && ($note = $this->tamara->cancel($order))) {
+            $this->notes[] = $note;
+        }
 
         return $order;
     }

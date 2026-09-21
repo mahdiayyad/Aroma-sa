@@ -35,6 +35,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Webhooks\MoyasarWebhookController;
+use App\Http\Controllers\Webhooks\TamaraWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -256,6 +257,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+        Route::post('orders/{order}/tamara/capture', [AdminOrderController::class, 'tamaraCapture'])->name('orders.tamara.capture');
+        Route::post('orders/{order}/tamara/refund', [AdminOrderController::class, 'tamaraRefund'])->name('orders.tamara.refund');
 
         Route::get('customers', [AdminCustomerController::class, 'index'])->name('customers.index');
         Route::get('customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');
@@ -274,4 +277,5 @@ Route::prefix('{locale}')
 
 /* Webhooks (unauthenticated but verified) -------------------------------- */
 Route::post('webhooks/moyasar', [MoyasarWebhookController::class, 'handle'])->name('payment.webhook');
+Route::post('webhooks/tamara', [TamaraWebhookController::class, 'handle'])->name('payment.webhook.tamara');
 Route::get('payment/callback', [CheckoutController::class, 'paymentCallback'])->name('payment.callback');

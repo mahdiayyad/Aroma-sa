@@ -11,10 +11,12 @@ use App\Http\Requests\Checkout\PromoCodeRequest;
 use App\Models\Address;
 use App\Models\GiftCard;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Services\AddressResolver;
 use App\Services\CartService;
 use App\Services\CheckoutService;
 use App\Services\Payment\PaymentGatewayManager;
+use App\Services\Payment\TamaraPaymentService;
 use App\Services\PromoCodeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -452,18 +454,39 @@ class CheckoutController extends Controller
         $totals = $this->totalsWithGiftExtras();
         $user = auth()->user();
 
+        // Most-recent explicit choice wins: whatever the shopper typed/
+        // kept at the address step (guest-required, auth-optional there)
+        // over the account email, since they may have deliberately typed
+        // something different (e.g. gifting to another inbox). Only
+        // falls back to the account email when the session has none —
+        // the phone-only OTP-account case this field exists to cover.
+        $emailPrefill = session('checkout.billing_address.email') ?: optional($user)->email;
+
         return view('checkout.payment', [
             'totals' => $totals,
             'gateways' => config('aroma.payments.methods', []),
             'promo' => session('checkout.promo'),
-            // Most-recent explicit choice wins: whatever the shopper typed/
-            // kept at the address step (guest-required, auth-optional there)
-            // over the account email, since they may have deliberately typed
-            // something different (e.g. gifting to another inbox). Only
-            // falls back to the account email when the session has none —
-            // the phone-only OTP-account case this field exists to cover.
-            'emailPrefill' => session('checkout.billing_address.email') ?: optional($user)->email,
+            'emailPrefill' => $emailPrefill,
+            // Tamara's pre-checkout eligibility for this customer + amount;
+            // false greys the option out (fail-open on any doubt).
+            'tamaraEligible' => $this->tamaraEligible((float) $totals['total_amount'], $emailPrefill),
         ]);
+    }
+
+    /**
+     * Whether Tamara may be offered for this checkout. True whenever Tamara
+     * isn't configured (the option is then hidden/"soon" anyway) or the
+     * eligibility service can't give a definite "no".
+     */
+    private function tamaraEligible(float $amount, ?string $email): bool
+    {
+        if (! config('services.tamara.api_token')) {
+            return true;
+        }
+
+        $phone = session('checkout.billing_address.phone');
+
+        return app(TamaraPaymentService::class)->checkEligibility($amount, $phone ? (string) $phone : null, $email ?: null);
     }
 
     /**
@@ -485,6 +508,16 @@ class CheckoutController extends Controller
         $user = auth()->user();
         $billing = session('checkout.billing_address', []);
         $gatewayKey = $data['gateway']; // moyasar | tabby | tamara
+
+        // The greyed-out option on the payment page is a courtesy; this is
+        // the enforcement (a request can be forged or the page can be stale).
+        if ($gatewayKey === 'tamara'
+            && ! $this->tamaraEligible((float) $this->totalsWithGiftExtras()['total_amount'], $data['email'])) {
+            return redirect()->route('checkout.payment')->with(
+                'error',
+                __('checkout.errors.bnpl_ineligible', ['gateway' => 'Tamara'])
+            );
+        }
 
         try {
             $order = DB::transaction(function () use ($data, $user, $billing, $gatewayKey) {
@@ -549,6 +582,18 @@ class CheckoutController extends Controller
                 );
             }
 
+            // Keep the gateway's own order id on the payment record — later
+            // operations (capture / cancel / refund) and a return from a
+            // different browser need it, and the session copy below won't
+            // always survive.
+            if (! empty($result['reference'])) {
+                $paymentRecord = $order->payment()->latest('id')->first();
+
+                if ($paymentRecord) {
+                    $paymentRecord->update(['reference_number' => (string) $result['reference']]);
+                }
+            }
+
             // Gateway accepted the checkout — now it's safe to consume the
             // cart/checkout-session state and let this session view the
             // order's confirmation page once the customer returns.
@@ -589,6 +634,24 @@ class CheckoutController extends Controller
 
         $order = $orderId ? Order::find($orderId) : null;
 
+        // Session lost — typically a shopper returning in a different browser
+        // or in-app webview after Tamara's ID-verification hand-off. Tamara
+        // appends its own order id to the return URL; it is unguessable and
+        // is only ever used to look the payment up and ask Tamara for the
+        // truth, so it can't be used to mark anything paid by itself.
+        if ((! $order || ! $gatewayKey || ! $reference) && request()->filled('orderId')) {
+            $lostSession = Payment::where('gateway', 'tamara')
+                ->where('reference_number', (string) request()->query('orderId'))
+                ->latest('id')
+                ->first();
+
+            if ($lostSession) {
+                $order = $lostSession->order;
+                $gatewayKey = 'tamara';
+                $reference = $lostSession->reference_number;
+            }
+        }
+
         if (! $order || ! $gatewayKey || ! $reference) {
             return redirect()->route('cart.index')->with('error', __('checkout.errors.payment_failed'));
         }
@@ -605,7 +668,13 @@ class CheckoutController extends Controller
             $payment = $order->payment()->latest('id')->first();
 
             if ($payment) {
-                $this->checkout->markOrderAsPaid($order, $payment);
+                // Tamara: approved/authorised means committed, not captured —
+                // the capture happens on shipment (or Tamara auto-captures).
+                $paymentStatus = ($gatewayKey === 'tamara' && ! ($status['captured'] ?? false))
+                    ? Payment::STATUS_AUTHORIZED
+                    : Payment::STATUS_CAPTURED;
+
+                $this->checkout->markOrderAsPaid($order, $payment, $paymentStatus);
             } else {
                 $order->update(['status' => Order::STATUS_PAID]);
             }

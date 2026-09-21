@@ -139,6 +139,11 @@
                                 @php($isBnpl = in_array($method, config('aroma.payments.bnpl', []), true))
                                 @php($gateway = $isBnpl ? $method : 'moyasar')
                                 @php($enabled = $gatewayReady[$gateway] ?? false)
+                                {{-- Tamara: configured but the pre-checkout eligibility check
+                                     said no for this customer/amount -> greyed out, with a
+                                     reason instead of the "coming soon" tag. --}}
+                                @php($tamaraIneligible = $gateway === 'tamara' && $enabled && ! ($tamaraEligible ?? true))
+                                @php($enabled = $enabled && ! $tamaraIneligible)
                                 @php($checked = $enabled && $needsDefault)
                                 @php($needsDefault = $needsDefault && ! $enabled)
                                 <input type="radio" class="btn-check" name="gateway" id="gateway-{{ $method }}"
@@ -150,12 +155,20 @@
                                     <span class="aroma-pay-method-label">{{ __('checkout.payment_methods.'.strtolower($method)) }}</span>
                                     @if($enabled)
                                         <i class="bi bi-check-circle-fill aroma-pay-check"></i>
+                                    @elseif($tamaraIneligible)
+                                        <span class="aroma-pay-soon">{{ __('checkout.tamara_not_available') }}</span>
                                     @else
                                         <span class="aroma-pay-soon">{{ __('checkout.coming_soon') }}</span>
                                     @endif
                                 </label>
                             @endforeach
                         </div>
+
+                        @if ($gatewayReady['tamara'] && ($tamaraEligible ?? true))
+                            <div class="mt-3">
+                                @include('partials.tamara-widget', ['amount' => $totals['total_amount']])
+                            </div>
+                        @endif
 
                         {{-- Actual card entry happens on the gateway's secure page after
                              "Place Order"; keep the concrete method for the order record. --}}

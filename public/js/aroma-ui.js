@@ -38,6 +38,13 @@
     function updateCartCount(count) { bumpCount('.js-cart-count', count); }
     function updateWishlistCount(count) { bumpCount('.js-wishlist-count', count); }
 
+    // Keeps the Tamara instalments widget on the cart page (if rendered) on the
+    // cart's current subtotal as quantities change / rows are removed.
+    function syncTamaraCartWidget(amount) {
+        var widget = document.querySelector('tamara-widget[data-live-cart]');
+        if (widget && typeof amount === 'number' && amount > 0) { widget.setAttribute('amount', amount.toFixed(2)); }
+    }
+
     // Drops a cart row from the DOM; if it was the last one, reload so the
     // page can render the "empty cart" state instead of a bare table.
     function removeCartRow(row) {
@@ -502,6 +509,7 @@
                             if (cell) { cell.textContent = data.line_total; }
                         }
                         document.querySelectorAll('.js-cart-subtotal').forEach(function (el) { el.textContent = data.subtotal; });
+                        syncTamaraCartWidget(data.subtotal_amount);
                     })
                     .catch(function () { showToast(document.body.getAttribute('data-cart-error') || 'Error', 'danger'); })
                     .finally(function () {
@@ -524,6 +532,7 @@
                     .then(function (data) {
                         if (typeof data.count !== 'undefined') { updateCartCount(data.count); }
                         document.querySelectorAll('.js-cart-subtotal').forEach(function (el) { el.textContent = data.subtotal; });
+                        syncTamaraCartWidget(data.subtotal_amount);
                         removeCartRow(row);
                     })
                     .catch(function () {

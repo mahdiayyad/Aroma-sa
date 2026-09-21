@@ -19,5 +19,9 @@ class VerifyCsrfToken extends Middleware
         // own (correct) HMAC signature verification. That signature check
         // is the actual authenticity guard for this route, not CSRF.
         'webhooks/moyasar',
+        // Same reasoning — Tamara's IPN notification is server-to-server and
+        // is authenticated by its own bearer-token check
+        // (TamaraPaymentService::verifyNotificationToken), not CSRF.
+        'webhooks/tamara',
     ];
 }

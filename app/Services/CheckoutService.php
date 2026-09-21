@@ -241,14 +241,21 @@ class CheckoutService extends BaseService
      * transition — both the customer-return callback (CheckoutController)
      * and the Moyasar webhook (MoyasarPaymentService) route through here, so
      * OrderPaid fires exactly once no matter which one lands first.
+     *
+     * $paymentStatus is what the gateway has actually done with the money:
+     * captured for card-style gateways, but a BNPL order that is merely
+     * authorised (Tamara) is recorded as authorized until it is captured on
+     * shipment — a payment is never downgraded from captured.
      */
-    public function markOrderAsPaid(Order $order, Payment $payment): void
+    public function markOrderAsPaid(Order $order, Payment $payment, string $paymentStatus = Payment::STATUS_CAPTURED): void
     {
-        DB::transaction(function () use ($order, $payment) {
+        DB::transaction(function () use ($order, $payment, $paymentStatus) {
             $wasAlreadyPaid = $order->isPaid();
 
             $order->update(['status' => Order::STATUS_PAID]);
-            $payment->update(['status' => Payment::STATUS_CAPTURED]);
+            $payment->update([
+                'status' => $payment->status === Payment::STATUS_CAPTURED ? Payment::STATUS_CAPTURED : $paymentStatus,
+            ]);
 
             // Promo usage is only "spent" once payment is actually confirmed —
             // never at order creation, since an abandoned/unpaid order must

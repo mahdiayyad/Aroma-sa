@@ -8,9 +8,12 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Services\CartService;
 use App\Services\CheckoutService;
+use App\Http\Controllers\Webhooks\TamaraWebhookController;
 use App\Services\Payment\MoyasarPaymentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -95,5 +98,70 @@ class OrderPaidEventTest extends TestCase
 
         $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
         Event::assertDispatchedTimes(OrderPaid::class, 1);
+    }
+
+    public function test_the_tamara_webhook_authorises_and_dispatches_order_paid(): void
+    {
+        Event::fake([OrderPaid::class]);
+        config(['services.tamara.api_token' => 'tok', 'services.tamara.notification_token' => 'whsec']);
+        Http::fake(['*tamara.co/*' => Http::response(['order_id' => 'tam_1', 'status' => 'approved'], 200)]);
+
+        $order = Order::create([
+            'order_number' => 'AR-2026-000778', 'status' => Order::STATUS_PENDING,
+            'customer_name' => 'Sara', 'customer_email' => 's@e.com', 'customer_phone' => '0500000000',
+            'billing_address' => $this->address, 'shipping_address' => $this->address,
+            'subtotal' => 100, 'total_amount' => 100,
+        ]);
+        Payment::create([
+            'order_id' => $order->id, 'gateway' => 'tamara', 'method' => 'tamara',
+            'status' => Payment::STATUS_PENDING, 'amount' => 100, 'currency' => 'SAR',
+        ]);
+
+        $request = Request::create('/webhooks/tamara', 'POST', [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer whsec',
+        ], json_encode([
+            'event_type' => 'order_approved',
+            'order_id' => 'tam_1',
+            'order_reference_id' => $order->order_number,
+        ]));
+        $request->headers->set('Content-Type', 'application/json');
+
+        $response = app(TamaraWebhookController::class)->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
+        Event::assertDispatchedTimes(OrderPaid::class, 1);
+    }
+
+    public function test_the_tamara_webhook_rejects_a_wrong_notification_token(): void
+    {
+        Event::fake([OrderPaid::class]);
+        config(['services.tamara.api_token' => 'tok', 'services.tamara.notification_token' => 'whsec']);
+
+        $order = Order::create([
+            'order_number' => 'AR-2026-000779', 'status' => Order::STATUS_PENDING,
+            'customer_name' => 'Sara', 'customer_email' => 's@e.com', 'customer_phone' => '0500000000',
+            'billing_address' => $this->address, 'shipping_address' => $this->address,
+            'subtotal' => 100, 'total_amount' => 100,
+        ]);
+        Payment::create([
+            'order_id' => $order->id, 'gateway' => 'tamara', 'method' => 'tamara',
+            'status' => Payment::STATUS_PENDING, 'amount' => 100, 'currency' => 'SAR',
+        ]);
+
+        $request = Request::create('/webhooks/tamara', 'POST', [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer not-the-right-token',
+        ], json_encode([
+            'event_type' => 'order_approved',
+            'order_id' => 'tam_1',
+            'order_reference_id' => $order->order_number,
+        ]));
+        $request->headers->set('Content-Type', 'application/json');
+
+        $response = app(TamaraWebhookController::class)->handle($request);
+
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame(Order::STATUS_PENDING, $order->fresh()->status);
+        Event::assertNotDispatched(OrderPaid::class);
     }
 }

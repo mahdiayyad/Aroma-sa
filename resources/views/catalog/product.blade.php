@@ -111,6 +111,10 @@
                 @endif
             </div>
 
+            {{-- Tamara instalments message; its amount is kept in step with the
+                 live total by the price script at the bottom of this page. --}}
+            @include('partials.tamara-widget', ['amount' => $product->base_price, 'live' => 'pdp'])
+
             <p class="text-aroma-muted">{{ $product->translate('short_description') }}</p>
 
             {{-- Add to cart (with variant + qty) --}}
@@ -459,7 +463,12 @@
         }
         function render() {
             var qty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
-            totalEl.textContent = money(unitPrice() * qty);
+            var total = unitPrice() * qty;
+            totalEl.textContent = money(total);
+
+            // Keep the Tamara instalments widget (if rendered) on the same amount.
+            var tamara = document.querySelector('tamara-widget[data-live-pdp]');
+            if (tamara && total > 0) { tamara.setAttribute('amount', total.toFixed(2)); }
         }
 
         qtyEl.addEventListener('input', render);

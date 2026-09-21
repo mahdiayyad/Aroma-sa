@@ -66,6 +66,7 @@ class CartController extends Controller
                 'count'    => $this->cart->count(),
                 'message'  => __('cart.flash.added'),
                 'subtotal' => $this->cart->subtotalLabel(),
+                'subtotal_amount' => $this->cart->subtotal(),
                 'item'     => $row ? [
                     'row_id'     => $rowId,
                     'name'       => $row['name'][$locale] ?? reset($row['name']),
@@ -109,6 +110,7 @@ class CartController extends Controller
                 'qty'        => $row['qty'] ?? 0,
                 'line_total' => $row ? Money::format($row['unit_price'] * $row['qty']) : null,
                 'subtotal'   => $this->cart->subtotalLabel(),
+                'subtotal_amount' => $this->cart->subtotal(),
             ]);
         }
 
@@ -126,6 +128,7 @@ class CartController extends Controller
                 'count'    => $this->cart->count(),
                 'message'  => __('cart.flash.removed'),
                 'subtotal' => $this->cart->subtotalLabel(),
+                'subtotal_amount' => $this->cart->subtotal(),
             ]);
         }
 
