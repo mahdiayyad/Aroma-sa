@@ -54,6 +54,7 @@ return [
 
     'payment_gateway' => 'Payment Gateway',
     'payment_method' => 'Payment Method',
+    'tamara_not_available' => 'Not available for this order',
 
     'subtotal' => 'Subtotal',
     'discount' => 'Discount',
@@ -89,6 +90,7 @@ return [
         'payment_failed' => 'Payment processing failed. Please try again.',
         'invalid_address' => 'Please provide a valid shipping address.',
         'bnpl_unavailable' => ':gateway isn’t available for this order. Please choose another payment method.',
+        'bnpl_ineligible' => ':gateway isn’t available for this order right now. Please choose another payment method.',
         'terms_required' => 'Please agree to the terms and conditions to continue.',
     ],
 

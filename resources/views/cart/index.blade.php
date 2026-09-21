@@ -97,6 +97,11 @@
                         <span class="aroma-cart-summary-value js-cart-subtotal">{{ $subtotal }}</span>
                     </div>
 
+                    @include('partials.tamara-widget', [
+                        'amount' => collect($rows)->sum(function ($row) { return $row['unit_price'] * $row['qty']; }),
+                        'live' => 'cart',
+                    ])
+
                     <a href="{{ route('checkout.review') }}" class="btn btn-aroma w-100 mb-2">{{ __('cart.checkout') }}</a>
                     <a href="{{ route('home', $locale) }}" class="btn btn-aroma-outline w-100">{{ __('cart.continue') }}</a>
 

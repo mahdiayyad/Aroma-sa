@@ -26,6 +26,7 @@ class Payment extends Model
     public const STATUS_CAPTURED = 'captured';
     public const STATUS_FAILED = 'failed';
     public const STATUS_REFUNDED = 'refunded';
+    public const STATUS_CANCELLED = 'cancelled';
 
     public function order(): BelongsTo
     {

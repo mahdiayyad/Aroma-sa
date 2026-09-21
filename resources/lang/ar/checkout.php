@@ -52,6 +52,7 @@ return [
 
     'payment_gateway' => 'بوابة الدفع',
     'payment_method' => 'طريقة الدفع',
+    'tamara_not_available' => 'غير متاح لهذا الطلب',
 
     'subtotal' => 'المجموع الفرعي',
     'discount' => 'الخصم',
@@ -87,6 +88,7 @@ return [
         'payment_failed' => 'فشل معالجة الدفع. يرجى المحاولة مرة أخرى.',
         'invalid_address' => 'يرجى تقديم عنوان شحن صحيح.',
         'bnpl_unavailable' => ':gateway غير متاح لهذا الطلب. يرجى اختيار وسيلة دفع أخرى.',
+        'bnpl_ineligible' => ':gateway غير متاح لهذا الطلب حاليًا. يرجى اختيار وسيلة دفع أخرى.',
         'terms_required' => 'يرجى الموافقة على الشروط والأحكام للمتابعة.',
     ],
 

@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Services\OrderStatusService;
 use App\Services\Payment\MoyasarPaymentService;
+use App\Services\Payment\TamaraOrderOperations;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -72,10 +73,11 @@ class OrderController extends Controller
         $order->load(['items', 'payment']);
         $order->allowed_next = $this->status->allowedNext($order);
 
-        return (new OrderResource($order))->response();
+        // Payment side-effects (Tamara capture on shipment / release on cancel).
+        return (new OrderResource($order))->additional(['payment_notes' => $this->status->notes()])->response();
     }
 
-    public function refund(Request $request, Order $order, MoyasarPaymentService $gateway): JsonResponse
+    public function refund(Request $request, Order $order, MoyasarPaymentService $gateway, TamaraOrderOperations $tamara): JsonResponse
     {
         $data = $request->validate([
             'amount' => ['nullable', 'numeric', 'min:0.01'],
@@ -87,6 +89,21 @@ class OrderController extends Controller
 
         if (! $payment) {
             return response()->json(['message' => 'No captured payment to refund for this order.'], 422);
+        }
+
+        // Tamara refunds must go back through Tamara (never Moyasar / store credit).
+        if ($payment->gateway === 'tamara') {
+            $amount = isset($data['amount']) ? (float) $data['amount'] : round((float) $payment->amount - (float) $payment->refunded_amount, 2);
+            $tamaraResult = $tamara->refund($order, $amount, 'Refund for order '.$order->order_number);
+
+            if (! $tamaraResult['success']) {
+                return response()->json(['message' => $tamaraResult['message']], 422);
+            }
+
+            return response()->json([
+                'message' => $tamaraResult['message'],
+                'payment' => new \App\Http\Resources\Admin\PaymentResource($payment->fresh()),
+            ]);
         }
 
         $result = $gateway->refundPayment($payment, $data['amount'] ?? null);

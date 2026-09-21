@@ -257,6 +257,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+        Route::post('orders/{order}/tamara/capture', [AdminOrderController::class, 'tamaraCapture'])->name('orders.tamara.capture');
+        Route::post('orders/{order}/tamara/refund', [AdminOrderController::class, 'tamaraRefund'])->name('orders.tamara.refund');
 
         Route::get('customers', [AdminCustomerController::class, 'index'])->name('customers.index');
         Route::get('customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');

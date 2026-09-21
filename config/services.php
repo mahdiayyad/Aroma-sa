@@ -53,6 +53,16 @@ return [
         'api_token'          => env('TAMARA_API_TOKEN'),
         'notification_token' => env('TAMARA_NOTIFICATION_TOKEN'),
         'base_url'           => env('TAMARA_BASE_URL', 'https://api-sandbox.tamara.co'),
+        // Widgets (PDP / cart / checkout). Sandbox and production use
+        // different public keys; the script host follows the API base URL
+        // unless TAMARA_WIDGET_URL overrides it.
+        'public_key'         => env('TAMARA_PUBLIC_KEY'),
+        'widget_url'         => env('TAMARA_WIDGET_URL'),
+        // Required by Tamara's Capture API (shipping_info.shipping_company).
+        'shipping_company'   => env('TAMARA_SHIPPING_COMPANY', 'Aroma Delivery'),
+        // Pre-checkout eligibility is fail-open: if Tamara doesn't answer
+        // inside this window the option is shown normally.
+        'eligibility_timeout_ms' => (int) env('TAMARA_ELIGIBILITY_TIMEOUT_MS', 800),
     ],
 
     /*

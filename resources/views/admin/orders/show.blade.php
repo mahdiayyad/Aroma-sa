@@ -61,6 +61,46 @@
                             <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">{{ __('admin.orders.gateway') }}</span><span>{{ ucfirst($payment->gateway) }}</span></div>
                             <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">{{ __('admin.orders.method') }}</span><span>{{ strtoupper($payment->method) }}</span></div>
                             <div class="d-flex justify-content-between align-items-center"><span class="admin-cell-sub">{{ __('admin.common.status') }}</span><x-admin.badge :status="$payment->status" :label="ucfirst($payment->status)" /></div>
+
+                            {{-- Tamara: capture happens on shipment, refunds go back through
+                                 Tamara only. --}}
+                            @if ($payment->gateway === 'tamara')
+                                @php($tamaraRemaining = round((float) $payment->amount - (float) $payment->refunded_amount, 2))
+                                <hr class="my-3">
+                                <div class="fw-semibold mb-2">{{ __('admin.tamara.panel_title') }}</div>
+                                @if ($payment->reference_number)
+                                    <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">Tamara ID</span><span class="small">{{ $payment->reference_number }}</span></div>
+                                @endif
+                                @if ((float) $payment->refunded_amount > 0)
+                                    <div class="d-flex justify-content-between mb-1"><span class="admin-cell-sub">{{ __('admin.tamara.refunded_so_far') }}</span><span>{{ number_format((float) $payment->refunded_amount, 2) }}</span></div>
+                                @endif
+
+                                @if ($payment->status === \App\Models\Payment::STATUS_AUTHORIZED && in_array($order->status, [\App\Models\Order::STATUS_SHIPPED, \App\Models\Order::STATUS_DELIVERED], true))
+                                    <form method="post" action="{{ route('admin.orders.tamara.capture', $order) }}" class="mt-2">
+                                        @csrf
+                                        <button type="submit" class="admin-btn admin-btn-primary"><i class="bi bi-arrow-repeat"></i>{{ __('admin.tamara.capture_retry') }}</button>
+                                    </form>
+                                @endif
+
+                                @if ($payment->status === \App\Models\Payment::STATUS_CAPTURED && $tamaraRemaining > 0)
+                                    <form method="post" action="{{ route('admin.orders.tamara.refund', $order) }}" class="mt-3"
+                                          onsubmit="return confirm(@json(__('admin.tamara.refund_confirm')));">
+                                        @csrf
+                                        <div class="fw-semibold small mb-1">{{ __('admin.tamara.refund_title') }}</div>
+                                        <div class="mb-2">
+                                            <label class="admin-cell-sub small" for="tamaraRefundAmount">{{ __('admin.tamara.refund_amount') }}</label>
+                                            <input type="number" step="0.01" min="0.01" max="{{ $tamaraRemaining }}" name="amount" id="tamaraRefundAmount"
+                                                   value="{{ $tamaraRemaining }}" class="admin-input" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="admin-cell-sub small" for="tamaraRefundComment">{{ __('admin.tamara.refund_comment') }}</label>
+                                            <input type="text" name="comment" id="tamaraRefundComment" maxlength="250" class="admin-input" required>
+                                        </div>
+                                        <button type="submit" class="admin-btn admin-btn-primary"><i class="bi bi-arrow-counterclockwise"></i>{{ __('admin.tamara.refund_submit') }}</button>
+                                        <p class="admin-cell-sub small mt-2 mb-0">{{ __('admin.tamara.refund_note') }}</p>
+                                    </form>
+                                @endif
+                            @endif
                         @else
                             <p class="admin-cell-sub mb-0">{{ __('admin.orders.no_payment') }}</p>
                         @endif
