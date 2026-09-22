@@ -6,7 +6,13 @@
 @section('content')
     <x-admin.page-header :title="__('admin.customers.title')" :subtitle="__('admin.customers.subtitle')" />
 
-    <form method="get" class="admin-toolbar admin-autofilter">
+    @php
+        $filterChips = [];
+        if (! empty($filters['q'])) { $filterChips['q'] = __('admin.common.search_label').': '.$filters['q']; }
+        if (! empty($filters['role']) && $filters['role'] !== 'all') { $filterChips['role'] = __('admin.customers.role').': '.ucfirst($filters['role']); }
+    @endphp
+
+    <x-admin.filter-bar :chips="$filterChips">
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" class="admin-input" placeholder="{{ __('admin.common.search') }}">
         <select name="role" class="admin-select">
             <option value="all">{{ __('admin.customers.role') }}: {{ __('admin.common.all') }}</option>
@@ -14,8 +20,7 @@
                 <option value="{{ $role }}" {{ ($filters['role'] ?? '') === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
             @endforeach
         </select>
-        <noscript><button class="admin-btn admin-btn-outline btn-sm">{{ __('admin.common.apply') }}</button></noscript>
-    </form>
+    </x-admin.filter-bar>
 
     <x-admin.card :padding="false">
         @if ($customers->isEmpty())

@@ -176,6 +176,7 @@
     <script src="https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js" async></script>
 
     @include('layouts.partials.intro')
+    @include('layouts.partials.admin-preview-banner')
     @include('layouts.partials.header')
 
     <main>

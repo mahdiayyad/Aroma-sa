@@ -1,33 +1,44 @@
 /* ============================================================================
    Aroma Admin — back-office theme (Bootstrap 5.3 base + this layer)
-   Self-contained tokens so the admin doesn't depend on the storefront's
-   component CSS. Warm, editorial, premium — matching the Aroma brand.
+   Self-contained tokens (the admin doesn't @import the storefront's component
+   CSS), but every value below is deliberately copied from the storefront's own
+   design system — public/css/aroma.css and components/tokens.css — so the two
+   apps read as one brand. Colors/shadows/radius only, on purpose: the
+   storefront itself reserves its serif display face (Manier) for hero/
+   marketing moments, not ordinary page headings, so this stays on the same
+   sans-serif UI font the admin already used — a dense back-office screen has
+   nothing to gain from a display face and would only lose scanability.
    ========================================================================== */
 :root {
-  --admin-bg: #f6f4ef;
+  --admin-bg: #FAF7F2;             /* = --aroma-white (storefront Background) */
   --admin-surface: #ffffff;
-  --admin-border: #e5e2d8;
-  --admin-border-strong: #cfc9b8;
-  --admin-text: #1B1A17;
-  --admin-muted: #746d5f;
-  --admin-brand: #1F4D3D;
-  --admin-brand-hover: #1B3E32; /* matches the storefront's --aroma-btn-emerald-bg-hover exactly */
-  --admin-brand-soft: #E7F0EC;
-  --admin-skin: #FAF3E7;
-  --admin-gold: #C9A24B;
-  --admin-gold-soft: #F7EFDC;
-  --admin-radius: 0.7rem;
-  --admin-radius-sm: 0.45rem;
-  --admin-shadow: 0 1px 2px rgba(31, 77, 61, .05), 0 10px 30px rgba(31, 77, 61, .07);
-  --admin-shadow-sm: 0 1px 2px rgba(31, 77, 61, .06);
+  --admin-border: #e7dccc;         /* = --aroma-border */
+  --admin-border-strong: #d8c7ae;  /* = --aroma-border-strong */
+  --admin-text: #241817;           /* = --aroma-text (storefront body-copy tone) */
+  --admin-muted: #8F7373;          /* = --aroma-muted */
+  --admin-brand: #330101;          /* = --aroma-brown (storefront Primary) */
+  --admin-brand-hover: #7A2E3D;    /* = --aroma-btn-emerald-bg-hover (Secondary/Wine — the palette's own hover shade) */
+  --admin-brand-soft: rgba(51, 1, 1, 0.08); /* same "soft active" tint the storefront uses, e.g. .aroma-mobile-nav-link.active */
+  --admin-skin: #E8DDD2;           /* = --aroma-skin (storefront Surface) */
+  --admin-gold: #C9B39A;           /* = --aroma-light-brown / Gold */
+  --admin-gold-soft: rgba(201, 179, 154, 0.22); /* restrained — gold is never a solid fill on the storefront either */
+  --admin-radius: 0.85rem;         /* = --aroma-radius */
+  --admin-radius-sm: 0.5rem;       /* = --aroma-radius-sm */
+  --admin-shadow: 0 14px 38px rgba(51, 1, 1, 0.16);   /* = --aroma-shadow */
+  --admin-shadow-sm: 0 6px 20px rgba(51, 1, 1, 0.08); /* = --aroma-shadow-sm */
   --admin-sidebar-w: 262px;
   --admin-topbar-h: 68px;
 
+  /* Success/warning/danger were already byte-identical to the storefront's
+     components/tokens.css values (a happy accident of two themes converging
+     on the same "warm, not generic Bootstrap" semantic palette) — unchanged.
+     Info/neutral now follow the same storefront source: --aroma-info is an
+     alias of the brand brown, --aroma-info-bg its skin tone. */
   --admin-success: #4A7856; --admin-success-bg: #eaf1ea;
   --admin-warning: #b8863c; --admin-warning-bg: #fbf0de;
   --admin-danger:  #a6432b; --admin-danger-bg:  #f7e9e4;
-  --admin-info:    #6b5a8c; --admin-info-bg:    #efeaf6;
-  --admin-neutral: #746d5f; --admin-neutral-bg: #eeece5;
+  --admin-info:    #330101; --admin-info-bg:    #E8DDD2;
+  --admin-neutral: #8F7373; --admin-neutral-bg: #eeece5;
 }
 
 * { box-sizing: border-box; }
@@ -99,7 +110,7 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 }
 .admin-menu-toggle { display: none; border: 0; background: none; font-size: 1.4rem; color: var(--admin-text); padding: .25rem; }
 .admin-topbar-title { flex: 1; min-width: 0; }
-.admin-topbar-title h1 { font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--admin-text); }
+.admin-topbar-title h1 { font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--admin-brand); }
 .admin-topbar-title p { margin: 0; font-size: .8rem; color: var(--admin-muted); }
 .admin-topbar-actions { display: flex; align-items: center; gap: .75rem; }
 .admin-user { display: inline-flex; align-items: center; gap: .55rem; border: 0; background: none; color: var(--admin-text); font-weight: 600; font-size: .875rem; }
@@ -114,7 +125,10 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 
 /* --- Page header ----------------------------------------------------------- */
 .admin-page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; flex-wrap: wrap; }
-.admin-page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; }
+/* Headings/prices read in the brand color rather than near-black — the
+   storefront's own convention: --aroma-ink IS --aroma-brown, "title-weight
+   text never pure black" (see aroma.css's :root docblock). */
+.admin-page-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; margin: 0; color: var(--admin-brand); }
 .admin-page-subtitle { color: var(--admin-muted); margin: .25rem 0 0; font-size: .875rem; }
 .admin-page-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 .admin-back-link { display: inline-flex; align-items: center; font-size: .8rem; color: var(--admin-muted); text-decoration: none; margin-bottom: .25rem; }
@@ -127,7 +141,7 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
   transition: box-shadow .2s ease, transform .2s ease;
 }
 .admin-card-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--admin-border); }
-.admin-card-title { font-size: .95rem; font-weight: 700; margin: 0; }
+.admin-card-title { font-size: .95rem; font-weight: 700; margin: 0; color: var(--admin-brand); }
 .admin-card-body { padding: 1.25rem; }
 
 /* --- Stat tiles ------------------------------------------------------------ */
@@ -140,14 +154,14 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 .admin-stat:hover { transform: translateY(-3px); box-shadow: var(--admin-shadow); border-color: var(--admin-border-strong); }
 .admin-stat-icon { width: 46px; height: 46px; border-radius: var(--admin-radius-sm); display: inline-flex; align-items: center; justify-content: center; font-size: 1.35rem; background: var(--admin-brand-soft); color: var(--admin-brand); flex-shrink: 0; }
 .admin-stat-label { font-size: .78rem; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .04em; }
-.admin-stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; margin-top: .15rem; letter-spacing: -0.01em; }
+.admin-stat-value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; margin-top: .15rem; letter-spacing: -0.01em; color: var(--admin-brand); }
 .admin-stat-hint { font-size: .75rem; color: var(--admin-muted); margin-top: .1rem; }
 .admin-stat-success .admin-stat-icon { background: var(--admin-success-bg); color: var(--admin-success); }
 .admin-stat-warning .admin-stat-icon { background: var(--admin-warning-bg); color: var(--admin-warning); }
 /* Reserved for the one or two genuinely most-important figures on a page
    (e.g. revenue) — gold as "important highlight", never the default tone. */
 .admin-stat-gold .admin-stat-icon { background: var(--admin-gold-soft); color: var(--admin-gold); }
-.admin-stat-gold { border-color: rgba(201, 162, 75, 0.35); }
+.admin-stat-gold { border-color: rgba(201, 179, 154, 0.35); }
 .admin-stat-info .admin-stat-icon { background: var(--admin-info-bg); color: var(--admin-info); }
 
 /* --- Tables ---------------------------------------------------------------- */
@@ -156,7 +170,7 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 .admin-table thead th { text-align: start; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--admin-muted); font-weight: 700; padding: .75rem 1rem; border-bottom: 1px solid var(--admin-border); white-space: nowrap; }
 .admin-table tbody td { padding: .8rem 1rem; border-bottom: 1px solid var(--admin-border); vertical-align: middle; }
 .admin-table tbody tr:last-child td { border-bottom: 0; }
-.admin-table tbody tr:hover { background: #faf7f2; }
+.admin-table tbody tr:hover { background: rgba(201, 179, 154, 0.35); } /* = .aroma-table tbody tr:hover on the storefront, verbatim */
 .admin-table .admin-thumb { width: 42px; height: 42px; border-radius: var(--admin-radius-sm); object-fit: cover; background: var(--admin-skin); }
 .admin-cell-main { font-weight: 600; color: var(--admin-text); }
 .admin-cell-sub { font-size: .78rem; color: var(--admin-muted); }
@@ -251,9 +265,20 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .admin-input:focus, .admin-select:focus, textarea.admin-input:focus {
-  outline: none; border-color: var(--admin-brand); box-shadow: 0 0 0 3px rgba(31, 77, 61, .12);
+  outline: none; border-color: var(--admin-brand); box-shadow: 0 0 0 3px rgba(51, 1, 1, .12);
 }
 .admin-input.is-invalid { background: #fff; border-color: var(--admin-brand); }
+/* A designed control, not the bare OS widget: hide the native arrow and draw
+   our own gold chevron, with room for it so text never runs under it. */
+.admin-select {
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  padding-inline-end: 2.25rem;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3e%3cpath d='M1 1l5 5 5-5' fill='none' stroke='%23C9B39A' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  background-size: 12px 8px;
+}
+html[dir="rtl"] .admin-select { background-position: left .75rem center; }
 .admin-bilingual { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
 .admin-bilingual-field { position: relative; }
 .admin-bilingual-tag { position: absolute; top: -.55rem; inset-inline-start: .6rem; background: #fff; padding: 0 .35rem; font-size: .66rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase; letter-spacing: .04em; }
@@ -265,6 +290,35 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 /* --- Toolbar (filters/search above tables) --------------------------------- */
 .admin-toolbar { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
 .admin-toolbar .admin-input, .admin-toolbar .admin-select { width: auto; min-width: 180px; }
+
+/* --- Filter bar (<x-admin.filter-bar>: the admin-toolbar form above, dressed
+   as its own surface — a sibling of .admin-card rather than a bare row of
+   floating controls) ---------------------------------------------------- */
+.admin-filter-bar {
+  background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-sm); padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+}
+.admin-filter-bar-label {
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--admin-muted); margin-inline-end: .5rem;
+}
+.admin-filter-bar-label i { color: var(--admin-gold); font-size: .95rem; }
+.admin-filter-bar .admin-toolbar { margin-bottom: 0; }
+.admin-filter-chips { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .85rem; padding-top: .85rem; border-top: 1px solid var(--admin-border); }
+/* 1:1 port of the storefront's .aroma-filter-chip (components/category-page.css)
+   — same shape/behaviour, just keyed off --admin-* tokens. */
+.admin-filter-chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .35rem .7rem; border-radius: 999px;
+  background: var(--admin-skin); color: var(--admin-brand);
+  font-size: .78rem; font-weight: 600; text-decoration: none;
+  transition: background-color .15s ease, color .15s ease;
+}
+.admin-filter-chip i { font-size: .85rem; }
+.admin-filter-chip:hover { background: var(--admin-brand-hover); color: #fff; }
+.admin-filter-chip-clear { background: transparent; border: 1px solid var(--admin-border-strong); color: var(--admin-muted); }
+.admin-filter-chip-clear:hover { background: var(--admin-brand); border-color: var(--admin-brand); color: #fff; }
 
 /* --- Empty state ----------------------------------------------------------- */
 .admin-empty { text-align: center; padding: 3rem 1rem; color: var(--admin-muted); }
@@ -279,7 +333,7 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 .admin-alert-danger i { color: var(--admin-danger); }
 
 /* --- Login ----------------------------------------------------------------- */
-.admin-login { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; background: linear-gradient(135deg, #1F4D3D 0%, #17402F 55%, #0F2820 100%); }
+.admin-login { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; background: linear-gradient(135deg, #330101 0%, #56171F 55%, #7A2E3D 100%); } /* = --aroma-gradient */
 .admin-login-card { background: #fff; border-radius: 1rem; box-shadow: 0 30px 60px rgba(27, 26, 23, .25); width: 100%; max-width: 400px; padding: 2.25rem; }
 .admin-login-brand { text-align: center; margin-bottom: 1.5rem; }
 .admin-login-brand .mark { font-size: 1.8rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: var(--admin-brand); }
@@ -311,5 +365,5 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 }
 .form-check-input.admin-check:focus {
   border-color: var(--admin-brand);
-  box-shadow: 0 0 0 0.2rem rgba(31, 77, 61, .2);
+  box-shadow: 0 0 0 0.2rem rgba(51, 1, 1, .2);
 }

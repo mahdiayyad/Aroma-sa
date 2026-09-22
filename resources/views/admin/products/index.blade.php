@@ -42,7 +42,19 @@
         </form>
     @endcan
 
-    <form method="get" class="admin-toolbar admin-autofilter">
+    @php
+        $filterChips = [];
+        if (! empty($filters['q'])) { $filterChips['q'] = __('admin.common.search_label').': '.$filters['q']; }
+        if (! empty($filters['category'])) {
+            $selectedCategory = $categories->firstWhere('id', (int) $filters['category']);
+            if ($selectedCategory) { $filterChips['category'] = __('admin.products.category').': '.$selectedCategory->name; }
+        }
+        if (in_array($filters['active'] ?? '', ['0', '1'], true)) {
+            $filterChips['active'] = __('admin.common.status').': '.($filters['active'] === '1' ? __('admin.common.active') : __('admin.common.inactive'));
+        }
+    @endphp
+
+    <x-admin.filter-bar :chips="$filterChips">
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" class="admin-input" placeholder="{{ __('admin.common.search') }}">
         <select name="category" class="admin-select">
             <option value="">{{ __('admin.products.category') }}: {{ __('admin.common.all') }}</option>
@@ -55,8 +67,7 @@
             <option value="1" {{ ($filters['active'] ?? '') === '1' ? 'selected' : '' }}>{{ __('admin.common.active') }}</option>
             <option value="0" {{ ($filters['active'] ?? '') === '0' ? 'selected' : '' }}>{{ __('admin.common.inactive') }}</option>
         </select>
-        <noscript><button class="admin-btn admin-btn-outline btn-sm">{{ __('admin.common.apply') }}</button></noscript>
-    </form>
+    </x-admin.filter-bar>
 
     <x-admin.card :padding="false">
         @if ($products->isEmpty())

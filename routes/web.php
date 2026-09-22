@@ -234,6 +234,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
+        // "View store" (sidebar/topbar): opens the storefront in a new tab without
+        // BlockAdminShopping bouncing it straight back here — see that middleware.
+        Route::get('preview-store', function () {
+            session(['admin_store_preview' => true]);
+
+            return redirect()->route('home', app()->getLocale());
+        })->name('preview-store');
+        Route::get('exit-preview', function () {
+            session()->forget('admin_store_preview');
+
+            return redirect()->route('admin.dashboard');
+        })->name('exit-preview');
+
         Route::get('products/trashed', [AdminProductController::class, 'trashed'])->name('products.trashed');
 
         // Bulk import / export. Must stay ABOVE Route::resource('products') or

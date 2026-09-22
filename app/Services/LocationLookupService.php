@@ -13,17 +13,25 @@ use Illuminate\Support\Facades\Log;
  * address metadata (city, region, district, formatted address).
  *
  * No real Saudi Post / SPL National Address API credentials exist yet. Until
- * NATIONAL_ADDRESS_BASE_URL / NATIONAL_ADDRESS_API_KEY are configured, every
+ * NATIONAL_ADDRESS_BASE_URL / NATIONAL_ADDRESS_API_KEY are configured, a
  * format-valid code resolves via stubLookup() below — deliberately a SUCCESS
- * with deterministic canned data, not a failure, so checkout and account
- * address-saving stay fully usable end to end today. Every call is logged as
- * stub mode so nobody mistakes it for a real resolution SERVER-side; the
- * `is_stub` flag on the return value (see lookup()'s docblock) is what lets
- * callers surface that same fact to the shopper/ops staff, since a stub
- * success otherwise looks identical to a real one. The real Http:: branch is
- * wired against config and ready to activate the moment real credentials are
- * set — no other code in the app needs to change, since both branches return
- * the exact same ['success','data','error','is_stub'] contract.
+ * with deterministic canned (Riyadh) data, not a failure, so checkout and
+ * account address-saving stay fully usable end to end during development.
+ * Every call is logged as stub mode so nobody mistakes it for a real
+ * resolution SERVER-side; the `is_stub` flag on the return value (see
+ * lookup()'s docblock) is what lets callers surface that same fact to the
+ * shopper/ops staff, since a stub success otherwise looks identical to a
+ * real one. The real Http:: branch is wired against config and ready to
+ * activate the moment real credentials are set — no other code in the app
+ * needs to change, since both branches return the exact same
+ * ['success','data','error','is_stub'] contract.
+ *
+ * That canned-success stub is a development convenience, not something to
+ * ship live: stubAllowed() below confines it to local/staging/testing. In
+ * any other environment (production) an unconfigured lookup fails honestly
+ * instead — a real shopper must never have their order recorded against a
+ * fabricated Riyadh address just because credentials weren't set. The
+ * "Full Address" manual-entry method is unaffected either way.
  *
  * The real endpoint path / auth scheme / response field names below are
  * UNVERIFIED against actual SPL API docs — no public, versioned SPL/Saudi
@@ -57,6 +65,20 @@ class LocationLookupService
     }
 
     /**
+     * Whether an unconfigured lookup may fall back to canned demo data.
+     * Explicit allowlist (fails closed for any environment name it doesn't
+     * recognise) rather than "not production" — the whole point is that
+     * fabricated address data must never reach a real shopper. `testing` is
+     * included because the test suite mocks this class where it needs
+     * deterministic fixtures (see Tests\Concerns\MocksLocationLookup) and
+     * only exercises this branch directly to test the branch itself.
+     */
+    private function stubAllowed(): bool
+    {
+        return app()->environment(['local', 'staging', 'testing']);
+    }
+
+    /**
      * @return array{success: bool, data: ?array<string, mixed>, error: ?string, is_stub: bool}
      */
     public function lookup(string $code): array
@@ -68,7 +90,22 @@ class LocationLookupService
         }
 
         if (! $this->isConfigured()) {
-            return $this->stubLookup($normalized);
+            if ($this->stubAllowed()) {
+                return $this->stubLookup($normalized);
+            }
+
+            // Production traffic never sees fabricated data: no real
+            // credentials means the shopper is told the lookup isn't
+            // available right now (the same message an actual outage would
+            // show) instead of silently getting someone else's Riyadh
+            // address. They still have the "Full Address" method, which
+            // works today regardless of this.
+            Log::warning('National address lookup: no live credentials configured (stub disabled outside local/staging)', [
+                'code' => $normalized,
+                'env'  => app()->environment(),
+            ]);
+
+            return ['success' => false, 'data' => null, 'error' => 'lookup_failed', 'is_stub' => false];
         }
 
         try {

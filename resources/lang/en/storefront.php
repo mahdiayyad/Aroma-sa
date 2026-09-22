@@ -3,6 +3,8 @@
 return [
 
     'admin_no_shop' => 'Admin accounts manage the store and cannot place orders.',
+    'preview_banner' => "You're previewing the store as a visitor — shopping is turned off.",
+    'preview_exit' => 'Exit preview',
 
     'confirm' => [
         'yes'    => 'Yes, delete',
@@ -36,7 +38,6 @@ return [
         'account'     => 'My Account',
         'wishlist'    => 'Wishlist',
         'cart'        => 'Cart',
-        'search'      => 'Search for products…',
         'menu'        => 'Menu',
         'categories'  => 'Categories',
         'shop'        => 'Shop',

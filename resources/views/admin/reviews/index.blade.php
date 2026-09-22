@@ -6,7 +6,15 @@
 @section('content')
     <x-admin.page-header :title="__('admin.reviews.title')" :subtitle="__('admin.reviews.subtitle')" />
 
-    <form method="get" class="admin-toolbar admin-autofilter">
+    @php
+        $filterChips = [];
+        if (! empty($filters['q'])) { $filterChips['q'] = __('admin.common.search_label').': '.$filters['q']; }
+        if (! empty($filters['status']) && $filters['status'] !== 'all') { $filterChips['status'] = __('admin.common.status').': '.__('reviews.status.'.$filters['status']); }
+        if (! empty($filters['rating'])) { $filterChips['rating'] = __('admin.reviews.rating').': '.$filters['rating'].' ★'; }
+        if (! empty($filters['reported'])) { $filterChips['reported'] = __('admin.reviews.reported_only'); }
+    @endphp
+
+    <x-admin.filter-bar :chips="$filterChips">
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" class="admin-input" placeholder="{{ __('admin.common.search') }}">
         <select name="status" class="admin-select">
             <option value="all" {{ ($filters['status'] ?? '') === 'all' ? 'selected' : '' }}>{{ __('admin.common.status') }}: {{ __('admin.common.all') }}</option>
@@ -22,11 +30,10 @@
             @endfor
         </select>
         <label class="admin-switch mb-0 d-flex align-items-center">
-            <input type="checkbox" name="reported" value="1" class="form-check-input mt-0" {{ ($filters['reported'] ?? false) ? 'checked' : '' }} onchange="this.form.submit()">
+            <input type="checkbox" name="reported" value="1" class="form-check-input admin-check mt-0" {{ ($filters['reported'] ?? false) ? 'checked' : '' }} onchange="this.form.submit()">
             <span>{{ __('admin.reviews.reported_only') }}</span>
         </label>
-        <noscript><button class="admin-btn admin-btn-outline btn-sm">{{ __('admin.common.apply') }}</button></noscript>
-    </form>
+    </x-admin.filter-bar>
 
     <x-admin.card :padding="false">
         @if ($reviews->isEmpty())

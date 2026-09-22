@@ -381,18 +381,6 @@ html[dir="ltr"] .aroma-script {
   letter-spacing: 2.5px;
   text-transform: uppercase;
 }
-.aroma-search .form-control {
-  border-radius: 7px;
-  border-color: var(--aroma-border);
-  background: #fff;
-  transition: background-color var(--aroma-transition-fast), border-color var(--aroma-transition-fast);
-}
-.aroma-search-dropdown {
-  min-width: 320px;
-  border: none;
-  border-radius: var(--aroma-radius);
-  box-shadow: var(--aroma-shadow);
-}
 .aroma-icon-link {
   color: var(--aroma-brown);
   position: relative;
@@ -1295,7 +1283,12 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
    ========================================================================== */
 .aroma-toast-container {
   position: fixed;
-  z-index: 1090;
+  /* Above everything, including the Saudi Business Center "verified store"
+     seal (seal.js, layouts/app.blade.php), which mounts its own fixed iframe
+     at z-index 2147483000 — a toast that fires while the seal occupies the
+     same corner (bottom-left in RTL, where both this and the seal sit) must
+     never render underneath it. */
+  z-index: 2147483001;
   bottom: 1.25rem;
   inset-inline-end: 1.25rem;
   display: flex;
@@ -1714,3 +1707,32 @@ html[lang="ar"] .aroma-swal-popup .swal2-title {
 .aroma-password-toggle i { font-size: 1.05rem; }
 
 html[dir="rtl"] .aroma-swal-popup { direction: rtl; }
+
+/* --- Admin "View store" preview banner (layouts/partials/admin-preview-banner.blade.php) --- */
+.aroma-preview-banner {
+  background: var(--aroma-brown);
+  color: var(--aroma-white);
+  font-size: 0.85rem;
+}
+.aroma-preview-banner .container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.55rem 1rem;
+}
+.aroma-preview-banner i { color: var(--aroma-light-brown); }
+.aroma-preview-banner-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--aroma-light-brown);
+  border-radius: 999px;
+  color: var(--aroma-white);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color var(--aroma-transition-fast, 150ms), color var(--aroma-transition-fast, 150ms);
+}
+.aroma-preview-banner-exit:hover { background: var(--aroma-light-brown); color: var(--aroma-brown); }

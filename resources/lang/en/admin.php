@@ -49,6 +49,8 @@ return [
         'image'   => 'Image',
         'created' => 'Created',
         'apply'   => 'Apply',
+        'filters' => 'Filters',
+        'search_label' => 'Search',
         'reset'   => 'Reset',
         'confirm_delete' => 'Are you sure you want to delete this? This cannot be undone.',
         'error_generic' => 'Something went wrong. Please try again.',
