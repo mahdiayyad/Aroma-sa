@@ -29,7 +29,7 @@
     </nav>
 
     <div class="admin-sidebar-foot">
-        <a href="{{ route('home', app()->getLocale()) }}" class="admin-nav-link" target="_blank" rel="noopener">
+        <a href="{{ route('admin.preview-store') }}" class="admin-nav-link" target="_blank" rel="noopener">
             <i class="bi bi-box-arrow-up-right"></i><span>{{ __('admin.view_store') }}</span>
         </a>
     </div>

@@ -50,6 +50,45 @@ class LocationLookupServiceTest extends TestCase
         $this->assertTrue($result['is_stub']);
     }
 
+    public function test_unconfigured_service_in_staging_still_gets_the_stub(): void
+    {
+        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
+        app()->instance('env', 'staging');
+
+        $result = (new LocationLookupService())->lookup('RAHA1234');
+
+        $this->assertTrue($result['success']);
+        $this->assertTrue($result['is_stub']);
+    }
+
+    /**
+     * The production-safety guarantee this whole class exists for: without
+     * real credentials, a real shopper must get an honest failure, never a
+     * fabricated Riyadh address recorded against their order.
+     */
+    public function test_unconfigured_service_in_production_fails_instead_of_fabricating_an_address(): void
+    {
+        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
+        app()->instance('env', 'production');
+
+        $result = (new LocationLookupService())->lookup('RAHA1234');
+
+        $this->assertFalse($result['success']);
+        $this->assertNull($result['data']);
+        $this->assertSame('lookup_failed', $result['error']);
+        $this->assertFalse($result['is_stub'], 'a failure is never flagged as stub data — there is no data at all');
+    }
+
+    public function test_unconfigured_service_in_an_unrecognised_environment_also_fails_closed(): void
+    {
+        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
+        app()->instance('env', 'review-app-42'); // e.g. an unforeseen preview-deployment env name
+
+        $result = (new LocationLookupService())->lookup('RAHA1234');
+
+        $this->assertFalse($result['success'], 'an unrecognised environment must not be treated as safe for demo data');
+    }
+
     public function test_configured_service_maps_a_successful_response(): void
     {
         config(['services.national_address.base_url' => 'https://na.test', 'services.national_address.api_key' => 'key']);

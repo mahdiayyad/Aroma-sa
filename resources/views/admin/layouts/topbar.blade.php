@@ -24,7 +24,7 @@
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
-                    <a class="dropdown-item" href="{{ route('home', app()->getLocale()) }}" target="_blank" rel="noopener">
+                    <a class="dropdown-item" href="{{ route('admin.preview-store') }}" target="_blank" rel="noopener">
                         <i class="bi bi-shop me-2"></i>{{ __('admin.view_store') }}
                     </a>
                 </li>

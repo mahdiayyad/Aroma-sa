@@ -6,7 +6,13 @@
 @section('content')
     <x-admin.page-header :title="__('admin.orders.title')" :subtitle="__('admin.orders.subtitle')" />
 
-    <form method="get" class="admin-toolbar admin-autofilter">
+    @php
+        $filterChips = [];
+        if (! empty($filters['q'])) { $filterChips['q'] = __('admin.common.search_label').': '.$filters['q']; }
+        if (! empty($filters['status']) && $filters['status'] !== 'all') { $filterChips['status'] = __('admin.common.status').': '.__('orders.status.'.$filters['status']); }
+    @endphp
+
+    <x-admin.filter-bar :chips="$filterChips">
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" class="admin-input" placeholder="{{ __('admin.common.search') }}">
         <select name="status" class="admin-select">
             <option value="all">{{ __('admin.common.status') }}: {{ __('admin.common.all') }}</option>
@@ -14,8 +20,7 @@
                 <option value="{{ $status }}" {{ ($filters['status'] ?? '') === $status ? 'selected' : '' }}>{{ __('orders.status.'.$status) }}</option>
             @endforeach
         </select>
-        <noscript><button class="admin-btn admin-btn-outline btn-sm">{{ __('admin.common.apply') }}</button></noscript>
-    </form>
+    </x-admin.filter-bar>
 
     <x-admin.card :padding="false">
         @if ($orders->isEmpty())

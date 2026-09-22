@@ -46,11 +46,6 @@
 .dropdown-item:hover, .dropdown-item:focus { background: var(--aroma-gold); color: var(--aroma-brown); }
 .dropdown-item.active, .dropdown-item:active { background: var(--aroma-brown); color: #fff; }
 
-/* --- Search bar (extends .aroma-search in ../aroma.css) --------------------------- */
-.aroma-search .form-control:focus { box-shadow: none; border-color: var(--aroma-brown); }
-.aroma-search .btn-aroma { border-radius: 0 999px 999px 0; }
-[dir="rtl"] .aroma-search .btn-aroma { border-radius: 999px 0 0 999px; }
-
 /* --- Nav links --------------------------------------------------------------------- */
 .nav-link {
   font-weight: 500;

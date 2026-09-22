@@ -10,10 +10,14 @@
         </x-slot>
     </x-admin.page-header>
 
-    <form method="get" class="admin-toolbar admin-autofilter">
+    @php
+        $filterChips = [];
+        if (! empty($filters['q'])) { $filterChips['q'] = __('admin.common.search_label').': '.$filters['q']; }
+    @endphp
+
+    <x-admin.filter-bar :chips="$filterChips">
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" class="admin-input" placeholder="{{ __('admin.common.search') }}">
-        <noscript><button class="admin-btn admin-btn-outline btn-sm">{{ __('admin.common.apply') }}</button></noscript>
-    </form>
+    </x-admin.filter-bar>
 
     <x-admin.card :padding="false">
         @if ($products->isEmpty())
