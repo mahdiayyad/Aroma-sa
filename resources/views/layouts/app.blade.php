@@ -171,13 +171,10 @@
       data-flash-success="{{ session('status') }}"
       data-show-password="{{ __('auth_ui.show_password') }}"
       data-hide-password="{{ __('auth_ui.hide_password') }}">
-      
-    {{-- "Verified store" seal (Saudi Business Center): seal.js pins a fixed 120x44px iframe bottom-left.
-         public/css/assistant.css keeps the chat above it (lifted while closed, layered over it while
-         open) — revisit that file if the seal's position or size ever changes. --}}
+
     <div class="sbc-verify-seal" data-token="NmU3U1ZDbCtNMGIxb0M1V01IWVlGQT09" data-position="bottom-left"></div>
     <script src="https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js" async></script>
-    
+
     @include('layouts.partials.intro')
     @include('layouts.partials.admin-preview-banner')
     @include('layouts.partials.header')
