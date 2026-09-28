@@ -5,7 +5,7 @@
 
 @section('content')
 @php($locale = app()->getLocale())
-@php($referralLink = route('register').'?ref='.$user->referral_code)
+@php($referralLink = route('register', ['ref' => $user->referral_code]))
 <div class="container my-4">
     <h1 class="aroma-section-title mb-1">{{ __('referral.title') }}</h1>
     <p class="text-aroma-muted mb-4">{{ __('referral.subtitle') }}</p>

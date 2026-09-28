@@ -4,7 +4,7 @@
 @section('page_title', $customer->name)
 
 @section('content')
-    <x-admin.page-header :title="$customer->name" :subtitle="$customer->email" :back="route('admin.customers.index')" />
+    <x-admin.page-header :title="$customer->name" :subtitle="$customer->phone ?? $customer->email" :back="route('admin.customers.index')" />
 
     <div class="row g-3">
         <div class="col-lg-4">
@@ -12,11 +12,13 @@
                 <form method="post" action="{{ route('admin.customers.update', $customer) }}">
                     @csrf @method('PATCH')
 
-                    <div class="admin-field">
-                        <span class="admin-label">{{ __('admin.customers.email') }}</span>
-                        <div class="admin-cell-sub">{{ $customer->email ?? '—' }}</div>
-                        <div class="admin-cell-sub" dir="ltr">{{ $customer->phone ?? '—' }}</div>
-                    </div>
+                    <x-admin.form.group :label="__('admin.customers.phone')" name="phone" :hint="__('admin.customers.phone_hint')">
+                        <input type="text" name="phone" value="{{ old('phone', $customer->phone) }}" class="admin-input" dir="ltr" placeholder="+9665XXXXXXXX">
+                    </x-admin.form.group>
+
+                    <x-admin.form.group :label="__('admin.customers.email')" name="email">
+                        <input type="email" name="email" value="{{ old('email', $customer->email) }}" class="admin-input">
+                    </x-admin.form.group>
 
                     @php($canChangeRole = auth()->user()->role === \App\Models\User::ROLE_ADMIN && auth()->id() !== $customer->id)
                     <x-admin.form.group :label="__('admin.customers.role')" name="role">

@@ -21,29 +21,24 @@
             @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">{{ __('otp.complete_profile.email') }}</label>
-            <input type="email" name="email" value="{{ old('email') }}"
-                   class="form-control @error('email') is-invalid @enderror">
-            @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">{{ __('otp.complete_profile.gender') }}</label>
-            @php($gender = old('gender'))
-            <select name="gender" class="form-select">
-                <option value="" {{ $gender === null || $gender === '' ? 'selected' : '' }}>{{ __('otp.complete_profile.gender_placeholder') }}</option>
-                <option value="female" {{ $gender === 'female' ? 'selected' : '' }}>{{ __('otp.complete_profile.female') }}</option>
-                <option value="male" {{ $gender === 'male' ? 'selected' : '' }}>{{ __('otp.complete_profile.male') }}</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
+        {{-- Referral code: optional, so it stays out of the way unless the
+             shopper came from an invite link (then it's already filled in
+             and the field is open) or asks for it. --}}
+        @php($referral = old('referral_code', $referralPrefill ?? ''))
+        @if ($referral === '' && ! $errors->has('referral_code'))
+            <p class="mb-3">
+                <a href="#referralField" class="small" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="referralField">
+                    {{ __('auth_ui.register.referral_toggle') }}
+                </a>
+            </p>
+        @endif
+        <div class="mb-3 collapse {{ $referral !== '' || $errors->has('referral_code') ? 'show' : '' }}" id="referralField">
             <label class="form-label">{{ __('auth_ui.register.referral_code') }}</label>
-            <input type="text" name="referral_code" value="{{ old('referral_code') }}"
+            <input type="text" name="referral_code" value="{{ $referral }}"
                    class="form-control @error('referral_code') is-invalid @enderror"
                    placeholder="{{ __('auth_ui.register.referral_code_placeholder') }}" dir="ltr" autocomplete="off">
             @error('referral_code')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            <p class="form-text mt-1 mb-0">{{ __('auth_ui.register.referral_code_hint') }}</p>
         </div>
 
         <button type="submit" class="btn btn-aroma w-100 mb-3">{{ __('otp.complete_profile.submit') }}</button>

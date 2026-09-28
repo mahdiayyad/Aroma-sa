@@ -331,6 +331,7 @@ return [
         'name'      => 'Name',
         'email'     => 'Email',
         'phone'     => 'Phone',
+        'phone_hint' => 'Saudi mobile, e.g. +966 5X XXX XXXX. This is how the customer signs in — changing it un-verifies the number until their next sign-in.',
         'orders'    => 'Orders',
         'loyalty'   => 'Loyalty points',
         'joined'    => 'Joined',

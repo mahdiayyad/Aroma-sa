@@ -6,9 +6,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OtpCode extends Model
+class EmailCode extends Model
 {
     public const PURPOSE_LOGIN = 'login';
+    public const PURPOSE_ADD_CREDENTIALS = 'add_credentials';
 
     protected $guarded = ['id'];
 

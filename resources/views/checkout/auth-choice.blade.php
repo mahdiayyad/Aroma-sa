@@ -15,34 +15,19 @@
                 <p class="text-aroma-muted mb-0">{{ __('checkout.auth.subtitle') }}</p>
             </div>
 
-            <div class="row g-4 mb-4">
-                {{-- Sign In --}}
-                <div class="col-md-6">
+            <div class="row g-4 mb-4 justify-content-center">
+                {{-- Sign in / create account: one phone-number flow (a number
+                     with no account is created right after its code checks out). --}}
+                <div class="col-md-8 col-lg-6">
                     <div class="aroma-card h-100">
                         <div class="card-body p-4 text-center d-flex flex-column">
                             <div class="mb-3">
-                                <i class="bi bi-box-arrow-in-right fs-1" style="color:var(--aroma-brown)"></i>
+                                <i class="bi bi-phone fs-1" style="color:var(--aroma-brown)"></i>
                             </div>
-                            <h5 class="mb-2" style="color:var(--aroma-brown)">{{ __('checkout.auth.login_title') }}</h5>
-                            <p class="text-aroma-muted small flex-grow-1">{{ __('checkout.auth.login_desc') }}</p>
+                            <h5 class="mb-2" style="color:var(--aroma-brown)">{{ __('checkout.auth.phone_title') }}</h5>
+                            <p class="text-aroma-muted small flex-grow-1">{{ __('checkout.auth.phone_desc') }}</p>
                             <a href="{{ route('checkout.login') }}" class="btn btn-aroma w-100">
                                 {{ __('auth_ui.login.submit') }}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Register --}}
-                <div class="col-md-6">
-                    <div class="aroma-card h-100">
-                        <div class="card-body p-4 text-center d-flex flex-column">
-                            <div class="mb-3">
-                                <i class="bi bi-person-plus fs-1" style="color:var(--aroma-brown)"></i>
-                            </div>
-                            <h5 class="mb-2" style="color:var(--aroma-brown)">{{ __('checkout.auth.register_title') }}</h5>
-                            <p class="text-aroma-muted small flex-grow-1">{{ __('checkout.auth.register_desc') }}</p>
-                            <a href="{{ route('checkout.register') }}" class="btn btn-aroma-outline w-100">
-                                {{ __('auth_ui.register.submit') }}
                             </a>
                         </div>
                     </div>

@@ -93,4 +93,75 @@ class AdminCustomerTest extends TestCase
 
         $this->assertSame(50, $target->fresh()->loyalty_points);
     }
+
+    /* ---- Phone number = sign-in credential: support can set/fix it ---------- */
+
+    public function test_an_admin_can_set_a_missing_phone_number_on_a_legacy_account(): void
+    {
+        $customer = User::factory()->create(['phone' => null, 'phone_verified_at' => now()]);
+
+        $this->actingAs($this->admin())->patch(route('admin.customers.update', $customer), [
+            'role' => User::ROLE_CUSTOMER,
+            'is_active' => '1',
+            'phone' => '0570574471',
+        ])->assertSessionHas('status');
+
+        $this->assertSame('+966570574471', $customer->fresh()->phone);
+        $this->assertNull($customer->fresh()->phone_verified_at, 'an admin-typed number is unproven until the owner signs in');
+    }
+
+    public function test_an_admin_phone_edit_must_be_a_saudi_mobile_and_not_already_taken(): void
+    {
+        $customer = User::factory()->create(['phone' => null]);
+        User::factory()->create(['phone' => '+966570574471']);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->patch(route('admin.customers.update', $customer), [
+            'role' => User::ROLE_CUSTOMER, 'phone' => '+971501234567',
+        ])->assertSessionHasErrors('phone');
+
+        $this->actingAs($admin)->patch(route('admin.customers.update', $customer), [
+            'role' => User::ROLE_CUSTOMER, 'phone' => '+966570574471',
+        ])->assertSessionHasErrors('phone');
+
+        $this->assertNull($customer->fresh()->phone);
+    }
+
+    public function test_re_saving_a_customer_with_a_non_saudi_stored_number_does_not_trip_the_saudi_rule(): void
+    {
+        $customer = User::factory()->create(['phone' => '+971501234567']);
+
+        $this->actingAs($this->admin())->patch(route('admin.customers.update', $customer), [
+            'role' => User::ROLE_CUSTOMER,
+            'is_active' => '1',
+            'phone' => '+971501234567',
+            'loyalty_points' => 25,
+        ])->assertSessionHas('status');
+
+        $this->assertSame('+971501234567', $customer->fresh()->phone);
+        $this->assertSame(25, $customer->fresh()->loyalty_points);
+    }
+
+    public function test_omitting_phone_and_email_leaves_them_untouched(): void
+    {
+        $customer = User::factory()->create(['phone' => '+966570574471', 'email' => 'keep@example.com']);
+
+        $this->actingAs($this->admin())->patch(route('admin.customers.update', $customer), [
+            'role' => User::ROLE_CUSTOMER, 'is_active' => '1',
+        ]);
+
+        $this->assertSame('+966570574471', $customer->fresh()->phone);
+        $this->assertSame('keep@example.com', $customer->fresh()->email);
+    }
+
+    public function test_the_customer_pages_cope_with_phone_only_and_email_only_accounts(): void
+    {
+        $admin = $this->admin();
+        $phoneOnly = User::factory()->create(['email' => null, 'phone' => '+966570574471']);
+        $emailOnly = User::factory()->create(['email' => 'legacy@example.com', 'phone' => null]);
+
+        $this->actingAs($admin)->get(route('admin.customers.index'))->assertOk()->assertSee('+966570574471')->assertSee('legacy@example.com');
+        $this->actingAs($admin)->get(route('admin.customers.show', $phoneOnly))->assertOk();
+        $this->actingAs($admin)->get(route('admin.customers.show', $emailOnly))->assertOk();
+    }
 }

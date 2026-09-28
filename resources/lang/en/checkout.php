@@ -20,10 +20,8 @@ return [
     'auth' => [
         'title' => 'How would you like to check out?',
         'subtitle' => 'Sign in for a faster checkout, or continue as a guest.',
-        'login_title' => 'Sign In',
-        'login_desc' => 'Already have an Aroma account? Sign in to use your saved details.',
-        'register_title' => 'Create an Account',
-        'register_desc' => 'New to Aroma? Create an account to track orders and checkout faster next time.',
+        'phone_title' => 'Sign in or create an account',
+        'phone_desc' => 'Use your mobile number (new here? we\'ll create your account in seconds) or your email and password. We\'ll send a code to confirm it\'s you.',
         'continue_as_guest' => 'Continue as guest',
         'benefit_tracking' => 'Track your orders',
         'benefit_faster' => 'Faster checkout next time',

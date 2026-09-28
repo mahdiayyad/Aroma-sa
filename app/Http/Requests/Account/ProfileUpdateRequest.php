@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Account;
 
-use App\Rules\InternationalPhone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,13 +18,24 @@ class ProfileUpdateRequest extends FormRequest
     {
         $id = $this->user()->id;
 
-        return [
+        // No `phone` here on purpose: the mobile number is the sign-in
+        // credential and only changes through the verified flow in
+        // Account\PhoneChangeController.
+        $rules = [
             'name'   => ['required', 'string', 'max:255'],
             'email'  => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($id)],
-            'phone'  => ['nullable', 'string', new InternationalPhone(), Rule::unique('users', 'phone')->ignore($id)],
             'gender' => ['nullable', 'in:female,male'],
             'dob'    => ['nullable', 'date', 'before:today'],
             'locale' => ['nullable', 'in:ar,en'],
         ];
+
+        // Once the account has a password its email is a sign-in credential (login
+        // codes are sent there), so it only changes through verified flows — never
+        // this plain form.
+        if ($this->user()->password) {
+            unset($rules['email']);
+        }
+
+        return $rules;
     }
 }

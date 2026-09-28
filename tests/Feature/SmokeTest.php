@@ -70,7 +70,6 @@ class SmokeTest extends TestCase
         $this->get(route('terms'))->assertOk();
         $this->get(route('login'))->assertOk();
         $this->get(route('register'))->assertOk();
-        $this->get(route('password.request'))->assertOk();
     }
 
     public function test_guest_checkout_entry_pages_load(): void

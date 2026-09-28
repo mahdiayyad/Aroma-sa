@@ -12,6 +12,7 @@
     'errorKey' => null,  // dot-notation for @error; derived from $name if omitted
     'value' => null,
     'required' => false,
+    'onlySaudi' => false, // sign-in / phone-change fields: Saudi mobiles only (see intl-phone.js)
 ])
 
 @php
@@ -22,6 +23,7 @@
 <input type="tel" name="{{ $name }}" value="{{ $raw }}"
        data-error-key="{{ $errorKey }}"
        @if ($required) required @endif
+       @if ($onlySaudi) data-only-saudi @endif
        {{ $attributes->merge(['class' => 'form-control js-intl-phone'.($errors->has($errorKey) ? ' is-invalid' : '')]) }}>
 @error($errorKey)
     <div class="invalid-feedback d-block">{{ $message }}</div>
