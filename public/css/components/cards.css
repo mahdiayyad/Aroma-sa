@@ -352,6 +352,12 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   align-items: center;
   justify-content: center;
   min-height: 60vh;
+  /* Prev/next are spatial controls, not reading-order content — pin them
+     to a fixed physical layout (prev always left, next always right, each
+     with a matching chevron) instead of letting flexbox mirror the DOM
+     order under RTL, which left the chevrons pointing the wrong way once
+     the buttons swapped sides. Same fix as .aroma-topbar-line. */
+  direction: ltr;
 }
 .aroma-lightbox-stage img {
   max-width: 100%;

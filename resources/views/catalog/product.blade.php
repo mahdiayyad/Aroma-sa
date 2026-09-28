@@ -444,12 +444,14 @@
         if (prevBtn) { prevBtn.addEventListener('click', function () { step(-1); }); }
         if (nextBtn) { nextBtn.addEventListener('click', function () { step(1); }); }
 
+        // Prev/next (buttons and arrow keys alike) are pinned to a fixed
+        // physical layout regardless of page direction — see
+        // .aroma-lightbox-stage's `direction: ltr` in cards.css — so the
+        // mapping here is unconditional, matching prevBtn/nextBtn above.
         lightbox.addEventListener('keydown', function (e) {
-            if (e.key === 'ArrowRight') { step(isRtlPage() ? -1 : 1); }
-            else if (e.key === 'ArrowLeft') { step(isRtlPage() ? 1 : -1); }
+            if (e.key === 'ArrowRight') { step(1); }
+            else if (e.key === 'ArrowLeft') { step(-1); }
         });
-
-        function isRtlPage() { return document.documentElement.getAttribute('dir') === 'rtl'; }
     })();
 
     // Live product total: price × quantity, updating with the selected variant.

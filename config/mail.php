@@ -41,7 +41,12 @@ return [
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            // Left at the PHP default (commonly 60s) this can leave a
+            // customer's Contact Us submission hanging for a minute before
+            // failing on any transient SMTP hiccup — fail fast instead, so a
+            // slow mail host surfaces as a quick retryable error, not a
+            // near-minute-long hang.
+            'timeout' => env('MAIL_TIMEOUT', 10),
             'auth_mode' => null,
         ],
 
