@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Events\OrderPaid;
 use App\Events\OrderPaymentFailed;
+use App\Listeners\AwardPurchasePoints;
 use App\Listeners\SendOrderConfirmationEmail;
 use App\Listeners\SendPaymentFailedEmail;
 use Illuminate\Auth\Events\Registered;
@@ -24,6 +25,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         OrderPaid::class => [
             SendOrderConfirmationEmail::class,
+            AwardPurchasePoints::class,
         ],
         OrderPaymentFailed::class => [
             SendPaymentFailedEmail::class,

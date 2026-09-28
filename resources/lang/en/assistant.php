@@ -6,7 +6,7 @@ return [
     'open'        => 'Chat with our concierge',
     'close'       => 'Close chat',
     'title'       => 'How may we help?',
-    'intro'       => 'Ask about fragrances, gifting, delivery or an order — we’re delighted to assist.',
+    'intro'       => 'Ask about abayas, gifting, delivery or an order — we’re delighted to assist.',
     'placeholder' => 'Write your message…',
     'send'        => 'Send',
     'reset'       => 'Start over',
@@ -20,7 +20,7 @@ return [
     'error'       => 'Something interrupted that reply. Please try again, or reach us on WhatsApp.',
 
     'suggestions' => [
-        'Help me choose a fragrance',
+        'Help me choose an abaya',
         'What makes a good gift?',
         'How long is delivery?',
         'How does the packaging look?',
@@ -29,11 +29,10 @@ return [
     'menu' => [
         'title'           => 'How can we help?',
         'products'        => 'Browse products',
-        'products_desc'   => 'Explore fragrances, gifts & more',
-        'service'         => 'Talk to customer service',
+        'products_desc'   => 'Explore abayas & more',
+        'service'         => 'Talk to a human agent',
         'service_desc'    => 'Chat with our team on WhatsApp',
-        'returns'         => 'Return an item',
-        'returns_desc'    => 'Start a return or exchange',
-        'returns_prefill' => 'Hello Aroma, I would like to return or exchange an item from my order.',
+        'refund'          => 'Request a refund',
+        'refund_desc'     => 'Start a refund request for an order',
     ],
 ];

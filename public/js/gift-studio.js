@@ -34,7 +34,23 @@
     }
 
     toggleRadios.forEach(function (radio) {
-        radio.addEventListener('change', applyToggleState);
+        radio.addEventListener('change', function () {
+            applyToggleState();
+
+            // "For me" needs nothing else on this step (no recipient/card/
+            // message — GiftOptionsRequest only requires those when
+            // is_gift=1) — advance immediately instead of making the
+            // shopper click Continue/Skip for an answer that's already
+            // final. The "Gift" choice still reveals the panel and waits
+            // for the shopper to fill it in and submit themselves.
+            if (radio.checked && radio.value === '0') {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            }
+        });
     });
 
     /* --- Greeting card preview ---------------------------------------------- */

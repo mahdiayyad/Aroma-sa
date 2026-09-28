@@ -3,8 +3,8 @@
 return [
     'toggle_title'   => 'Is this a gift?',
     'toggle_hint'    => 'We will ship it straight to them, wrapped and ready.',
-    'toggle_yes'     => 'Yes, it’s a gift',
-    'toggle_no'      => 'No, it’s for me',
+    'toggle_yes'     => '🎁 Gift',
+    'toggle_no'      => 'For me',
 
     'recipient_title' => 'Who is it for?',
     'recipient_name'  => 'Recipient name',

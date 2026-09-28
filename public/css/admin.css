@@ -205,6 +205,16 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
 }
 .admin-image-remove:hover { filter: brightness(.9); }
 .admin-image-item.is-removing { opacity: .4; pointer-events: none; }
+.admin-image-drag-handle {
+  position: absolute; top: -7px; inset-inline-start: -7px;
+  width: 22px; height: 22px; border-radius: 999px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--admin-brand); color: #fff; border: 2px solid #fff;
+  font-size: .75rem; line-height: 1; cursor: grab;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.admin-image-item.sortable-ghost { opacity: .3; }
+.admin-image-item.sortable-chosen .admin-image-drag-handle { cursor: grabbing; }
 
 /* --- Badges ---------------------------------------------------------------- */
 /* Latin-first font: badges often carry symbols (-X%) the Arabic display

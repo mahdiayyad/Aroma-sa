@@ -16,6 +16,7 @@ return [
         'successful_referrals' => 'Successful referrals',
         'pending_referrals' => 'Pending referrals',
         'points_earned' => 'Points earned from referrals',
+        'purchase_points' => 'Points earned from purchases',
         'balance' => 'Current points balance',
     ],
 
@@ -49,6 +50,7 @@ return [
     'types' => [
         'referral_reward' => 'Referral reward',
         'referral_signup_bonus' => 'Referral signup bonus',
+        'purchase_reward' => 'Purchase reward',
         'redemption' => 'Points redemption',
         'admin_adjustment' => 'Admin adjustment',
         'refund_reversal' => 'Refund reversal',
@@ -58,5 +60,6 @@ return [
     'ledger' => [
         'signup_bonus' => 'Welcome bonus for signing up with referral code :code',
         'referral_reward' => 'Reward for referring :name',
+        'purchase_reward' => 'Purchase reward for order :order',
     ],
 ];

@@ -441,6 +441,32 @@ class CheckoutController extends Controller
      */
     public function showPaymentForm()
     {
+        // Safety net for the rare case where an async webhook confirmed
+        // payment (and the callback below already cleared the cart) but
+        // this tab was closed/reopened before that redirect happened, or a
+        // customer re-opens an old tab after already completing checkout
+        // elsewhere. Without this, a stale checkout.order_id pointing at an
+        // already-paid order would otherwise just show a confusing "cart is
+        // empty" error instead of the order it belongs to.
+        $pendingOrderId = session('checkout.order_id');
+
+        if ($pendingOrderId) {
+            $pendingOrder = Order::find($pendingOrderId);
+
+            if ($pendingOrder && $pendingOrder->isPaid()) {
+                $this->cart->clear();
+                session()->forget([
+                    'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
+                    'checkout.gift', 'checkout.promo', 'checkout.gateway', 'checkout.reference', 'checkout.order_id',
+                ]);
+
+                return redirect()->route('home', app()->getLocale())->with(
+                    'status',
+                    __('checkout.success.order_created', ['order_number' => $pendingOrder->order_number])
+                );
+            }
+        }
+
         $validation = $this->checkout->validateCart();
 
         if (!$validation['valid']) {
@@ -454,13 +480,11 @@ class CheckoutController extends Controller
         $totals = $this->totalsWithGiftExtras();
         $user = auth()->user();
 
-        // Most-recent explicit choice wins: whatever the shopper typed/
-        // kept at the address step (guest-required, auth-optional there)
-        // over the account email, since they may have deliberately typed
-        // something different (e.g. gifting to another inbox). Only
-        // falls back to the account email when the session has none —
-        // the phone-only OTP-account case this field exists to cover.
-        $emailPrefill = session('checkout.billing_address.email') ?: optional($user)->email;
+        // The address step no longer collects an email (the payment step
+        // below is the single place that does, for guest and logged-in
+        // shoppers alike) — prefill from the account email when there is
+        // one; a phone-only OTP account simply starts this field blank.
+        $emailPrefill = optional($user)->email;
 
         return view('checkout.payment', [
             'totals' => $totals,
@@ -555,12 +579,14 @@ class CheckoutController extends Controller
             // Route to whichever gateway the customer selected. Deliberately
             // NOT clearing the cart / checkout session, or marking this order
             // "completed" for confirmation-page access, until the gateway
-            // actually confirms the checkout below — doing that beforehand
-            // (the old behaviour) meant a gateway failure left the customer
-            // bounced to an already-empty cart with their real error message
-            // overwritten, address/gift session state gone (no coherent way
-            // to retry), while the order was simultaneously viewable at its
-            // "confirmed" URL despite never being paid.
+            // actually confirms the checkout in paymentCallback() below —
+            // createCheckout() only means the gateway accepted a request to
+            // *start* a checkout session (e.g. Tamara hands back a
+            // checkout_url before the customer has done any ID verification
+            // or approval on their site). Clearing here would wipe the cart
+            // for every customer who then abandons or fails that off-site
+            // step, leaving them bounced back to an empty cart with no way
+            // to recover what they were buying.
             $result = $this->gateways->for($gatewayKey)->createCheckout($order);
 
             if (! ($result['success'] ?? false)) {
@@ -594,16 +620,11 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Gateway accepted the checkout — now it's safe to consume the
-            // cart/checkout-session state and let this session view the
-            // order's confirmation page once the customer returns.
-            $this->cart->clear();
-            session()->forget([
-                'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
-                'checkout.gift', 'checkout.promo',
-            ]);
-            session()->push('checkout.completed_orders', $order->id);
-
+            // The cart and checkout-session state (address/gift/promo) are
+            // deliberately left untouched here — they're only consumed in
+            // paymentCallback() once the gateway actually confirms payment,
+            // so a customer who backs out or fails verification on the
+            // gateway's site comes back to their cart intact, not empty.
             // Keep what the callback needs to verify + finalise this order.
             session([
                 'checkout.gateway'   => $gatewayKey,
@@ -681,6 +702,17 @@ class CheckoutController extends Controller
         }
 
         if ($gatewayPaid || $order->isPaid()) {
+            // Payment is now actually confirmed — this is the one place the
+            // cart/checkout-session state gets consumed (see the comment in
+            // storePayment()). Also covers the case where an async webhook
+            // already marked the order paid before this browser returned.
+            $this->cart->clear();
+            session()->forget([
+                'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
+                'checkout.gift', 'checkout.promo',
+            ]);
+            session()->push('checkout.completed_orders', $order->id);
+
             return redirect()->route('home', app()->getLocale())->with(
                 'status',
                 __('checkout.success.order_created', ['order_number' => $order->order_number])

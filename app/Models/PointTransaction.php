@@ -11,6 +11,7 @@ class PointTransaction extends Model
 {
     public const TYPE_REFERRAL_REWARD = 'referral_reward';
     public const TYPE_REFERRAL_SIGNUP_BONUS = 'referral_signup_bonus';
+    public const TYPE_PURCHASE_REWARD = 'purchase_reward';
     public const TYPE_REDEMPTION = 'redemption';
     public const TYPE_ADMIN_ADJUSTMENT = 'admin_adjustment';
     public const TYPE_REFUND_REVERSAL = 'refund_reversal';

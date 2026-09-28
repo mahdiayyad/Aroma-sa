@@ -36,18 +36,6 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label fw-semibold">
-                                    {{ __('checkout.email') }}
-                                    @guest <span class="text-danger">*</span> @endguest
-                                </label>
-                                <input type="email" name="billing_address[email]" class="form-control @error('billing_address.email') is-invalid @enderror"
-                                       value="{{ old('billing_address.email', optional(auth()->user())->email) }}" @guest required @endguest>
-                                @error('billing_address.email')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-12">
                                 <x-address-input field-prefix="billing_address" dom-id="billing" :method="old('billing_address.method')" />
                             </div>
 

@@ -14,14 +14,14 @@
 
     $assistantProduct = (isset($product) && $product instanceof \App\Models\Product) ? (string) $product->name : '';
 
-    // Quick-action deep links. Customer-service / returns prefer WhatsApp, then
-    // fall back to email, so the actions are always useful.
+    // Quick-action deep links. Human-agent escalation prefers WhatsApp, then
+    // falls back to email, so it's always useful. Refunds are handled
+    // entirely in-platform now — never routed to WhatsApp — so shoppers land
+    // on the refund request form regardless of whether WhatsApp is configured.
     $contactEmail = (string) config('aroma.contact.email');
     $shopUrl      = route('home', app()->getLocale());
     $serviceUrl   = $waUrl ?: ($contactEmail ? 'mailto:'.$contactEmail : null);
-    $returnsUrl   = $hasWhatsApp
-        ? 'https://wa.me/'.$waDigits.'?text='.rawurlencode(__('assistant.menu.returns_prefill'))
-        : ($contactEmail ? 'mailto:'.$contactEmail.'?subject='.rawurlencode(__('assistant.menu.returns')) : null);
+    $refundUrl    = route('account.refund-requests.create');
     $rtlChat = ($direction ?? 'ltr') === 'rtl';
 @endphp
 
@@ -89,18 +89,16 @@
                     <i class="bi {{ $chev }} aroma-qa-chev" aria-hidden="true"></i>
                 </a>
 
+                <a class="aroma-quick-action" href="{{ $refundUrl }}">
+                    <span class="aroma-qa-icon"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></span>
+                    <span class="aroma-qa-text"><strong>{{ __('assistant.menu.refund') }}</strong><span>{{ __('assistant.menu.refund_desc') }}</span></span>
+                    <i class="bi {{ $chev }} aroma-qa-chev" aria-hidden="true"></i>
+                </a>
+
                 @if ($serviceUrl)
                     <a class="aroma-quick-action" href="{{ $serviceUrl }}" @if($hasWhatsApp) target="_blank" rel="noopener" @endif>
                         <span class="aroma-qa-icon aroma-qa-icon-wa"><i class="bi bi-whatsapp" aria-hidden="true"></i></span>
                         <span class="aroma-qa-text"><strong>{{ __('assistant.menu.service') }}</strong><span>{{ __('assistant.menu.service_desc') }}</span></span>
-                        <i class="bi {{ $chev }} aroma-qa-chev" aria-hidden="true"></i>
-                    </a>
-                @endif
-
-                @if ($returnsUrl)
-                    <a class="aroma-quick-action" href="{{ $returnsUrl }}" @if($hasWhatsApp) target="_blank" rel="noopener" @endif>
-                        <span class="aroma-qa-icon"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></span>
-                        <span class="aroma-qa-text"><strong>{{ __('assistant.menu.returns') }}</strong><span>{{ __('assistant.menu.returns_desc') }}</span></span>
                         <i class="bi {{ $chev }} aroma-qa-chev" aria-hidden="true"></i>
                     </a>
                 @endif

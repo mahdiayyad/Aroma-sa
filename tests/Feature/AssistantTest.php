@@ -152,11 +152,13 @@ class AssistantTest extends TestCase
             ->assertSee(__('assistant.menu.products'))
             ->assertSee(url('/ar'), false);
 
-        // 2) Customer service + 3) Returns → WhatsApp, each with its own prefill.
+        // 2) Talk to a human agent → WhatsApp.
         $response->assertSee(__('assistant.menu.service'))
-            ->assertSee(__('assistant.menu.returns'))
-            ->assertSee('wa.me/966500000000', false)
-            ->assertSee(rawurlencode(__('assistant.menu.returns_prefill')), false);
+            ->assertSee('wa.me/966500000000', false);
+
+        // 3) Request a refund → the in-platform refund page, never WhatsApp.
+        $response->assertSee(__('assistant.menu.refund'))
+            ->assertSee(route('account.refund-requests.create'), false);
     }
 
     public function test_service_actions_fall_back_to_email_without_whatsapp(): void

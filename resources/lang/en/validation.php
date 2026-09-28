@@ -184,7 +184,6 @@ return [
 
         // Checkout — billing address
         'billing_address.recipient_name' => 'recipient name',
-        'billing_address.email'          => 'email address',
         'billing_address.phone'          => 'mobile number',
         'billing_address.street_address' => 'street address',
         'billing_address.city'           => 'city',

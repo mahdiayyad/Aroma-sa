@@ -87,6 +87,11 @@ class Order extends Model
         return $this->belongsTo(PromoCode::class);
     }
 
+    public function refundRequests(): HasMany
+    {
+        return $this->hasMany(RefundRequest::class);
+    }
+
     public function isPaid(): bool
     {
         return $this->status === self::STATUS_PAID

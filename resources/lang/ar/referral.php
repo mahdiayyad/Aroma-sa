@@ -4,7 +4,7 @@ return [
     'title' => 'الإحالات والمكافآت',
     'subtitle' => 'ادعي صديقاتك واكسبي نقاطاً مع كل إحالة ناجحة.',
 
-    'your_code' => 'كود الإحالة الخاص بك',
+    'your_code' => 'كود الدعوة الخاص بك',
     'copy' => 'نسخ الكود',
     'copy_link' => 'نسخ الرابط',
     'share' => 'مشاركة',
@@ -16,6 +16,7 @@ return [
         'successful_referrals' => 'الإحالات الناجحة',
         'pending_referrals' => 'الإحالات المعلّقة',
         'points_earned' => 'النقاط المكتسبة من الإحالات',
+        'purchase_points' => 'النقاط المكتسبة من المشتريات',
         'balance' => 'رصيد النقاط الحالي',
     ],
 
@@ -49,6 +50,7 @@ return [
     'types' => [
         'referral_reward' => 'مكافأة إحالة',
         'referral_signup_bonus' => 'مكافأة التسجيل بالإحالة',
+        'purchase_reward' => 'مكافأة شراء',
         'redemption' => 'استبدال نقاط',
         'admin_adjustment' => 'تعديل إداري',
         'refund_reversal' => 'عكس استرداد',
@@ -56,7 +58,8 @@ return [
     ],
 
     'ledger' => [
-        'signup_bonus' => 'مكافأة ترحيبية للتسجيل بكود الإحالة :code',
+        'signup_bonus' => 'مكافأة ترحيبية للتسجيل بكود الدعوة :code',
         'referral_reward' => 'مكافأة إحالة :name',
+        'purchase_reward' => 'مكافأة شراء عن الطلب رقم :order',
     ],
 ];

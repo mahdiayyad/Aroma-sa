@@ -172,16 +172,32 @@
     </div>
     <div class="offcanvas-body d-flex flex-column">
         <ul class="nav flex-column gap-1">
-            {{-- Config/lang-driven on purpose (see HomeController) — restore
-                 to ['abaya'] alongside AbayaCatalogSeeder if the abaya-only
-                 presentation ever comes back. --}}
-            {{-- @foreach (['abaya'] as $cat) --}}
-            @foreach (['abaya'] as $cat)
-                <li class="nav-item">
-                    <a class="nav-link aroma-mobile-nav-link {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
-                       href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>
-                </li>
-            @endforeach
+            <li class="nav-item">
+                <a class="nav-link aroma-mobile-nav-link {{ request()->routeIs('home') ? 'active' : '' }}"
+                   href="{{ route('home', $locale) }}">{{ __('storefront.nav.home') }}</a>
+            </li>
+            <li class="nav-item">
+                @auth
+                    <a class="nav-link aroma-mobile-nav-link" href="{{ route('account.profile.edit') }}">{{ __('account.nav.profile') }}</a>
+                @else
+                    <a class="nav-link aroma-mobile-nav-link" href="{{ route('login') }}">{{ __('storefront.nav.account') }}</a>
+                @endauth
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link aroma-mobile-nav-link aroma-mobile-nav-toggle d-flex align-items-center justify-content-between w-100 border-0 bg-transparent"
+                        data-bs-toggle="collapse" data-bs-target="#mobileNavProducts" aria-expanded="false" aria-controls="mobileNavProducts">
+                    <span>{{ __('storefront.nav.shop') }}</span>
+                    <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                </button>
+                <ul class="nav flex-column gap-1 collapse ps-3" id="mobileNavProducts">
+                    @foreach (['abaya'] as $cat)
+                        <li class="nav-item">
+                            <a class="nav-link aroma-mobile-nav-link {{ request()->is('*/category/'.$cat) ? 'active' : '' }}"
+                               href="{{ route('category.show', [$locale, $cat]) }}">{{ __('storefront.nav.'.$cat) }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </li>
         </ul>
         <hr>
         {{-- Reachable here since the header's icon row hides it below lg

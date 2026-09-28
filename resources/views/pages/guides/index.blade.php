@@ -12,10 +12,6 @@
         && $backUrl !== url('/')
         && parse_url($backUrl, PHP_URL_HOST) === request()->getHost();
 
-    // Sizing/Fit/Care are abaya-garment guides — hidden while the storefront
-    // is perfume-led; restore alongside AbayaCatalogSeeder / PerfumeCatalogSeeder.
-    // Returns stays: it's a generic policy page linked from cart/checkout
-    // regardless of product line.
     $cards = $isAr ? [
         ['bi-rulers', 'guides.sizing', 'دليل المقاسات', 'قيسي نفسك بثقة واعرفي المقاس الأنسب لكل قطعة.'],
         ['bi-gem', 'guides.fit', 'اختاري قصتك', 'اكتشفي القصات والتصاميم التي تناسب حركتك اليومية ومناسباتك.'],

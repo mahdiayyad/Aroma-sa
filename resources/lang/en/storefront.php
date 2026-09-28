@@ -28,7 +28,6 @@ return [
 
     'nav' => [
         'home'        => 'Home',
-        'perfumes'    => 'Perfumes',
         'flowers'     => 'Flowers & Gifts',
         'beauty'      => 'Beauty',
         'abayas'      => 'Abayas',
@@ -47,8 +46,7 @@ return [
 
     'hero' => [
         'title'    => 'Awaken your Senses',
-        'subtitle' => 'Captivating fragrances, floral arrangements, and beauty — curated in Saudi Arabia.',
-        // 'subtitle' => 'Elegant abayas with luxurious details, designed to give you an exceptional presence.',
+        'subtitle' => 'Elegant abayas with luxurious details, designed to give you an exceptional presence.',
         'cta'      => 'Shop the collection',
         'slide'    => 'Slide',
         'prev'     => 'Previous slide',
@@ -59,7 +57,7 @@ return [
         'categories'    => 'Shop by category',
         'new_arrivals'  => 'New arrivals',
         'gifting'       => 'The art of gifting',
-        'bestsellers'   => 'Bestselling perfumes',
+        'bestsellers'   => 'Bestselling abayas',
         'seasonal'      => 'Seasonal edit',
         'brands'        => 'Our brands',
     ],

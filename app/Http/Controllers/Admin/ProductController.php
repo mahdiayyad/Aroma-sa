@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -167,6 +168,33 @@ class ProductController extends Controller
         }
 
         return response()->json(['message' => __('admin.products.image_deleted')]);
+    }
+
+    /**
+     * Persists the admin's drag-and-drop order: sort_order is set to each
+     * id's position in the submitted array, matching the "DOM order ==
+     * sort_order" invariant destroyImage()'s primary-promotion logic (and
+     * the storefront gallery) already rely on.
+     */
+    public function reorderImages(Request $request, Product $product): JsonResponse
+    {
+        $validated = $request->validate([
+            'image_ids' => ['required', 'array'],
+            'image_ids.*' => ['integer', Rule::exists('product_images', 'id')->where('product_id', $product->id)],
+        ]);
+
+        $imageIds = $validated['image_ids'];
+
+        abort_unless(
+            $product->images()->whereIn('id', $imageIds)->count() === count($imageIds),
+            422
+        );
+
+        foreach (array_values($imageIds) as $position => $imageId) {
+            ProductImage::whereKey($imageId)->update(['sort_order' => $position]);
+        }
+
+        return response()->json(['message' => __('admin.products.images_reordered')]);
     }
 
     /** @return array<string,mixed> */

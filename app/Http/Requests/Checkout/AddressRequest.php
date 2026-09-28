@@ -44,9 +44,6 @@ class AddressRequest extends FormRequest
     {
         return [
             'billing_address.recipient_name' => 'required|string|max:100',
-            // Guests must supply an email so the order confirmation can reach
-            // them; authenticated users already have one on their account.
-            'billing_address.email' => [auth()->check() ? 'nullable' : 'required', 'email', 'max:255'],
             'billing_address.phone' => ['required', 'string', new InternationalPhone()],
             'billing_address.method' => ['nullable', 'string', Rule::in([Address::METHOD_NATIONAL_CODE, Address::METHOD_MANUAL])],
             // The actual address (city/region/district/coordinates) is
@@ -129,8 +126,6 @@ class AddressRequest extends FormRequest
     {
         $messages = [
             'billing_address.recipient_name.required' => __('validation.required', ['attribute' => __('checkout.recipient_name')]),
-            'billing_address.email.required' => __('validation.required', ['attribute' => __('checkout.email')]),
-            'billing_address.email.email' => __('validation.email', ['attribute' => __('checkout.email')]),
             'billing_address.phone.required' => __('validation.required', ['attribute' => __('checkout.phone')]),
         ];
 

@@ -111,6 +111,8 @@ html[lang="ar"] .aroma-navbar .nav-link {
    "Make desktop AND mobile follow the same color system." */
 .aroma-mobile-nav-link:hover { background: rgba(51, 1, 1, 0.08); color: var(--aroma-emerald-deep); }
 .aroma-mobile-nav-link.active { background: rgba(51, 1, 1, 0.08); color: var(--aroma-brown); }
+.aroma-mobile-nav-toggle .bi-chevron-down { transition: transform var(--aroma-transition-fast); }
+.aroma-mobile-nav-toggle[aria-expanded="true"] .bi-chevron-down { transform: rotate(180deg); }
 
 /* --- Account sidebar nav ------------------------------------------------------------- */
 .aroma-account-nav-link {
