@@ -391,6 +391,22 @@
         var nextBtn = lightbox.querySelector('.aroma-lightbox-next');
         var thumbs = Array.prototype.slice.call(document.querySelectorAll('.aroma-gallery-thumb'));
 
+        // Clicking the main image itself opens the lightbox at whatever
+        // it's currently showing — not just the dedicated zoom button.
+        main.setAttribute('role', 'button');
+        main.setAttribute('tabindex', '0');
+        main.setAttribute('aria-label', lightbox.getAttribute('aria-label') || '');
+        function openLightbox() {
+            bootstrap.Modal.getOrCreateInstance(lightbox).show();
+        }
+        main.addEventListener('click', openLightbox);
+        main.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openLightbox();
+            }
+        });
+
         function activeIndex() {
             var active = document.querySelector('.aroma-gallery-thumb.active');
             var i = thumbs.indexOf(active);

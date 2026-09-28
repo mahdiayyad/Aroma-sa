@@ -3,8 +3,8 @@
 return [
     'toggle_title'   => 'هل هذه هدية؟',
     'toggle_hint'    => 'سنشحنها مباشرة إليه، مُغلّفة وجاهزة.',
-    'toggle_yes'     => 'نعم، إنها هدية',
-    'toggle_no'      => 'لا، إنها لي',
+    'toggle_yes'     => '🎁 هدية',
+    'toggle_no'      => 'لي',
 
     'recipient_title' => 'لمن هذه الهدية؟',
     'recipient_name'  => 'اسم المستلم',

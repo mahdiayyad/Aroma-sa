@@ -120,7 +120,7 @@ class ReferralService extends BaseService
         });
     }
 
-    /** @return array{total:int,successful:int,pending:int,points_earned:int,balance:int} */
+    /** @return array{total:int,successful:int,pending:int,points_earned:int,purchase_points:int,balance:int} */
     public function stats(User $user): array
     {
         $referrals = $user->referralsMade();
@@ -130,6 +130,7 @@ class ReferralService extends BaseService
             'successful' => (clone $referrals)->where('status', Referral::STATUS_REWARDED)->count(),
             'pending' => (clone $referrals)->where('status', Referral::STATUS_PENDING)->count(),
             'points_earned' => (int) $user->pointTransactions()->where('type', PointTransaction::TYPE_REFERRAL_REWARD)->sum('points'),
+            'purchase_points' => (int) $user->pointTransactions()->where('type', PointTransaction::TYPE_PURCHASE_REWARD)->sum('points'),
             'balance' => $this->points->balance($user),
         ];
     }

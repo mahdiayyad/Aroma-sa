@@ -109,7 +109,6 @@ return [
 
         // Checkout — billing address
         'billing_address.recipient_name' => 'اسم المستلم',
-        'billing_address.email'          => 'البريد الإلكتروني',
         'billing_address.phone'          => 'رقم الجوال',
         'billing_address.street_address' => 'العنوان',
         'billing_address.city'           => 'المدينة',

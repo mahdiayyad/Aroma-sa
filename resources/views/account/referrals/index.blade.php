@@ -38,25 +38,31 @@
 
             {{-- Stats --}}
             <div class="row g-3 mb-4">
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="aroma-trust p-3 text-center h-100">
                         <div class="fs-4 fw-bold">{{ $stats['total'] }}</div>
                         <div class="text-aroma-muted small">{{ __('referral.stats.total_referrals') }}</div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="aroma-trust p-3 text-center h-100">
                         <div class="fs-4 fw-bold">{{ $stats['successful'] }}</div>
                         <div class="text-aroma-muted small">{{ __('referral.stats.successful_referrals') }}</div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
                     <div class="aroma-trust p-3 text-center h-100">
                         <div class="fs-4 fw-bold">{{ $stats['points_earned'] }}</div>
                         <div class="text-aroma-muted small">{{ __('referral.stats.points_earned') }}</div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-4">
+                    <div class="aroma-trust p-3 text-center h-100">
+                        <div class="fs-4 fw-bold">{{ $stats['purchase_points'] }}</div>
+                        <div class="text-aroma-muted small">{{ __('referral.stats.purchase_points') }}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
                     <div class="aroma-trust p-3 text-center h-100">
                         <div class="fs-4 fw-bold text-aroma-brown">{{ $stats['balance'] }}</div>
                         <div class="text-aroma-muted small">{{ __('referral.stats.balance') }}</div>

@@ -59,9 +59,14 @@
 
                 <x-admin.card :title="__('admin.products.media')">
                     @if ($editing && $product->images->isNotEmpty())
-                        <div class="admin-image-grid mb-3" id="productImages" data-primary-label="{{ __('admin.products.primary_image') }}">
+                        <div class="admin-image-grid mb-3" id="productImages"
+                             data-primary-label="{{ __('admin.products.primary_image') }}"
+                             data-reorder-url="{{ route('admin.products.images.reorder', $product) }}">
                             @foreach ($product->images as $img)
                                 <div class="admin-image-item" data-image-id="{{ $img->id }}">
+                                    <span class="admin-image-drag-handle" aria-hidden="true" title="{{ __('admin.products.reorder_image') }}">
+                                        <i class="bi bi-grip-vertical"></i>
+                                    </span>
                                     <img src="{{ $img->url() }}" alt="">
                                     @if ($img->is_primary)
                                         <span class="admin-image-primary-badge">{{ __('admin.products.primary_image') }}</span>
@@ -76,6 +81,7 @@
                                 </div>
                             @endforeach
                         </div>
+                        <div class="admin-hint mb-3">{{ __('admin.products.reorder_hint') }}</div>
                     @endif
                     <input type="file" name="images[]" multiple accept="image/*" class="admin-input" data-preview="#imgPreview">
                     <div class="admin-hint">{{ __('admin.products.images_hint') }}</div>
@@ -133,3 +139,9 @@
         </div>
     </form>
 @endsection
+
+@if ($editing && $product->images->isNotEmpty())
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+    @endpush
+@endif

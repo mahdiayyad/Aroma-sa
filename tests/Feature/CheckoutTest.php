@@ -62,17 +62,6 @@ class CheckoutTest extends TestCase
         $this->assertSame('Riyadh', session('checkout.shipping_address')['city']);
     }
 
-    public function test_guest_must_provide_an_email(): void
-    {
-        $this->seedCart();
-
-        $billing = $this->validBilling;
-        unset($billing['email']);
-
-        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
-            ->assertSessionHasErrors('billing_address.email');
-    }
-
     public function test_a_pinned_location_can_replace_the_location_code(): void
     {
         $this->seedCart();
@@ -341,8 +330,14 @@ class CheckoutTest extends TestCase
         $order = Order::first();
         $this->assertSame('sara@example.com', $order->customer_email);
         $this->assertEquals(400, $order->total_amount);
-        $this->assertContains($order->id, session('checkout.completed_orders'));
-        $this->assertEmpty(session('cart', [])); // cart cleared
+
+        // Redirecting out to the gateway only means a checkout session was
+        // opened, not that payment is confirmed — the cart, checkout
+        // session, and "viewable" flag are only consumed once the gateway
+        // actually confirms the payment in paymentCallback(). See
+        // CheckoutController::storePayment / test_completed_payment_marks_the_order_paid_and_redirects_home.
+        $this->assertEmpty(session('checkout.completed_orders', []));
+        $this->assertNotEmpty(session('cart', []));
     }
 
     /**

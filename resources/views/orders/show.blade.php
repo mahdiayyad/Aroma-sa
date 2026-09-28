@@ -28,11 +28,18 @@
                     </div>
 
                     {{-- Status --}}
-                    <div>
-                        <div class="small text-aroma-muted mb-2">{{ __('checkout.status') }}</div>
-                        <span class="aroma-badge-status {{ $order->statusBadgeClass() }}">
-                            {{ __('orders.status.'.$order->status) }}
-                        </span>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <div class="small text-aroma-muted mb-2">{{ __('checkout.status') }}</div>
+                            <span class="aroma-badge-status {{ $order->statusBadgeClass() }}">
+                                {{ __('orders.status.'.$order->status) }}
+                            </span>
+                        </div>
+                        @if ($order->isPaid())
+                            <a href="{{ route('account.refund-requests.create', ['order_id' => $order->id]) }}" class="btn btn-aroma-outline btn-sm">
+                                {{ __('refund.title') }}
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

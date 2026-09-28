@@ -7,33 +7,33 @@
 
 @section('title', ($isAr ? 'من نحن' : 'About Us').' — '.$brand['name'])
 @section('meta_description', $isAr
-    ? 'أروما علامة سعودية تنتقي العطور والزهور ومنتجات الجمال لتوقظ الأناقة وتحتفي بتفرّدك.'
-    : 'Aroma is a Saudi brand curating fragrances, florals and beauty — awakening elegance, celebrating individuality.')
+    ? 'أروما علامة سعودية تصمم العبايات بعناية فائقة، تحتفي بالأناقة والحشمة وتفرّد كل امرأة.'
+    : 'Aroma is a Saudi brand crafting abayas with meticulous care — celebrating elegance, modesty, and individuality.')
 
 @section('content')
 @php
     $about = $isAr
-        ? 'أروما علامة تجارية سعودية تنتقي بعناية أرقى العطور الفاخرة، وتنسيقات الزهور، ومنتجات الجمال التي توقظ الأناقة وتحتفي بتفرّد كل امرأة، من خلال أحدث ما وصلت إليه صناعة العطور والعناية بالبشرة والمكياج والإكسسوارات في المنطقة. نسعى إلى إثراء الحياة عبر مزج متناغم بين العطور والزهور والجمال، بما يمنح الأفراد القدرة على التعبير عن مشاعرهم وتحويلها، ليختبروا ارتباطاً عاطفياً عميقاً ونمواً شخصياً حقيقياً.'
-        : 'Aroma is a Saudi based brand that curates captivating fragrances, floral arrangements, and beauty products that awaken elegance and celebrate individuality with the latest fragrance, skincare, makeup, and accessories in the region. We are enriching lives by creating a harmonious fusion of scents, flowers, and beauty, nurturing the ability to express and transform feelings, allowing individuals to experience a profound emotional connection and personal growth.';
+        ? 'أروما علامة تجارية سعودية تصمم وتنتقي بعناية أرقى العبايات التي تحتفي بالأناقة والحشمة وتفرّد كل امرأة، معتمدة على أجود الأقمشة وأدق تفاصيل الخياطة. نسعى إلى إثراء حياة عميلاتنا من خلال عبايات تجمع بين التراث السعودي والتصميم العصري، بما يمنحهنّ الثقة والراحة في كل مناسبة.'
+        : 'Aroma is a Saudi based brand that designs and curates exquisite abayas celebrating elegance, modesty, and every woman\'s individuality — crafted from the finest fabrics with meticulous attention to tailoring. We are enriching our customers\' lives with abayas that blend Saudi heritage with contemporary design, giving them confidence and comfort for every occasion.';
 
     $mission = $isAr
-        ? 'في أروما، نختار بعناية فائقة العطور الآسرة وتنسيقات الزهور ومنتجات الجمال التي توقظ الأناقة وتحتفي بالتفرّد. لتكن أروما بوابتك إلى عالم استثنائي، حيث تُلهمك العطور، وتسحرك الأزهار، وتزدهر أناقتك.'
-        : 'At Aroma, we curate captivating fragrances, floral arrangements, and beauty products that awaken your elegance and celebrate your individuality. Let Aroma be your gateway to an exquisite world where scents inspire, blooms enchant, and your style flourishes.';
+        ? 'في أروما، نصمم بعناية فائقة عبايات تجمع بين الأناقة والحشمة والراحة. لتكن أروما بوابتك إلى خزانة أنيقة، حيث تلتقي جودة الأقمشة بدقة التفصيل لتشعري بالثقة في كل خطوة.'
+        : 'At Aroma, we carefully design abayas that bring together elegance, modesty, and comfort. Let Aroma be your gateway to an effortlessly elegant wardrobe, where fine fabrics meet precise tailoring so you feel confident in every step.';
 
     $vision = $isAr
-        ? 'تكمن رؤيتنا في إثراء الحياة من خلال مزج متناغم بين العطور والزهور والجمال، بما ينمّي القدرة على التعبير عن المشاعر وتحويلها، ليختبر الأفراد ارتباطاً عاطفياً عميقاً ونمواً شخصياً. تضع أروما معياراً يُحتذى به كعلامة تجارية موثوقة، مرادفة للرقي والمتعة الحسية والجمال الدائم.'
-        : 'Our vision is to enrich lives by creating a harmonious fusion of scents, flowers, and beauty, nurturing the ability to express and transform feelings, allowing individuals to experience a profound emotional connection and personal growth. Aroma sets the standard as a trusted brand, synonymous with sophistication, sensory delight, and lasting beauty.';
+        ? 'تكمن رؤيتنا في إثراء خزانة كل امرأة سعودية من خلال عبايات تعكس هويتها وتحتفي بحشمتها وأناقتها. تضع أروما معياراً يُحتذى به كعلامة تجارية موثوقة، مرادفة للجودة والحرفية والأناقة الدائمة.'
+        : 'Our vision is to enrich every woman\'s wardrobe with abayas that reflect her identity and celebrate both her modesty and her elegance. Aroma sets the standard as a trusted brand, synonymous with quality, craftsmanship, and lasting style.';
 
     $values = $isAr ? [
-        ['bi-heart', 'الارتباط العاطفي', 'ندرك تأثير العطور والزهور والجمال في إثارة المشاعر وخلق ذكريات لا تُنسى. نسعى لبناء ارتباط عاطفي بين منتجاتنا وعملائنا، يتيح لهم التعبير عن مشاعرهم وتحويلها من خلال ما نقدمه.'],
-        ['bi-gem', 'الجودة والتميز', 'نلتزم بتقديم ما لا يقل عن منتجات وخدمات استثنائية. نستقي عطورنا من أرقى الماركات العالمية، ونختار بعناية أنضر وأجمل الزهور، لضمان أن يترك كل توصيل انطباعاً لا يُنسى.'],
+        ['bi-heart', 'الارتباط العاطفي', 'ندرك أهمية العباية في حياة المرأة السعودية كقطعة تعكس هويتها وثقتها. نسعى لبناء ارتباط عاطفي بين تصاميمنا وعميلاتنا، بما يتيح لهنّ التعبير عن أناقتهنّ الخاصة.'],
+        ['bi-gem', 'الجودة والتميز', 'نلتزم بتقديم ما لا يقل عن منتجات استثنائية. نستقي أقمشتنا من أرقى الموردين، ونحرص على أدق تفاصيل الخياطة والتشطيب، لضمان أن تترك كل عباية انطباعاً لا يُنسى.'],
         ['bi-shield-check', 'الثقة والنزاهة', 'نقدّر الثقة التي يمنحنا إياها عملاؤنا. نعمل بشفافية وصدق ونزاهة في جميع جوانب أعمالنا، ونحرص على بناء علاقات طويلة الأمد قائمة على الثقة والالتزام بأعلى المعايير الأخلاقية.'],
-        ['bi-lightbulb', 'الإبداع والابتكار', 'نبحث باستمرار عن طرق جديدة ومبتكرة لإثراء تجربة عملائنا. من مجموعات الهدايا المنسقة إلى التنسيقات المخصصة، نتبنى الإبداع لنضمن لعملائنا تعبيراً أصيلاً ومميزاً.'],
+        ['bi-lightbulb', 'الإبداع والابتكار', 'من التصاميم الموسمية إلى القطع المفصّلة بحسب الطلب، نتبنى الإبداع لنضمن لعميلاتنا تعبيراً أصيلاً ومميزاً عن أناقتهنّ الخاصة.'],
     ] : [
-        ['bi-heart', 'Emotional Connection', 'We understand the power of scents, flowers, and beauty in evoking emotions and creating lasting memories. We aim to forge an emotional connection between our products and our customers, allowing them to express and transform their feelings.'],
-        ['bi-gem', 'Quality & Excellence', 'We are dedicated to delivering nothing less than outstanding products and services. We source our perfumes from renowned brands and carefully select the freshest, most beautiful flowers for every delivery.'],
+        ['bi-heart', 'Emotional Connection', 'We understand how meaningful an abaya is to a woman\'s identity and confidence. We aim to forge an emotional connection between our designs and our customers, letting every piece reflect her own sense of style.'],
+        ['bi-gem', 'Quality & Excellence', 'We are dedicated to delivering nothing less than outstanding products. We source our fabrics from trusted, high-quality suppliers and pay close attention to every stitch and finish, ensuring every abaya leaves a lasting impression.'],
         ['bi-shield-check', 'Trust & Integrity', 'We value the trust placed in us by our customers. We operate with transparency, honesty, and integrity in all aspects of our business — building long-lasting relationships and upholding the highest ethical standards.'],
-        ['bi-lightbulb', 'Creativity & Innovation', "We constantly seek new and imaginative ways to enhance our customers' experiences. From curated gift sets to customized arrangements, we embrace creativity to help you express what truly matters."],
+        ['bi-lightbulb', 'Creativity & Innovation', 'From seasonal collections to made-to-order pieces, we embrace creativity to help every customer express her own distinct sense of style.'],
     ];
 @endphp
 
@@ -43,7 +43,7 @@
         <div class="aroma-hero-tagline mb-2">{{ $brand['tagline'] ?? 'Awaken your Senses' }}</div>
         <h1 class="mb-3">{{ $isAr ? 'من نحن' : 'About Aroma' }}</h1>
         <p class="lead aroma-hero-lead mb-0">
-            {{ $isAr ? 'علامة سعودية توقظ حواسك وتحتفي بأناقتك في كل تفصيلة.' : 'A Saudi brand awakening your senses, one exquisite detail at a time.' }}
+            {{ $isAr ? 'علامة سعودية تحتفي بالأناقة والحشمة في كل تفصيلة.' : 'A Saudi brand celebrating elegance and modesty in every detail.' }}
         </p>
     </div>
 </section>

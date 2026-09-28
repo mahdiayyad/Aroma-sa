@@ -218,6 +218,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   width: 100%;
   height: 100%;
   object-fit: cover;
+  cursor: zoom-in;
   /* Thumbnail clicks slide this in from the left/right (see the script in
      catalog/product.blade.php) rather than crossfading — .aroma-gallery-main's
      overflow:hidden above is what clips the image while it's off to one side
@@ -226,6 +227,10 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
      and incoming halves of the slide, then clears the inline override so it
      falls back to this transition for the actual animated move. */
   transition: transform 0.32s var(--aroma-ease, ease);
+}
+.aroma-gallery-main img:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.5);
 }
 
 /* Caption — currently always empty/hidden (.is-empty below): it only ever

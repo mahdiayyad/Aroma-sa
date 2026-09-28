@@ -6,6 +6,7 @@ use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\ReferralController;
+use App\Http\Controllers\Account\RefundRequestController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Admin\ProductImportExportController as AdminProductImpo
 use App\Http\Controllers\Admin\ProductOptionController as AdminProductOptionController;
 use App\Http\Controllers\Admin\ProductReviewController as AdminProductReviewController;
 use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
+use App\Http\Controllers\Admin\RefundRequestController as AdminRefundRequestController;
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
@@ -120,6 +122,9 @@ Route::middleware('auth')->prefix('account')->group(function () {
     Route::put('profile', [ProfileController::class, 'update'])->name('account.profile.update');
     Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::get('referrals', [ReferralController::class, 'index'])->name('account.referrals.index');
+
+    Route::get('refund-requests/create', [RefundRequestController::class, 'create'])->name('account.refund-requests.create');
+    Route::post('refund-requests', [RefundRequestController::class, 'store'])->name('account.refund-requests.store');
 
     Route::prefix('addresses')->name('account.addresses.')->group(function () {
         Route::get('/', [AddressController::class, 'index'])->name('index');
@@ -277,6 +282,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('products', AdminProductController::class);
         Route::delete('products/{product}/images/{image}', [AdminProductController::class, 'destroyImage'])
             ->name('products.images.destroy');
+        Route::patch('products/{product}/images/reorder', [AdminProductController::class, 'reorderImages'])
+            ->name('products.images.reorder');
         Route::post('products/{product}/restore', [AdminProductController::class, 'restore'])
             ->name('products.restore')->withTrashed();
         Route::delete('products/{product}/force', [AdminProductController::class, 'forceDestroy'])
@@ -299,6 +306,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
         Route::post('orders/{order}/tamara/capture', [AdminOrderController::class, 'tamaraCapture'])->name('orders.tamara.capture');
         Route::post('orders/{order}/tamara/refund', [AdminOrderController::class, 'tamaraRefund'])->name('orders.tamara.refund');
+
+        Route::get('refund-requests', [AdminRefundRequestController::class, 'index'])->name('refund-requests.index');
+        Route::patch('refund-requests/{refundRequest}/approve', [AdminRefundRequestController::class, 'approve'])->name('refund-requests.approve');
+        Route::patch('refund-requests/{refundRequest}/reject', [AdminRefundRequestController::class, 'reject'])->name('refund-requests.reject');
 
         Route::get('customers', [AdminCustomerController::class, 'index'])->name('customers.index');
         Route::get('customers/{customer}', [AdminCustomerController::class, 'show'])->name('customers.show');

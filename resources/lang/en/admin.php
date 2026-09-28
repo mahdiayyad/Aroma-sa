@@ -18,6 +18,7 @@ return [
         'promo_codes' => 'Promo Codes',
         'reviews'    => 'Reviews',
         'orders'     => 'Orders',
+        'refund_requests' => 'Refund Requests',
         'customers'  => 'Customers',
     ],
 
@@ -113,6 +114,9 @@ return [
         'images_hint'  => 'The first image becomes the primary. Uploading more appends to existing.',
         'primary_image' => 'Primary',
         'confirm_delete_image' => 'Remove this image? This cannot be undone.',
+        'reorder_image' => 'Drag to reorder',
+        'reorder_hint' => 'Drag images by the handle to change their display order.',
+        'images_reordered' => 'Image order updated.',
         'image_deleted' => 'Image removed.',
         'price'        => 'Price',
         'no_products'  => 'No products yet.',
@@ -369,6 +373,20 @@ return [
         'deleted' => 'Review deleted.',
         'confirm_delete' => 'Delete this review? This cannot be undone from here.',
         'pending_count' => 'Pending reviews',
+    ],
+
+    'refund_requests' => [
+        'title' => 'Refund Requests',
+        'subtitle' => 'Review and decide on customer refund requests',
+        'order' => 'Order',
+        'customer' => 'Customer',
+        'reason' => 'Reason',
+        'date' => 'Date',
+        'no_requests' => 'No refund requests found.',
+        'approve' => 'Approve',
+        'reject' => 'Reject',
+        'approved' => 'Refund request approved.',
+        'rejected' => 'Refund request rejected.',
     ],
 
     'tamara' => [

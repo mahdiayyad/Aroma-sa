@@ -124,6 +124,34 @@
             });
         });
 
+        // Product media manager: drag-and-drop reordering. DOM order is
+        // already treated as the source of truth for sort_order elsewhere on
+        // this page (see the primary-image promotion above), so dragging
+        // just needs to persist that same order to the server.
+        var productImages = document.getElementById('productImages');
+        if (productImages && window.Sortable) {
+            new Sortable(productImages, {
+                handle: '.admin-image-drag-handle',
+                animation: 150,
+                onEnd: function () {
+                    var ids = $(productImages).find('.admin-image-item').map(function () {
+                        return $(this).data('image-id');
+                    }).get();
+
+                    $.ajax({
+                        url: $(productImages).data('reorder-url'),
+                        method: 'PATCH',
+                        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                        data: { image_ids: ids }
+                    }).done(function (data) {
+                        toast('success', data && data.message);
+                    }).fail(function () {
+                        toast('error', document.body.getAttribute('data-error-generic') || 'Something went wrong.');
+                    });
+                }
+            });
+        }
+
         // Image upload preview: <input type="file" data-preview="#target">
         $(document).on('change', 'input[type="file"][data-preview]', function () {
             var target = $($(this).data('preview'));

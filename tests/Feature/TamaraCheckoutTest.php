@@ -116,6 +116,59 @@ class TamaraCheckoutTest extends TestCase
         $this->assertSame('tam-uuid-7', $payment->reference_number);
     }
 
+    /* Cart persistence through the off-site verification step ------------- */
+
+    public function test_the_cart_and_checkout_session_survive_the_redirect_out_to_tamara(): void
+    {
+        $this->readyToPay();
+        $this->fakeTamara(true);
+
+        $this->payWithTamara()->assertRedirect('https://checkout-sandbox.tamara.co/c/7');
+
+        $this->assertNotEmpty(session('cart'), 'the cart must still be there while Tamara verification is pending');
+        $this->assertNotNull(session('checkout.billing_address'), 'checkout address must still be there while Tamara verification is pending');
+    }
+
+    public function test_the_cart_survives_a_declined_or_abandoned_tamara_verification(): void
+    {
+        $this->readyToPay();
+        $this->fakeTamara(true);
+        $this->payWithTamara()->assertRedirect('https://checkout-sandbox.tamara.co/c/7');
+        $this->assertNotEmpty(session('cart'));
+
+        Http::fake(['*tamara.co/*' => Http::response(['order_id' => 'tam-uuid-7', 'status' => 'declined'], 200)]);
+
+        $this->get(route('payment.callback'))
+            ->assertRedirect(route('checkout.payment'))
+            ->assertSessionHas('error');
+
+        $this->assertNotEmpty(session('cart'), 'a declined/abandoned Tamara verification must not empty the cart');
+        $this->assertNotNull(session('checkout.billing_address'), 'checkout address must survive so the customer can retry without rebuilding it');
+
+        // The payment step itself must render normally with the cart intact,
+        // not bounce to an "empty cart" error.
+        $this->get(route('checkout.payment'))->assertOk();
+    }
+
+    public function test_the_cart_is_cleared_only_once_tamara_actually_confirms_payment(): void
+    {
+        $this->readyToPay();
+        $this->fakeTamara(true);
+        $this->payWithTamara()->assertRedirect('https://checkout-sandbox.tamara.co/c/7');
+        $this->assertNotEmpty(session('cart'));
+
+        Http::fake(['*tamara.co/*' => Http::response(['order_id' => 'tam-uuid-7', 'status' => 'authorised'], 200)]);
+
+        $this->get(route('payment.callback'))
+            ->assertRedirect()
+            ->assertSessionHas('status');
+
+        $this->assertEmpty(session('cart'), 'the cart is only cleared once payment is actually confirmed');
+
+        $order = Payment::where('reference_number', 'tam-uuid-7')->first()->order;
+        $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
+    }
+
     /* Return from Tamara -------------------------------------------------- */
 
     private function pendingTamaraOrder(string $reference): Order
