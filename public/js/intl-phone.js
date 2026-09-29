@@ -57,14 +57,25 @@
     }
 
     function init(input) {
-        var iti = window.intlTelInput(input, {
+        var options = {
             initialCountry: 'sa',
             separateDialCode: true,
             nationalMode: false,
             autoPlaceholder: 'polite',
             countrySearch: true,
             formatOnDisplay: true,
-        });
+        };
+
+        // Sign-in / phone-change fields can only receive an SMS code from
+        // Saudi mobile networks (Tawked delivers to KSA numbers only), so
+        // they're locked to Saudi Arabia — every other phone field on the
+        // site (checkout, addresses, gift recipients) stays international.
+        if (input.hasAttribute('data-only-saudi')) {
+            options.onlyCountries = ['sa'];
+            options.allowDropdown = false;
+        }
+
+        var iti = window.intlTelInput(input, options);
         input._iti = iti;
 
         // A pre-filled international value (e.g. "+966501234567" from old())

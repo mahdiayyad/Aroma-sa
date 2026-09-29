@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\DashboardController;
+use App\Http\Controllers\Account\EmailPasswordController;
+use App\Http\Controllers\Account\PhoneChangeController;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\ReferralController;
 use App\Http\Controllers\Account\RefundRequestController;
@@ -21,9 +23,10 @@ use App\Http\Controllers\Admin\ProductReviewController as AdminProductReviewCont
 use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 use App\Http\Controllers\Admin\RefundRequestController as AdminRefundRequestController;
 use App\Http\Controllers\AssistantController;
+use App\Http\Controllers\Auth\EmailLoginController;
+use App\Http\Controllers\Auth\EmailRegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
-use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CartController;
@@ -93,16 +96,20 @@ Route::get('locale/{locale}', function (string $locale) {
 
 /* Authentication ----------------------------------------------------------- */
 Route::middleware('guest')->group(function () {
+    // Sign-in and sign-up are two doors into the same verified-code flow:
+    // the sign-up page is phone-based (a number with no account gets one after
+    // its code checks out); sign-in also offers email + password.
     Route::get('login', [LoginController::class, 'create'])->name('login');
-    Route::post('login', [LoginController::class, 'store'])->middleware('throttle:6,1')->name('login.store');
-
     Route::get('register', [RegisterController::class, 'create'])->name('register');
-    Route::post('register', [RegisterController::class, 'store'])->name('register.store');
 
-    Route::get('password/forgot', [PasswordResetController::class, 'showForgot'])->name('password.request');
-    Route::post('password/forgot', [PasswordResetController::class, 'sendLink'])->middleware('throttle:6,1')->name('password.email');
-    Route::get('password/reset/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
-    Route::post('password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
+    // Second sign-in option: email + password, then a code emailed to that address.
+    Route::post('login/email', [EmailLoginController::class, 'send'])->middleware('throttle:email-login')->name('login.email');
+    Route::post('login/email/verify', [EmailLoginController::class, 'verify'])->middleware('throttle:email-verify')->name('login.email.verify');
+
+    // Second sign-up option: create an account with email + password, confirmed
+    // by a code emailed to that address.
+    Route::post('register/email', [EmailRegisterController::class, 'send'])->middleware('throttle:email-register')->name('register.email');
+    Route::post('register/email/verify', [EmailRegisterController::class, 'verify'])->middleware('throttle:email-verify')->name('register.email.verify');
 
     Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
@@ -120,6 +127,11 @@ Route::middleware('auth')->prefix('account')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('account.dashboard');
     Route::get('profile', [ProfileController::class, 'edit'])->name('account.profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('account.profile.update');
+    Route::post('security/email/send', [EmailPasswordController::class, 'send'])->middleware('throttle:email-login')->name('account.security.email.send');
+    Route::post('security/email/verify', [EmailPasswordController::class, 'verify'])->middleware('throttle:email-verify')->name('account.security.email.verify');
+    Route::put('security/password', [EmailPasswordController::class, 'changePassword'])->middleware('throttle:6,1')->name('account.security.password');
+    Route::post('phone/send', [PhoneChangeController::class, 'send'])->middleware('throttle:otp-send')->name('account.phone.send');
+    Route::post('phone/verify', [PhoneChangeController::class, 'verify'])->middleware('throttle:otp-verify')->name('account.phone.verify');
     Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::get('referrals', [ReferralController::class, 'index'])->name('account.referrals.index');
 

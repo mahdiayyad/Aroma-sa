@@ -6,6 +6,11 @@ namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * The phone number is already verified by the time this runs; a new account
+ * needs nothing but a name. Email and gender are editable later in the
+ * profile. The referral code is optional and never blocks signup.
+ */
 class OtpCompleteProfileRequest extends FormRequest
 {
     public function authorize(): bool
@@ -17,8 +22,6 @@ class OtpCompleteProfileRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
-            'gender' => ['nullable', 'in:female,male'],
             'referral_code' => ['nullable', 'string', 'max:50'],
         ];
     }

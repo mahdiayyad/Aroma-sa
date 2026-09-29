@@ -14,23 +14,26 @@ class ReferralTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function validPayload(array $overrides = []): array
+    private const NEW_PHONE = '+966512345678';
+
+    /**
+     * Signup is the "complete profile" step that follows a verified phone
+     * number (see OtpTest for the Tawked verification itself): the session
+     * flag below is exactly what a correct code leaves behind.
+     */
+    private function signUp(array $overrides = [])
     {
-        return array_merge([
-            'name'                  => 'Layla Ahmed',
-            'email'                 => 'layla@example.com',
-            'password'              => 'Passw0rd1',
-            'password_confirmation' => 'Passw0rd1',
-        ], $overrides);
+        return $this->withSession(['otp.verified_phone' => self::NEW_PHONE])
+            ->post(route('otp.complete-profile.store'), array_merge(['name' => 'Layla Ahmed'], $overrides));
     }
 
     /* ---- Every new customer gets a code ------------------------------------ */
 
     public function test_every_registered_customer_receives_a_unique_referral_code(): void
     {
-        $this->post('/register', $this->validPayload())->assertRedirect(route('account.dashboard'));
+        $this->signUp()->assertRedirect(route('account.dashboard'));
 
-        $user = User::where('email', 'layla@example.com')->first();
+        $user = User::where('phone', self::NEW_PHONE)->first();
         $this->assertNotNull($user->referral_code);
         $this->assertStringStartsWith('AROMA-', $user->referral_code);
     }
@@ -65,10 +68,10 @@ class ReferralTest extends TestCase
     {
         $referrer = User::factory()->create(['referral_code' => 'AROMA-MAHDI']);
 
-        $this->post('/register', $this->validPayload(['referral_code' => 'aroma-mahdi']))
+        $this->signUp(['referral_code' => 'aroma-mahdi'])
             ->assertRedirect(route('account.dashboard'));
 
-        $newUser = User::where('email', 'layla@example.com')->first();
+        $newUser = User::where('phone', self::NEW_PHONE)->first();
 
         $this->assertSame($referrer->id, $newUser->referred_by_user_id);
         $this->assertEquals(100, $newUser->loyalty_points);
@@ -83,10 +86,10 @@ class ReferralTest extends TestCase
 
     public function test_an_invalid_referral_code_does_not_block_registration(): void
     {
-        $this->post('/register', $this->validPayload(['referral_code' => 'NOT-A-REAL-CODE']))
+        $this->signUp(['referral_code' => 'NOT-A-REAL-CODE'])
             ->assertRedirect(route('account.dashboard'));
 
-        $newUser = User::where('email', 'layla@example.com')->first();
+        $newUser = User::where('phone', self::NEW_PHONE)->first();
         $this->assertNotNull($newUser);
         $this->assertNull($newUser->referred_by_user_id);
         $this->assertEquals(0, $newUser->loyalty_points);
@@ -172,13 +175,50 @@ class ReferralTest extends TestCase
         $this->assertEquals(100, $service->toPoints(10));
     }
 
-    /* ---- Referral link prefills the registration form ------------------------ */
+    /* ---- Referral link prefills the new-account step ------------------------- */
 
-    public function test_the_referral_query_param_prefills_the_registration_form(): void
+    public function test_a_shared_referral_link_prefills_the_new_account_step(): void
     {
         User::factory()->create(['referral_code' => 'AROMA-LINKED']);
 
-        $this->get('/register?ref=AROMA-LINKED')->assertOk()->assertSee('AROMA-LINKED');
+        // The link lands on the sign-in page; the code rides the session
+        // through phone verification to the profile step.
+        $this->get('/login?ref=AROMA-LINKED')->assertOk();
+
+        $this->withSession(['otp.verified_phone' => self::NEW_PHONE])
+            ->get(route('otp.complete-profile'))
+            ->assertOk()
+            ->assertSee('AROMA-LINKED');
+    }
+
+    public function test_a_referral_link_to_the_sign_up_page_prefills_the_new_account_step(): void
+    {
+        $this->get('/register?ref=AROMA-LINKED')->assertOk();
+
+        $this->withSession(['otp.verified_phone' => self::NEW_PHONE])
+            ->get(route('otp.complete-profile'))
+            ->assertOk()
+            ->assertSee('AROMA-LINKED');
+    }
+
+    public function test_the_shareable_link_on_the_referrals_page_points_at_sign_up(): void
+    {
+        $user = User::factory()->create(['referral_code' => 'AROMA-SHARE1']);
+
+        $this->actingAs($user)->get(route('account.referrals.index'))
+            ->assertOk()
+            ->assertSee(e(route('register', ['ref' => 'AROMA-SHARE1'])), false);
+    }
+
+    public function test_a_prefilled_referral_code_rewards_both_sides_when_the_account_is_created(): void
+    {
+        $referrer = User::factory()->create(['referral_code' => 'AROMA-LINKED']);
+
+        $this->get('/login?ref=AROMA-LINKED');
+        $this->signUp(['referral_code' => 'AROMA-LINKED'])->assertRedirect(route('account.dashboard'));
+
+        $this->assertEquals(100, $referrer->fresh()->loyalty_points);
+        $this->assertNull(session('referral_code_prefill'));
     }
 
     /* ---- Admin points adjustments are ledgered, not raw column writes -------- */

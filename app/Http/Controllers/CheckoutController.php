@@ -135,13 +135,13 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Send guest to registration, returning to checkout address afterwards.
+     * Sign-in and sign-up are one phone-number flow now (a number with no
+     * account is created right after its code is verified), so this kept-for-
+     * old-links route simply behaves like redirectToLogin().
      */
     public function redirectToRegister(): RedirectResponse
     {
-        session(['url.intended' => route('checkout.address')]);
-
-        return redirect()->route('register');
+        return $this->redirectToLogin();
     }
 
     /**

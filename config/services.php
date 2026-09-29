@@ -67,13 +67,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Notification providers (SMS + WhatsApp)
+    | Tawked Verify API (phone-number OTP)
     |--------------------------------------------------------------------------
+    | Tawked generates, delivers and checks the one-time code — this app never
+    | sees or stores it. "tk_test_" keys are the sandbox (10 lifetime sends,
+    | only to the account owner's verified phone); "tk_live_" is production.
+    | `dev_code` is honoured ONLY when APP_ENV=local (see TawkedClient).
     */
-    'sms' => [
-        'provider'  => env('SMS_PROVIDER', 'unifonic'),
-        'api_key'   => env('SMS_API_KEY'),
-        'sender_id' => env('SMS_SENDER_ID', 'Aroma'),
+    'tawked' => [
+        'base_url' => env('TAWKED_BASE_URL', 'https://tawked.com'),
+        'api_key'  => env('TAWKED_API_KEY'),
+        'timeout'  => (int) env('TAWKED_TIMEOUT', 10),
+        'dev_code' => env('TAWKED_DEV_CODE'),
     ],
 
     'whatsapp' => [
