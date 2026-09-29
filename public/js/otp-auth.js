@@ -131,12 +131,13 @@
 
         // Every first-step input carries data-otp-field="<request field name>"; the
         // phone field keeps going through intl-tel-input so it posts clean E.164.
+        // data-otp-optional (e.g. a collapsed referral-code field) may be left blank.
         function collectFields() {
             var form = new FormData();
             var complete = true;
             root.querySelectorAll('[data-otp-field]').forEach(function (el) {
                 var value = (el === phoneInput) ? getPhoneNumber() : el.value;
-                if (!value) { complete = false; }
+                if (!value && !el.hasAttribute('data-otp-optional')) { complete = false; }
                 form.append(el.getAttribute('data-otp-field'), value);
             });
             return complete ? form : null;
@@ -305,7 +306,40 @@
         }
     }
 
+    // Segmented phone/email tabs (login and register pages share this exact
+    // markup shape): a radio per tab, each carrying data-pane="#idOfItsPanel".
+    // Wrapping [data-auth-tabs] auto-initialises every one found on the page —
+    // no per-page <script> needed, unlike the panels above which each page
+    // still includes explicitly.
+    function initAuthTabs(root) {
+        var radios = Array.prototype.slice.call(root.querySelectorAll('input[data-pane]'));
+        if (!radios.length) { return; }
+
+        // Soft fade-in when a pane appears, reusing the keyframe the auth card
+        // itself uses on page load.
+        function reveal(pane) {
+            pane.classList.remove('d-none');
+            pane.classList.remove('aroma-animate-in');
+            void pane.offsetWidth;
+            pane.classList.add('aroma-animate-in');
+        }
+
+        radios.forEach(function (radio) {
+            var pane = document.querySelector(radio.getAttribute('data-pane'));
+            if (!pane) { return; }
+            radio.addEventListener('change', function () {
+                if (!this.checked) { return; }
+                radios.forEach(function (other) {
+                    var otherPane = document.querySelector(other.getAttribute('data-pane'));
+                    if (otherPane && otherPane !== pane) { otherPane.classList.add('d-none'); }
+                });
+                reveal(pane);
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-auth-tabs]').forEach(initAuthTabs);
         if (typeof window.AromaHttp === 'undefined') { return; }
         document.querySelectorAll('[data-otp-panel]').forEach(initPanel);
     });

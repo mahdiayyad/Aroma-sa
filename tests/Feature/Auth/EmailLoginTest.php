@@ -86,7 +86,7 @@ class EmailLoginTest extends TestCase
     {
         $html = $this->get(route('login', ['method' => 'email']))->assertOk()->getContent();
 
-        $this->assertMatchesRegularExpression('/id="authMethodEmail"\s+checked/', $html);
+        $this->assertMatchesRegularExpression('/id="authMethodEmail"[^>]*checked/', $html);
     }
 
     /* ---- Step 1: password, then a code is emailed ----------------------------- */

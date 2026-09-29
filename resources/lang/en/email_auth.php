@@ -22,16 +22,31 @@ return [
         'subject' => [
             'login' => 'Your Aroma sign-in code',
             'add_credentials' => 'Confirm your email for Aroma',
+            'register' => 'Confirm your email to finish creating your account',
         ],
         'intro' => [
             'login' => 'Use this code to finish signing in to your Aroma account:',
             'add_credentials' => 'Use this code to confirm this email address for your Aroma account:',
+            'register' => 'Use this code to confirm your email and finish creating your Aroma account:',
         ],
         'expires' => 'The code expires in :minutes minutes and works once.',
         'ignore' => [
             'login' => 'If this wasn\'t you, someone knows your password — please change it right away.',
             'add_credentials' => 'If you didn\'t ask for this, you can safely ignore this email.',
+            'register' => 'If you didn\'t create an Aroma account, you can safely ignore this email.',
         ],
+    ],
+
+    'register' => [
+        'title' => 'Create your account',
+        'subtitle' => 'We\'ll email you a code to confirm your address, then your account is ready.',
+        'name' => 'Full name',
+        'email' => 'Email address',
+        'password' => 'Password',
+        'confirm' => 'Confirm password',
+        'submit' => 'Create account',
+        'email_taken' => 'This email already has an account — sign in instead.',
+        'session_expired' => 'That request expired. Please start again.',
     ],
 
     'profile' => [

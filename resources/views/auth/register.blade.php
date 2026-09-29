@@ -10,11 +10,20 @@
     <h1 class="h3 mb-1">{{ __('auth_ui.register.title') }}</h1>
     <p class="text-aroma-muted mb-4">{{ __('auth_ui.register.subtitle') }}</p>
 
-    {{-- Same verified-code flow as sign-in: a number with no account gets one
-         right after its code checks out (then we only ask for a name). --}}
-    @include('auth.partials.otp-panel')
+    {{-- Two ways to create an account. Both end with a one-time code: a text to
+         the mobile number, or — once the address is confirmed — the account is
+         created with the email + password just entered. --}}
+    @include('auth.partials.method-tabs', ['phonePaneId' => 'phoneRegisterPane', 'emailPaneId' => 'emailRegisterPane'])
 
-    <p class="form-text text-center mt-0 mb-2">{{ __('auth_ui.register.email_hint') }}</p>
+    <div id="phoneRegisterPane" class="{{ request()->query('method') === 'email' ? 'd-none' : '' }}">
+        {{-- Same verified-code flow as sign-in: a number with no account gets one
+             right after its code checks out (then we only ask for a name). --}}
+        @include('auth.partials.otp-panel')
+    </div>
+
+    <div id="emailRegisterPane" class="{{ request()->query('method') === 'email' ? '' : 'd-none' }}">
+        @include('auth.partials.email-register-panel')
+    </div>
 
     @include('auth.partials.social')
 

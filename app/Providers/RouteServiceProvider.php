@@ -101,12 +101,36 @@ class RouteServiceProvider extends ServiceProvider
             ];
         });
 
-        // Step 2: guessing the emailed code (the code itself also locks after 5 wrong tries).
+        // Sign-up with email + password: no existing account to guess a password
+        // against, but still capped per email (how many emails one address can
+        // be made to receive) and per IP, to keep it from being used to spam
+        // arbitrary inboxes with codes.
+        RateLimiter::for('email-register', function (Request $request) {
+            $tooMany = function () {
+                return response()->json(['message' => __('otp.errors.rate_limited')], 429);
+            };
+
+            return [
+                Limit::perMinutes(10, 5)->by('email:'.Email::normalize($request->input('email')))->response($tooMany),
+                Limit::perMinutes(10, 20)->by('ip:'.$request->ip())->response($tooMany),
+            ];
+        });
+
+        // Step 2 for both email flows above: guessing the emailed code (the code
+        // itself also locks after 5 wrong tries). Whichever flow is mid-way
+        // through in this session — sign-in, sign-up, or (signed in) adding
+        // credentials — supplies the key; 'none' only shows up for a stray
+        // request with no pending step 1 at all, and that gets 422'd anyway.
         RateLimiter::for('email-verify', function (Request $request) {
             $tooMany = function () {
                 return response()->json(['message' => __('otp.errors.rate_limited')], 429);
             };
-            $pending = (string) (data_get($request->session()->get('email_login'), 'user_id') ?? optional($request->user())->id ?? 'none');
+            $pending = (string) (
+                data_get($request->session()->get('email_login'), 'user_id')
+                ?? optional($request->user())->id
+                ?? data_get($request->session()->get('email_register'), 'email')
+                ?? 'none'
+            );
 
             return [
                 Limit::perMinutes(10, 10)->by('pending:'.$pending.'|'.$request->ip())->response($tooMany),

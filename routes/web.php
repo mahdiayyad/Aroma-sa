@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\PromoCodeController as AdminPromoCodeController;
 use App\Http\Controllers\Admin\RefundRequestController as AdminRefundRequestController;
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\Auth\EmailLoginController;
+use App\Http\Controllers\Auth\EmailRegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -104,6 +105,11 @@ Route::middleware('guest')->group(function () {
     // Second sign-in option: email + password, then a code emailed to that address.
     Route::post('login/email', [EmailLoginController::class, 'send'])->middleware('throttle:email-login')->name('login.email');
     Route::post('login/email/verify', [EmailLoginController::class, 'verify'])->middleware('throttle:email-verify')->name('login.email.verify');
+
+    // Second sign-up option: create an account with email + password, confirmed
+    // by a code emailed to that address.
+    Route::post('register/email', [EmailRegisterController::class, 'send'])->middleware('throttle:email-register')->name('register.email');
+    Route::post('register/email/verify', [EmailRegisterController::class, 'verify'])->middleware('throttle:email-verify')->name('register.email.verify');
 
     Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');

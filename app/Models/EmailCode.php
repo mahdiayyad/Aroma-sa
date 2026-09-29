@@ -10,6 +10,7 @@ class EmailCode extends Model
 {
     public const PURPOSE_LOGIN = 'login';
     public const PURPOSE_ADD_CREDENTIALS = 'add_credentials';
+    public const PURPOSE_REGISTER = 'register';
 
     protected $guarded = ['id'];
 

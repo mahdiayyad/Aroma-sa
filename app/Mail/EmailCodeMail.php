@@ -27,7 +27,8 @@ class EmailCodeMail extends Mailable
 
     public function build()
     {
-        $purpose = $this->purpose === EmailCode::PURPOSE_ADD_CREDENTIALS ? 'add_credentials' : 'login';
+        $known = [EmailCode::PURPOSE_ADD_CREDENTIALS, EmailCode::PURPOSE_REGISTER];
+        $purpose = in_array($this->purpose, $known, true) ? $this->purpose : EmailCode::PURPOSE_LOGIN;
 
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(__('email_auth.mail.subject.'.$purpose))
