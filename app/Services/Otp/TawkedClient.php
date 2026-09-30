@@ -173,16 +173,24 @@ class TawkedClient
     }
 
     /**
-     * A code that reports as expired within seconds of being requested (see
-     * OtpService::verify()'s "expired" logging) has always traced back to a
-     * bad expires_at, not a fast Tawked window — so this guards against ever
-     * trusting an implausible one: unparseable, or less than a minute away
-     * (Tawked's own codes run several minutes), falls back to a safe default
-     * instead of silently expiring the code before the customer can use it.
+     * Customers reported a code reading as "expired" within seconds of being
+     * sent. That can only ever come from OUR OWN local pre-check in
+     * OtpService::verify() (PhoneVerification::isExpired()) — Tawked's own
+     * /verify/check is the actual authority on whether a code is still
+     * good, and it doesn't consult anything stored here. So rather than
+     * only guarding against obviously-broken values (unparseable, already
+     * past), this now floors whatever Tawked returns to a 5-minute minimum
+     * outright — any of a bad clock on this server, a timezone misparse of
+     * a value Tawked sent without one, or Tawked simply issuing a shorter
+     * window, would otherwise make our local check block a customer before
+     * Tawked itself would. Flooring closes all of those at once: our
+     * pre-check can now only ever be MORE lenient than Tawked's real
+     * deadline, never less, and Tawked's own check still has the final say
+     * on every code regardless of what's stored here.
      */
     private function parseExpiry($value): Carbon
     {
-        $fallback = now()->addMinutes(5);
+        $floor = now()->addMinutes(5);
 
         try {
             $parsed = $value ? Carbon::parse($value) : null;
@@ -191,15 +199,23 @@ class TawkedClient
                 'value' => $value, 'error' => $e->getMessage(),
             ]);
 
-            return $fallback;
+            return $floor;
         }
 
-        if ($parsed === null || now()->diffInSeconds($parsed, false) < 60) {
-            Log::warning('Tawked returned an implausible expires_at — using the default window', [
-                'value' => $value, 'parsed' => $parsed ? $parsed->toIso8601String() : null, 'now' => now()->toIso8601String(),
+        if ($parsed === null) {
+            Log::warning('Tawked returned no expires_at — using the default window', [
+                'value' => $value,
             ]);
 
-            return $fallback;
+            return $floor;
+        }
+
+        if ($parsed->lessThanOrEqualTo($floor)) {
+            Log::info('Tawked expires_at was under our 5-minute floor — flooring it', [
+                'value' => $value, 'parsed' => $parsed->toIso8601String(), 'now' => now()->toIso8601String(),
+            ]);
+
+            return $floor;
         }
 
         return $parsed;
