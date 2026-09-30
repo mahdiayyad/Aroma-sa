@@ -33,7 +33,7 @@
     @php
         $locale = app()->getLocale();
         $isAr = $locale === 'ar';
-        $abayasUrl = route('category.show', [$locale, 'abayas']);
+        $abayasUrl = route('category.show', [$locale, 'abaya']);
         $giftingUrl = route('home', $locale).'#gifting';
         // $heroSlides = [
         //     [
