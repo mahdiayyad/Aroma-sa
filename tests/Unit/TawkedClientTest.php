@@ -122,4 +122,43 @@ class TawkedClientTest extends TestCase
                 && $request->hasHeader('Accept', 'application/json');
         });
     }
+
+    /**
+     * Guards against a customer's "OTP says expired immediately" report ever
+     * being caused by OUR side: a bad expires_at from Tawked (unparseable,
+     * missing, or already past/too-soon) must never be trusted as-is — it
+     * falls back to a safe window instead of expiring the code before the
+     * customer can possibly use it.
+     *
+     * @dataProvider implausibleExpiries
+     */
+    public function test_an_implausible_expires_at_falls_back_to_the_default_window($value): void
+    {
+        Http::fake(['tawked.com/v1/verify/start' => Http::response(['id' => 'v', 'status' => 'pending', 'expires_at' => $value], 201)]);
+
+        $started = app(TawkedClient::class)->start('+966570574471', 'login');
+
+        $this->assertTrue($started['ok']);
+        $this->assertGreaterThan(4 * 60, now()->diffInSeconds($started['expires_at'], false));
+    }
+
+    public function implausibleExpiries(): array
+    {
+        return [
+            'unparseable string' => ['not-a-date'],
+            'null' => [null],
+            'already in the past' => [now()->subMinute()->toIso8601String()],
+            'a few seconds from now' => [now()->addSeconds(10)->toIso8601String()],
+        ];
+    }
+
+    public function test_a_genuinely_short_but_plausible_expiry_is_trusted_as_is(): void
+    {
+        $expiry = now()->addMinutes(2)->toIso8601String();
+        Http::fake(['tawked.com/v1/verify/start' => Http::response(['id' => 'v', 'status' => 'pending', 'expires_at' => $expiry], 201)]);
+
+        $started = app(TawkedClient::class)->start('+966570574471', 'login');
+
+        $this->assertEqualsWithDelta(now()->addMinutes(2)->timestamp, $started['expires_at']->timestamp, 2);
+    }
 }

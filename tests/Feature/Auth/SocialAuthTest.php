@@ -166,6 +166,37 @@ class SocialAuthTest extends TestCase
         $this->assertGuest();
     }
 
+    /** A stale tab / cleared cookies between clicking the button and Google
+     *  redirecting back — the most common real-world Socialite failure —
+     *  gets its own, more actionable message instead of the generic one. */
+    public function test_a_stale_session_on_return_from_google_gets_a_try_again_message(): void
+    {
+        $this->configureGoogle();
+        $driver = Mockery::mock();
+        $driver->shouldReceive('user')->andThrow(new \Laravel\Socialite\Two\InvalidStateException());
+        Socialite::shouldReceive('driver')->with('google')->andReturn($driver);
+
+        $this->get(route('social.callback', 'google'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('social');
+
+        $this->assertSame(__('auth_ui.social.expired'), session('errors')->first('social'));
+        $this->assertGuest();
+    }
+
+    public function test_a_disabled_account_cannot_sign_in_via_google(): void
+    {
+        $this->configureGoogle();
+        User::factory()->create(['provider' => 'google', 'provider_id' => 'disabled-1', 'is_active' => false]);
+        $this->mockDriverUser('google', $this->fakeOauthUser('disabled-1', 'disabled@example.com'));
+
+        $this->get(route('social.callback', 'google'))
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('social');
+
+        $this->assertGuest();
+    }
+
     /* ---- Returning to the page the shopper actually started from ----------- */
 
     public function test_a_failure_from_the_register_page_returns_to_register_not_login(): void

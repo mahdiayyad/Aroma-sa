@@ -28,6 +28,7 @@ return [
         'apple'  => 'Continue with Apple',
         'unavailable' => 'This sign-in method is not configured yet.',
         'failed' => 'We could not sign you in with that provider. Please try again.',
+        'expired' => 'That sign-in link expired. Please try continuing with Google again.',
     ],
     'validation' => [
         'phone' => 'Enter a valid phone number, including the country code.',

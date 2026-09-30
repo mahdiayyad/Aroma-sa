@@ -219,6 +219,16 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   height: 100%;
   object-fit: cover;
   cursor: zoom-in;
+  /* iOS Safari treats an <img> as draggable/long-press-able by default,
+     which can swallow the tap meant for our click handler below (either as
+     the start of a drag, or as the save-image callout) — the classic cause
+     of "tap to zoom does nothing" on iPhone specifically. touch-action also
+     skips the ~300ms tap-delay / double-tap-to-zoom disambiguation that can
+     make a single tap feel unresponsive. */
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
   /* Thumbnail clicks slide this in from the left/right (see the script in
      catalog/product.blade.php) rather than crossfading — .aroma-gallery-main's
      overflow:hidden above is what clips the image while it's off to one side
@@ -261,6 +271,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   top: 0.75rem;
   inset-inline-end: 0.75rem;
   z-index: 2;
+  touch-action: manipulation;
   width: 2.5rem;
   height: 2.5rem;
   display: flex;
