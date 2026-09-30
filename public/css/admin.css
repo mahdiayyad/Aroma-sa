@@ -70,6 +70,15 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
   display: flex;
   flex-direction: column;
   transition: transform .25s ease;
+  /* Safari-specific paint bug: sliding this fixed panel in via `transform`,
+     directly over another fixed semi-transparent layer (.admin-backdrop),
+     can make WebKit skip painting its own background on the frame the
+     transform starts — the panel reads as a black/transparent overlay
+     (the backdrop showing through) until something forces a repaint.
+     Promoting it to its own compositing layer up front avoids that. */
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 .admin-sidebar-brand { padding: 1.15rem 1.4rem; border-bottom: 1px solid var(--admin-border); }
 .admin-brand-mark {
@@ -107,8 +116,14 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
   border-bottom: 1px solid var(--admin-border);
   position: sticky; top: 0; z-index: 1030;
   display: flex; align-items: center; gap: 1rem; padding: 0 1.5rem;
+  /* Same iOS Safari sticky-ancestor tap bug worked around on the storefront
+     navbar: WebKit can stop delivering touch events to buttons inside a
+     `position: sticky` bar after the page scrolls. #adminMenuToggle lives
+     in here, so give it the same compositing-layer fix pre-emptively. */
+  transform: translateZ(0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
-.admin-menu-toggle { display: none; border: 0; background: none; font-size: 1.4rem; color: var(--admin-text); padding: .25rem; }
+.admin-menu-toggle { display: none; border: 0; background: none; font-size: 1.4rem; color: var(--admin-text); padding: .25rem; touch-action: manipulation; }
 .admin-topbar-title { flex: 1; min-width: 0; }
 .admin-topbar-title h1 { font-size: 1.15rem; font-weight: 700; margin: 0; color: var(--admin-brand); }
 .admin-topbar-title p { margin: 0; font-size: .8rem; color: var(--admin-muted); }
