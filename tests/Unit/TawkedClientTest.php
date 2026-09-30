@@ -152,13 +152,31 @@ class TawkedClientTest extends TestCase
         ];
     }
 
-    public function test_a_genuinely_short_but_plausible_expiry_is_trusted_as_is(): void
+    /**
+     * Even a genuinely short (but otherwise valid) window from Tawked gets
+     * floored to 5 minutes locally — our own pre-check must never be the
+     * reason a fresh code reads as expired. Tawked's own /verify/check
+     * still has the final say regardless of what's stored here, so this
+     * can only make the local check MORE lenient, never less correct.
+     */
+    public function test_a_short_but_plausible_expiry_is_floored_to_five_minutes(): void
     {
         $expiry = now()->addMinutes(2)->toIso8601String();
         Http::fake(['tawked.com/v1/verify/start' => Http::response(['id' => 'v', 'status' => 'pending', 'expires_at' => $expiry], 201)]);
 
         $started = app(TawkedClient::class)->start('+966570574471', 'login');
 
-        $this->assertEqualsWithDelta(now()->addMinutes(2)->timestamp, $started['expires_at']->timestamp, 2);
+        $this->assertGreaterThan(4 * 60, now()->diffInSeconds($started['expires_at'], false));
+    }
+
+    /** A long Tawked-given window is trusted as-is — flooring never shrinks a longer expiry down to 5 minutes. */
+    public function test_a_longer_expiry_is_kept_as_is(): void
+    {
+        $expiry = now()->addMinutes(15)->toIso8601String();
+        Http::fake(['tawked.com/v1/verify/start' => Http::response(['id' => 'v', 'status' => 'pending', 'expires_at' => $expiry], 201)]);
+
+        $started = app(TawkedClient::class)->start('+966570574471', 'login');
+
+        $this->assertEqualsWithDelta(now()->addMinutes(15)->timestamp, $started['expires_at']->timestamp, 2);
     }
 }
