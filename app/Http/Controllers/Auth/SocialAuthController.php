@@ -8,8 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\InvalidStateException;
 use Throwable;
 
 /**
@@ -52,6 +54,12 @@ class SocialAuthController extends Controller
         try {
             return Socialite::driver($provider)->redirect();
         } catch (Throwable $e) {
+            Log::error('Social auth redirect failed', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+
             return $this->failureRedirect(__('auth_ui.social.unavailable'));
         }
     }
@@ -64,11 +72,47 @@ class SocialAuthController extends Controller
 
         try {
             $oauthUser = Socialite::driver($provider)->user();
+        } catch (InvalidStateException $e) {
+            // The session's OAuth "state" didn't match what Google sent back —
+            // almost always a stale/expired session (the tab sat open too
+            // long, or cookies were cleared) between clicking the button and
+            // returning from Google, not a real config problem. Distinct
+            // message so a customer knows to just try again, and distinct log
+            // line so this doesn't get mistaken for the same failure below.
+            Log::warning('Social auth state mismatch (stale session)', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+            ]);
+
+            return $this->failureRedirect(__('auth_ui.social.expired'));
         } catch (Throwable $e) {
+            Log::error('Social auth callback failed', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+
             return $this->failureRedirect(__('auth_ui.social.failed'));
         }
 
-        $user = $this->findOrCreateUser($provider, $oauthUser);
+        try {
+            $user = $this->findOrCreateUser($provider, $oauthUser);
+        } catch (Throwable $e) {
+            // A verified Google identity but our own account lookup/creation
+            // failed (e.g. a race on a unique column) — still surfaced as the
+            // same friendly message, never a raw 500 page.
+            Log::error('Social auth account lookup/creation failed', [
+                'provider' => $provider,
+                'error' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+
+            return $this->failureRedirect(__('auth_ui.social.failed'));
+        }
+
+        if ($user->is_active === false) {
+            return $this->failureRedirect(__('otp.errors.inactive'));
+        }
 
         Auth::login($user, true);
         session()->forget('social_origin');

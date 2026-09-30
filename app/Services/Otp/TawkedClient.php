@@ -172,12 +172,36 @@ class TawkedClient
         ]);
     }
 
+    /**
+     * A code that reports as expired within seconds of being requested (see
+     * OtpService::verify()'s "expired" logging) has always traced back to a
+     * bad expires_at, not a fast Tawked window — so this guards against ever
+     * trusting an implausible one: unparseable, or less than a minute away
+     * (Tawked's own codes run several minutes), falls back to a safe default
+     * instead of silently expiring the code before the customer can use it.
+     */
     private function parseExpiry($value): Carbon
     {
+        $fallback = now()->addMinutes(5);
+
         try {
-            return $value ? Carbon::parse($value) : now()->addMinutes(5);
+            $parsed = $value ? Carbon::parse($value) : null;
         } catch (Throwable $e) {
-            return now()->addMinutes(5);
+            Log::warning('Tawked returned an unparseable expires_at — using the default window', [
+                'value' => $value, 'error' => $e->getMessage(),
+            ]);
+
+            return $fallback;
         }
+
+        if ($parsed === null || now()->diffInSeconds($parsed, false) < 60) {
+            Log::warning('Tawked returned an implausible expires_at — using the default window', [
+                'value' => $value, 'parsed' => $parsed ? $parsed->toIso8601String() : null, 'now' => now()->toIso8601String(),
+            ]);
+
+            return $fallback;
+        }
+
+        return $parsed;
     }
 }

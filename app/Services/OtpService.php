@@ -6,7 +6,9 @@ namespace App\Services;
 
 use App\Models\PhoneVerification;
 use App\Services\Otp\TawkedClient;
+use App\Support\Phone;
 use App\Support\Services\BaseService;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Phone verification on top of the Tawked Verify API. Tawked generates,
@@ -80,6 +82,17 @@ class OtpService extends BaseService
         }
 
         if ($verification->isExpired()) {
+            // Logged with full timing on purpose: a report of "it says
+            // expired right away" is only diagnosable from what this row
+            // actually recorded at send time — see TawkedClient::parseExpiry().
+            Log::info('Phone code expired locally before it was ever checked with Tawked', [
+                'phone' => Phone::mask($phone),
+                'sent_at' => $verification->created_at->toIso8601String(),
+                'expires_at' => $verification->expires_at->toIso8601String(),
+                'checked_at' => now()->toIso8601String(),
+                'seconds_held' => $verification->created_at->diffInSeconds(now()),
+            ]);
+
             $this->close($verification, PhoneVerification::STATUS_EXPIRED);
 
             return ['valid' => false, 'error' => 'expired'];
@@ -114,6 +127,14 @@ class OtpService extends BaseService
                 return ['valid' => false, 'error' => 'too_many_attempts'];
 
             case 'expired':
+                Log::info('Tawked reports this code expired', [
+                    'phone' => Phone::mask($phone),
+                    'sent_at' => $verification->created_at->toIso8601String(),
+                    'our_expires_at' => $verification->expires_at->toIso8601String(),
+                    'checked_at' => now()->toIso8601String(),
+                    'seconds_held' => $verification->created_at->diffInSeconds(now()),
+                ]);
+
                 $this->close($verification, PhoneVerification::STATUS_EXPIRED);
 
                 return ['valid' => false, 'error' => 'expired'];

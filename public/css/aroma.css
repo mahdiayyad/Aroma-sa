@@ -338,6 +338,13 @@ html[dir="ltr"] .aroma-script {
   background: var(--aroma-brown);
   border-bottom: none;
   box-shadow: 0 1px 0 rgba(51, 1, 1, 0.06), 0 10px 24px -18px rgba(51, 1, 1, 0.35);
+  /* iOS Safari has a long-standing WebKit bug where tap targets inside a
+     `position: sticky` ancestor (this bar is .sticky-top) stop reliably
+     receiving touch events after the first scroll — the hamburger menu
+     button then silently eats taps. Forcing this element onto its own
+     compositing layer works around it; harmless everywhere else. */
+  transform: translateZ(0);
+  -webkit-transform: translate3d(0, 0, 0);
 }
 /* Logo fallback text (renders only if the logo image file is ever missing)
    and the icon row (menu toggle, search, language, account, wishlist,
@@ -385,6 +392,11 @@ html[dir="ltr"] .aroma-script {
   color: var(--aroma-brown);
   position: relative;
   transition: color var(--aroma-transition-fast), transform var(--aroma-transition-fast);
+  /* Same iOS Safari tap-reliability fix as the product gallery: these sit in
+     a sticky header and are the actual tap targets (incl. the hamburger
+     menu button), so give them the same treatment. */
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
 }
 /* Header icon hover: the brief's own explicit header spec ("Icons: #330101 /
    Hover: #7A2E3D") — Wine, not Gold, so hovering a header icon reads as the
