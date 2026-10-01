@@ -49,7 +49,8 @@
   background: var(--aroma-skin); /* shows while an image loads — same ratio, so no jump once it's in */
   overflow: hidden;
 }
-.aroma-hero-slide img {
+.aroma-hero-slide img,
+.aroma-hero-slide video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -60,13 +61,17 @@
   -webkit-user-drag: none; /* no native drag-ghost fighting the custom pointer drag */
   user-select: none;
 }
+.aroma-hero-slide video {
+  pointer-events: none; /* purely ambient background — the slide/CTA still handle all interaction */
+}
 
 /* The slide itself is not a link — only the CTA button is clickable (an <a>
    wrapping the whole image is natively draggable in the browser, which
    fights the custom drag-to-navigate handling). A slow, considered zoom on
    hover reinforces the carousel is interactive without feeling like a UI
    hover state — luxury motion takes its time. */
-.aroma-hero-slide:hover img {
+.aroma-hero-slide:hover img,
+.aroma-hero-slide:hover video {
   transform: scale(1.045);
 }
 
