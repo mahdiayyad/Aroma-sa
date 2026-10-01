@@ -122,6 +122,14 @@
                     instance.pause();
                 }
             });
+            // A hero video is still "autoplay" in the HTML (muted autoplay
+            // has to be set declaratively for browsers to honour it at all),
+            // so this is the one place that has to override it at runtime —
+            // pausing leaves its poster frame showing, a static image rather
+            // than an indefinitely looping clip.
+            document.querySelectorAll('.aroma-hero-slide video').forEach(function (video) {
+                video.pause();
+            });
         }
 
         // -3.4) Hero carousel — mouse drag-to-navigate, with the slide

@@ -73,6 +73,13 @@
         $heroSlides = [
             [
                 'image' => 'images/hero/abaya-arches-trio.jpg',
+                // Looping ambient campaign clip, ~5s, 1916x1080 (same 16:9
+                // as every photo slide, so .aroma-hero-slide's aspect-ratio/
+                // object-fit:cover needs no special-casing). 'image' above
+                // still does real work here — it's the <video>'s poster, the
+                // frame shown instantly while the ~6.5MB file is still
+                // fetching, so first paint is never a blank/black box.
+                'video' => 'videos/hero-banner.mp4',
                 'alt' => $isAr ? 'ثلاث عبايات أروما في ممر مقنطر — أناقة خالدة' : 'Three Aroma abayas in an arched hallway — timeless elegance', // restore alongside the abaya-arches-trio slide above
                 'url'   => $abayasUrl,
                 // No title here — the artwork already has the full Aroma
@@ -116,9 +123,24 @@
                             @foreach ($heroSlides as $i => $slide)
                                 <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
                                     <div class="aroma-hero-slide">
-                                        <img src="{{ \App\Support\Assets::versioned($slide['image']) }}" alt="{{ $slide['alt'] }}"
-                                             loading="{{ $i === 0 ? 'eager' : 'lazy' }}"
-                                             {{ $i === 0 ? 'fetchpriority=high' : '' }}>
+                                        @if (!empty($slide['video']))
+                                            {{-- Ambient background clip, not a video player: no controls, silent
+                                                 (autoplay requires muted in every modern browser anyway), loops
+                                                 forever, inline on iOS so Safari doesn't force fullscreen. Paused
+                                                 instead of autoplaying under prefers-reduced-motion — see the
+                                                 .aroma-hero-slide video rule in aroma-ui.js. The existing campaign
+                                                 photo becomes the poster: instant first paint, nothing blank while
+                                                 the video itself is still downloading. --}}
+                                            <video poster="{{ \App\Support\Assets::versioned($slide['image']) }}"
+                                                   autoplay muted loop playsinline preload="auto"
+                                                   aria-label="{{ $slide['alt'] }}">
+                                                <source src="{{ \App\Support\Assets::versioned($slide['video']) }}" type="video/mp4">
+                                            </video>
+                                        @else
+                                            <img src="{{ \App\Support\Assets::versioned($slide['image']) }}" alt="{{ $slide['alt'] }}"
+                                                 loading="{{ $i === 0 ? 'eager' : 'lazy' }}"
+                                                 {{ $i === 0 ? 'fetchpriority=high' : '' }}>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
