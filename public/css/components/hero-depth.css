@@ -1,0 +1,179 @@
+/* ============================================================================
+   Aroma — homepage hero, editorial depth layers
+   Five layers wrapped around the existing hero-carousel.css media box: a
+   soft background wash, two floating product-detail cards (desktop/tablet
+   only), the carousel itself (unchanged engine — just no on-image caption
+   now), a headline/CTA copy column, and a thin foreground accent line.
+
+   Entrance is a short, once-only staggered fade/rise — plain CSS
+   `animation ... both`, no JS and no IntersectionObserver, since the hero
+   is always above the fold on first paint. The idle floating-card/accent
+   loops are `animation: ... infinite`; both the entrance and the loops are
+   automatically neutralised by the sitewide prefers-reduced-motion rule
+   already at the bottom of animations.css (animation-iteration-count:1 +
+   animation-duration:0.001ms, !important) — nothing extra needed here.
+
+   RTL-safe via logical properties and the grid's own direction-aware
+   auto-placement (no manual column-order override needed) — same approach
+   already used throughout hero-carousel.css.
+   ========================================================================== */
+
+.aroma-hero-editorial {
+  position: relative;
+  overflow: hidden; /* contains the bg wash + any float-card overflow; harmless, see note below */
+  padding-block: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+/* --- Layer 1: background wash --------------------------------------------
+   Same soft skin->white wash already used by .aroma-hero (about/contact
+   pages) — reused here rather than inventing a second "quiet background"
+   treatment. Static; this layer never moves. */
+.aroma-hero-editorial-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, var(--aroma-skin) 0%, var(--aroma-white) 65%, var(--aroma-white) 100%);
+}
+
+.aroma-hero-editorial-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+/* --- Layer 3: main photography (the existing carousel) -------------------- */
+.aroma-hero-editorial-media {
+  position: relative;
+  animation: aroma-hero-rise var(--aroma-transition-slower) 0.46s var(--aroma-ease) both;
+}
+
+/* --- Layer 2: floating detail cards ----------------------------------------
+   Real existing campaign photography, not new assets (see $heroFloatCards
+   in home/index.blade.php). Purely decorative (aria-hidden in markup).
+   Desktop/tablet only (>=992px, the same breakpoint hero-carousel.css
+   already uses) — on phone widths they'd just clutter a small screen. */
+.aroma-hero-float-card {
+  display: none;
+  position: absolute;
+  width: clamp(5.5rem, 9vw, 8rem);
+  aspect-ratio: 3 / 4;
+  border-radius: var(--aroma-radius, 0.85rem);
+  overflow: hidden;
+  box-shadow: var(--aroma-shadow);
+  z-index: 2;
+}
+.aroma-hero-float-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* card-0's image is already a pre-cropped, text-free derivative (see the
+   note in home/index.blade.php) — no object-position override needed.
+   card-1 is still the full campaign banner; biasing right lands this
+   narrow 3:4 card on the clean garment photography instead of its
+   baked-in text block (object-fit:cover has no vertical crop headroom
+   left at this aspect ratio, so only the horizontal bias matters). */
+.aroma-hero-float-card-1 img {
+  object-position: 80% center;
+}
+@media (min-width: 992px) {
+  .aroma-hero-float-card { display: block; }
+}
+.aroma-hero-float-card-0 {
+  inset-inline-start: -2.25rem;
+  top: -1.75rem;
+  will-change: transform;
+  animation: aroma-hero-rise var(--aroma-transition-slower) 0.58s var(--aroma-ease) both,
+             aroma-hero-float 7.5s ease-in-out 1.1s infinite;
+}
+.aroma-hero-float-card-1 {
+  /* Anchored low enough to clear the carousel's vertically-centred next
+     arrow (top:50%) — only the card's own top sliver overlaps the photo's
+     bottom edge, not the control zone in the middle of the right side. */
+  inset-inline-end: -1rem;
+  bottom: -3.5rem;
+  will-change: transform;
+  animation: aroma-hero-rise var(--aroma-transition-slower) 0.68s var(--aroma-ease) both,
+             aroma-hero-float 9s ease-in-out 1.4s infinite reverse;
+}
+
+/* --- Layer 4: headline + CTA ------------------------------------------------
+   Off the photo entirely now (no scrim) — sits in its own quiet space over
+   the Layer 1 wash, so it needs the brand's ink/brown tone rather than the
+   white-on-photo treatment the old caption used. */
+.aroma-hero-editorial-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
+.aroma-hero-eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--aroma-gold);
+  animation: aroma-hero-rise var(--aroma-transition-slower) 0.08s var(--aroma-ease) both;
+}
+/* Moderate scale on purpose — the brief is explicit that photography stays
+   dominant, the headline is not meant to be the biggest thing on screen. */
+.aroma-hero-editorial-headline {
+  margin: 0;
+  color: var(--aroma-brown);
+  font-family: var(--aroma-heading-en);
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.85rem, 2.6vw, 2.75rem);
+}
+html[lang="ar"] .aroma-hero-editorial-headline {
+  font-family: var(--aroma-heading-ar);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.aroma-hero-editorial-headline-line {
+  display: block;
+  animation: aroma-hero-rise var(--aroma-transition-slower) 0.18s var(--aroma-ease) both;
+}
+.aroma-hero-editorial-headline-line + .aroma-hero-editorial-headline-line {
+  animation-delay: 0.28s;
+}
+.aroma-hero-editorial-cta {
+  animation: aroma-hero-rise var(--aroma-transition-slower) 0.4s var(--aroma-ease) both;
+}
+
+/* --- Layer 5: foreground micro-detail ---------------------------------------
+   A single thin gold line, the only "foreground" element — minimal on
+   purpose, never competing with the photography or the floating cards. */
+.aroma-hero-accent-line {
+  display: block;
+  width: 2.5rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--aroma-gold);
+  will-change: transform;
+  animation: aroma-hero-rise var(--aroma-transition-slower) 0.52s var(--aroma-ease) both,
+             aroma-hero-float 8s ease-in-out 1.2s infinite;
+}
+
+/* --- Entrance + idle keyframes ----------------------------------------- */
+@keyframes aroma-hero-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes aroma-hero-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+@media (max-width: 991.98px) {
+  .aroma-hero-editorial-grid { grid-template-columns: 1fr; }
+}

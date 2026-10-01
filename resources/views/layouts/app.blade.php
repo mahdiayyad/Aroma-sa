@@ -155,6 +155,8 @@
     <link href="{{ \App\Support\Assets::versioned('css/cart-modal.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/assistant.css') }}" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/components/hero-carousel.css') }}" rel="stylesheet">
+    <link href="{{ \App\Support\Assets::versioned('css/components/hero-depth.css') }}" rel="stylesheet">
+    <link href="{{ \App\Support\Assets::versioned('css/components/product-showcase.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/css/intlTelInput.min.css" rel="stylesheet">
     <link href="{{ \App\Support\Assets::versioned('css/components/intl-phone.css') }}" rel="stylesheet">
@@ -199,6 +201,7 @@
     <script src="{{ \App\Support\Assets::versioned('js/cart-modal.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/aroma-ui.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/scroll-reveal.js') }}"></script>
+    <script src="{{ \App\Support\Assets::versioned('js/product-showcase.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/js/intlTelInputWithUtils.min.js"></script>
     <script src="{{ \App\Support\Assets::versioned('js/intl-phone.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/assistant.js') }}" defer></script>

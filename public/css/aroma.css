@@ -662,26 +662,57 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
 /* --- Perks row (mockup-style, homepage-only) --------------------------------
    Plain, no card/border — distinct from .aroma-trust above (a shared bordered
    card component used on ~15 other pages, left untouched). Sits directly on
-   the page background right under the hero. */
+   the page background right under the hero.
+
+   This is the hand-off from the hero's own editorial language into the rest
+   of the page. .aroma-perks-divider reuses the hero's own closing accent-line
+   element (same 2.5rem x 2px gold hairline); .aroma-perk-icon's border/
+   shadow is the same gold-hairline "foil-stamped" frame as .aroma-hero::after,
+   just sized for a small tile instead of a full panel; the hover lift +
+   emerald tint reuse .aroma-hover-lift and the CTA's own hover color — no
+   new motifs. */
 .aroma-perks-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem 1.5rem;
-  padding-block: 2.25rem 1.5rem;
+  padding-block: var(--aroma-space-lg) var(--aroma-space-md);
   text-align: center;
+}
+.aroma-perks-divider {
+  display: block;
+  width: 2.5rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--aroma-gold);
+  margin: 0 auto clamp(2rem, 4vw, 3rem);
 }
 .aroma-perk {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
-  flex: 1 1 200px;
-  max-width: 260px;
+  gap: 0.85rem;
 }
-.aroma-perk i {
-  font-size: 1.6rem;
+.aroma-perk-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 50%;
+  background: var(--aroma-white);
+  border: 1px solid rgba(201, 179, 154, 0.35);
+  box-shadow: var(--aroma-shadow-xs);
+  transition: transform var(--aroma-transition), box-shadow var(--aroma-transition), border-color var(--aroma-transition);
+}
+.aroma-perk-icon i {
+  font-size: 1.4rem;
   color: var(--aroma-light-brown);
+  transition: color var(--aroma-transition);
+}
+.aroma-perk:hover .aroma-perk-icon {
+  transform: translateY(-4px);
+  box-shadow: var(--aroma-shadow-sm);
+  border-color: rgba(201, 179, 154, 0.6);
+}
+.aroma-perk:hover .aroma-perk-icon i {
+  color: var(--aroma-emerald-deep);
 }
 .aroma-perk p {
   margin: 0;
@@ -689,15 +720,8 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
   color: var(--aroma-muted);
   line-height: 1.5;
 }
-/* Below lg (tablet + mobile), 4 items at flex-basis:200px wrap awkwardly
-   into 3+1 on anything narrower than ~850px — a clean 2x2 reads far better
-   than an orphaned 4th item, so switch to it for the whole tablet range,
-   not just true mobile. */
-@media (max-width: 991.98px) {
-  .aroma-perk { flex-basis: 42%; }
-}
 @media (max-width: 576px) {
-  .aroma-perks-row { gap: 1.5rem 1rem; padding-block: 1.5rem 1rem; }
+  .aroma-perks-row { padding-block: var(--aroma-space-md) var(--aroma-space-sm); }
 }
 
 /* --- Gifting/promo panel: mockup-driven flanking pattern ---------------------

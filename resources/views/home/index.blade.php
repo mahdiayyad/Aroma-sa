@@ -35,6 +35,28 @@
         $isAr = $locale === 'ar';
         $abayasUrl = route('category.show', [$locale, 'abaya']);
         $giftingUrl = route('home', $locale).'#gifting';
+        // The editorial headline is the existing storefront.hero.subtitle
+        // string, verbatim — it already reads as two clauses joined by a
+        // comma (Arabic uses "،", English ",") so it's split here rather
+        // than hard-coding a second translation string that would just
+        // duplicate it. Comma is re-appended to line 1 since explode()
+        // consumes it.
+        $heroHeadlineParts = preg_split('/[,،]\s*/u', __('storefront.hero.subtitle'), 2);
+        $heroHeadlineLine1 = rtrim($heroHeadlineParts[0]).($isAr ? '،' : ',');
+        $heroHeadlineLine2 = $heroHeadlineParts[1] ?? '';
+        // Real existing campaign photography (public/images/hero/), not new
+        // assets — the small floating detail cards beside the main photo.
+        // Abaya-focused (fabric/embroidery detail), matching what the brand
+        // actually sells — not perfume/gifting.
+        // float-abaya-detail-pink.jpg is a pre-cropped derivative of
+        // abaya-pastels.jpg's clean right-hand garment (same real campaign
+        // photo — every other region of that banner has a baked-in text
+        // block, and at this card's narrow 3:4 aspect, object-fit:cover
+        // has no vertical crop headroom left to dodge it with CSS alone).
+        $heroFloatCards = [
+            ['image' => 'images/hero/float-abaya-detail-pink.jpg', 'alt' => ''],
+            ['image' => 'images/hero/explore-abayas.jpg', 'alt' => ''],
+        ];
         // $heroSlides = [
         //     [
         //         'image' => 'images/hero/abaya-arches-trio.jpg',
@@ -62,76 +84,105 @@
             ],
         ];
     @endphp
-    <section class="container mt-4">
-        <div id="aromaHeroCarousel" class="carousel slide aroma-hero-carousel aroma-animate-in"
-             data-bs-ride="carousel" data-bs-pause="hover" data-bs-touch="true"
-             aria-label="{{ __('storefront.hero.title') }}">
-            <div class="carousel-indicators">
-                @foreach ($heroSlides as $i => $slide)
-                    <button type="button" data-bs-target="#aromaHeroCarousel" data-bs-slide-to="{{ $i }}"
-                            class="{{ $i === 0 ? 'active' : '' }}" {{ $i === 0 ? 'aria-current=true' : '' }}
-                            aria-label="{{ __('storefront.hero.slide') }} {{ $i + 1 }}"></button>
-                @endforeach
-            </div>
-
-            <div class="carousel-inner">
-                @foreach ($heroSlides as $i => $slide)
-                    <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
-                        {{-- The slide itself is not a link — only the CTA button is
-                             clickable. An <a> wrapping the whole image is natively
-                             draggable in every browser, which fights the custom
-                             drag-to-navigate handling in aroma-ui.js. --}}
-                        <div class="aroma-hero-slide">
-                            <img src="{{ \App\Support\Assets::versioned($slide['image']) }}" alt="{{ $slide['alt'] }}"
-                                 loading="{{ $i === 0 ? 'eager' : 'lazy' }}"
-                                 {{ $i === 0 ? 'fetchpriority=high' : '' }}>
-                            @if ($slide['cta'])
-                                <div class="aroma-hero-slide-caption">
-                                    @if ($slide['title'])
-                                        <p class="aroma-hero-slide-title">{{ $slide['title'] }}</p>
-                                    @endif
-                                    <a href="{{ $slide['url'] }}" class="aroma-hero-slide-cta">
-                                        {{ $slide['cta'] }}
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
-                                </div>
-                            @endif
+    {{-- Editorial hero — photography and type as separate layers (a campaign
+         spread, not a banner with text stamped on the photo). The carousel
+         below is the same Bootstrap carousel/drag-swipe engine as before,
+         just stripped of its on-image caption; multi-slide, indicators, and
+         arrows all still work exactly as before if a second slide is added
+         to $heroSlides. --}}
+    <section class="aroma-hero-editorial">
+        <div class="aroma-hero-editorial-bg" aria-hidden="true"></div>
+        <div class="container">
+            <div class="aroma-hero-editorial-grid">
+                <div class="aroma-hero-editorial-media">
+                    @foreach ($heroFloatCards as $j => $card)
+                        <div class="aroma-hero-float-card aroma-hero-float-card-{{ $j }}" aria-hidden="true">
+                            <img src="{{ \App\Support\Assets::versioned($card['image']) }}" alt="" loading="lazy">
                         </div>
-                    </div>
-                @endforeach
-            </div>
+                    @endforeach
 
-            <button class="carousel-control-prev" type="button" data-bs-target="#aromaHeroCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">{{ __('storefront.hero.prev') }}</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#aromaHeroCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">{{ __('storefront.hero.next') }}</span>
-            </button>
+                    <div id="aromaHeroCarousel" class="carousel slide aroma-hero-carousel"
+                         data-bs-ride="carousel" data-bs-pause="hover" data-bs-touch="true"
+                         aria-label="{{ __('storefront.hero.title') }}">
+                        <div class="carousel-indicators">
+                            @foreach ($heroSlides as $i => $slide)
+                                <button type="button" data-bs-target="#aromaHeroCarousel" data-bs-slide-to="{{ $i }}"
+                                        class="{{ $i === 0 ? 'active' : '' }}" {{ $i === 0 ? 'aria-current=true' : '' }}
+                                        aria-label="{{ __('storefront.hero.slide') }} {{ $i + 1 }}"></button>
+                            @endforeach
+                        </div>
+
+                        <div class="carousel-inner">
+                            @foreach ($heroSlides as $i => $slide)
+                                <div class="carousel-item {{ $i === 0 ? 'active' : '' }}">
+                                    <div class="aroma-hero-slide">
+                                        <img src="{{ \App\Support\Assets::versioned($slide['image']) }}" alt="{{ $slide['alt'] }}"
+                                             loading="{{ $i === 0 ? 'eager' : 'lazy' }}"
+                                             {{ $i === 0 ? 'fetchpriority=high' : '' }}>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <button class="carousel-control-prev" type="button" data-bs-target="#aromaHeroCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">{{ __('storefront.hero.prev') }}</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#aromaHeroCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">{{ __('storefront.hero.next') }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="aroma-hero-editorial-copy">
+                    <span class="aroma-hero-eyebrow">{{ __('storefront.hero.title') }}</span>
+                    <h1 class="aroma-hero-editorial-headline">
+                        <span class="aroma-hero-editorial-headline-line">{{ $heroHeadlineLine1 }}</span>
+                        <span class="aroma-hero-editorial-headline-line">{{ $heroHeadlineLine2 }}</span>
+                    </h1>
+                    <a href="{{ $abayasUrl }}" class="aroma-hero-slide-cta aroma-hero-editorial-cta">
+                        {{ __('storefront.hero.cta') }}
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <span class="aroma-hero-accent-line" aria-hidden="true"></span>
+                </div>
+            </div>
         </div>
     </section>
 
     {{-- Perks row — mockup-style: a plain 4-item icon row right under the
          hero, no card/border. Payment-method trust signals aren't lost by
          moving away from the old payments/BNPL copy here — the footer's
-         payment-icon-chip row already carries that. --}}
+         payment-icon-chip row already carries that.
+
+         Redesigned to pick up where the hero's own language leaves off: the
+         gold hairline + soft-shadow "tile" echoes .aroma-hero::after's
+         foil-stamped frame, the centered divider is the same accent-line
+         element the hero ends on (.aroma-hero-accent-line), and the
+         staggered fade-in reuses the site's existing scroll-reveal system
+         (.aroma-reveal / data-reveal-group — same mechanism already driving
+         the categories/new-arrivals/bestsellers grids below) rather than a
+         new animation. --}}
     <section class="container aroma-perks-row">
-        <div class="aroma-perk">
-            <i class="bi bi-gift" aria-hidden="true"></i>
-            <p>{{ __('storefront.trust.gift_wrap') }}</p>
-        </div>
-        <div class="aroma-perk">
-            <i class="bi bi-award" aria-hidden="true"></i>
-            <p>{{ __('storefront.trust.curated') }}</p>
-        </div>
-        <div class="aroma-perk">
-            <i class="bi bi-truck" aria-hidden="true"></i>
-            <p>{{ __('storefront.trust.delivery') }}</p>
-        </div>
-        <div class="aroma-perk">
-            <i class="bi bi-percent" aria-hidden="true"></i>
-            <p>{{ __('storefront.trust.offers') }}</p>
+        <span class="aroma-perks-divider" aria-hidden="true"></span>
+        <div class="row g-4" data-reveal-group="perks">
+            <div class="col-6 col-lg-3 aroma-perk aroma-reveal">
+                <span class="aroma-perk-icon"><i class="bi bi-gift" aria-hidden="true"></i></span>
+                <p>{{ __('storefront.trust.gift_wrap') }}</p>
+            </div>
+            <div class="col-6 col-lg-3 aroma-perk aroma-reveal">
+                <span class="aroma-perk-icon"><i class="bi bi-award" aria-hidden="true"></i></span>
+                <p>{{ __('storefront.trust.curated') }}</p>
+            </div>
+            <div class="col-6 col-lg-3 aroma-perk aroma-reveal">
+                <span class="aroma-perk-icon"><i class="bi bi-truck" aria-hidden="true"></i></span>
+                <p>{{ __('storefront.trust.delivery') }}</p>
+            </div>
+            <div class="col-6 col-lg-3 aroma-perk aroma-reveal">
+                <span class="aroma-perk-icon"><i class="bi bi-percent" aria-hidden="true"></i></span>
+                <p>{{ __('storefront.trust.offers') }}</p>
+            </div>
         </div>
     </section>
 
@@ -208,17 +259,51 @@
     </section>
 
     {{-- Featured / bestsellers — own white band, separated from the
-         categories/new-arrivals one by the taupe promo panel in between. --}}
+         categories/new-arrivals one by the taupe promo panel in between.
+
+         A slow 3D perspective showcase, not another product grid: the
+         center item is dominant, side items scale down/darken/recede in
+         fixed depth "tiers" (see public/css/components/product-showcase.css
+         for the exact transform recipe per tier and public/js/
+         product-showcase.js for the interaction state machine — click a
+         side card to recenter it, drag/swipe, arrow keys, and a slow
+         auto-advance all funnel through one goTo(index)). Side cards stay
+         purely photographic; name/price only ever show for the centered
+         product, in the shared caption below the stage. --}}
     @if ($featuredProducts->isNotEmpty())
         <div class="aroma-white-band">
-            <section class="container aroma-section">
+            <section class="container aroma-section aroma-showcase"
+                      data-reveal-group="bestsellers" aria-roledescription="carousel"
+                      aria-label="{{ __('storefront.sections.bestsellers') }}">
                 <h2 class="aroma-section-title aroma-reveal">{{ __('storefront.sections.bestsellers') }}</h2>
-                <div class="row g-4" data-reveal-group="bestsellers">
-                    @foreach ($featuredProducts as $product)
-                        <div class="col-6 col-md-4 col-lg-3 aroma-reveal">
-                            @include('catalog.partials.product-card', ['product' => $product])
+
+                <div class="aroma-showcase-stage" tabindex="0">
+                    @foreach ($featuredProducts as $i => $product)
+                        <div class="aroma-showcase-card" role="group" aria-roledescription="slide"
+                             aria-label="{{ $product->name }}"
+                             data-name="{{ $product->name }}"
+                             data-price="{{ $product->priceLabel() }}"
+                             data-href="{{ route('product.show', [$locale, $product->slug]) }}">
+                            <a href="{{ route('product.show', [$locale, $product->slug]) }}" tabindex="-1">
+                                <img src="{{ $product->primaryImageUrl() }}" alt="{{ $product->name }}"
+                                     loading="{{ $i === 0 ? 'eager' : 'lazy' }}" {{ $i === 0 ? 'fetchpriority=high' : '' }}>
+                            </a>
                         </div>
                     @endforeach
+
+                    <button type="button" class="aroma-showcase-control aroma-showcase-control-prev" aria-label="{{ __('storefront.hero.prev') }}">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="aroma-showcase-control aroma-showcase-control-next" aria-label="{{ __('storefront.hero.next') }}">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    </button>
+                </div>
+
+                <div class="aroma-showcase-caption" aria-live="polite">
+                    <a class="aroma-showcase-caption-link" href="#">
+                        <span class="aroma-showcase-caption-name"></span>
+                        <span class="aroma-showcase-caption-price"></span>
+                    </a>
                 </div>
             </section>
         </div>
