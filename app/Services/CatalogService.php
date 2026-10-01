@@ -48,7 +48,9 @@ class CatalogService extends BaseService
             'featuredCategories' => $featuredCategories->isNotEmpty()
                 ? $featuredCategories
                 : $this->categories->rootCategories(),
-            'featuredProducts' => $this->products->featured(8),
+            // 10, not 8: the homepage 3D showcase wants 8-10 items to feel
+            // like a real carousel rather than a half-empty stage.
+            'featuredProducts' => $this->products->featured(10),
             'newArrivals'      => $this->products->newArrivals(8),
         ];
     }

@@ -1,0 +1,234 @@
+/* ============================================================================
+   Aroma — homepage featured-products 3D showcase
+   A slow perspective carousel: the center product is dominant, side products
+   scale down, darken, and recede in fixed depth "tiers". All N cards render
+   once as persistent DOM siblings; only a card's tier class changes when the
+   center moves, so the browser interpolates the transform/filter/opacity
+   change on its own — no per-frame JS, no rotateY tilt (that reads as a dated
+   CoverFlow, not an editorial campaign). See public/js/product-showcase.js
+   for the state machine that assigns these classes.
+
+   "Beyond" tiers deliberately reuse their side's tier-3 transform exactly,
+   differing only in opacity/pointer-events — stepping the center only ever
+   fades a card in/out in place, never pops it across the stage. That's what
+   lets an arbitrary jump (click a far card) and a single step (arrow key/
+   autoplay) resolve through the same mechanism with no special-casing.
+
+   RTL: transforms have no logical equivalent, so prev/next mirror sign only
+   (same precedent as hero-carousel.css's hover-transform RTL overrides) —
+   "prev"/"next" stay list-order semantics, physical placement flips.
+   ========================================================================== */
+
+.aroma-showcase-stage {
+  --showcase-step: clamp(170px, 15vw, 260px);
+  --showcase-card-w: clamp(240px, 22vw, 360px);
+  --showcase-card-h: calc(var(--showcase-card-w) * 4 / 3);
+  position: relative;
+  height: var(--showcase-card-h);
+  perspective: 2000px;
+  touch-action: pan-y;
+  cursor: grab;
+  outline: none;
+  /* Without this, the translated side cards expand the page's own
+     scrollable width (an absolutely-positioned descendant overflowing its
+     container still contributes to the nearest scrolling ancestor's
+     scrollWidth even when invisible) — confirmed causing a horizontal
+     scrollbar on phone widths before this was added. */
+  overflow: hidden;
+  /* Tier-3 dissolves at the stage edge instead of hard-cutting. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.aroma-showcase-stage.is-dragging { cursor: grabbing; }
+
+.aroma-showcase-card {
+  position: absolute;
+  inset-inline-start: 50%;
+  top: 50%;
+  width: var(--showcase-card-w);
+  aspect-ratio: 3 / 4;
+  margin-top: calc(var(--showcase-card-h) / -2);
+  margin-inline-start: calc(var(--showcase-card-w) / -2);
+  border-radius: var(--aroma-radius-lg);
+  overflow: hidden;
+  background: var(--aroma-skin); /* shows while an image loads, same convention as .aroma-hero-slide */
+  box-shadow: var(--aroma-shadow-sm);
+  backface-visibility: hidden;
+  transition: transform var(--aroma-transition-slower), filter var(--aroma-transition-slower), opacity var(--aroma-transition-slower), box-shadow var(--aroma-transition-slower);
+  will-change: transform, opacity, filter;
+}
+.aroma-showcase-card a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.aroma-showcase-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+/* A failed image (today: every product, pending real photography — see the
+   plan's data caveat) fades into the card's own --aroma-skin background
+   instead of showing the browser's native broken-image icon floating in 3D
+   space. */
+.aroma-showcase-card.is-broken img { display: none; }
+.aroma-showcase-card.is-broken::after {
+  content: "\f6d3"; /* bootstrap-icons bi-image */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "bootstrap-icons", sans-serif;
+  font-size: 1.75rem;
+  color: var(--aroma-light-brown);
+}
+
+/* --- Tiers (LTR) ------------------------------------------------------- */
+.aroma-showcase-card.is-center {
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: brightness(1);
+  opacity: 1;
+  z-index: 50;
+  box-shadow: var(--aroma-shadow);
+  pointer-events: auto;
+}
+.aroma-showcase-card.is-prev-1 {
+  transform: translate3d(calc(-1 * var(--showcase-step)), 0, -80px) scale(0.84);
+  filter: brightness(0.90);
+  opacity: 1;
+  z-index: 40;
+}
+.aroma-showcase-card.is-next-1 {
+  transform: translate3d(calc(1 * var(--showcase-step)), 0, -80px) scale(0.84);
+  filter: brightness(0.90);
+  opacity: 1;
+  z-index: 40;
+}
+.aroma-showcase-card.is-prev-2 {
+  transform: translate3d(calc(-1.85 * var(--showcase-step)), 0, -180px) scale(0.68);
+  filter: brightness(0.78);
+  opacity: 0.92;
+  z-index: 30;
+}
+.aroma-showcase-card.is-next-2 {
+  transform: translate3d(calc(1.85 * var(--showcase-step)), 0, -180px) scale(0.68);
+  filter: brightness(0.78);
+  opacity: 0.92;
+  z-index: 30;
+}
+.aroma-showcase-card.is-prev-3,
+.aroma-showcase-card.is-beyond-prev {
+  transform: translate3d(calc(-2.5 * var(--showcase-step)), 0, -300px) scale(0.54);
+  filter: brightness(0.65);
+  z-index: 20;
+}
+.aroma-showcase-card.is-next-3,
+.aroma-showcase-card.is-beyond-next {
+  transform: translate3d(calc(2.5 * var(--showcase-step)), 0, -300px) scale(0.54);
+  filter: brightness(0.65);
+  z-index: 20;
+}
+.aroma-showcase-card.is-prev-3,
+.aroma-showcase-card.is-next-3 { opacity: 0.70; }
+.aroma-showcase-card.is-beyond-prev,
+.aroma-showcase-card.is-beyond-next {
+  opacity: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.aroma-showcase-card:not(.is-center) { pointer-events: auto; cursor: pointer; }
+
+/* --- Tiers (RTL mirror — sign flipped, magnitudes identical) ------------ */
+html[dir="rtl"] .aroma-showcase-card.is-prev-1 { transform: translate3d(calc(1 * var(--showcase-step)), 0, -80px) scale(0.84); }
+html[dir="rtl"] .aroma-showcase-card.is-next-1 { transform: translate3d(calc(-1 * var(--showcase-step)), 0, -80px) scale(0.84); }
+html[dir="rtl"] .aroma-showcase-card.is-prev-2 { transform: translate3d(calc(1.85 * var(--showcase-step)), 0, -180px) scale(0.68); }
+html[dir="rtl"] .aroma-showcase-card.is-next-2 { transform: translate3d(calc(-1.85 * var(--showcase-step)), 0, -180px) scale(0.68); }
+html[dir="rtl"] .aroma-showcase-card.is-prev-3,
+html[dir="rtl"] .aroma-showcase-card.is-beyond-prev { transform: translate3d(calc(2.5 * var(--showcase-step)), 0, -300px) scale(0.54); }
+html[dir="rtl"] .aroma-showcase-card.is-next-3,
+html[dir="rtl"] .aroma-showcase-card.is-beyond-next { transform: translate3d(calc(-2.5 * var(--showcase-step)), 0, -300px) scale(0.54); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aroma-showcase-card { will-change: auto; }
+}
+
+/* --- Shared caption (center product only) ------------------------------
+   Lives outside the card stack — one calm text fade, fully decoupled from
+   the photographic motion above it, rather than a caption baked into every
+   card that would have to cross-fade while its own card is also mid-flight.
+   Timing (see product-showcase.js) only swaps the text once the photo's own
+   move has settled, so name/price never race the photograph. */
+.aroma-showcase-caption {
+  text-align: center;
+  margin-top: clamp(1.25rem, 3vw, 2rem);
+  opacity: 0;
+  transition: opacity var(--aroma-transition);
+}
+.aroma-showcase-caption.is-visible { opacity: 1; }
+.aroma-showcase-caption-link {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-decoration: none;
+}
+.aroma-showcase-caption-name {
+  font-family: var(--aroma-heading-en);
+  font-weight: 500;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: var(--aroma-brown);
+  transition: color var(--aroma-transition);
+}
+html[lang="ar"] .aroma-showcase-caption-name {
+  font-family: var(--aroma-heading-ar);
+  font-weight: 600;
+}
+.aroma-showcase-caption-link:hover .aroma-showcase-caption-name { color: var(--aroma-emerald-deep); }
+.aroma-showcase-caption-price {
+  font-size: 0.85rem;
+  color: var(--aroma-muted);
+  letter-spacing: 0.04em;
+}
+
+/* --- Controls ------------------------------------------------------------
+   Icon appearance (circular glass, hover/active/focus) is shared with
+   .aroma-hero-carousel — see the rules in hero-carousel.css. Only
+   positioning lives here, since this sits beside a 3D stage, not a 16:9
+   photo box. */
+.aroma-showcase-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.aroma-showcase-control-prev { inset-inline-start: 0; }
+.aroma-showcase-control-next { inset-inline-end: 0; }
+
+/* --- Responsive ------------------------------------------------------------
+   Same markup/classes/JS at every width — only which tiers are visible and
+   the stage's own geometry tokens change, mirroring how hero-depth.css
+   hides its floating cards below 992px rather than shipping a second
+   implementation. */
+@media (max-width: 991.98px) {
+  .aroma-showcase-card.is-prev-3,
+  .aroma-showcase-card.is-next-3 { opacity: 0; pointer-events: none; }
+}
+@media (max-width: 767.98px) {
+  .aroma-showcase-card.is-prev-2,
+  .aroma-showcase-card.is-next-2 { opacity: 0; pointer-events: none; }
+  .aroma-showcase-stage {
+    --showcase-step: clamp(90px, 22vw, 140px);
+    --showcase-card-w: clamp(170px, 58vw, 220px);
+  }
+  /* Arrows stay — swipe is the faster interaction here, but hiding the only
+     visible control entirely on phones (where most real traffic is) left no
+     way to advance without knowing to swipe. Both coexist fine. */
+}
