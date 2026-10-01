@@ -211,6 +211,21 @@ html[lang="ar"] .aroma-showcase-caption-name {
 }
 .aroma-showcase-control-prev { inset-inline-start: 0; }
 .aroma-showcase-control-next { inset-inline-end: 0; }
+/* The shared glass-circle treatment (translucent near-white + backdrop-blur)
+   is tuned for sitting on top of a photo, like it does in the hero — blur
+   only reads as "glass" against something textured behind it. Here the
+   control sits directly on the section's own flat white/cream background,
+   where a translucent near-white circle has essentially no contrast and the
+   blur has nothing to blur. Switched to the same solid-fill + hairline +
+   shadow recipe already proven to read clearly on this exact background:
+   .aroma-perk-icon, two sections up. */
+.aroma-showcase-control .carousel-control-prev-icon,
+.aroma-showcase-control .carousel-control-next-icon {
+  background-color: var(--aroma-white);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(201, 179, 154, 0.5);
+}
 
 /* --- Responsive ------------------------------------------------------------
    Same markup/classes/JS at every width — only which tiers are visible and
