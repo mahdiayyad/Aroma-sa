@@ -13,3 +13,9 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+
+# Dev-only fallback for products/images with no real photo yet (every seeded
+# ProductImage row currently points here — see Product::primaryImageUrl()).
+# Local convenience only: never committed, so production keeps showing a
+# genuinely broken image rather than a placeholder masking missing photos.
+/public/images/placeholder.svg
