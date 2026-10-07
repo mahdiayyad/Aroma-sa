@@ -122,27 +122,41 @@
                     instance.pause();
                 }
             });
-            // A hero video is still "autoplay" in the HTML (muted autoplay
-            // has to be set declaratively for browsers to honour it at all),
-            // so this is the one place that has to override it at runtime —
-            // pausing leaves its poster frame showing, a static image rather
-            // than an indefinitely looping clip.
-            document.querySelectorAll('.aroma-hero-slide video').forEach(function (video) {
-                video.pause();
-            });
-        } else {
-            // Safari sometimes skips the declarative autoplay even on a muted,
-            // playsinline clip; an explicit muted play() is its accepted path.
-            document.querySelectorAll('.aroma-hero-slide video').forEach(function (video) {
-                video.muted = true;
-                var tryPlay = function () {
-                    var p = video.play();
-                    if (p && p.catch) { p.catch(function () {}); }
-                };
-                if (video.readyState >= 2) { tryPlay(); }
-                else { video.addEventListener('canplay', tryPlay, { once: true }); }
-            });
         }
+
+        // -3.45) Hero video — autoplays for everyone, Reduce Motion included
+        // (product decision: it's a slow, silent ambient clip). iOS Safari can
+        // skip the declarative autoplay, and it ignores preload="auto" (loads
+        // metadata only), so play() is called right away rather than waiting
+        // on 'canplay', which may never fire. In Low Power Mode iOS rejects
+        // muted autoplay outright; the only accepted path then is a user
+        // gesture, so it retries on the first tap.
+        document.querySelectorAll('.aroma-hero-slide video').forEach(function (video) {
+            video.muted = true;
+            video.defaultMuted = true;
+            video.playsInline = true;
+
+            var gestureEvents = ['touchend', 'click', 'keydown'];
+            var onGesture = function () { tryPlay(); };
+            var removeGestureRetry = function () {
+                gestureEvents.forEach(function (type) {
+                    document.removeEventListener(type, onGesture, true);
+                });
+            };
+            var tryPlay = function () {
+                var p = video.play();
+                if (p && p.then) {
+                    p.then(removeGestureRetry).catch(function () {});
+                }
+            };
+
+            gestureEvents.forEach(function (type) {
+                document.addEventListener(type, onGesture, { capture: true, passive: true });
+            });
+            video.addEventListener('playing', removeGestureRetry, { once: true });
+            video.addEventListener('loadedmetadata', function () { if (video.paused) { tryPlay(); } }, { once: true });
+            tryPlay();
+        });
 
         // -3.4) Hero carousel — mouse drag-to-navigate, with the slide
         // actually tracking the cursor (not just a gesture-detect-then-jump).
