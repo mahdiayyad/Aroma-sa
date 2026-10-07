@@ -130,6 +130,18 @@
             document.querySelectorAll('.aroma-hero-slide video').forEach(function (video) {
                 video.pause();
             });
+        } else {
+            // Safari sometimes skips the declarative autoplay even on a muted,
+            // playsinline clip; an explicit muted play() is its accepted path.
+            document.querySelectorAll('.aroma-hero-slide video').forEach(function (video) {
+                video.muted = true;
+                var tryPlay = function () {
+                    var p = video.play();
+                    if (p && p.catch) { p.catch(function () {}); }
+                };
+                if (video.readyState >= 2) { tryPlay(); }
+                else { video.addEventListener('canplay', tryPlay, { once: true }); }
+            });
         }
 
         // -3.4) Hero carousel — mouse drag-to-navigate, with the slide
