@@ -73,7 +73,6 @@
                     <span class="aroma-footer-payment-chip"><x-payment-icon method="visa" /></span>
                     <span class="aroma-footer-payment-chip"><x-payment-icon method="mastercard" /></span>
                     <span class="aroma-footer-payment-chip"><x-payment-icon method="applepay" /></span>
-                    <span class="aroma-footer-payment-chip"><x-payment-icon method="tabby" /></span>
                     <span class="aroma-footer-payment-chip"><x-payment-icon method="tamara" /></span>
                 </div>
             </div>

@@ -120,7 +120,6 @@
                         <x-payment-icon method="visa" />
                         <x-payment-icon method="mastercard" />
                         <x-payment-icon method="applepay" />
-                        <x-payment-icon method="tabby" />
                         <x-payment-icon method="tamara" />
                     </div>
                     <p class="aroma-cart-bnpl"><i class="bi bi-wallet2" aria-hidden="true"></i>{{ __('cart.bnpl') }}</p>

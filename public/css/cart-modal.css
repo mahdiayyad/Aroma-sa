@@ -52,7 +52,7 @@
   width: auto;
   flex-shrink: 0;
 }
-/* tabby / Tamara — shown as their real self-branding: a gradient chip with
+/* Tamara — shown as its real self-branding: a gradient chip with
    the wordmark in dark bold type, not an icon-plus-label pair. */
 .aroma-payment-chip {
   display: inline-flex;

@@ -102,12 +102,6 @@
         <div class="container">
             <div class="aroma-hero-editorial-grid">
                 <div class="aroma-hero-editorial-media">
-                    @foreach ($heroFloatCards as $j => $card)
-                        <div class="aroma-hero-float-card aroma-hero-float-card-{{ $j }}" aria-hidden="true">
-                            <img src="{{ \App\Support\Assets::versioned($card['image']) }}" alt="" loading="lazy">
-                        </div>
-                    @endforeach
-
                     <div id="aromaHeroCarousel" class="carousel slide aroma-hero-carousel"
                          data-bs-ride="carousel" data-bs-pause="hover" data-bs-touch="true"
                          aria-label="{{ __('storefront.hero.title') }}">

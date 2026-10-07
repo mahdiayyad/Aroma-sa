@@ -97,7 +97,6 @@ return [
         'applepay' => 'Apple Pay',
         'visa' => 'Visa Card',
         'mastercard' => 'Mastercard',
-        'tabby' => 'Tabby (Buy Now, Pay Later)',
         'tamara' => 'Tamara (Buy Now, Pay Later)',
     ],
 

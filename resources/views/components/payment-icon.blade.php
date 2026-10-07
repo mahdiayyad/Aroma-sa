@@ -4,19 +4,18 @@
     Real payment-network marks in their own brand colors — not the site's
     emerald/gold accent, and not generic credit-card glyphs. Card networks
     (mada, Visa, Mastercard, Apple Pay) are shown as their actual logo in
-    its actual color, sitting on the existing white badge card. BNPL
-    providers (tabby, Tamara) are shown the way they actually brand
-    themselves in the wild — a gradient-color chip with their wordmark in
-    dark bold type — so this component renders those as a self-contained
-    colored pill rather than an icon-plus-separate-label.
+    its actual color, sitting on the existing white badge card. The BNPL
+    provider (Tamara) is shown the way it actually brands itself in the
+    wild — a gradient-color chip with its wordmark in dark bold type — so
+    this component renders it as a self-contained colored pill rather than
+    an icon-plus-separate-label.
 
     Shapes/colors are sourced from each network's own published assets
     where one was fetchable (Visa/Apple Pay via simple-icons, MIT-licensed;
     Mastercard as its literal red/orange two-circle mark; mada via its
     official SVG on Wikimedia Commons, full two-tone symbol + wordmark).
-    tabby and Tamara have no fetchable public vector asset (tabby's brand
-    page links only to a Google Drive folder; Tamara's fetched asset was
-    wordmark-only with no colour specified) — their gradient stops here are
+    Tamara has no fetchable public vector asset (its fetched asset was
+    wordmark-only with no colour specified) — its gradient stops here are
     matched by eye against reference badge screenshots, not a verified hex
     — everything else on this list is traced from a real source.
 --}}
@@ -60,16 +59,6 @@
                 <path d="M526.1,424.5h1.2c27.9,0,40.9-9.2,40.9-31.9c0-16.3-11.9-29.3-31.9-29.3h-25.7c-7.7,0-12.3-4.4-12.3-11.8c0-5,1.9-11.2,14.5-11.2H569c1.2-7.3,1.8-11.9,2.9-19.2h-58.4c-27.2,0-40.9,11.4-40.9,30.4c0,18.8,11.9,28.6,31.9,28.6h25.7c7.7,0,12.3,6.1,12.3,12.5c0,4.2-1.9,12.9-14.4,12.9h-4.3l-82.3-0.2l0,0h-15c-12.7,0-21.6-7.2-21.6-23.9v-3.6c0-17.4,6.9-28.2,21.6-28.2h24.4c1.1-7.4,1.8-12.1,2.8-19.1h-30.4h-2.9c-24.9,0-42.1,16.7-42.7,45.8l0,0v1.1v11.9c0.6,29.1,17.8,43,42.7,43h2.9h21.4l44.6,0.1l0,0h26.6L526.1,424.5L526.1,424.5z"/>
             </g>
         </svg>
-        @break
-
-    @case('tabby')
-        {{-- tabby's real self-branding: a teal-to-green gradient pill with
-             the lowercase wordmark in dark, bold type — not white-on-solid.
-             Gradient stops are a close match to their reference badge, not
-             a verified hex (see this file's top docblock). --}}
-        <span class="aroma-payment-chip" style="background:linear-gradient(120deg, #3FD9C7 0%, #7CE87A 100%)">
-            <span class="aroma-payment-chip-text" style="color:#0F1A17">tabby</span>
-        </span>
         @break
 
     @case('tamara')

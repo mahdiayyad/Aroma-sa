@@ -3,7 +3,6 @@
      payment option that would fail at checkout (BNPL shows as "soon"). --}}
 @php($payReady = [
     'moyasar' => (bool) config('services.moyasar.secret_key'),
-    'tabby'   => (bool) (config('services.tabby.secret_key') && config('services.tabby.merchant_code')),
     'tamara'  => (bool) config('services.tamara.api_token'),
 ])
 
