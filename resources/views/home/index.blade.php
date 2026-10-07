@@ -120,9 +120,9 @@
                                         @if (!empty($slide['video']))
                                             {{-- Ambient background clip, not a video player: no controls, silent
                                                  (autoplay requires muted in every modern browser anyway), loops
-                                                 forever, inline on iOS so Safari doesn't force fullscreen. Paused
-                                                 instead of autoplaying under prefers-reduced-motion — see the
-                                                 .aroma-hero-slide video rule in aroma-ui.js. The existing campaign
+                                                 forever, inline on iOS so Safari doesn't force fullscreen. aroma-ui.js
+                                                 also calls play() explicitly, since iOS Safari doesn't always honour
+                                                 the attribute alone. The existing campaign
                                                  photo becomes the poster: instant first paint, nothing blank while
                                                  the video itself is still downloading. --}}
                                             <video poster="{{ \App\Support\Assets::versioned($slide['image']) }}"
