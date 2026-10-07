@@ -71,7 +71,7 @@ return [
     'trust' => [
         'title'     => 'Shop with confidence',
         'payments'  => 'Secure payments with Mada, Apple Pay, Visa & Mastercard',
-        'bnpl'      => 'Split your payment with Tabby & Tamara',
+        'bnpl'      => 'Split your payment with Tamara',
         'delivery'  => 'Fast delivery across the Kingdom',
         'gift_wrap' => 'Luxury gift wrapping with every order',
         'curated'   => 'Carefully selected, high-quality products',

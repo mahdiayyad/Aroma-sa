@@ -62,6 +62,7 @@ class CatalogTest extends TestCase
     public function test_the_product_page_shows_the_payment_methods(): void
     {
         config(['services.moyasar.secret_key' => 'sk_test']); // cards live
+        config(['services.tamara.api_token' => null]); // BNPL unconfigured, for the "soon" assertion below
         $product = Product::factory()->for(Category::factory())->create(['slug' => 'pay-me']);
 
         $this->get('/en/product/pay-me')
@@ -70,7 +71,9 @@ class CatalogTest extends TestCase
             ->assertSee(__('checkout.payment_methods.mada'))
             ->assertSee(__('checkout.payment_methods.applepay'))
             // BNPL isn't configured, so it is shown but flagged as coming soon.
-            ->assertSee(__('storefront.payment.soon'));
+            ->assertSee(__('storefront.payment.soon'))
+            // Tabby was removed sitewide — must never render on the product page.
+            ->assertDontSee('Tabby');
     }
 
     public function test_the_gallery_shows_only_the_products_own_uploaded_photos(): void

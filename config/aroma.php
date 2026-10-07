@@ -81,8 +81,8 @@ return [
     */
     'payments' => [
         'primary_gateway' => 'moyasar',
-        'methods'         => ['mada', 'applepay', 'visa', 'mastercard', 'tabby', 'tamara'],
-        'bnpl'            => ['tabby', 'tamara'],
+        'methods'         => ['mada', 'applepay', 'visa', 'mastercard', 'tamara'],
+        'bnpl'            => ['tamara'],
     ],
 
     /*

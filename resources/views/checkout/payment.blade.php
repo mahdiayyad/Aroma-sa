@@ -126,11 +126,10 @@
                         <h5 class="card-title">{{ __('checkout.payment_method') }}</h5>
 
                         {{-- A method is selectable only when its gateway is configured.
-                             Tabby/Tamara therefore show as "coming soon" until their keys
-                             are added — no code change needed to switch them on. --}}
+                             Tamara therefore shows as "coming soon" until its keys are
+                             added — no code change needed to switch it on. --}}
                         @php($gatewayReady = [
                             'moyasar' => (bool) config('services.moyasar.secret_key'),
-                            'tabby'   => (bool) (config('services.tabby.secret_key') && config('services.tabby.merchant_code')),
                             'tamara'  => (bool) config('services.tamara.api_token'),
                         ])
                         @php($needsDefault = true)
@@ -277,7 +276,7 @@
 <script>
     (function () {
         // Keep the hidden `method` field in sync with the chosen option so the
-        // order records the real method (mada, tabby, …), not a fixed default.
+        // order records the real method (mada, tamara, …), not a fixed default.
         var methodField = document.getElementById('paymentMethod');
         // Initialise from the pre-selected method.
         var preChecked = document.querySelector('input[name="gateway"]:checked');

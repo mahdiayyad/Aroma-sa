@@ -1259,7 +1259,7 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
   transition: opacity var(--aroma-transition-fast, 0.15s ease);
 }
 .aroma-pay-method:hover { border-color: var(--aroma-light-brown); }
-/* Coming-soon (Tabby / Tamara): visible but not selectable. */
+/* Coming-soon (Tamara): visible but not selectable. */
 .aroma-pay-method.is-disabled {
   opacity: 0.6;
   cursor: not-allowed;

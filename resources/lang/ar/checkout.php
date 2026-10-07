@@ -95,7 +95,6 @@ return [
         'applepay' => 'Apple Pay',
         'visa' => 'بطاقة Visa',
         'mastercard' => 'Mastercard',
-        'tabby' => 'تابي (اشتر الآن ادفع لاحقاً)',
         'tamara' => 'تمارا (اشتر الآن ادفع لاحقاً)',
     ],
 
