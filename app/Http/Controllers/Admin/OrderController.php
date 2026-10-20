@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OrderStatusRequest;
 use App\Models\Order;
+use App\Services\AramexFulfilmentService;
 use App\Services\OrderStatusService;
 use App\Services\Payment\TamaraOrderOperations;
 use Illuminate\Http\RedirectResponse;
@@ -45,11 +46,13 @@ class OrderController extends Controller
         ]);
     }
 
-    public function show(Order $order): View
+    public function show(Order $order, AramexFulfilmentService $aramex): View
     {
         return view('admin.orders.show', [
-            'order'       => $order->load(['items', 'payment']),
-            'allowedNext' => $this->status->allowedNext($order),
+            'order'            => $order->load(['items', 'payment', 'aramexShipment']),
+            'allowedNext'      => $this->status->allowedNext($order),
+            'aramexConfigured' => $aramex->isConfigured(),
+            'aramexShippable'  => in_array($order->status, AramexFulfilmentService::SHIPPABLE_STATUSES, true),
         ]);
     }
 

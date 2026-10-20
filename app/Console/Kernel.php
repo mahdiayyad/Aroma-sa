@@ -19,6 +19,9 @@ class Kernel extends ConsoleKernel
 
         // Old finished product-import runs (and their uploaded files) — see ProductImportRun::prunable().
         $schedule->command('model:prune', ['--model' => [\App\Models\ProductImportRun::class]])->daily();
+
+        // Backstop for the Aramex push webhook; a no-op until Aramex is configured.
+        $schedule->command('aramex:track')->hourly()->withoutOverlapping();
     }
 
     /**

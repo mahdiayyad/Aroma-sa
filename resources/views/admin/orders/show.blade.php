@@ -175,6 +175,68 @@
                     </form>
                 @endif
             </x-admin.card>
+
+            @php($aramexShipment = $order->aramexShipment)
+            <x-admin.card :title="__('admin.aramex.panel_title')">
+                @if ($aramexShipment && $aramexShipment->hasAwb())
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="admin-cell-sub">{{ __('admin.aramex.awb') }}</span>
+                        <span class="fw-semibold" dir="ltr">{{ $aramexShipment->awb_number }}</span>
+                    </div>
+                    @php($aramexStatusLabel = __('admin.aramex.statuses.'.$aramexShipment->shipping_status))
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="admin-cell-sub">{{ __('admin.common.status') }}</span>
+                        <x-admin.badge :tone="$aramexShipment->badgeTone()" :label="$aramexStatusLabel" />
+                    </div>
+                    @if ($aramexShipment->status_description && mb_strtolower($aramexShipment->status_description) !== mb_strtolower(__('admin.aramex.statuses.'.$aramexShipment->shipping_status, [], 'en')))
+                        <div class="admin-cell-sub small mb-2">{{ $aramexShipment->status_description }}</div>
+                    @endif
+                    <a href="{{ route('admin.orders.aramex.label', $order) }}" class="admin-btn admin-btn-primary w-100 justify-content-center">
+                        <i class="bi bi-file-earmark-pdf"></i>{{ __('admin.aramex.download_label') }}
+                    </a>
+                    @if (session('aramex_label_ready'))
+                        {{-- Just shipped: start the label download (an attachment, so this page stays put). --}}
+                        <script>
+                            window.addEventListener('load', function () {
+                                window.location.href = @json(route('admin.orders.aramex.label', $order));
+                            });
+                        </script>
+                    @endif
+
+                    @php($aramexTimeline = array_slice($aramexShipment->timeline(), 0, 10))
+                    @if ($aramexTimeline)
+                        <hr class="my-3">
+                        <div class="fw-semibold small mb-2">{{ __('admin.aramex.timeline') }}</div>
+                        <ul class="list-unstyled mb-0 small">
+                            @foreach ($aramexTimeline as $event)
+                                <li class="mb-2">
+                                    <div>{{ $event['description'] ?: $event['code'] }}</div>
+                                    <div class="admin-cell-sub">
+                                        {{ \Illuminate\Support\Carbon::parse($event['occurred_at'])->timezone(config('app.timezone'))->format('Y-m-d H:i') }}
+                                        @if (!empty($event['location'])) · {{ $event['location'] }}@endif
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                @elseif (! $aramexConfigured)
+                    <p class="admin-cell-sub mb-0">{{ __('admin.aramex.not_configured') }}</p>
+                @elseif (! $aramexShippable)
+                    <p class="admin-cell-sub mb-0">{{ __('admin.aramex.ship_hint') }}</p>
+                @else
+                    @if ($aramexShipment && $aramexShipment->shipping_status === \App\Models\AramexShipment::STATUS_FAILED)
+                        <div class="admin-cell-sub small text-danger mb-2">{{ __('admin.aramex.last_error', ['error' => $aramexShipment->error_message]) }}</div>
+                    @endif
+                    <form method="post" action="{{ route('admin.orders.aramex.ship', $order) }}"
+                          onsubmit="this.querySelector('button').disabled = true;">
+                        @csrf
+                        <button type="submit" class="admin-btn admin-btn-primary w-100 justify-content-center">
+                            <i class="bi bi-truck"></i>{{ __('admin.aramex.ship_button') }}
+                        </button>
+                    </form>
+                    <p class="admin-cell-sub small mt-2 mb-0">{{ __('admin.aramex.ship_note') }}</p>
+                @endif
+            </x-admin.card>
         </div>
     </div>
 @endsection
