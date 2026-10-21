@@ -26,12 +26,16 @@ use Illuminate\Support\Facades\Log;
  * needs to change, since both branches return the exact same
  * ['success','data','error','is_stub'] contract.
  *
- * That canned-success stub is a development convenience, not something to
- * ship live: it needs an explicit NATIONAL_ADDRESS_DEMO=true and is never
- * used when APP_ENV=production (see stubAllowed()). Otherwise an
- * unconfigured lookup fails honestly, and isAvailable() lets the address
- * form hide the code method entirely — a real shopper must never have their
- * order recorded against a fabricated Riyadh address. The "Full Address"
+ * That canned-success stub needs an explicit NATIONAL_ADDRESS_DEMO=true (see
+ * stubAllowed()) — without it, an unconfigured lookup fails honestly, and
+ * isAvailable() lets the address form hide the code method entirely. With it
+ * on (deliberately allowed in production too, by request, until real
+ * credentials exist), a real shopper's code DOES resolve to the fabricated
+ * Riyadh address, with no demo indicator shown to them — the downstream
+ * safety nets are what actually protect a real order: staff still see a
+ * "Demo" badge on the order itself (address-summary.blade.php's own
+ * is_stub check), and no real shipment can be created against it
+ * (AramexFulfilmentService::consigneeFor() throws). The "Full Address"
  * manual-entry method is unaffected either way.
  *
  * The real endpoint path / auth scheme / response field names below are
@@ -69,16 +73,16 @@ class LocationLookupService
     }
 
     /**
-     * Whether an unconfigured lookup may fall back to canned demo data:
-     * only with an explicit NATIONAL_ADDRESS_DEMO=true, and never when
-     * APP_ENV=production. Opt-in rather than inferred from APP_ENV alone,
-     * because a live server running with APP_ENV=local once served the demo
-     * Riyadh address to real shoppers.
+     * Whether an unconfigured lookup may fall back to canned demo data: only
+     * with an explicit NATIONAL_ADDRESS_DEMO=true. Deliberately NOT gated on
+     * APP_ENV — by request, this is allowed in production too until real
+     * Saudi Post/SPL credentials are obtained. The real protection against a
+     * demo address silently shipping is downstream, not here: see the class
+     * docblock.
      */
     private function stubAllowed(): bool
     {
-        return (bool) config('services.national_address.demo', false)
-            && ! app()->environment('production');
+        return (bool) config('services.national_address.demo', false);
     }
 
     /** Whether a code lookup can succeed at all (real API or demo mode). */

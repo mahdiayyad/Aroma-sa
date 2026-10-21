@@ -86,15 +86,25 @@ class LocationLookupServiceTest extends TestCase
         $this->assertFalse($service->isAvailable());
     }
 
-    public function test_production_never_gets_demo_data_even_with_the_opt_in(): void
+    /**
+     * stubAllowed() used to also require !production; removed by explicit
+     * request so the National Address Code option can show on the live site
+     * before real Saudi Post/SPL credentials exist. The protection against a
+     * demo address actually shipping lives downstream instead — see
+     * NationalAddressDemoTest (admin "Demo" badge on the order,
+     * AramexFulfilmentService::consigneeFor() refusing to ship it).
+     */
+    public function test_production_gets_demo_data_too_when_explicitly_opted_in(): void
     {
         $this->unconfigured(true);
         app()->instance('env', 'production');
 
         $service = new LocationLookupService();
+        $result = $service->lookup('RAHA1234');
 
-        $this->assertFalse($service->lookup('RAHA1234')['success']);
-        $this->assertFalse($service->isAvailable());
+        $this->assertTrue($result['success']);
+        $this->assertTrue($result['is_stub']);
+        $this->assertTrue($service->isAvailable());
     }
 
     public function test_a_configured_service_is_available_without_demo_mode(): void
