@@ -75,7 +75,7 @@ class OrderPaidEventTest extends TestCase
         // went through markOrderAsPaid() from this angle either — verify the
         // webhook's own success path fires the event via the shared method.
         Event::fake([OrderPaid::class]);
-        config(['services.moyasar.webhook_secret' => 'whsec']);
+        config(['services.moyasar.webhook_secret' => 'whsec', 'services.moyasar.secret_key' => 'sk_test']);
 
         $order = Order::create([
             'order_number' => 'AR-2026-000777', 'status' => Order::STATUS_PENDING,
@@ -84,16 +84,19 @@ class OrderPaidEventTest extends TestCase
             'subtotal' => 100, 'total_amount' => 100,
         ]);
         Payment::create([
-            'order_id' => $order->id, 'gateway' => 'moyasar', 'method' => 'mada',
+            'order_id' => $order->id, 'gateway' => 'moyasar', 'method' => 'mada', 'reference_number' => 'inv_777',
             'status' => Payment::STATUS_PENDING, 'amount' => 100, 'currency' => 'SAR',
         ]);
 
+        // The webhook only names the payment; Moyasar's API is the authority.
+        Http::fake(['api.moyasar.com/v1/payments/pay_1' => Http::response([
+            'id' => 'pay_1', 'status' => 'paid', 'amount' => 10000, 'currency' => 'SAR', 'invoice_id' => 'inv_777',
+        ])]);
+
         app(MoyasarPaymentService::class)->handleWebhook([
-            'event' => 'invoice.paid',
-            'data' => [
-                'id' => 'pay_1', 'amount' => 10000, 'currency' => 'SAR', 'method' => 'mada',
-                'metadata' => ['order_id' => $order->id],
-            ],
+            'id' => 'evt_1',
+            'type' => 'payment_paid',
+            'data' => ['id' => 'pay_1'],
         ]);
 
         $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);

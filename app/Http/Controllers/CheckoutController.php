@@ -689,6 +689,15 @@ class CheckoutController extends Controller
             $payment = $order->payment()->latest('id')->first();
 
             if ($payment) {
+                // Keep what the gateway reported (for Moyasar: the paid
+                // invoice with its card details) so the payment receipt can
+                // show the card and authorization code. Merged under its own
+                // key so entries other code keeps here (Tamara's) survive.
+                if (is_array($status['raw'] ?? null)) {
+                    $existing = is_array($payment->gateway_response) ? $payment->gateway_response : [];
+                    $payment->update(['gateway_response' => array_merge($existing, ['verification' => $status['raw']])]);
+                }
+
                 // Tamara: approved/authorised means committed, not captured —
                 // the capture happens on shipment (or Tamara auto-captures).
                 $paymentStatus = ($gatewayKey === 'tamara' && ! ($status['captured'] ?? false))

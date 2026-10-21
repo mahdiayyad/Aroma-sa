@@ -27,11 +27,12 @@ use Illuminate\Support\Facades\Log;
  * ['success','data','error','is_stub'] contract.
  *
  * That canned-success stub is a development convenience, not something to
- * ship live: stubAllowed() below confines it to local/staging/testing. In
- * any other environment (production) an unconfigured lookup fails honestly
- * instead — a real shopper must never have their order recorded against a
- * fabricated Riyadh address just because credentials weren't set. The
- * "Full Address" manual-entry method is unaffected either way.
+ * ship live: it needs an explicit NATIONAL_ADDRESS_DEMO=true and is never
+ * used when APP_ENV=production (see stubAllowed()). Otherwise an
+ * unconfigured lookup fails honestly, and isAvailable() lets the address
+ * form hide the code method entirely — a real shopper must never have their
+ * order recorded against a fabricated Riyadh address. The "Full Address"
+ * manual-entry method is unaffected either way.
  *
  * The real endpoint path / auth scheme / response field names below are
  * UNVERIFIED against actual SPL API docs — no public, versioned SPL/Saudi
@@ -52,6 +53,9 @@ class LocationLookupService
     /** Magic code reserved for exercising the "not found" path without real credentials. */
     private const STUB_NOT_FOUND_CODE = 'ZZZZ0000';
 
+    /** stubLookup()'s formatted_address, which no real resolution produces. */
+    private const STUB_FORMATTED_PATTERN = '/^Al Olaya, Riyadh, Riyadh Region \([A-Z]{4}\d{4}\)$/';
+
     public function __construct()
     {
         $this->baseUrl = rtrim((string) config('services.national_address.base_url', ''), '/');
@@ -65,17 +69,42 @@ class LocationLookupService
     }
 
     /**
-     * Whether an unconfigured lookup may fall back to canned demo data.
-     * Explicit allowlist (fails closed for any environment name it doesn't
-     * recognise) rather than "not production" — the whole point is that
-     * fabricated address data must never reach a real shopper. `testing` is
-     * included because the test suite mocks this class where it needs
-     * deterministic fixtures (see Tests\Concerns\MocksLocationLookup) and
-     * only exercises this branch directly to test the branch itself.
+     * Whether an unconfigured lookup may fall back to canned demo data:
+     * only with an explicit NATIONAL_ADDRESS_DEMO=true, and never when
+     * APP_ENV=production. Opt-in rather than inferred from APP_ENV alone,
+     * because a live server running with APP_ENV=local once served the demo
+     * Riyadh address to real shoppers.
      */
     private function stubAllowed(): bool
     {
-        return app()->environment(['local', 'staging', 'testing']);
+        return (bool) config('services.national_address.demo', false)
+            && ! app()->environment('production');
+    }
+
+    /** Whether a code lookup can succeed at all (real API or demo mode). */
+    public function isAvailable(): bool
+    {
+        return $this->isConfigured() || $this->stubAllowed();
+    }
+
+    /**
+     * Whether an address (order snapshot or saved address) holds the canned
+     * demo resolution rather than a real one. Saved addresses don't keep the
+     * is_stub flag, so the demo's own fixed signature is matched as well.
+     *
+     * @param array<string,mixed>|null $address
+     */
+    public static function isDemoAddress(?array $address): bool
+    {
+        if (! $address) {
+            return false;
+        }
+
+        if (! empty($address['is_stub'])) {
+            return true;
+        }
+
+        return preg_match(self::STUB_FORMATTED_PATTERN, (string) ($address['formatted_address'] ?? '')) === 1;
     }
 
     /**
@@ -100,7 +129,7 @@ class LocationLookupService
             // show) instead of silently getting someone else's Riyadh
             // address. They still have the "Full Address" method, which
             // works today regardless of this.
-            Log::warning('National address lookup: no live credentials configured (stub disabled outside local/staging)', [
+            Log::warning('National address lookup: no live credentials configured and demo mode off', [
                 'code' => $normalized,
                 'env'  => app()->environment(),
             ]);

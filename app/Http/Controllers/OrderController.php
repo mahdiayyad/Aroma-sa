@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\Receipts\PaymentReceiptService;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
 {
@@ -36,7 +38,20 @@ class OrderController extends Controller
         }
 
         return view('orders.show', [
-            'order' => $order->load('items'),
+            'order' => $order->load(['items', 'receipt']),
         ]);
+    }
+
+    /** The order's payment receipt PDF — only for the customer who placed it. */
+    public function receipt(Order $order, PaymentReceiptService $receipts): Response
+    {
+        if (auth()->id() !== $order->user_id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $receipt = $order->receipt;
+        abort_unless($receipt !== null, 404);
+
+        return $receipts->download($receipt);
     }
 }

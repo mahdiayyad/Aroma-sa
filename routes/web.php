@@ -241,6 +241,7 @@ Route::post('location/lookup', [LocationLookupController::class, 'lookup'])
 Route::middleware('auth')->prefix('orders')->name('order.')->group(function () {
     Route::get('/', [OrderController::class, 'index'])->name('index');
     Route::get('{order}', [OrderController::class, 'show'])->name('show');
+    Route::get('{order}/receipt', [OrderController::class, 'receipt'])->name('receipt');
 });
 
 /* Admin back-office UI (Blade) --------------------------------------------- */
@@ -321,6 +322,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
         Route::post('orders/{order}/tamara/capture', [AdminOrderController::class, 'tamaraCapture'])->name('orders.tamara.capture');
         Route::post('orders/{order}/tamara/refund', [AdminOrderController::class, 'tamaraRefund'])->name('orders.tamara.refund');
+        Route::get('orders/{order}/receipt', [AdminOrderController::class, 'receipt'])->name('orders.receipt');
+        Route::post('orders/{order}/receipt/resend', [AdminOrderController::class, 'resendReceipt'])->name('orders.receipt.resend');
         Route::post('orders/{order}/aramex/ship', [ShippingController::class, 'shipOrder'])->name('orders.aramex.ship');
         Route::get('orders/{order}/aramex/label', [ShippingController::class, 'downloadLabel'])->name('orders.aramex.label');
 
@@ -344,7 +347,7 @@ Route::prefix('{locale}')
     });
 
 /* Webhooks (unauthenticated but verified) -------------------------------- */
-Route::post('webhooks/moyasar', [MoyasarWebhookController::class, 'handle'])->name('payment.webhook');
+Route::post('webhooks/moyasar', [MoyasarWebhookController::class, 'handle'])->middleware('throttle:120,1')->name('payment.webhook');
 Route::post('webhooks/tamara', [TamaraWebhookController::class, 'handle'])->name('payment.webhook.tamara');
 Route::post('webhooks/aramex', [AramexWebhookController::class, 'handle'])->middleware('throttle:120,1')->name('shipping.webhook.aramex');
 Route::get('payment/callback', [CheckoutController::class, 'paymentCallback'])->name('payment.callback');

@@ -21,27 +21,32 @@ class LocationLookupServiceTest extends TestCase
         Http::assertNothingSent();
     }
 
-    public function test_unconfigured_service_returns_a_deterministic_stub_success(): void
+    private function unconfigured(bool $demo): void
     {
-        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
+        config([
+            'services.national_address.base_url' => '',
+            'services.national_address.api_key' => '',
+            'services.national_address.demo' => $demo,
+        ]);
+    }
+
+    public function test_demo_mode_returns_a_deterministic_stub_success(): void
+    {
+        $this->unconfigured(true);
 
         $result = (new LocationLookupService())->lookup('RAHA1234');
 
         $this->assertTrue($result['success']);
         $this->assertNotNull($result['data']);
-        $this->assertArrayHasKey('latitude', $result['data']);
-        $this->assertArrayHasKey('longitude', $result['data']);
-        $this->assertArrayHasKey('city', $result['data']);
-        $this->assertArrayHasKey('region', $result['data']);
-        $this->assertArrayHasKey('district', $result['data']);
-        $this->assertArrayHasKey('country', $result['data']);
-        $this->assertArrayHasKey('formatted_address', $result['data']);
+        foreach (['latitude', 'longitude', 'city', 'region', 'district', 'country', 'formatted_address'] as $key) {
+            $this->assertArrayHasKey($key, $result['data']);
+        }
         $this->assertTrue($result['is_stub'], 'stub-mode success must be flagged so callers can show a demo-data indicator');
     }
 
-    public function test_unconfigured_service_stub_simulates_not_found_for_the_magic_code(): void
+    public function test_demo_mode_simulates_not_found_for_the_magic_code(): void
     {
-        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
+        $this->unconfigured(true);
 
         $result = (new LocationLookupService())->lookup('ZZZZ0000');
 
@@ -50,9 +55,9 @@ class LocationLookupServiceTest extends TestCase
         $this->assertTrue($result['is_stub']);
     }
 
-    public function test_unconfigured_service_in_staging_still_gets_the_stub(): void
+    public function test_demo_mode_works_on_staging(): void
     {
-        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
+        $this->unconfigured(true);
         app()->instance('env', 'staging');
 
         $result = (new LocationLookupService())->lookup('RAHA1234');
@@ -62,31 +67,58 @@ class LocationLookupServiceTest extends TestCase
     }
 
     /**
-     * The production-safety guarantee this whole class exists for: without
-     * real credentials, a real shopper must get an honest failure, never a
-     * fabricated Riyadh address recorded against their order.
+     * What the live server actually did: APP_ENV=local, no real API, and the
+     * demo Riyadh address served to real shoppers. Without the explicit
+     * opt-in, no environment gets demo data.
      */
-    public function test_unconfigured_service_in_production_fails_instead_of_fabricating_an_address(): void
+    public function test_without_the_demo_opt_in_even_a_local_environment_gets_no_demo_data(): void
     {
-        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
-        app()->instance('env', 'production');
+        $this->unconfigured(false);
+        app()->instance('env', 'local');
 
-        $result = (new LocationLookupService())->lookup('RAHA1234');
+        $service = new LocationLookupService();
+        $result = $service->lookup('RAHA1234');
 
         $this->assertFalse($result['success']);
         $this->assertNull($result['data']);
         $this->assertSame('lookup_failed', $result['error']);
         $this->assertFalse($result['is_stub'], 'a failure is never flagged as stub data — there is no data at all');
+        $this->assertFalse($service->isAvailable());
     }
 
-    public function test_unconfigured_service_in_an_unrecognised_environment_also_fails_closed(): void
+    public function test_production_never_gets_demo_data_even_with_the_opt_in(): void
     {
-        config(['services.national_address.base_url' => '', 'services.national_address.api_key' => '']);
-        app()->instance('env', 'review-app-42'); // e.g. an unforeseen preview-deployment env name
+        $this->unconfigured(true);
+        app()->instance('env', 'production');
 
-        $result = (new LocationLookupService())->lookup('RAHA1234');
+        $service = new LocationLookupService();
 
-        $this->assertFalse($result['success'], 'an unrecognised environment must not be treated as safe for demo data');
+        $this->assertFalse($service->lookup('RAHA1234')['success']);
+        $this->assertFalse($service->isAvailable());
+    }
+
+    public function test_a_configured_service_is_available_without_demo_mode(): void
+    {
+        config([
+            'services.national_address.base_url' => 'https://na.test',
+            'services.national_address.api_key' => 'key',
+            'services.national_address.demo' => false,
+        ]);
+        app()->instance('env', 'production');
+
+        $this->assertTrue((new LocationLookupService())->isAvailable());
+    }
+
+    public function test_demo_addresses_are_recognised_with_or_without_the_flag(): void
+    {
+        $this->unconfigured(true);
+        $demo = (new LocationLookupService())->lookup('ABCD1234')['data'];
+
+        $this->assertTrue(LocationLookupService::isDemoAddress(['is_stub' => true]));
+        $this->assertTrue(LocationLookupService::isDemoAddress($demo), 'a saved address keeps the demo signature but not the flag');
+        $this->assertFalse(LocationLookupService::isDemoAddress(['formatted_address' => 'Al Olaya, Riyadh', 'city' => 'Riyadh']));
+        $this->assertFalse(LocationLookupService::isDemoAddress(['formatted_address' => 'Tahlia St, Bldg 7, Al Rawdah, Jeddah']));
+        $this->assertFalse(LocationLookupService::isDemoAddress(null));
     }
 
     public function test_configured_service_maps_a_successful_response(): void

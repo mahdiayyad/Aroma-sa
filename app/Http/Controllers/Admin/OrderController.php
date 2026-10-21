@@ -6,14 +6,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OrderStatusRequest;
+use App\Jobs\SendPaymentReceipt;
 use App\Models\Order;
 use App\Services\AramexFulfilmentService;
+use App\Services\Receipts\PaymentReceiptService;
 use App\Services\OrderStatusService;
 use App\Services\Payment\TamaraOrderOperations;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
 {
@@ -49,7 +52,7 @@ class OrderController extends Controller
     public function show(Order $order, AramexFulfilmentService $aramex): View
     {
         return view('admin.orders.show', [
-            'order'            => $order->load(['items', 'payment', 'aramexShipment']),
+            'order'            => $order->load(['items', 'payment', 'aramexShipment', 'receipt']),
             'allowedNext'      => $this->status->allowedNext($order),
             'aramexConfigured' => $aramex->isConfigured(),
             'aramexShippable'  => in_array($order->status, AramexFulfilmentService::SHIPPABLE_STATUSES, true),
@@ -78,6 +81,37 @@ class OrderController extends Controller
         }
 
         return $redirect;
+    }
+
+    /** Download the payment receipt, issuing it first for a paid order that has none yet. */
+    public function receipt(Order $order, PaymentReceiptService $receipts): Response
+    {
+        $receipt = $order->receipt;
+
+        if (! $receipt && ($payment = $receipts->paidPaymentOf($order))) {
+            $receipt = $receipts->issue($order, $payment);
+        }
+
+        if (! $receipt) {
+            return redirect()->route('admin.orders.show', $order)->with('error', __('admin.receipts.unavailable'));
+        }
+
+        return $receipts->download($receipt);
+    }
+
+    /** Queue the receipt email again (the same retried job as the automatic send). */
+    public function resendReceipt(Order $order, PaymentReceiptService $receipts): RedirectResponse
+    {
+        $payment = $receipts->paidPaymentOf($order);
+
+        if (! $order->isPaid() || ! $payment) {
+            return redirect()->route('admin.orders.show', $order)->with('error', __('admin.receipts.unavailable'));
+        }
+
+        SendPaymentReceipt::dispatch($order->id, $payment->id, true);
+
+        return redirect()->route('admin.orders.show', $order)
+            ->with('status', __('admin.receipts.resend_queued', ['email' => $order->customer_email]));
     }
 
     /** Retry a Tamara capture (e.g. after a failure when the order was shipped). */

@@ -196,6 +196,9 @@ return [
         'base_url' => env('NATIONAL_ADDRESS_BASE_URL', ''),
         'api_key'  => env('NATIONAL_ADDRESS_API_KEY', ''),
         'timeout'  => (int) env('NATIONAL_ADDRESS_TIMEOUT', 10),
+        // Canned demo resolutions while no real API exists. Development only:
+        // ignored when APP_ENV=production.
+        'demo'     => (bool) env('NATIONAL_ADDRESS_DEMO', false),
     ],
 
     /*

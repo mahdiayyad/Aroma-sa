@@ -176,6 +176,41 @@
                 @endif
             </x-admin.card>
 
+            @php($receipt = $order->receipt)
+            <x-admin.card :title="__('admin.receipts.panel_title')">
+                @if ($receipt)
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="admin-cell-sub">{{ __('admin.receipts.number') }}</span>
+                        <span class="fw-semibold" dir="ltr">{{ $receipt->receipt_number }}</span>
+                    </div>
+                    <div class="admin-cell-sub small mb-3">
+                        @if ($receipt->emailed_at)
+                            <i class="bi bi-check-circle text-success"></i>
+                            {{ __('admin.receipts.status_sent', ['date' => $receipt->emailed_at->timezone(config('app.timezone'))->format('Y-m-d H:i'), 'email' => $receipt->emailed_to]) }}
+                        @elseif ($receipt->last_error)
+                            <span class="text-danger">{{ __('admin.receipts.status_failed', ['error' => \Illuminate\Support\Str::limit($receipt->last_error, 160)]) }}</span>
+                        @else
+                            {{ __('admin.receipts.status_pending') }}
+                        @endif
+                    </div>
+                @elseif (! $order->isPaid())
+                    <p class="admin-cell-sub mb-0">{{ __('admin.receipts.none_yet') }}</p>
+                @endif
+
+                @if ($receipt || $order->isPaid())
+                    <a href="{{ route('admin.orders.receipt', $order) }}" class="admin-btn admin-btn-primary w-100 justify-content-center mb-2">
+                        <i class="bi bi-file-earmark-pdf"></i>{{ __('admin.receipts.download') }}
+                    </a>
+                    <form method="post" action="{{ route('admin.orders.receipt.resend', $order) }}"
+                          onsubmit="return confirm(@json(__('admin.receipts.resend')) + '?');">
+                        @csrf
+                        <button type="submit" class="admin-btn admin-btn-outline w-100 justify-content-center">
+                            <i class="bi bi-envelope"></i>{{ __('admin.receipts.resend') }}
+                        </button>
+                    </form>
+                @endif
+            </x-admin.card>
+
             @php($aramexShipment = $order->aramexShipment)
             <x-admin.card :title="__('admin.aramex.panel_title')">
                 @if ($aramexShipment && $aramexShipment->hasAwb())
