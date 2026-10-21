@@ -71,6 +71,28 @@ class GiftOptionsTest extends TestCase
         $this->assertSame('Riyadh', session('checkout.shipping_address')['city']);
     }
 
+    public function test_declining_the_gift_option_is_not_blocked_by_stale_recipient_fields(): void
+    {
+        // Regression: switching the toggle from "it's a gift" to "it's for
+        // me" auto-submits immediately (see gift-studio.js) without clearing
+        // whatever was already typed into the now-hidden recipient panel —
+        // a stale recipient[method]=manual with no address filled in yet
+        // must not trip the manual-address required_if rules once is_gift=0.
+        $this->seedCartAndAddress();
+
+        $this->post(route('checkout.gift-options.store'), [
+            'is_gift'   => '0',
+            'recipient' => [
+                'recipient_name' => 'Layla Al Otaibi',
+                'phone'          => '+966511111111',
+                'method'         => \App\Models\Address::METHOD_MANUAL,
+            ],
+        ])->assertRedirect(route('checkout.order-review'))->assertSessionHasNoErrors();
+
+        $this->assertFalse(session('checkout.gift.is_gift'));
+        $this->assertSame('Riyadh', session('checkout.shipping_address')['city']);
+    }
+
     public function test_choosing_a_gift_replaces_the_shipping_address_with_the_recipient(): void
     {
         $this->seedCartAndAddress();

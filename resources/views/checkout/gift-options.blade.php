@@ -9,7 +9,9 @@
 
 @section('content')
 @php($locale = app()->getLocale())
-@php($isGift = (bool) old('is_gift', $gift['is_gift'] ?? false))
+{{-- Defaults to "it's a gift" on a genuinely first visit (no prior choice in
+     session yet); an explicit earlier choice of either value is still respected. --}}
+@php($isGift = (bool) old('is_gift', $gift['is_gift'] ?? true))
 @php($selectedCardId = old('greeting_card_id', $gift['card_id'] ?? null))
 <div class="container checkout-page my-4 my-lg-5">
     @include('checkout.partials.stepper', ['step' => 4])

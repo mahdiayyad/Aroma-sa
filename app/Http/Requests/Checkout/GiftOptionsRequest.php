@@ -74,12 +74,20 @@ class GiftOptionsRequest extends FormRequest
             'recipient.latitude'        => ['nullable', 'numeric', 'between:-90,90'],
             'recipient.longitude'       => ['nullable', 'numeric', 'between:-180,180'],
 
-            // Full Address (method=manual) fields.
-            'recipient.country'          => ['required_if:recipient.method,manual', 'nullable', 'string', 'size:2'],
-            'recipient.city'             => ['required_if:recipient.method,manual', 'nullable', 'string', 'max:100'],
-            'recipient.district'         => ['required_if:recipient.method,manual', 'nullable', 'string', 'max:100'],
-            'recipient.street_address'   => ['required_if:recipient.method,manual', 'nullable', 'string', 'max:255'],
-            'recipient.building_number'  => ['required_if:recipient.method,manual', 'nullable', 'string', 'max:20'],
+            // Full Address (method=manual) fields — required only when it's
+            // actually a gift. Plain required_if:recipient.method,manual
+            // alone is not enough: switching the toggle from "it's a gift"
+            // to "it's for me" auto-submits the form immediately (see
+            // gift-studio.js) without clearing whatever was already typed
+            // into the (now-hidden) recipient panel, so a stale
+            // recipient[method]=manual left over from a moment ago would
+            // otherwise still trip these rules on a submission that isn't a
+            // gift at all.
+            'recipient.country'          => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'size:2'],
+            'recipient.city'             => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:100'],
+            'recipient.district'         => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:100'],
+            'recipient.street_address'   => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:255'],
+            'recipient.building_number'  => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:20'],
             'recipient.apartment_number' => ['nullable', 'string', 'max:20'],
             'recipient.postal_code'      => ['nullable', 'string', 'max:10'],
             'recipient.additional_notes' => ['nullable', 'string', 'max:500'],
@@ -125,10 +133,11 @@ class GiftOptionsRequest extends FormRequest
     }
 
     /**
-     * Plain "The X field is required." for the manual-address fields —
-     * Laravel's default required_if template ("...required when :other is
-     * :value") would otherwise surface the raw internal field name
-     * ("recipient.method") and enum value ("manual") verbatim.
+     * Plain "The X field is required." for the manual-address fields, with a
+     * proper label instead of the raw internal field name
+     * ("recipient.country"). Rule::requiredIf() (used above) resolves to the
+     * plain "required" rule, not "required_if" — the message key below
+     * follows that, not the string-rule name it replaced.
      */
     public function messages(): array
     {
@@ -142,7 +151,7 @@ class GiftOptionsRequest extends FormRequest
 
         $messages = [];
         foreach ($labels as $field => $label) {
-            $messages["recipient.{$field}.required_if"] = __('validation.required', ['attribute' => $label]);
+            $messages["recipient.{$field}.required"] = __('validation.required', ['attribute' => $label]);
         }
 
         return $messages;
