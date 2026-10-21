@@ -23,5 +23,8 @@ class VerifyCsrfToken extends Middleware
         // is authenticated by its own bearer-token check
         // (TamaraPaymentService::verifyNotificationToken), not CSRF.
         'webhooks/tamara',
+        // Aramex push tracking: authenticated by ARAMEX_WEBHOOK_SECRET
+        // (AramexWebhookController), not CSRF.
+        'webhooks/aramex',
     ];
 }

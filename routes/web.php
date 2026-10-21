@@ -38,8 +38,10 @@ use App\Http\Controllers\LocationLookupController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Webhooks\AramexWebhookController;
 use App\Http\Controllers\Webhooks\MoyasarWebhookController;
 use App\Http\Controllers\Webhooks\TamaraWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -177,6 +179,7 @@ Route::prefix('checkout')->name('checkout.')->middleware('not_admin')->group(fun
     Route::delete('promo', [CheckoutController::class, 'removePromo'])->name('promo.remove');
     Route::get('payment', [CheckoutController::class, 'showPaymentForm'])->name('payment');
     Route::post('payment', [CheckoutController::class, 'storePayment'])->name('payment.store');
+    Route::post('shipping/quote', [ShippingController::class, 'getLiveQuote'])->middleware('throttle:30,1')->name('shipping.quote');
 });
 
 Route::get('order/{order}/confirmation', [CheckoutController::class, 'confirmation'])
@@ -318,6 +321,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
         Route::post('orders/{order}/tamara/capture', [AdminOrderController::class, 'tamaraCapture'])->name('orders.tamara.capture');
         Route::post('orders/{order}/tamara/refund', [AdminOrderController::class, 'tamaraRefund'])->name('orders.tamara.refund');
+        Route::post('orders/{order}/aramex/ship', [ShippingController::class, 'shipOrder'])->name('orders.aramex.ship');
+        Route::get('orders/{order}/aramex/label', [ShippingController::class, 'downloadLabel'])->name('orders.aramex.label');
 
         Route::get('refund-requests', [AdminRefundRequestController::class, 'index'])->name('refund-requests.index');
         Route::patch('refund-requests/{refundRequest}/approve', [AdminRefundRequestController::class, 'approve'])->name('refund-requests.approve');
@@ -341,4 +346,5 @@ Route::prefix('{locale}')
 /* Webhooks (unauthenticated but verified) -------------------------------- */
 Route::post('webhooks/moyasar', [MoyasarWebhookController::class, 'handle'])->name('payment.webhook');
 Route::post('webhooks/tamara', [TamaraWebhookController::class, 'handle'])->name('payment.webhook.tamara');
+Route::post('webhooks/aramex', [AramexWebhookController::class, 'handle'])->middleware('throttle:120,1')->name('shipping.webhook.aramex');
 Route::get('payment/callback', [CheckoutController::class, 'paymentCallback'])->name('payment.callback');

@@ -137,4 +137,9 @@ return [
         'edit' => 'Edit',
         'continue_to_payment' => 'Continue to Payment',
     ],
+    'shipping_quote' => [
+        'empty_cart' => 'Your cart is empty.',
+        'unavailable' => 'Live delivery rates are not available right now.',
+        'failed' => 'We couldn\'t get a delivery rate for this address. Please check the city.',
+    ],
 ];

@@ -65,6 +65,68 @@ return [
         'eligibility_timeout_ms' => (int) env('TAMARA_ELIGIBILITY_TIMEOUT_MS', 800),
     ],
 
+    'aramex' => [
+        // Sandbox (from Aramex's Postman collection) by default;
+        // production is https://ws.aramex.net/ShippingAPI.V2
+        'base_url'             => env('ARAMEX_BASE_URL', 'https://ws.sbx.aramex.net/ShippingAPI.V2'),
+        'username'             => env('ARAMEX_USERNAME'),
+        'password'             => env('ARAMEX_PASSWORD'),
+        'account_number'       => env('ARAMEX_ACCOUNT_NUMBER'),
+        'account_pin'          => env('ARAMEX_ACCOUNT_PIN'),
+        'account_entity'       => env('ARAMEX_ACCOUNT_ENTITY', 'DHA'),
+        'account_country_code' => env('ARAMEX_ACCOUNT_COUNTRY_CODE', 'SA'),
+        'version'              => env('ARAMEX_API_VERSION', 'v1.0'),
+        'source'               => (int) env('ARAMEX_SOURCE', 0),
+        'timeout'              => (int) env('ARAMEX_TIMEOUT', 25),
+        'currency'             => env('ARAMEX_CURRENCY', 'SAR'),
+
+        // Shared secret Aramex must send (X-Aramex-Token header or ?token=)
+        // with every push tracking update. Unset = the webhook rejects all.
+        'webhook_secret'       => env('ARAMEX_WEBHOOK_SECRET'),
+
+        // Products carry no weight yet, so each unit counts as this many kg.
+        'default_item_weight_kg' => (float) env('ARAMEX_DEFAULT_ITEM_WEIGHT_KG', 1.0),
+        'description_of_goods'   => env('ARAMEX_DESCRIPTION_OF_GOODS', 'Apparel and gifts'),
+        // Per Aramex: GoodsOriginCountry is always SA for Aroma.
+        'goods_origin_country'   => env('ARAMEX_GOODS_ORIGIN_COUNTRY', 'SA'),
+        // Prepaid shipments are charged to the Aroma account.
+        'payment_options'        => env('ARAMEX_PAYMENT_OPTIONS', 'ACCT'),
+
+        // Labels hold customer names, phones and addresses: private disk only.
+        'label_disk'           => env('ARAMEX_LABEL_DISK', 'local'),
+        'label_report_id'      => (int) env('ARAMEX_LABEL_REPORT_ID', 9729),
+        // Label PDFs are only downloaded from these hosts (and subdomains).
+        'label_hosts'          => ['aramex.net', 'aramex.com'],
+
+        'domestic' => [
+            'product_group' => 'DOM',
+            'product_type'  => env('ARAMEX_DOMESTIC_PRODUCT_TYPE', 'CDS'),
+        ],
+        'international' => [
+            'product_group' => 'EXP',
+            'product_type'  => env('ARAMEX_INTERNATIONAL_PRODUCT_TYPE', 'EPX'),
+        ],
+
+        // Aramex tracking UpdateCode => internal shipping status. Codes not
+        // listed here are classified from their description instead.
+        'status_codes' => [
+            'SH005' => 'delivered',
+            'SH003' => 'out_for_delivery',
+        ],
+
+        'shipper' => [
+            'name'         => env('ARAMEX_SHIPPER_NAME', 'Aroma'),
+            'company'      => env('ARAMEX_SHIPPER_COMPANY', 'Aroma Gift Center'),
+            'phone'        => env('ARAMEX_SHIPPER_PHONE'),
+            'email'        => env('ARAMEX_SHIPPER_EMAIL'),
+            'line1'        => env('ARAMEX_SHIPPER_ADDRESS_LINE1'),
+            'line2'        => env('ARAMEX_SHIPPER_ADDRESS_LINE2'),
+            'city'         => env('ARAMEX_SHIPPER_CITY'),
+            'post_code'    => env('ARAMEX_SHIPPER_POST_CODE'),
+            'country_code' => env('ARAMEX_SHIPPER_COUNTRY_CODE', 'SA'),
+        ],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Tawked Verify API (phone-number OTP)
