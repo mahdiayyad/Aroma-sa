@@ -102,7 +102,18 @@ class MoyasarPaymentService implements PaymentGateway
                 'reference_id' => $order->order_number,
                 'customer_email' => $order->customer_email,
                 'customer_name' => $order->customer_name,
+                // callback_url is a server-to-server notification only (Moyasar
+                // calls it directly, no browser/session) — it does NOT redirect
+                // the customer's browser back to the store. success_url/back_url
+                // are the actual browser-redirect fields; without them the
+                // customer is simply left on Moyasar's hosted page after paying.
+                // Both point at the same session-based handler as callback_url
+                // did before, since paymentCallback() already does the right
+                // thing either way (verifies with Moyasar, then redirects home
+                // on success or back to the payment page with an error otherwise).
                 'callback_url' => route('payment.callback'),
+                'success_url' => route('payment.callback'),
+                'back_url' => route('payment.callback'),
                 'metadata' => [
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
