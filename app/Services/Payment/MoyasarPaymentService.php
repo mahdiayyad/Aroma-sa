@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Services\CheckoutService;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -141,145 +142,297 @@ class MoyasarPaymentService implements PaymentGateway
     }
 
     /**
-     * Verify webhook signature from Moyasar
+     * Moyasar webhook authentication: Moyasar puts the endpoint's Secret Token
+     * (set in Dashboard → Settings → Webhooks) in the JSON body as
+     * `secret_token` — it does not sign requests. Constant-time comparison;
+     * fails closed when no secret is configured.
+     *
+     * @param mixed $token
      */
-    public function verifyWebhookSignature(string $body, string $signature): bool
+    public function verifyWebhookToken($token): bool
     {
-        // Fail closed: an unset secret must never verify as valid. Without
-        // this, a misconfigured deployment (MOYASAR_WEBHOOK_SECRET unset)
-        // would silently HMAC every payload with an empty key — and since
-        // an attacker can compute hash_hmac('sha256', $body, '', true) too,
-        // that's a forgeable signature, not a missing one.
-        if ($this->webhookSecret === '' || $this->webhookSecret === null) {
+        if (! is_string($token) || $token === '' || $this->webhookSecret === '') {
             return false;
         }
 
-        $computed = hash_hmac('sha256', $body, $this->webhookSecret, true);
-        $expected = base64_decode($signature);
-
-        return hash_equals($computed, $expected);
+        return hash_equals($this->webhookSecret, $token);
     }
 
     /**
-     * Handle payment webhook from Moyasar
+     * Handle an authenticated Moyasar webhook (`payment_*` events).
+     *
+     * Only the payment id is taken from the payload. The payment itself is
+     * fetched from Moyasar's API and that copy decides what happens, after
+     * its invoice, amount and currency are checked against our own order.
+     * Every branch is safe to repeat: Moyasar redelivers until it gets a 2xx.
+     *
+     * @param array<string,mixed> $event
+     * @throws GatewayUnavailableException when Moyasar can't be reached (retry later)
      */
-    public function handleWebhook(array $data): void
+    public function handleWebhook(array $event): void
     {
-        $event = $data['event'] ?? null;
-        $payment = $data['data'] ?? [];
+        $type = (string) ($event['type'] ?? '');
+        $paymentId = (string) data_get($event, 'data.id', '');
 
-        if (!isset($payment['metadata']['order_id'])) {
-            Log::warning('Webhook received with missing order_id');
+        if (strpos($type, 'payment_') !== 0 || preg_match('/^[A-Za-z0-9_-]{1,100}$/', $paymentId) !== 1) {
+            Log::info('Moyasar webhook ignored', ['type' => $type, 'event_id' => $event['id'] ?? null]);
+
             return;
         }
 
-        $orderId = $payment['metadata']['order_id'];
-        $order = Order::find($orderId);
+        $remote = $this->fetchPayment($paymentId);
+        if ($remote === null) {
+            Log::warning('Moyasar webhook for a payment Moyasar does not know', ['type' => $type, 'moyasar_payment' => $paymentId]);
 
-        if (!$order) {
-            Log::warning('Webhook for non-existent order', ['order_id' => $orderId]);
             return;
         }
 
-        // Find or create payment record
-        $orderPayment = $order->payment()
-            ->where('gateway', 'moyasar')
-            ->first();
-
-        if (!$orderPayment) {
-            $orderPayment = Payment::create([
-                'order_id' => $order->id,
-                'gateway' => 'moyasar',
-                'method' => $payment['method'] ?? 'card',
-                'transaction_id' => $payment['id'] ?? null,
-                'reference_number' => $payment['reference_id'] ?? null,
-                'amount' => (int) $payment['amount'] / 100, // Convert from fils
-                'currency' => $payment['currency'] ?? 'SAR',
-                'status' => Payment::STATUS_PENDING,
-                'gateway_response' => $payment,
+        $payment = $this->localPaymentFor($remote);
+        if (! $payment || ! $payment->order) {
+            Log::warning('Moyasar webhook for a payment with no matching order', [
+                'type' => $type,
+                'moyasar_payment' => $paymentId,
+                'invoice' => $remote['invoice_id'] ?? null,
             ]);
+
+            return;
         }
 
-        // Handle different webhook events
-        switch ($event) {
-            case 'invoice.paid':
-                $this->handlePaymentSuccess($order, $orderPayment, $payment);
+        // The status Moyasar reports now, not the event name: deliveries can
+        // arrive late or out of order (a "paid" event for a since-refunded payment).
+        switch ((string) ($remote['status'] ?? '')) {
+            case 'paid':
+            case 'captured':
+                $this->handlePaymentSuccess($payment->order, $payment, $remote);
                 break;
-            case 'invoice.failed':
-                $this->handlePaymentFailed($order, $orderPayment, $payment);
+            case 'failed':
+                $this->handlePaymentFailed($payment->order, $payment, $remote);
                 break;
-            case 'invoice.expired':
-                $this->handlePaymentExpired($order, $orderPayment, $payment);
+            case 'refunded':
+                $this->handlePaymentRefunded($payment, $remote);
+                break;
+            case 'voided':
+                $this->handlePaymentVoided($payment->order, $payment, $remote);
                 break;
             default:
-                Log::info('Unhandled webhook event', ['event' => $event]);
+                // initiated / authorized / verified: nothing to finalise yet
+                // (invoice payments are captured automatically).
+                Log::info('Moyasar webhook: payment not final yet', [
+                    'order_id' => $payment->order_id,
+                    'moyasar_payment' => $paymentId,
+                    'status' => $remote['status'] ?? null,
+                ]);
         }
     }
 
     /**
-     * Process successful payment. Records the webhook-specific transaction
-     * detail here, then routes the "this order is now paid" side effects
-     * (status, OrderPaid event) through CheckoutService::markOrderAsPaid —
-     * the single source of truth also used by the customer-return callback,
-     * so the confirmation email fires exactly once regardless of which path
-     * observes the payment first.
+     * The payment as Moyasar reports it. Null when Moyasar doesn't know it
+     * (404 — e.g. a test-mode id sent to live keys); throws when Moyasar is
+     * unreachable or failing, so the webhook is retried.
+     *
+     * @return array<string,mixed>|null
      */
-    private function handlePaymentSuccess(Order $order, Payment $payment, array $paymentData): void
+    public function fetchPayment(string $paymentId): ?array
     {
+        $this->ensureConfigured();
+
         try {
-            $payment->update([
-                'transaction_id' => $paymentData['id'],
-                'gateway_response' => $paymentData,
-            ]);
-
-            $this->checkout->markOrderAsPaid($order, $payment);
-
-            Log::info('Payment processed successfully', [
-                'order_id' => $order->id,
-                'transaction_id' => $paymentData['id'],
-            ]);
+            $response = Http::withBasicAuth($this->secretKey, '')
+                ->acceptJson()
+                ->timeout(15)
+                ->get("{$this->baseUrl}/payments/".rawurlencode($paymentId));
         } catch (Exception $e) {
-            Log::error('Error processing payment success', [
-                'order_id' => $order->id,
-                'error' => $e->getMessage(),
-            ]);
+            throw new GatewayUnavailableException('Moyasar API unreachable: '.$e->getMessage(), 0, $e);
         }
+
+        if ($response->status() === 404) {
+            return null;
+        }
+
+        if (! $response->successful() || ! is_array($response->json())) {
+            throw new GatewayUnavailableException('Moyasar API returned HTTP '.$response->status());
+        }
+
+        return $response->json();
     }
 
     /**
-     * Handle failed payment
+     * Our payment record for a Moyasar payment: by its invoice (the id saved
+     * as reference_number when checkout started), else by a payment id we
+     * already recorded. Never created from webhook data.
+     *
+     * @param array<string,mixed> $remote
      */
-    private function handlePaymentFailed(Order $order, Payment $payment, array $paymentData): void
+    private function localPaymentFor(array $remote): ?Payment
     {
+        $invoiceId = (string) ($remote['invoice_id'] ?? '');
+
+        if ($invoiceId !== '') {
+            $payment = Payment::query()
+                ->where('gateway', 'moyasar')
+                ->where('reference_number', $invoiceId)
+                ->latest('id')
+                ->first();
+
+            if ($payment) {
+                return $payment;
+            }
+        }
+
+        return Payment::query()
+            ->where('gateway', 'moyasar')
+            ->where('transaction_id', (string) ($remote['id'] ?? ''))
+            ->first();
+    }
+
+    /**
+     * Whether Moyasar's amount (in halalas) and currency are exactly what the
+     * order charged. Anything else is never treated as payment of this order.
+     *
+     * @param array<string,mixed> $remote
+     */
+    private function matchesOrder(Order $order, Payment $payment, array $remote): bool
+    {
+        $expectedAmount = (int) round((float) $order->total_amount * 100);
+        $expectedCurrency = strtoupper((string) ($payment->currency ?: config('aroma.currency.code', 'SAR')));
+
+        return is_numeric($remote['amount'] ?? null)
+            && (int) $remote['amount'] === $expectedAmount
+            && strtoupper((string) ($remote['currency'] ?? '')) === $expectedCurrency;
+    }
+
+    /**
+     * Paid: record Moyasar's payment, then route the paid transition through
+     * CheckoutService::markOrderAsPaid — the single, locked source of truth
+     * shared with the customer-return callback. It fires OrderPaid (order
+     * confirmation + payment receipt) exactly once, however many times this
+     * webhook is delivered.
+     *
+     * @param array<string,mixed> $remote
+     */
+    private function handlePaymentSuccess(Order $order, Payment $payment, array $remote): void
+    {
+        if (! $this->matchesOrder($order, $payment, $remote)) {
+            Log::critical('Moyasar payment does not match its order — not marked paid', [
+                'order_id' => $order->id,
+                'moyasar_payment' => $remote['id'] ?? null,
+                'paid_amount' => $remote['amount'] ?? null,
+                'paid_currency' => $remote['currency'] ?? null,
+                'expected_amount' => (int) round((float) $order->total_amount * 100),
+            ]);
+
+            return;
+        }
+
         $payment->update([
-            'status' => Payment::STATUS_FAILED,
-            'gateway_response' => $paymentData,
+            'transaction_id' => (string) $remote['id'],
+            'gateway_response' => $this->withRemote($payment, $remote),
         ]);
 
-        $order->update(['status' => Order::STATUS_PENDING]);
+        $this->checkout->markOrderAsPaid($order, $payment);
 
-        Log::warning('Payment failed', [
+        Log::info('Moyasar payment confirmed by webhook', [
             'order_id' => $order->id,
-            'error' => $paymentData['error_message'] ?? 'Unknown error',
+            'moyasar_payment' => $remote['id'],
+        ]);
+    }
+
+    /**
+     * A declined attempt. Ignored once the order is paid (a later card may
+     * have succeeded on the same invoice). The customer is told once per
+     * failed Moyasar payment, not once per redelivery.
+     *
+     * @param array<string,mixed> $remote
+     */
+    private function handlePaymentFailed(Order $order, Payment $payment, array $remote): void
+    {
+        $alreadyRecorded = DB::transaction(function () use ($order, $payment, $remote): ?bool {
+            $locked = Payment::query()->whereKey($payment->getKey())->lockForUpdate()->first();
+            $order->refresh();
+
+            if (! $locked || $order->isPaid() || $locked->isPaid()) {
+                return null;
+            }
+
+            $duplicate = $locked->status === Payment::STATUS_FAILED
+                && $locked->transaction_id === (string) $remote['id'];
+
+            if (! $duplicate) {
+                $locked->update([
+                    'status' => Payment::STATUS_FAILED,
+                    'transaction_id' => (string) $remote['id'],
+                    'gateway_response' => $this->withRemote($locked, $remote),
+                ]);
+            }
+
+            return $duplicate;
+        });
+
+        if ($alreadyRecorded !== false) {
+            return;
+        }
+
+        Log::warning('Moyasar payment failed', [
+            'order_id' => $order->id,
+            'moyasar_payment' => $remote['id'],
+            'reason' => data_get($remote, 'source.message'),
         ]);
 
-        // Trigger OrderPaymentFailed event
         event(new \App\Events\OrderPaymentFailed($order));
     }
 
     /**
-     * Handle expired payment
+     * A refund made on Moyasar (e.g. from its dashboard): keep our record in
+     * step. The order status is left to the admin.
+     *
+     * @param array<string,mixed> $remote
      */
-    private function handlePaymentExpired(Order $order, Payment $payment, array $paymentData): void
+    private function handlePaymentRefunded(Payment $payment, array $remote): void
     {
+        $refunded = round(((int) ($remote['refunded'] ?? 0)) / 100, 2);
+
         $payment->update([
-            'status' => Payment::STATUS_FAILED,
-            'gateway_response' => $paymentData,
+            'status' => $refunded >= (float) $payment->amount ? Payment::STATUS_REFUNDED : $payment->status,
+            'refunded_amount' => $refunded,
+            'refunded_at' => $payment->refunded_at ?? now(),
+            'gateway_response' => $this->withRemote($payment, $remote),
         ]);
 
-        $order->update(['status' => Order::STATUS_CANCELLED]);
+        Log::info('Moyasar refund recorded', ['order_id' => $payment->order_id, 'refunded' => $refunded]);
+    }
 
-        Log::info('Payment expired', ['order_id' => $order->id]);
+    /**
+     * A voided (released) authorisation: only recorded while unpaid.
+     *
+     * @param array<string,mixed> $remote
+     */
+    private function handlePaymentVoided(Order $order, Payment $payment, array $remote): void
+    {
+        if ($order->isPaid() || $payment->isPaid()) {
+            Log::warning('Moyasar voided a payment for an order already marked paid', ['order_id' => $order->id]);
+
+            return;
+        }
+
+        $payment->update([
+            'status' => Payment::STATUS_CANCELLED,
+            'gateway_response' => $this->withRemote($payment, $remote),
+        ]);
+    }
+
+    /**
+     * Moyasar's payment merged over what we already keep (so the receipt can
+     * read its card `source`), minus nothing secret — Moyasar's payment
+     * object carries a masked card number only.
+     *
+     * @param array<string,mixed> $remote
+     * @return array<string,mixed>
+     */
+    private function withRemote(Payment $payment, array $remote): array
+    {
+        $existing = is_array($payment->gateway_response) ? $payment->gateway_response : [];
+
+        return array_merge($existing, $remote);
     }
 
     /**

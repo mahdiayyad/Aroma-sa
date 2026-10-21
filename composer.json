@@ -12,7 +12,8 @@
         "laravel/sanctum": "^2.11",
         "laravel/socialite": "^5.12",
         "laravel/tinker": "^2.5",
-        "maatwebsite/excel": "^3.1"
+        "maatwebsite/excel": "^3.1",
+        "mpdf/mpdf": "^8.2"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

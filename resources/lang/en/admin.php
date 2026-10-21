@@ -413,6 +413,18 @@ return [
         'refund_note' => 'Tamara orders are refunded through Tamara only — never to store credit.',
     ],
 
+    'receipts' => [
+        'panel_title' => 'Payment receipt',
+        'number' => 'Receipt',
+        'status_sent' => 'Emailed :date to :email',
+        'status_pending' => 'Not emailed yet',
+        'status_failed' => 'Email failed: :error',
+        'download' => 'Download receipt (PDF)',
+        'resend' => 'Resend receipt email',
+        'resend_queued' => 'The receipt will be emailed to :email shortly.',
+        'unavailable' => 'This order has no confirmed payment, so it has no receipt.',
+        'none_yet' => 'No receipt yet. One is issued and emailed automatically once the payment is confirmed.',
+    ],
     'aramex' => [
         'panel_title' => 'Aramex shipment',
         'awb' => 'Waybill (AWB)',
@@ -431,6 +443,7 @@ return [
         'label_failed' => 'The Aramex label could not be fetched. Use "Download label" to try again.',
         'no_shipment' => 'This order has no Aramex shipment yet.',
         'order_not_moved' => 'The shipment was created, but the order (:status) could not be moved to shipped. Update its status manually.',
+        'address_demo' => 'This order\'s address is demo data from the National Address preview, not the customer\'s real address. Confirm the address with the customer and correct it before shipping.',
         'address_no_city' => 'The shipping address has no city, which Aramex requires. Correct the address before shipping.',
         'statuses' => [
             'pending' => 'Creating…',

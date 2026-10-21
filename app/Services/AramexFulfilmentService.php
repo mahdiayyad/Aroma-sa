@@ -499,6 +499,10 @@ class AramexFulfilmentService
         $a = (array) $order->shipping_address;
         $city = trim((string) ($a['city'] ?? ''));
 
+        if (LocationLookupService::isDemoAddress($a)) {
+            throw new InvalidArgumentException(__('admin.aramex.address_demo'));
+        }
+
         if ($city === '') {
             throw new InvalidArgumentException(__('admin.aramex.address_no_city'));
         }

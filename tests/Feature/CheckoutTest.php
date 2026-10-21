@@ -330,6 +330,9 @@ class CheckoutTest extends TestCase
         $order = Order::first();
         $this->assertSame('sara@example.com', $order->customer_email);
         $this->assertEquals(400, $order->total_amount);
+        // The shopping language is recorded so the receipt (sent later from a
+        // queue worker, with no request locale) uses it.
+        $this->assertContains($order->locale, ['ar', 'en']);
 
         // Redirecting out to the gateway only means a checkout session was
         // opened, not that payment is confirmed — the cart, checkout

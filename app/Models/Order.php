@@ -98,6 +98,11 @@ class Order extends Model
         return $this->hasOne(AramexShipment::class);
     }
 
+    public function receipt(): HasOne
+    {
+        return $this->hasOne(PaymentReceipt::class);
+    }
+
     public function isPaid(): bool
     {
         return $this->status === self::STATUS_PAID

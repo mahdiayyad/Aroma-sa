@@ -164,6 +164,11 @@
                     </div>
 
                     <div class="mt-4">
+                        @if ($order->receipt)
+                            <a href="{{ route('order.receipt', $order) }}" class="btn btn-aroma-outline btn-sm w-100 mb-2">
+                                <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i> {{ __('receipts.download') }}
+                            </a>
+                        @endif
                         <a href="{{ route('home', app()->getLocale()) }}" class="btn btn-aroma btn-sm w-100">
                             {{ __('account.continue_shopping') }}
                         </a>

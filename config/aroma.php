@@ -95,6 +95,18 @@ return [
     ],
 
     /*
+    | Payment receipts ---------------------------------------------------------
+    | PDFs hold customer names, addresses and payment details: keep them on a
+    | private disk (never "public"); they're served through authorised routes.
+    */
+    'receipts' => [
+        'disk' => env('AROMA_RECEIPTS_DISK', 'local'),
+        // Shown under the merchant name, e.g. "Omar Bin Khattab St., Dammam".
+        'store_address' => env('AROMA_STORE_ADDRESS', ''),
+        'vat_number' => env('AROMA_VAT_NUMBER', ''),
+    ],
+
+    /*
     | Contact / footer -------------------------------------------------------
     */
     'contact' => [

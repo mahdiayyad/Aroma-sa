@@ -15,9 +15,9 @@ class VerifyCsrfToken extends Middleware
         // Moyasar's server-to-server payment webhook — it can never carry a
         // Laravel session/CSRF token (it's not a browser request), so
         // without this exemption every real webhook delivery was silently
-        // rejected with a 419 before MoyasarWebhookController ever ran its
-        // own (correct) HMAC signature verification. That signature check
-        // is the actual authenticity guard for this route, not CSRF.
+        // rejected with a 419 before MoyasarWebhookController ever ran. The
+        // controller's own check of the Secret Token Moyasar sends in the
+        // body (secret_token) is the authenticity guard here, not CSRF.
         'webhooks/moyasar',
         // Same reasoning — Tamara's IPN notification is server-to-server and
         // is authenticated by its own bearer-token check

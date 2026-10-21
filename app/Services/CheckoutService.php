@@ -158,6 +158,7 @@ class CheckoutService extends BaseService
                 'user_id' => $user ? $user->id : null,
                 'order_number' => $this->generateOrderNumber(),
                 'status' => Order::STATUS_PENDING,
+                'locale' => app()->getLocale(),
                 'customer_name' => $details['customer_name'],
                 'customer_email' => $details['customer_email'],
                 'customer_phone' => $details['customer_phone'],
@@ -250,12 +251,25 @@ class CheckoutService extends BaseService
     public function markOrderAsPaid(Order $order, Payment $payment, string $paymentStatus = Payment::STATUS_CAPTURED): void
     {
         DB::transaction(function () use ($order, $payment, $paymentStatus) {
-            $wasAlreadyPaid = $order->isPaid();
+            // Lock and re-read: the webhook and the customer-return callback
+            // can arrive together, and the caller's $order may have been loaded
+            // before the other path marked it paid. Without this, both see
+            // "unpaid" and OrderPaid (confirmation email, receipt) fires twice.
+            $locked = Order::query()->whereKey($order->getKey())->lockForUpdate()->first();
+            $wasAlreadyPaid = $locked ? $locked->isPaid() : $order->isPaid();
 
-            $order->update(['status' => Order::STATUS_PAID]);
-            $payment->update([
-                'status' => $payment->status === Payment::STATUS_CAPTURED ? Payment::STATUS_CAPTURED : $paymentStatus,
-            ]);
+            // Never move a processing/shipped/delivered order back to "paid"
+            // when a late or repeated gateway notification arrives.
+            if ($wasAlreadyPaid) {
+                if ($locked) {
+                    $order->setRawAttributes($locked->getAttributes(), true);
+                }
+            } else {
+                $order->update(['status' => Order::STATUS_PAID]);
+            }
+            // Never downgrade a captured payment, nor revive a refunded one.
+            $keep = in_array($payment->status, [Payment::STATUS_CAPTURED, Payment::STATUS_REFUNDED], true);
+            $payment->update(['status' => $keep ? $payment->status : $paymentStatus]);
 
             // Promo usage is only "spent" once payment is actually confirmed —
             // never at order creation, since an abandoned/unpaid order must

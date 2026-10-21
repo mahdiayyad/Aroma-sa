@@ -37,13 +37,21 @@
     $fieldName = fn (string $field) => $fieldPrefix ? "{$fieldPrefix}[{$field}]" : $field;
     $errorKey  = fn (string $field) => $fieldPrefix ? "{$fieldPrefix}.{$field}" : $field;
 
-    $oldMethod = old($errorKey('method'), $method ?: \App\Models\Address::METHOD_NATIONAL_CODE);
+    // No real National Address API (and no demo mode): offer Full Address only,
+    // instead of a code field whose every lookup would fail.
+    $codeAvailable = app(\App\Services\LocationLookupService::class)->isAvailable();
+    $oldMethod = $codeAvailable
+        ? old($errorKey('method'), $method ?: \App\Models\Address::METHOD_NATIONAL_CODE)
+        : \App\Models\Address::METHOD_MANUAL;
     $isManual = $oldMethod === \App\Models\Address::METHOD_MANUAL;
     $oldCode = old($errorKey('location_code'), $code);
     $uid = $domId . '-' . \Illuminate\Support\Str::random(6);
 @endphp
 
 <div class="aroma-address-input" data-address-input>
+    @if (! $codeAvailable)
+        <input type="hidden" name="{{ $fieldName('method') }}" value="{{ \App\Models\Address::METHOD_MANUAL }}">
+    @else
     <div class="aroma-segmented">
         <input type="radio" class="btn-check" name="{{ $fieldName('method') }}" id="{{ $uid }}-code"
                value="{{ \App\Models\Address::METHOD_NATIONAL_CODE }}" data-method="{{ \App\Models\Address::METHOD_NATIONAL_CODE }}"
@@ -80,6 +88,7 @@
             <div class="invalid-feedback d-block">{{ $message }}</div>
         @enderror
     </div>
+    @endif
 
     {{-- Panel 2: Full Address --}}
     <div class="aroma-address-panel {{ $isManual ? '' : 'd-none' }}" data-method-panel="{{ \App\Models\Address::METHOD_MANUAL }}">

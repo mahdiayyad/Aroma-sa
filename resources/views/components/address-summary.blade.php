@@ -49,7 +49,7 @@
     @if ($hasCode)
         <div>
             {{ $address['formatted_address'] ?? '' }}
-            @if ($address['is_stub'] ?? false)
+            @if (\App\Services\LocationLookupService::isDemoAddress($address))
                 {{-- LocationLookupService::stubLookup() — no real Saudi Post/SPL
                      credentials configured, so this address is canned demo data,
                      not a real resolution. Shown here so ops (admin/orders/show)

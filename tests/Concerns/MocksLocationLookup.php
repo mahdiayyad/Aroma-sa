@@ -18,6 +18,7 @@ trait MocksLocationLookup
     protected function mockLocationLookup(): void
     {
         $this->mock(LocationLookupService::class, function ($mock) {
+            $mock->shouldReceive('isAvailable')->andReturn(true);
             $mock->shouldReceive('lookup')->andReturnUsing(function (string $code) {
                 $normalized = strtoupper(trim($code));
 
