@@ -38,15 +38,16 @@
             var timer = null;
             var lastRequested = '';
 
-            function setPreview(text, state, isStub) {
+            function setPreview(text, state) {
                 if (!preview) { return; }
-                // The resolved address stays legible; the badge is a clearly
-                // separate marker rather than mutating the address text itself
-                // — see LocationLookupService's is_stub contract.
-                var badge = isStub
-                    ? ' <span class="badge bg-light text-aroma-brown border ms-1">' + escapeHtml(input.dataset.langDemoBadge || '') + '</span>'
-                    : '';
-                preview.innerHTML = '<i class="bi bi-geo-alt" aria-hidden="true"></i><span>' + escapeHtml(text) + '</span>' + badge;
+                // No "demo data" badge here by design — a real shopper on the
+                // live site must never see an internal implementation detail
+                // like this. Staff still see it on the order itself
+                // (address-summary.blade.php's own is_stub badge) and no real
+                // shipment can be created against a demo address
+                // (AramexFulfilmentService::consigneeFor()) — those checks key
+                // off the stored address, not anything from this preview.
+                preview.innerHTML = '<i class="bi bi-geo-alt" aria-hidden="true"></i><span>' + escapeHtml(text) + '</span>';
                 preview.hidden = false;
                 preview.className = 'aroma-location-preview is-' + state;
             }
@@ -73,7 +74,7 @@
                     if (code !== lastRequested) { return; } // a newer keystroke superseded this request
                     if (res && res.success) {
                         var d = res.data || {};
-                        setPreview(d.formatted_address || [d.district, d.city, d.region].filter(Boolean).join(', '), 'success', res.is_stub);
+                        setPreview(d.formatted_address || [d.district, d.city, d.region].filter(Boolean).join(', '), 'success');
                     } else {
                         setPreview(errorText(res && res.error), 'error');
                     }

@@ -78,8 +78,7 @@
                    data-lang-loading="{{ __('location.preview.loading') }}"
                    data-lang-not-found="{{ __('location.errors.not_found') }}"
                    data-lang-invalid="{{ __('location.errors.invalid_format') }}"
-                   data-lang-failed="{{ __('location.errors.lookup_failed') }}"
-                   data-lang-demo-badge="{{ __('location.preview.demo_badge') }}">
+                   data-lang-failed="{{ __('location.errors.lookup_failed') }}">
             <div class="aroma-location-preview" hidden></div>
         </div>
         <div class="form-text">{{ __('location.hint') }}</div>
