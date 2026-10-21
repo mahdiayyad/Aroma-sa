@@ -190,7 +190,10 @@ class AramexServiceTest extends TestCase
 
             return Str::endsWith($request->url(), '/Shipping/Service_1_0.svc/json/CreateShipments')
                 && $request['ClientInfo']['UserName'] === 'api@aroma.test'
-                && $request['LabelInfo'] === ['ReportID' => 9201, 'ReportType' => 'URL']
+                && $request['LabelInfo'] === ['ReportID' => 9729, 'ReportType' => 'URL']
+                && $shipment['Details']['ProductType'] === 'CDS'
+                && $shipment['Details']['GoodsOriginCountry'] === 'SA'
+                && $shipment['Details']['PaymentOptions'] === 'ACCT'
                 && $shipment['Shipper']['AccountNumber'] === '20016'
                 && $shipment['Shipper']['PartyAddress']['City'] === 'Riyadh'
                 && $shipment['Shipper']['Contact']['CompanyName'] === 'Aroma Gift Center'
@@ -203,6 +206,74 @@ class AramexServiceTest extends TestCase
                 && preg_match('#^/Date\(\d+\)/$#', $shipment['ShippingDateTime'])
                 // WCF wants the escaped form on the wire.
                 && strpos($request->body(), '"\/Date(') !== false;
+        });
+    }
+
+    /**
+     * Aramex's WCF service rejects a request outright when any contract member
+     * is missing, even an unused one ("required data members ... were not
+     * found"). Key sets below are Aramex's own Postman collection.
+     */
+    public function test_requests_carry_every_member_aramex_requires(): void
+    {
+        Http::fake([
+            '*/CreateShipments' => Http::response(['HasErrors' => false, 'Shipments' => [['ID' => '1', 'HasErrors' => false]]]),
+            '*/CalculateRate' => Http::response(['HasErrors' => false, 'TotalAmount' => ['CurrencyCode' => 'SAR', 'Value' => 1]]),
+        ]);
+
+        $service = new AramexService();
+        $service->createShipment($this->orderData());
+        $service->calculateRate($this->origin(), $this->destination(), ['weight_kg' => 1]);
+
+        $address = ['Line1', 'Line2', 'Line3', 'City', 'StateOrProvinceCode', 'PostCode', 'CountryCode',
+            'Longitude', 'Latitude', 'BuildingNumber', 'BuildingName', 'Floor', 'Apartment', 'POBox', 'Description'];
+        $contact = ['Department', 'PersonName', 'Title', 'CompanyName', 'PhoneNumber1', 'PhoneNumber1Ext',
+            'PhoneNumber2', 'PhoneNumber2Ext', 'FaxNumber', 'CellPhone', 'EmailAddress', 'Type'];
+        $shipment = ['Reference1', 'Reference2', 'Reference3', 'Shipper', 'Consignee', 'ThirdParty', 'ShippingDateTime',
+            'DueDate', 'Comments', 'PickupLocation', 'OperationsInstructions', 'AccountingInstrcutions', 'Details',
+            'Attachments', 'ForeignHAWB', 'TransportType ', 'PickupGUID', 'Number', 'ScheduledDelivery'];
+        $details = ['Dimensions', 'ActualWeight', 'ChargeableWeight', 'DescriptionOfGoods', 'GoodsOriginCountry',
+            'NumberOfPieces', 'ProductGroup', 'ProductType', 'PaymentType', 'PaymentOptions', 'CustomsValueAmount',
+            'CashOnDeliveryAmount', 'InsuranceAmount', 'CashAdditionalAmount', 'CashAdditionalAmountDescription',
+            'CollectAmount', 'Services', 'Items', 'DeliveryInstructions', 'AdditionalProperties', 'ContainsDangerousGoods'];
+        $clientInfo = ['UserName', 'Password', 'Version', 'AccountNumber', 'AccountPin', 'AccountEntity',
+            'AccountCountryCode', 'Source', 'PreferredLanguageCode'];
+
+        $create = Http::recorded(function (Request $r) {
+            return Str::endsWith($r->url(), '/CreateShipments');
+        })->first()[0]->data();
+        $rate = Http::recorded(function (Request $r) {
+            return Str::endsWith($r->url(), '/CalculateRate');
+        })->first()[0]->data();
+
+        $s = $create['Shipments'][0];
+        $this->assertEqualsCanonicalizing($clientInfo, array_keys($create['ClientInfo']));
+        $this->assertEqualsCanonicalizing($shipment, array_keys($s));
+        $this->assertEqualsCanonicalizing($details, array_keys($s['Details']));
+        foreach (['Shipper', 'Consignee'] as $party) {
+            $this->assertEqualsCanonicalizing(['Reference1', 'Reference2', 'AccountNumber', 'PartyAddress', 'Contact'], array_keys($s[$party]));
+            $this->assertEqualsCanonicalizing($address, array_keys($s[$party]['PartyAddress']));
+            $this->assertEqualsCanonicalizing($contact, array_keys($s[$party]['Contact']));
+        }
+        $this->assertEqualsCanonicalizing($address, array_keys($rate['OriginAddress']));
+        $this->assertEqualsCanonicalizing($address, array_keys($rate['DestinationAddress']));
+        $this->assertEqualsCanonicalizing($details, array_keys($rate['ShipmentDetails']));
+    }
+
+    public function test_an_unparseable_request_page_is_logged_with_its_reason(): void
+    {
+        Http::fake(['*/CalculateRate' => Http::response(
+            '<html><head><style>p{}</style></head><body><p>Request Error</p><p>required data members &#39;Line2&#39; were not found</p></body></html>',
+            400
+        )]);
+        \Illuminate\Support\Facades\Log::spy();
+
+        $result = (new AramexService())->calculateRate($this->origin(), $this->destination(), ['weight_kg' => 1]);
+
+        $this->assertSame(['Aramex returned HTTP 400.'], $result['errors']);
+        \Illuminate\Support\Facades\Log::shouldHaveReceived('warning')->withArgs(function (string $message, array $context) {
+            return $message === 'Aramex returned errors'
+                && strpos((string) $context['detail'], "required data members 'Line2' were not found") !== false;
         });
     }
 

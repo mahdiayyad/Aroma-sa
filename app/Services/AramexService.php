@@ -94,14 +94,14 @@ class AramexService
             'Transaction' => $this->transaction((string) ($packageDetails['reference'] ?? '')),
             'OriginAddress' => $this->address($origin),
             'DestinationAddress' => $this->address($destination),
-            'ShipmentDetails' => [
+            'ShipmentDetails' => $this->shipmentDetails([
                 'PaymentType' => $paymentType,
                 'ProductGroup' => $product['group'],
                 'ProductType' => $product['type'],
                 'ActualWeight' => $this->weight($weight),
                 'ChargeableWeight' => $this->weight($weight),
                 'NumberOfPieces' => max(1, (int) ($packageDetails['pieces'] ?? 1)),
-            ],
+            ]),
             'PreferredCurrencyCode' => $currency,
         ]);
 
@@ -147,13 +147,14 @@ class AramexService
         $weight = (float) ($orderData['weight_kg'] ?? 0);
         $paymentType = strtoupper((string) ($orderData['payment_type'] ?? self::PAYMENT_PREPAID));
 
+        // Contact.EmailAddress and CellPhone are mandatory for both parties.
         $missing = [];
-        foreach (['name', 'phone', 'line1', 'city', 'country_code'] as $field) {
+        foreach (['name', 'phone', 'email', 'line1', 'city', 'country_code'] as $field) {
             if (blank($consignee[$field] ?? null)) {
                 $missing[] = "consignee {$field}";
             }
         }
-        foreach (['phone', 'line1', 'city', 'country_code'] as $field) {
+        foreach (['phone', 'email', 'line1', 'city', 'country_code'] as $field) {
             if (blank($shipper[$field] ?? null)) {
                 $missing[] = "shipper {$field} (ARAMEX_SHIPPER_* in .env)";
             }
@@ -182,20 +183,18 @@ class AramexService
         $shippingDate = $orderData['shipping_date'] ?? now();
         $currency = (string) ($this->config['currency'] ?? 'SAR');
 
-        $details = [
-            'Dimensions' => null,
+        $details = $this->shipmentDetails([
             'ActualWeight' => $this->weight($weight),
             'ChargeableWeight' => $this->weight($weight),
             'DescriptionOfGoods' => Str::limit((string) ($orderData['description'] ?? $this->config['description_of_goods'] ?? 'Goods'), 100, ''),
-            'GoodsOriginCountry' => strtoupper((string) $shipper['country_code']),
+            'GoodsOriginCountry' => strtoupper((string) ($this->config['goods_origin_country'] ?? 'SA')),
             'NumberOfPieces' => max(1, (int) ($orderData['pieces'] ?? 1)),
             'ProductGroup' => $product['group'],
             'ProductType' => $product['type'],
             'PaymentType' => $paymentType,
-            'PaymentOptions' => '',
-            'Services' => '',
+            'PaymentOptions' => $paymentType === self::PAYMENT_PREPAID ? ($this->config['payment_options'] ?? null) : null,
             'Items' => [],
-        ];
+        ]);
 
         if ($product['group'] === 'EXP' && is_numeric($orderData['customs_value'] ?? null)) {
             $details['CustomsValueAmount'] = [
@@ -210,25 +209,36 @@ class AramexService
             'LabelInfo' => $this->labelInfo(),
             'Shipments' => [[
                 'Reference1' => $reference,
-                'Shipper' => [
-                    'Reference1' => $reference,
-                    'AccountNumber' => (string) $this->config['account_number'],
-                    'PartyAddress' => $this->address($shipperAddress),
-                    'Contact' => $this->contact([
+                'Reference2' => null,
+                'Reference3' => null,
+                'Shipper' => $this->party(
+                    $reference,
+                    (string) $this->config['account_number'],
+                    $shipperAddress,
+                    [
                         'name' => $shipper['name'] ?? $shipper['company'] ?? 'Aroma',
                         'company' => $shipper['company'] ?? null,
                         'phone' => $shipper['phone'],
-                        'email' => $shipper['email'] ?? null,
-                    ]),
-                ],
-                'Consignee' => [
-                    'Reference1' => $reference,
-                    'PartyAddress' => $this->address($consignee),
-                    'Contact' => $this->contact($consignee),
-                ],
+                        'email' => $shipper['email'],
+                    ]
+                ),
+                'Consignee' => $this->party($reference, null, $consignee, $consignee),
+                'ThirdParty' => null,
                 'ShippingDateTime' => $this->wcfDate($shippingDate),
                 'DueDate' => $this->wcfDate($shippingDate->copy()->addDays(2)),
+                'Comments' => null,
+                'PickupLocation' => null,
+                'OperationsInstructions' => null,
+                // Aramex's own (misspelt) member name.
+                'AccountingInstrcutions' => null,
                 'Details' => $details,
+                'Attachments' => null,
+                'ForeignHAWB' => null,
+                // The member name really ends in a space (TransportType_x0020_ in the WSDL).
+                'TransportType ' => 0,
+                'PickupGUID' => null,
+                'Number' => null,
+                'ScheduledDelivery' => null,
             ]],
         ], $reference);
 
@@ -269,11 +279,11 @@ class AramexService
 
         $response = $this->request(self::PATH_PRINT_LABEL, [
             'ClientInfo' => $this->clientInfo(),
-            'Transaction' => $this->transaction($awb),
-            'ShipmentNumber' => $awb,
-            'ProductGroup' => $productGroup,
-            'OriginEntity' => (string) $this->config['account_entity'],
             'LabelInfo' => $this->labelInfo(),
+            'OriginEntity' => (string) $this->config['account_entity'],
+            'ProductGroup' => $productGroup,
+            'ShipmentNumber' => $awb,
+            'Transaction' => $this->transaction($awb),
         ], $awb);
 
         if (! $response['success']) {
@@ -344,7 +354,8 @@ class AramexService
             'AccountPin' => (string) ($this->config['account_pin'] ?? ''),
             'AccountEntity' => (string) ($this->config['account_entity'] ?? ''),
             'AccountCountryCode' => (string) ($this->config['account_country_code'] ?? 'SA'),
-            'Source' => (int) ($this->config['source'] ?? 24),
+            'Source' => (int) ($this->config['source'] ?? 0),
+            'PreferredLanguageCode' => null,
         ];
     }
 
@@ -390,6 +401,9 @@ class AramexService
                 'reference' => $reference,
                 'status' => $response->status(),
                 'errors' => $errors,
+                // A request Aramex can't parse comes back as an HTML "Request
+                // Error" page naming the bad field; keep that text for diagnosis.
+                'detail' => $body === [] ? $this->readableText($response->body()) : null,
             ]);
 
             return $this->failure($errors);
@@ -465,9 +479,16 @@ class AramexService
         ];
     }
 
+    /*
+     * Aramex's WCF contracts reject a request when any member is missing,
+     * even an unused one ("required data members ... were not found"), so
+     * these builders always emit the full member set from Aramex's Postman
+     * collection, with null for anything unused.
+     */
+
     /**
      * @param array<string,mixed> $a line1, line2?, line3?, city, state?, post_code?, country_code
-     * @return array<string,string>
+     * @return array<string,mixed>
      */
     private function address(array $a): array
     {
@@ -479,12 +500,20 @@ class AramexService
             'StateOrProvinceCode' => (string) ($a['state'] ?? ''),
             'PostCode' => (string) ($a['post_code'] ?? ''),
             'CountryCode' => strtoupper((string) ($a['country_code'] ?? '')),
+            'Longitude' => 0,
+            'Latitude' => 0,
+            'BuildingNumber' => null,
+            'BuildingName' => null,
+            'Floor' => null,
+            'Apartment' => null,
+            'POBox' => null,
+            'Description' => null,
         ];
     }
 
     /**
-     * @param array<string,mixed> $c name, company?, phone, email?
-     * @return array<string,string>
+     * @param array<string,mixed> $c name, company?, phone, email
+     * @return array<string,mixed>
      */
     private function contact(array $c): array
     {
@@ -492,12 +521,76 @@ class AramexService
         $phone = (string) ($c['phone'] ?? '');
 
         return [
-            'PersonName' => Str::limit($name, 45, ''),
-            'CompanyName' => Str::limit((string) ($c['company'] ?? $name), 45, ''),
+            'Department' => null,
+            'PersonName' => Str::limit($name, 50, ''),
+            'Title' => null,
+            'CompanyName' => Str::limit((string) ($c['company'] ?? $name), 50, ''),
             'PhoneNumber1' => $phone,
+            'PhoneNumber1Ext' => '',
+            'PhoneNumber2' => '',
+            'PhoneNumber2Ext' => '',
+            'FaxNumber' => null,
             'CellPhone' => $phone,
-            'EmailAddress' => (string) ($c['email'] ?? ''),
+            'EmailAddress' => Str::limit((string) ($c['email'] ?? ''), 50, ''),
+            'Type' => '',
         ];
+    }
+
+    /**
+     * @param array<string,mixed> $address see address()
+     * @param array<string,mixed> $contact see contact()
+     * @return array<string,mixed>
+     */
+    private function party(string $reference, ?string $accountNumber, array $address, array $contact): array
+    {
+        return [
+            'Reference1' => Str::limit($reference, 50, ''),
+            'Reference2' => null,
+            'AccountNumber' => $accountNumber,
+            'PartyAddress' => $this->address($address),
+            'Contact' => $this->contact($contact),
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $values members to set
+     * @return array<string,mixed> the full ShipmentDetails member set
+     */
+    private function shipmentDetails(array $values): array
+    {
+        return array_merge([
+            'Dimensions' => null,
+            'ActualWeight' => null,
+            'ChargeableWeight' => null,
+            'DescriptionOfGoods' => null,
+            'GoodsOriginCountry' => null,
+            'NumberOfPieces' => 1,
+            'ProductGroup' => null,
+            'ProductType' => null,
+            'PaymentType' => self::PAYMENT_PREPAID,
+            'PaymentOptions' => null,
+            'CustomsValueAmount' => null,
+            'CashOnDeliveryAmount' => null,
+            'InsuranceAmount' => null,
+            'CashAdditionalAmount' => null,
+            'CashAdditionalAmountDescription' => null,
+            'CollectAmount' => null,
+            'Services' => '',
+            'Items' => null,
+            'DeliveryInstructions' => null,
+            'AdditionalProperties' => null,
+            'ContainsDangerousGoods' => false,
+        ], $values);
+    }
+
+    /** Plain text of an HTML error page, for logs. */
+    private function readableText(string $html): string
+    {
+        $text = preg_replace(['#<style.*?</style>#si', '#<[^>]+>#'], ' ', $html) ?? '';
+        // Explicit flags: PHP < 8.1 leaves &#39; undecoded by default.
+        $text = trim((string) preg_replace('/\s+/', ' ', html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+
+        return mb_substr($text, 0, 1000);
     }
 
     /** @return array{Unit:string,Value:float} */
