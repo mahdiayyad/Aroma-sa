@@ -62,22 +62,27 @@
 <head>
 <meta charset="utf-8">
 <style>
-    body { font-family: dejavusans; font-size: 8.5pt; color: #1a1a1a; }
-    .frame { border: 0.6pt solid #4a6fa5; padding: 16pt 14pt 12pt 14pt; }
-    .merchant { font-size: 12.5pt; font-weight: bold; }
-    .muted { color: #333333; line-height: 1.45; }
-    .bar { background-color: #dcdcdc; font-weight: bold; font-size: 12pt; padding: 4pt 7pt; margin-top: 8pt; }
+    /* Brand colours (public/css tokens): brown #330101, wine #7A2E3D, gold #C9B39A, text #241817. */
+    body { font-family: dejavusans; font-size: 8.5pt; color: #241817; }
+    .frame { border: 0.8pt solid #C9B39A; border-top: 3pt solid #330101; padding: 16pt 14pt 12pt 14pt; }
+    .merchant { font-size: 12.5pt; font-weight: bold; color: #330101; }
+    .heading { font-size: 10pt; font-weight: bold; color: #7A2E3D; }
+    .muted { color: #5c4a45; line-height: 1.45; }
+    .bar { background-color: #330101; color: #ffffff; font-weight: bold; font-size: 12pt; padding: 4pt 7pt; margin-top: 8pt; }
     table.box { width: 100%; border-collapse: collapse; margin-top: 4pt; }
-    td.cell { vertical-align: top; padding: 7pt 8pt; border: 0.6pt solid #8a8a8a; }
-    .label { font-weight: bold; }
+    td.cell { vertical-align: top; padding: 7pt 8pt; border: 0.6pt solid #C9B39A; }
+    td.cell-totals { background-color: #faf6f1; }
+    .label { font-weight: bold; color: #7A2E3D; }
     table.items { width: 100%; border-collapse: collapse; }
     table.items td { padding: 2pt 0; vertical-align: top; }
     table.totals { width: 100%; border-collapse: collapse; }
     table.totals td { padding: 1.4pt 0; }
-    .dash { color: #555555; letter-spacing: 1pt; }
+    .dash { color: #C9B39A; letter-spacing: 1pt; }
     .strong { font-weight: bold; }
-    .small { font-size: 7.5pt; color: #444444; }
+    .grand { font-weight: bold; color: #330101; }
+    .small { font-size: 7.5pt; color: #5c4a45; }
     .footer { margin-top: 8pt; font-size: 8.5pt; line-height: 1.5; }
+    .footer .strong { color: #330101; }
 </style>
 </head>
 <body>
@@ -100,7 +105,7 @@
                 </div>
             </td>
             <td style="vertical-align: top; text-align: {{ $end }};">
-                <div class="strong" style="font-size: 10pt;">{{ __('receipts.heading') }}</div>
+                <div class="heading">{{ __('receipts.heading') }}</div>
                 <div class="muted">
                     {{ __('receipts.receipt_number', ['number' => $receipt->receipt_number]) }}<br>
                     {{ __('receipts.paid_on', ['date' => $date($paidAt)]) }}
@@ -153,7 +158,7 @@
             </td>
         </tr>
         <tr>
-            <td class="cell">
+            <td class="cell cell-totals">
                 <table class="totals">
                     <tr><td style="text-align: {{ $end }};">{{ __('receipts.items_subtotal') }}</td><td style="text-align: {{ $end }}; width: 28%;">{{ $money($order->subtotal) }}</td></tr>
                     @if ((float) $order->discount_amount > 0)
@@ -166,7 +171,7 @@
                     <tr><td></td><td class="dash" lang="en" style="text-align: {{ $end }};">- - - -</td></tr>
                     <tr><td style="text-align: {{ $end }};">{{ __('receipts.subtotal') }}</td><td style="text-align: {{ $end }};">{{ $money($totalBeforeTax) }}</td></tr>
                     <tr><td></td><td class="dash" lang="en" style="text-align: {{ $end }};">- - - -</td></tr>
-                    <tr><td class="strong" style="text-align: {{ $end }};">{{ __('receipts.total_shipment') }}</td><td class="strong" style="text-align: {{ $end }};">{{ $money($order->total_amount) }}</td></tr>
+                    <tr><td class="grand" style="text-align: {{ $end }};">{{ __('receipts.total_shipment') }}</td><td class="grand" style="text-align: {{ $end }};">{{ $money($order->total_amount) }}</td></tr>
                 </table>
             </td>
         </tr>
@@ -193,7 +198,7 @@
                     {{ $line }}<br>
                 @endforeach
             </td>
-            <td class="cell" style="width: 62%;">
+            <td class="cell cell-totals" style="width: 62%;">
                 <table class="totals">
                     <tr><td style="text-align: {{ $end }};">{{ __('receipts.items_subtotal') }}</td><td style="text-align: {{ $end }}; width: 28%;">{{ $money($order->subtotal) }}</td></tr>
                     @if ((float) $order->discount_amount > 0)
@@ -211,7 +216,7 @@
                         <tr><td style="text-align: {{ $end }};">{{ __('receipts.tax') }}</td><td style="text-align: {{ $end }};">{{ $money($order->tax_amount) }}</td></tr>
                     @endif
                     <tr><td></td><td class="dash" lang="en" style="text-align: {{ $end }};">- - - -</td></tr>
-                    <tr><td class="strong" style="text-align: {{ $end }};">{{ __('receipts.grand_total') }}</td><td class="strong" style="text-align: {{ $end }};">{{ $money($order->total_amount) }}</td></tr>
+                    <tr><td class="grand" style="text-align: {{ $end }};">{{ __('receipts.grand_total') }}</td><td class="grand" style="text-align: {{ $end }};">{{ $money($order->total_amount) }}</td></tr>
                 </table>
             </td>
         </tr>
