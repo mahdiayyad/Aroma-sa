@@ -6,13 +6,18 @@
          rules apply before first paint (no flash of the wrong font). The
          licensed AligarhArabic file on hand is a trial build whose Arabic
          shaping renders visibly broken specifically on Safari — see the note
-         next to --aroma-heading-ar in aroma.css. Excludes the other browsers
-         that also carry "Safari" in their UA on iOS (Chrome/Firefox/Edge/
-         Opera), where WebKit is required by Apple but the bug doesn't show. --}}
+         next to --aroma-heading-ar in aroma.css. Also covers Chrome/Firefox/
+         Edge/Opera on iOS: Apple forces WebKit on them, so they shape Arabic
+         exactly like Safari. Chrome/Firefox/Edge elsewhere (Android, desktop)
+         use their own engine and keep the brand font. --}}
     <script>
         (function () {
             var ua = navigator.userAgent;
-            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua);
+            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua)
+                // Every iPhone/iPad browser (Chrome, Firefox, Edge, Opera) is WebKit underneath and shapes
+                // Arabic exactly like Safari; iPadOS in desktop mode reports itself as a Mac.
+                || /iP(hone|ad|od)|(CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua)
+                || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
             if (isSafari) { document.documentElement.classList.add('is-safari'); }
         })();
     </script>

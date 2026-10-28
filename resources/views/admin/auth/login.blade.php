@@ -6,7 +6,11 @@
     <script>
         (function () {
             var ua = navigator.userAgent;
-            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua);
+            var isSafari = /^((?!chrome|android|crios|fxios|edgios|opios|firefox).)*safari/i.test(ua)
+                // Every iPhone/iPad browser (Chrome, Firefox, Edge, Opera) is WebKit underneath and shapes
+                // Arabic exactly like Safari; iPadOS in desktop mode reports itself as a Mac.
+                || /iP(hone|ad|od)|(CriOS|FxiOS|EdgiOS|OPiOS)/.test(ua)
+                || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
             if (isSafari) { document.documentElement.classList.add('is-safari'); }
         })();
     </script>
