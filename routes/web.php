@@ -300,6 +300,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('products.images.destroy');
         Route::patch('products/{product}/images/reorder', [AdminProductController::class, 'reorderImages'])
             ->name('products.images.reorder');
+        Route::patch('products/{product}/images/{image}/primary', [AdminProductController::class, 'makePrimaryImage'])
+            ->name('products.images.primary');
         Route::post('products/{product}/restore', [AdminProductController::class, 'restore'])
             ->name('products.restore')->withTrashed();
         Route::delete('products/{product}/force', [AdminProductController::class, 'forceDestroy'])

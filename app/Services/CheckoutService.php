@@ -18,11 +18,13 @@ class CheckoutService extends BaseService
 {
     private CartService $cart;
     private PromoCodeService $promoCodes;
+    private AramexFulfilmentService $aramex;
 
-    public function __construct(CartService $cart, PromoCodeService $promoCodes)
+    public function __construct(CartService $cart, PromoCodeService $promoCodes, AramexFulfilmentService $aramex)
     {
         $this->cart = $cart;
         $this->promoCodes = $promoCodes;
+        $this->aramex = $aramex;
     }
 
     /**
@@ -59,9 +61,11 @@ class CheckoutService extends BaseService
     }
 
     /**
-     * Calculate order totals from cart
+     * Calculate order totals from cart. $shippingAddress is the resolved
+     * destination (see AddressResolver) — null before the address step has
+     * been completed, in which case shipping is 0 (nothing to quote yet).
      */
-    public function calculateTotals(): array
+    public function calculateTotals(?array $shippingAddress = null): array
     {
         $rows = $this->cart->rows();
         $subtotal = 0;
@@ -76,10 +80,10 @@ class CheckoutService extends BaseService
         // re-validated again from scratch in createOrder() below before any
         // money actually moves, since the cart can change between apply and
         // place-order.
-        // TODO: Add tax calculation, shipping costs
+        // TODO: Add tax calculation
         $discount = (float) session('checkout.promo.discount_amount', 0);
         $tax = 0;
-        $shipping = 0;
+        $shipping = $this->resolveShippingCost($shippingAddress, $rows);
 
         $total = $subtotal - $discount + $tax + $shipping;
 
@@ -90,6 +94,45 @@ class CheckoutService extends BaseService
             'shipping_cost' => $shipping,
             'total_amount' => $total,
         ];
+    }
+
+    /**
+     * Live Aramex quote for $shippingAddress, with a config-driven flat-rate
+     * fallback (never hardcoded) so a carrier outage never blocks checkout.
+     * 0 before an address exists yet, or when the applied promo carries
+     * free_shipping (set on PromoCode, read nowhere until now).
+     *
+     * @param array<string,mixed>|null $shippingAddress
+     * @param array<int,array<string,mixed>> $rows CartService::rows()
+     */
+    private function resolveShippingCost(?array $shippingAddress, array $rows): float
+    {
+        if (empty($shippingAddress) || empty($shippingAddress['city'])) {
+            return 0.0;
+        }
+
+        if ((bool) session('checkout.promo.free_shipping', false)) {
+            return 0.0;
+        }
+
+        $country = strtoupper((string) ($shippingAddress['country'] ?? 'SA')) ?: 'SA';
+        $fallback = (float) config('aroma.shipping.'.($country === 'SA' ? 'domestic_flat_rate' : 'international_flat_rate'), 0.0);
+
+        if (! $this->aramex->isConfigured()) {
+            return $fallback;
+        }
+
+        $destination = [
+            'line1' => (string) ($shippingAddress['street_address'] ?? $shippingAddress['formatted_address'] ?? ''),
+            'city' => (string) $shippingAddress['city'],
+            'post_code' => (string) ($shippingAddress['postal_code'] ?? ''),
+            'country_code' => $country,
+        ];
+
+        $package = $this->aramex->cartWeight($rows);
+        $result = $this->aramex->quote($destination, $package['weight_kg'], $package['pieces']);
+
+        return $result['success'] ? (float) $result['amount'] : $fallback;
     }
 
     /**
@@ -130,7 +173,7 @@ class CheckoutService extends BaseService
 
             $giftWrapFee = (float) ($details['gift_wrap_fee'] ?? 0);
             $greetingCardFee = (float) ($details['greeting_card_fee'] ?? 0);
-            $totals = $this->calculateTotals();
+            $totals = $this->calculateTotals($shippingAddress);
             $totals['total_amount'] += $giftWrapFee + $greetingCardFee;
 
             // Re-validate the promo from scratch right before charging — the

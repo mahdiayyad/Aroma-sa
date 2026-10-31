@@ -91,9 +91,13 @@ class OrderController extends Controller
             return response()->json(['message' => 'No captured payment to refund for this order.'], 422);
         }
 
+        // No explicit amount: default to shipping already subtracted (once
+        // per order — see Order::suggestedRefundAmount()), same as the admin
+        // Blade form's pre-fill, not just the raw remaining amount.
+        $amount = isset($data['amount']) ? (float) $data['amount'] : $order->suggestedRefundAmount($payment);
+
         // Tamara refunds must go back through Tamara (never Moyasar / store credit).
         if ($payment->gateway === 'tamara') {
-            $amount = isset($data['amount']) ? (float) $data['amount'] : round((float) $payment->amount - (float) $payment->refunded_amount, 2);
             $tamaraResult = $tamara->refund($order, $amount, 'Refund for order '.$order->order_number);
 
             if (! $tamaraResult['success']) {
@@ -106,7 +110,7 @@ class OrderController extends Controller
             ]);
         }
 
-        $result = $gateway->refundPayment($payment, $data['amount'] ?? null);
+        $result = $gateway->refundPayment($payment, $amount);
 
         if (! ($result['success'] ?? false)) {
             return response()->json(['message' => $result['error'] ?? 'Refund failed.'], 422);

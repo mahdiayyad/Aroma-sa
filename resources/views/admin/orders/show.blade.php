@@ -51,7 +51,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <x-admin.card :title="__('admin.orders.shipping_address')">
-                        <x-address-summary class="admin-cell-sub" :address="$order->shipping_address" :phone="$order->customer_phone" />
+                        <x-address-summary class="admin-cell-sub" :address="$order->shipping_address" :phone="$order->customer_phone" :show-demo-badge="true" />
                     </x-admin.card>
                 </div>
                 <div class="col-md-6">
@@ -89,8 +89,14 @@
                                         <div class="fw-semibold small mb-1">{{ __('admin.tamara.refund_title') }}</div>
                                         <div class="mb-2">
                                             <label class="admin-cell-sub small" for="tamaraRefundAmount">{{ __('admin.tamara.refund_amount') }}</label>
+                                            {{-- Pre-filled with shipping already subtracted (once per order — see
+                                                 Order::suggestedRefundAmount()), but still a plain editable input:
+                                                 the admin can always type up to the true remaining amount. --}}
                                             <input type="number" step="0.01" min="0.01" max="{{ $tamaraRemaining }}" name="amount" id="tamaraRefundAmount"
-                                                   value="{{ $tamaraRemaining }}" class="admin-input" required>
+                                                   value="{{ $order->suggestedRefundAmount($payment) }}" class="admin-input" required>
+                                            @if ($order->shipping_fee_deducted_at === null && (float) $order->shipping_cost > 0)
+                                                <div class="admin-cell-sub small mt-1">{{ __('admin.tamara.refund_shipping_deducted', ['amount' => number_format((float) $order->shipping_cost, 2)]) }}</div>
+                                            @endif
                                         </div>
                                         <div class="mb-2">
                                             <label class="admin-cell-sub small" for="tamaraRefundComment">{{ __('admin.tamara.refund_comment') }}</label>

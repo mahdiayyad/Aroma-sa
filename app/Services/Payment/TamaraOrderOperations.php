@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\Payment;
 
+use App\Mail\RefundProcessedMail;
 use App\Models\Order;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 /**
  * What happens on Tamara's side (and to our Payment record) when an order
@@ -204,7 +208,30 @@ class TamaraOrderOperations
             ]),
         ]);
 
+        $this->notifyCustomerOfRefund($order, $refundedNow);
+
         return $this->ok($successKey, ['amount' => number_format($refundedNow, 2)]);
+    }
+
+    /**
+     * Marks the order's shipping fee as deducted (only the first time any
+     * refund on it actually completes — see Order::suggestedRefundAmount())
+     * and emails the customer. Never throws: a notification failure must not
+     * undo a refund that already succeeded on Tamara's side.
+     */
+    private function notifyCustomerOfRefund(Order $order, float $refundedNow): void
+    {
+        $shippingDeducted = $order->shipping_fee_deducted_at === null && (float) $order->shipping_cost > 0;
+
+        if ($shippingDeducted) {
+            $order->update(['shipping_fee_deducted_at' => now()]);
+        }
+
+        try {
+            Mail::to($order->customer_email)->send(new RefundProcessedMail($order, $refundedNow, $shippingDeducted));
+        } catch (Throwable $e) {
+            Log::error('Refund-processed email failed to send', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+        }
     }
 
     private function remaining(Payment $payment): float

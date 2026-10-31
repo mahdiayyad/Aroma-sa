@@ -112,6 +112,10 @@
                     if (wasPrimary) {
                         var next = grid.find('.admin-image-item').not(item).first();
                         if (next.length) {
+                            // The promoted item gets the badge and loses its
+                            // own "make primary" button (mutually exclusive,
+                            // same as every other item on this grid).
+                            next.find('.js-make-primary-image').remove();
                             $('<span class="admin-image-primary-badge"></span>').text(grid.data('primary-label')).appendTo(next);
                         }
                     }
@@ -121,6 +125,43 @@
                     item.removeClass('is-removing');
                     toast('error', document.body.getAttribute('data-error-generic') || 'Something went wrong.');
                 });
+            });
+        });
+
+        // Product media manager: <button class="js-make-primary-image"
+        // data-url> — swaps the primary badge/button across every thumbnail
+        // in the grid without a full reload.
+        $(document).on('click', '.js-make-primary-image', function (e) {
+            e.preventDefault();
+            var btn = this;
+            var item = $(btn).closest('.admin-image-item');
+            var grid = item.closest('.admin-image-grid');
+
+            $.ajax({
+                url: $(btn).data('url'),
+                method: 'PATCH',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+            }).done(function (data) {
+                var urlTemplate = grid.data('primary-url-template');
+
+                grid.find('.admin-image-item').each(function () {
+                    var el = $(this);
+                    el.find('.admin-image-primary-badge, .js-make-primary-image').remove();
+
+                    if (el.is(item)) {
+                        $('<span class="admin-image-primary-badge"></span>').text(grid.data('primary-label')).appendTo(el);
+                    } else {
+                        $('<button type="button" class="admin-image-make-primary js-make-primary-image"></button>')
+                            .attr('data-url', String(urlTemplate).replace('__IMAGE_ID__', el.data('image-id')))
+                            .attr('aria-label', grid.data('make-primary-label'))
+                            .append($('<i class="bi bi-star" aria-hidden="true"></i>'))
+                            .appendTo(el);
+                    }
+                });
+
+                toast('success', data && data.message);
+            }).fail(function () {
+                toast('error', document.body.getAttribute('data-error-generic') || 'Something went wrong.');
             });
         });
 

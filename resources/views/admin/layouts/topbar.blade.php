@@ -11,6 +11,17 @@
     </div>
 
     <div class="admin-topbar-actions">
+        @php($otherLocale = collect(array_keys($locales))->first(fn ($code) => $code !== app()->getLocale()))
+        @if ($otherLocale)
+            {{-- Admin routes carry no {locale} URL prefix, so this always
+                 falls into locale.switch's plain-redirect-back branch
+                 (routes/web.php) — no prefix-swapping logic needed here,
+                 unlike the storefront's language-switcher partial. --}}
+            <a href="{{ route('locale.switch', $otherLocale) }}" class="admin-btn admin-btn-outline" title="{{ $locales[$otherLocale]['native'] ?? strtoupper($otherLocale) }}">
+                <i class="bi bi-globe2"></i>
+                <span class="d-none d-sm-inline">{{ $locales[$otherLocale]['native'] ?? strtoupper($otherLocale) }}</span>
+            </a>
+        @endif
         <div class="dropdown">
             <button class="admin-user" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="admin-avatar">{{ auth()->user()->initials() }}</span>

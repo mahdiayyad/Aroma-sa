@@ -122,7 +122,9 @@ return [
         'standard' => 'الشحن العادي',
     ],
     'shipping_days' => [
-        'standard' => '3-5 أيام عمل',
+        // Domestic deliberately shows no duration — Aramex can't commit to
+        // one, and an estimate here has previously been inaccurate.
+        'international' => 'التوصيل خلال 20 يوم عمل',
     ],
     'saved_addresses' => 'العناوين المحفوظة',
 

@@ -169,6 +169,78 @@ class AdminProductImageTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_can_set_a_non_primary_image_as_primary(): void
+    {
+        $product = Product::factory()->create();
+        $primary = $this->imageOn($product, ['is_primary' => true, 'sort_order' => 0]);
+        $other = $this->imageOn($product, ['is_primary' => false, 'sort_order' => 1]);
+
+        $this->actingAs($this->admin())
+            ->patchJson(route('admin.products.images.primary', [$product, $other]))
+            ->assertOk()
+            ->assertJsonStructure(['message']);
+
+        $this->assertTrue($other->fresh()->is_primary);
+        $this->assertFalse($primary->fresh()->is_primary);
+    }
+
+    public function test_making_an_image_primary_unsets_every_other_image_on_the_same_product(): void
+    {
+        $product = Product::factory()->create();
+        $a = $this->imageOn($product, ['is_primary' => true, 'sort_order' => 0]);
+        $b = $this->imageOn($product, ['is_primary' => false, 'sort_order' => 1]);
+        $c = $this->imageOn($product, ['is_primary' => false, 'sort_order' => 2]);
+
+        $this->actingAs($this->admin())
+            ->patchJson(route('admin.products.images.primary', [$product, $c]))
+            ->assertOk();
+
+        $this->assertFalse($a->fresh()->is_primary);
+        $this->assertFalse($b->fresh()->is_primary);
+        $this->assertTrue($c->fresh()->is_primary);
+    }
+
+    public function test_an_image_belonging_to_another_product_cannot_be_made_primary_through_this_product(): void
+    {
+        $product = Product::factory()->create();
+        $other = Product::factory()->create();
+        $foreignImage = $this->imageOn($other, ['is_primary' => false]);
+
+        $this->actingAs($this->admin())
+            ->patchJson(route('admin.products.images.primary', [$product, $foreignImage]))
+            ->assertNotFound();
+
+        $this->assertFalse($foreignImage->fresh()->is_primary);
+    }
+
+    public function test_a_non_admin_cannot_change_the_primary_image(): void
+    {
+        $product = Product::factory()->create();
+        $image = $this->imageOn($product, ['is_primary' => false]);
+
+        $this->actingAs(User::factory()->create())
+            ->patchJson(route('admin.products.images.primary', [$product, $image]))
+            ->assertForbidden();
+
+        $this->assertFalse($image->fresh()->is_primary);
+    }
+
+    public function test_the_edit_page_renders_a_make_primary_control_on_non_primary_images_only(): void
+    {
+        $product = Product::factory()->create();
+        $primary = $this->imageOn($product, ['is_primary' => true, 'sort_order' => 0]);
+        $other = $this->imageOn($product, ['is_primary' => false, 'sort_order' => 1]);
+
+        $html = $this->actingAs($this->admin())
+            ->get(route('admin.products.edit', $product))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('js-make-primary-image', $html);
+        $this->assertStringContainsString(route('admin.products.images.primary', [$product, $other]), $html);
+        $this->assertStringNotContainsString(route('admin.products.images.primary', [$product, $primary]), $html);
+    }
+
     public function test_the_edit_page_renders_a_remove_control_per_image(): void
     {
         Storage::fake('public');

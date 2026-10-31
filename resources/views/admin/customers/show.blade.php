@@ -134,7 +134,7 @@
                 @else
                     @foreach ($customer->addresses as $address)
                         <div class="d-flex justify-content-between align-items-start mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
-                            <x-address-summary class="admin-cell-sub" :address="$address->toArray()" />
+                            <x-address-summary class="admin-cell-sub" :address="$address->toArray()" :show-demo-badge="true" />
                             @if ($address->is_default)
                                 <span class="badge bg-light text-aroma-brown border">{{ __('account.addresses.default') }}</span>
                             @endif

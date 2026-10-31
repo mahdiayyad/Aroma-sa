@@ -29,7 +29,7 @@
     Bootstrap/icon font loaded) and hand-roll their own copy of this same
     branching logic in plain HTML instead.
 --}}
-@props(['address' => [], 'phone' => null, 'nameClass' => ''])
+@props(['address' => [], 'phone' => null, 'nameClass' => '', 'showDemoBadge' => false])
 
 @php
     $address = is_array($address) ? $address : [];
@@ -49,11 +49,15 @@
     @if ($hasCode)
         <div>
             {{ $address['formatted_address'] ?? '' }}
-            @if (\App\Services\LocationLookupService::isDemoAddress($address))
+            @if ($showDemoBadge && \App\Services\LocationLookupService::isDemoAddress($address))
                 {{-- LocationLookupService::stubLookup() — no real Saudi Post/SPL
                      credentials configured, so this address is canned demo data,
-                     not a real resolution. Shown here so ops (admin/orders/show)
-                     and the shopper both know not to treat it as verified. --}}
+                     not a real resolution. Only ever shown to staff (callers
+                     that pass show-demo-badge), never to the shopper — a real
+                     customer must never see internal "Demo" jargon. The actual
+                     safety net is independent of this badge: no real Aramex
+                     shipment can be created against a demo address regardless
+                     (see AramexFulfilmentService::consigneeFor()). --}}
                 <span class="badge bg-light text-aroma-brown border ms-1">{{ __('location.preview.demo_badge') }}</span>
             @endif
         </div>
@@ -70,6 +74,9 @@
             @if (!empty($address['district'])){{ $address['district'] }}, @endif{{ $address['city'] ?? '' }}
             @if (!empty($address['postal_code'])) {{ $address['postal_code'] }}@endif
         </div>
+        @if (!empty($address['country']) && strtoupper($address['country']) !== 'SA')
+            <div>{{ config("countries.{$address['country']}.".app()->getLocale(), $address['country']) }}</div>
+        @endif
         @if (!empty($address['additional_notes']))
             <div class="small text-aroma-muted">{{ $address['additional_notes'] }}</div>
         @endif

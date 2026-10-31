@@ -94,6 +94,15 @@ return [
         'message_max_lines' => 5,
     ],
 
+    // Used only when a live Aramex rate call fails or the account isn't
+    // configured — checkout must never hard-block on a carrier outage.
+    // These are business decisions, not invented values: confirm real
+    // figures before deploy, 0.0 means an outage ships for free.
+    'shipping' => [
+        'domestic_flat_rate'      => (float) env('AROMA_SHIPPING_FLAT_RATE_DOMESTIC', 0.0),
+        'international_flat_rate' => (float) env('AROMA_SHIPPING_FLAT_RATE_INTERNATIONAL', 0.0),
+    ],
+
     /*
     | Payment receipts ---------------------------------------------------------
     | PDFs hold customer names, addresses and payment details: keep them on a

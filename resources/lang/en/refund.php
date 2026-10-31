@@ -32,5 +32,11 @@ return [
     'errors' => [
         'order_not_paid' => 'Refunds can only be requested for a paid order.',
         'already_pending' => 'You already have a pending refund request for this order.',
+        'not_yet_delivered' => 'A refund can only be requested once your order has been delivered.',
+        'return_window_expired' => 'Refund requests must be submitted within 3 days of delivery.',
+    ],
+
+    'email' => [
+        'shipping_deducted_notice' => 'Aramex shipping fees will be deducted from the order amount when processing the refund.',
     ],
 ];

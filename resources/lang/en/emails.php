@@ -38,6 +38,18 @@ return [
         'support' => 'If you continue to have issues, please contact our support team.',
     ],
 
+    'refund_processed' => [
+        'subject' => 'Your Refund Has Been Processed - Order :order_number',
+        'title' => 'Refund Processed',
+        'greeting' => 'Refund Confirmation',
+        'status' => 'Your Refund Has Been Processed',
+        'message' => 'We have processed a refund for your order.',
+        'order_details' => 'Order Details:',
+        'amount' => 'Refund Amount',
+        'view_order' => 'View Order',
+        'support' => 'If you have any questions about this refund, please contact our support team.',
+    ],
+
     'footer' => [
         'contact' => 'Contact Us',
         'whatsapp' => 'WhatsApp',

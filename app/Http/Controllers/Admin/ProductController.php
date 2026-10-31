@@ -16,6 +16,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -168,6 +169,19 @@ class ProductController extends Controller
         }
 
         return response()->json(['message' => __('admin.products.image_deleted')]);
+    }
+
+    /** Explicit "set as primary" action — is_primary otherwise only ever changes automatically (first upload, or promotion after the current primary is deleted). */
+    public function makePrimaryImage(Product $product, ProductImage $image): JsonResponse
+    {
+        abort_unless($image->product_id === $product->id, 404);
+
+        DB::transaction(function () use ($product, $image) {
+            $product->images()->where('id', '!=', $image->id)->update(['is_primary' => false]);
+            $image->update(['is_primary' => true]);
+        });
+
+        return response()->json(['message' => __('admin.products.image_made_primary')]);
     }
 
     /**

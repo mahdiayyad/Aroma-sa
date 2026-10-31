@@ -48,7 +48,7 @@
         {{-- mada's own published mark (Saudi Payments Network), traced from
              their official SVG on Wikimedia Commons — the full two-tone
              symbol (green + blue) plus the wordmark, in their real colors. --}}
-        <svg viewBox="0 320 800 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mada">
+        <svg class="aroma-payment-icon-mada" viewBox="0 320 800 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mada">
             <rect y="473.1" width="336.8" height="112.2" fill="#84B740"/>
             <rect y="320" width="336.8" height="112.3" fill="#259BD6"/>
             <g fill="#27292D">

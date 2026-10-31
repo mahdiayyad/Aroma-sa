@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Order;
+use App\Models\Payment;
 use Tests\TestCase;
 
 /**
@@ -75,5 +76,54 @@ class OrderTest extends TestCase
     public function test_unknown_status_falls_back_to_neutral(): void
     {
         $this->assertSame('aroma-badge-neutral', $this->orderWithStatus('archived')->statusBadgeClass());
+    }
+
+    /* suggestedRefundAmount ------------------------------------------------- */
+
+    private function payment(float $amount, float $refundedAmount = 0.0): Payment
+    {
+        $payment = new Payment();
+        $payment->amount = $amount;
+        $payment->refunded_amount = $refundedAmount;
+
+        return $payment;
+    }
+
+    public function test_the_first_refund_deducts_shipping_from_the_remaining_amount(): void
+    {
+        $order = new Order();
+        $order->shipping_cost = 25.0;
+        $order->shipping_fee_deducted_at = null;
+
+        $this->assertEquals(75.0, $order->suggestedRefundAmount($this->payment(100.0)));
+    }
+
+    public function test_a_second_refund_no_longer_deducts_shipping(): void
+    {
+        $order = new Order();
+        $order->shipping_cost = 25.0;
+        $order->shipping_fee_deducted_at = now();
+
+        // 40 was already refunded on the first pass; the remaining 60
+        // should NOT have shipping subtracted a second time.
+        $this->assertEquals(60.0, $order->suggestedRefundAmount($this->payment(100.0, 40.0)));
+    }
+
+    public function test_no_shipping_cost_means_nothing_is_deducted(): void
+    {
+        $order = new Order();
+        $order->shipping_cost = 0.0;
+        $order->shipping_fee_deducted_at = null;
+
+        $this->assertEquals(100.0, $order->suggestedRefundAmount($this->payment(100.0)));
+    }
+
+    public function test_the_suggested_amount_never_goes_negative(): void
+    {
+        $order = new Order();
+        $order->shipping_cost = 150.0;
+        $order->shipping_fee_deducted_at = null;
+
+        $this->assertEquals(0.0, $order->suggestedRefundAmount($this->payment(100.0)));
     }
 }

@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Events\OrderPaid;
 use App\Http\Controllers\Webhooks\TamaraWebhookController;
+use App\Mail\RefundProcessedMail;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\OrderStatusService;
@@ -12,6 +13,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 /**
@@ -311,6 +313,56 @@ class TamaraOperationsTest extends TestCase
         $this->assertTrue($ops->refund($order, 60.0, 'rest')['success']);
         $this->assertSame(Payment::STATUS_REFUNDED, $payment->fresh()->status);
         $this->assertEquals(100, $payment->fresh()->refunded_amount);
+    }
+
+    public function test_the_first_refund_on_an_order_with_shipping_marks_it_deducted_and_emails_the_customer(): void
+    {
+        Event::fake(); // irrelevant here, just keeps other listeners quiet
+        Mail::fake();
+        [$order, $payment] = $this->tamaraOrder(Order::STATUS_DELIVERED, Payment::STATUS_CAPTURED);
+        $order->update(['shipping_cost' => 25.0]);
+        Http::fake(['*tamara.co/payments/simplified-refund/*' => Http::response(
+            ['status' => 'partially_refunded', 'refund_id' => 'r1', 'refunded_amount' => ['amount' => 40, 'currency' => 'SAR']], 200
+        )]);
+
+        app(TamaraOrderOperations::class)->refund($order, 40.0, 'damaged item');
+
+        $this->assertNotNull($order->fresh()->shipping_fee_deducted_at);
+        Mail::assertSent(RefundProcessedMail::class, function ($mail) use ($order) {
+            return $mail->order->is($order) && $mail->refundAmount === 40.0 && $mail->shippingDeducted === true;
+        });
+    }
+
+    public function test_a_second_refund_on_the_same_order_does_not_deduct_shipping_again(): void
+    {
+        Mail::fake();
+        [$order, $payment] = $this->tamaraOrder(Order::STATUS_DELIVERED, Payment::STATUS_CAPTURED);
+        $order->update(['shipping_cost' => 25.0, 'shipping_fee_deducted_at' => now()->subHour()]);
+        Http::fake(['*tamara.co/payments/simplified-refund/*' => Http::response(
+            ['status' => 'fully_refunded', 'refund_id' => 'r2', 'refunded_amount' => ['amount' => 60, 'currency' => 'SAR']], 200
+        )]);
+
+        app(TamaraOrderOperations::class)->refund($order, 60.0, 'rest');
+
+        Mail::assertSent(RefundProcessedMail::class, function ($mail) {
+            return $mail->shippingDeducted === false;
+        });
+    }
+
+    public function test_an_order_with_no_shipping_cost_never_shows_the_shipping_deducted_notice(): void
+    {
+        Mail::fake();
+        [$order, $payment] = $this->tamaraOrder(Order::STATUS_DELIVERED, Payment::STATUS_CAPTURED);
+        Http::fake(['*tamara.co/payments/simplified-refund/*' => Http::response(
+            ['status' => 'fully_refunded', 'refund_id' => 'r3', 'refunded_amount' => ['amount' => 100, 'currency' => 'SAR']], 200
+        )]);
+
+        app(TamaraOrderOperations::class)->refund($order, 100.0, 'full refund');
+
+        $this->assertNull($order->fresh()->shipping_fee_deducted_at);
+        Mail::assertSent(RefundProcessedMail::class, function ($mail) {
+            return $mail->shippingDeducted === false;
+        });
     }
 
     public function test_a_refund_beyond_what_is_left_or_on_an_uncaptured_payment_is_refused_without_calling_tamara(): void
