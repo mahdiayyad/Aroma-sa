@@ -19,7 +19,7 @@ class RefundRequestTest extends TestCase
         return User::factory()->create(['role' => User::ROLE_ADMIN]);
     }
 
-    private function paidOrderFor(User $user): Order
+    private function paidOrderFor(User $user, ?string $deliveredAt = '-1 day'): Order
     {
         return Order::create([
             'user_id' => $user->id,
@@ -32,6 +32,11 @@ class RefundRequestTest extends TestCase
             'shipping_address' => ['recipient_name' => $user->name],
             'subtotal' => 100,
             'total_amount' => 100,
+            // The 3-day return window starts at delivery — within it by
+            // default so existing "can request a refund" tests keep testing
+            // that behavior rather than incidentally tripping the new window
+            // check. Pass null to simulate an order not yet delivered.
+            'delivered_at' => $deliveredAt !== null ? now()->modify($deliveredAt) : null,
         ]);
     }
 
@@ -93,6 +98,40 @@ class RefundRequestTest extends TestCase
             ->assertSessionHasErrors('order_id');
 
         $this->assertDatabaseCount('refund_requests', 0);
+    }
+
+    public function test_a_refund_cannot_be_requested_before_the_order_has_been_delivered(): void
+    {
+        Mail::fake();
+        $user = User::factory()->create();
+        $order = $this->paidOrderFor($user, null);
+
+        $this->actingAs($user)
+            ->post(route('account.refund-requests.store'), [
+                'order_id' => $order->id,
+                'reason' => 'damaged',
+            ])
+            ->assertSessionHasErrors('order_id');
+
+        $this->assertDatabaseCount('refund_requests', 0);
+        Mail::assertNothingSent();
+    }
+
+    public function test_a_refund_cannot_be_requested_more_than_3_days_after_delivery(): void
+    {
+        Mail::fake();
+        $user = User::factory()->create();
+        $order = $this->paidOrderFor($user, '-4 days');
+
+        $this->actingAs($user)
+            ->post(route('account.refund-requests.store'), [
+                'order_id' => $order->id,
+                'reason' => 'damaged',
+            ])
+            ->assertSessionHasErrors('order_id');
+
+        $this->assertDatabaseCount('refund_requests', 0);
+        Mail::assertNothingSent();
     }
 
     public function test_a_second_request_is_blocked_while_one_is_already_pending(): void

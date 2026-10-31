@@ -61,7 +61,9 @@
                     @if ($editing && $product->images->isNotEmpty())
                         <div class="admin-image-grid mb-3" id="productImages"
                              data-primary-label="{{ __('admin.products.primary_image') }}"
-                             data-reorder-url="{{ route('admin.products.images.reorder', $product) }}">
+                             data-make-primary-label="{{ __('admin.products.make_primary') }}"
+                             data-reorder-url="{{ route('admin.products.images.reorder', $product) }}"
+                             data-primary-url-template="{{ route('admin.products.images.primary', [$product, '__IMAGE_ID__']) }}">
                             @foreach ($product->images as $img)
                                 <div class="admin-image-item" data-image-id="{{ $img->id }}">
                                     <span class="admin-image-drag-handle" aria-hidden="true" title="{{ __('admin.products.reorder_image') }}">
@@ -70,6 +72,13 @@
                                     <img src="{{ $img->url() }}" alt="">
                                     @if ($img->is_primary)
                                         <span class="admin-image-primary-badge">{{ __('admin.products.primary_image') }}</span>
+                                    @else
+                                        <button type="button" class="admin-image-make-primary js-make-primary-image"
+                                                data-url="{{ route('admin.products.images.primary', [$product, $img]) }}"
+                                                aria-label="{{ __('admin.products.make_primary') }}"
+                                                data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('admin.products.make_primary') }}">
+                                            <i class="bi bi-star" aria-hidden="true"></i>
+                                        </button>
                                     @endif
                                     <button type="button" class="admin-image-remove js-delete-image"
                                             data-url="{{ route('admin.products.images.destroy', [$product, $img]) }}"

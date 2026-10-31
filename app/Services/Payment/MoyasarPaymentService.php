@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Payment;
 
 use App\Contracts\PaymentGateway;
+use App\Mail\RefundProcessedMail;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Services\CheckoutService;
@@ -12,6 +13,8 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 /**
  * Moyasar Payment Gateway Integration
@@ -476,7 +479,11 @@ class MoyasarPaymentService implements PaymentGateway
                 return ['success' => false, 'error' => 'No transaction ID found'];
             }
 
-            $refundAmount = $amount ?? $payment->amount;
+            // Was $amount ?? $payment->amount — ignored any prior
+            // refunded_amount (unlike Tamara's equivalent), so a second
+            // partial refund would re-charge the full original amount by
+            // default instead of what's actually left.
+            $refundAmount = $amount ?? round((float) $payment->amount - (float) $payment->refunded_amount, 2);
 
             $response = Http::withBasicAuth($this->secretKey, '')
                 ->post("{$this->baseUrl}/payments/{$payment->transaction_id}/refund", [
@@ -486,9 +493,19 @@ class MoyasarPaymentService implements PaymentGateway
             if ($response->successful()) {
                 $refundData = $response->json();
 
+                // Was 'refunded_amount' => $refundAmount (this call's amount
+                // only, overwriting any prior partial refund) and 'status'
+                // unconditionally REFUNDED even on a partial refund — which
+                // would also have permanently blocked any further refund on
+                // this payment, since nothing else here still matches
+                // STATUS_CAPTURED. Mirrors TamaraOrderOperations::doRefund()'s
+                // cumulative-total/fully-refunded logic.
+                $total = round((float) $payment->refunded_amount + $refundAmount, 2);
+                $fully = $total >= (float) $payment->amount - 0.009;
+
                 $payment->update([
-                    'status' => Payment::STATUS_REFUNDED,
-                    'refunded_amount' => $refundAmount,
+                    'status' => $fully ? Payment::STATUS_REFUNDED : Payment::STATUS_CAPTURED,
+                    'refunded_amount' => $total,
                     'refunded_at' => now(),
                 ]);
 
@@ -496,6 +513,8 @@ class MoyasarPaymentService implements PaymentGateway
                     'payment_id' => $payment->id,
                     'refund_id' => $refundData['id'] ?? null,
                 ]);
+
+                $this->notifyCustomerOfRefund($payment, $refundAmount);
 
                 return ['success' => true, 'refund_id' => $refundData['id'] ?? null];
             }
@@ -509,6 +528,33 @@ class MoyasarPaymentService implements PaymentGateway
         } catch (Exception $e) {
             Log::error('Refund exception', ['error' => $e->getMessage()]);
             return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Marks the order's shipping fee as deducted (only the first time any
+     * refund on it actually completes — see Order::suggestedRefundAmount())
+     * and emails the customer. Never throws: a notification failure must not
+     * undo a refund that already succeeded on Moyasar's side.
+     */
+    private function notifyCustomerOfRefund(Payment $payment, float $refundedNow): void
+    {
+        $order = $payment->order;
+
+        if (! $order) {
+            return;
+        }
+
+        $shippingDeducted = $order->shipping_fee_deducted_at === null && (float) $order->shipping_cost > 0;
+
+        if ($shippingDeducted) {
+            $order->update(['shipping_fee_deducted_at' => now()]);
+        }
+
+        try {
+            Mail::to($order->customer_email)->send(new RefundProcessedMail($order, $refundedNow, $shippingDeducted));
+        } catch (Throwable $e) {
+            Log::error('Refund-processed email failed to send', ['order_id' => $order->id, 'error' => $e->getMessage()]);
         }
     }
 }

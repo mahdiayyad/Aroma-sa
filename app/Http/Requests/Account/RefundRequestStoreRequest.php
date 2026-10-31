@@ -34,8 +34,21 @@ class RefundRequestStoreRequest extends FormRequest
 
             $order = Order::find($this->input('order_id'));
 
-            if ($order && ! $order->isPaid()) {
-                $validator->errors()->add('order_id', __('refund.errors.order_not_paid'));
+            if (! $order || ! $order->isPaid()) {
+                if ($order) {
+                    $validator->errors()->add('order_id', __('refund.errors.order_not_paid'));
+                }
+
+                return;
+            }
+
+            // The 3-day return window starts at delivery, not at order date —
+            // an order that hasn't been marked delivered yet hasn't started
+            // its window at all.
+            if ($order->delivered_at === null) {
+                $validator->errors()->add('order_id', __('refund.errors.not_yet_delivered'));
+            } elseif ($order->delivered_at->lt(now()->subDays(3))) {
+                $validator->errors()->add('order_id', __('refund.errors.return_window_expired'));
             }
         });
     }

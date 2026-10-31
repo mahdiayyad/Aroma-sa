@@ -26,6 +26,7 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'shipping_fee_deducted_at' => 'datetime',
         // Gifting
         'is_gift' => 'boolean',
         'is_anonymous' => 'boolean',
@@ -101,6 +102,26 @@ class Order extends Model
     public function receipt(): HasOne
     {
         return $this->hasOne(PaymentReceipt::class);
+    }
+
+    /**
+     * The amount a refund on $payment should default to — the remaining
+     * captured amount, minus this order's Aramex shipping cost, but only the
+     * FIRST time: once shipping_fee_deducted_at is set (by the refund
+     * service once a refund actually completes), later partial refunds on
+     * the same order get the plain remaining amount, never deducted twice.
+     * The admin UI pre-fills this but the field stays editable — this is a
+     * suggestion, not an enforced amount.
+     */
+    public function suggestedRefundAmount(Payment $payment): float
+    {
+        $remaining = round((float) $payment->amount - (float) $payment->refunded_amount, 2);
+
+        if ($this->shipping_fee_deducted_at !== null || (float) $this->shipping_cost <= 0) {
+            return max(0.0, $remaining);
+        }
+
+        return max(0.0, round($remaining - (float) $this->shipping_cost, 2));
     }
 
     public function isPaid(): bool

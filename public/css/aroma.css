@@ -974,6 +974,12 @@ html[lang="ar"] .aroma-category-card-photo:hover .aroma-category-card-caption i 
   background: var(--aroma-white);
 }
 .aroma-footer-payment-chip svg { height: 0.95rem; width: auto; }
+/* mada's real mark is a wide lockup (viewBox 800x270, ~2.96:1) next to its
+   square 24x24 siblings — at the shared 0.95rem height its own true aspect
+   ratio (preserved correctly, nothing is stretched) renders it ~3x wider
+   than the others and its detailed wordmark illegible. A taller render
+   keeps proportions (width:auto) while making the mark legible. */
+.aroma-footer-payment-chip svg.aroma-payment-icon-mada { height: 1.2rem; }
 .aroma-footer-payment-chip .aroma-payment-chip { height: 1.15rem; padding: 0 0.4rem; }
 .aroma-footer-payment-chip .aroma-payment-chip-text { font-size: 0.62rem; }
 .aroma-footer .aroma-footer-brand {

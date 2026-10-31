@@ -19,8 +19,15 @@ class RefundRequestController extends Controller
 {
     public function create(Request $request): View
     {
+        // Only orders actually inside the 3-day-from-delivery return window are
+        // offered — RefundRequestStoreRequest::withValidator() is the
+        // authoritative server-side guard (a stale link/forged order_id still
+        // gets rejected there), this just keeps the dropdown honest so a
+        // customer doesn't pick an order only to be rejected after submitting.
         $orders = Order::where('user_id', $request->user()->id)
             ->whereIn('status', Order::PAID_STATUSES)
+            ->whereNotNull('delivered_at')
+            ->where('delivered_at', '>=', now()->subDays(3))
             ->latest()
             ->get();
 

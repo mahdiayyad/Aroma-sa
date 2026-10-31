@@ -94,10 +94,15 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label fw-semibold">{{ __('location.manual.country') }}</label>
-                <select class="form-select" disabled>
-                    <option selected>{{ __('location.manual.country_sa') }}</option>
+                @php($selectedCountry = old($errorKey('country'), $country ?: 'SA'))
+                <select name="{{ $fieldName('country') }}" class="form-select @error($errorKey('country')) is-invalid @enderror">
+                    @foreach (config('countries') as $code => $names)
+                        <option value="{{ $code }}" {{ $selectedCountry === $code ? 'selected' : '' }}>
+                            {{ $names[app()->getLocale()] ?? $names['en'] }}
+                        </option>
+                    @endforeach
                 </select>
-                <input type="hidden" name="{{ $fieldName('country') }}" value="{{ old($errorKey('country'), $country ?: 'SA') }}">
+                @error($errorKey('country'))<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-semibold">{{ __('location.manual.city') }}</label>

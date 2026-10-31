@@ -141,6 +141,33 @@ class CheckoutTest extends TestCase
             ->assertSessionHasErrors('billing_address.building_number');
     }
 
+    public function test_an_international_manual_address_does_not_require_district_or_building_number(): void
+    {
+        $this->seedCart();
+
+        $billing = $this->validManualBilling;
+        $billing['country'] = 'AE';
+        unset($billing['district'], $billing['building_number']);
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
+            ->assertRedirect(route('checkout.gift-options'))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('AE', session('checkout.shipping_address')['country']);
+    }
+
+    public function test_a_manual_saudi_address_still_requires_district_or_building_number_even_with_an_explicit_country(): void
+    {
+        $this->seedCart();
+
+        $billing = $this->validManualBilling;
+        $billing['country'] = 'SA';
+        unset($billing['building_number']);
+
+        $this->post(route('checkout.address.store'), ['billing_address' => $billing])
+            ->assertSessionHasErrors('billing_address.building_number');
+    }
+
     public function test_a_manual_shipping_address_is_validated_independently_of_billing(): void
     {
         $this->seedCart();

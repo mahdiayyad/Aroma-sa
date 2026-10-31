@@ -51,8 +51,7 @@ class AddressController extends Controller
             return back()->withErrors(['location_code' => __('location.errors.not_found')])->withInput();
         }
 
-        $isStub = (bool) ($data['is_stub'] ?? false);
-        unset($data['is_stub']); // no column on `addresses` — flash message is the only consumer
+        unset($data['is_stub']); // no column on `addresses` — never shown to the customer either
 
         if ($data['is_default'] || $user->addresses()->doesntExist()) {
             $this->clearDefault($user->id);
@@ -62,7 +61,7 @@ class AddressController extends Controller
         $user->addresses()->create($data);
 
         return redirect()->route('account.addresses.index')
-            ->with('status', __($isStub ? 'account.addresses.saved_stub' : 'account.addresses.saved'));
+            ->with('status', __('account.addresses.saved'));
     }
 
     public function edit(Address $address): View
@@ -82,8 +81,7 @@ class AddressController extends Controller
             return back()->withErrors(['location_code' => __('location.errors.not_found')])->withInput();
         }
 
-        $isStub = (bool) ($data['is_stub'] ?? false);
-        unset($data['is_stub']); // no column on `addresses` — flash message is the only consumer
+        unset($data['is_stub']); // no column on `addresses` — never shown to the customer either
 
         if ($data['is_default']) {
             $this->clearDefault($address->user_id);
@@ -92,7 +90,7 @@ class AddressController extends Controller
         $address->update($data);
 
         return redirect()->route('account.addresses.index')
-            ->with('status', __($isStub ? 'account.addresses.saved_stub' : 'account.addresses.saved'));
+            ->with('status', __('account.addresses.saved'));
     }
 
     public function destroy(Address $address): RedirectResponse

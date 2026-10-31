@@ -37,6 +37,25 @@ class AdminUiTest extends TestCase
         $this->get(route('admin.login'))->assertOk()->assertSee('Aroma');
     }
 
+    public function test_the_dashboard_offers_a_link_to_switch_locale(): void
+    {
+        // No prior session locale: SetLocale defaults to aroma.default_locale
+        // ("ar"), so the offered switch link is to the other one ("en").
+        $this->actingAs($this->admin())
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee(route('locale.switch', 'en'), false);
+    }
+
+    public function test_switching_locale_from_the_admin_panel_persists_and_returns(): void
+    {
+        $this->actingAs($this->admin())
+            ->get(route('locale.switch', 'ar'), ['referer' => route('admin.dashboard')])
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertSame('ar', session('locale'));
+    }
+
     public function test_guest_is_redirected_to_admin_login(): void
     {
         $this->get('/admin')->assertRedirect(route('admin.login'));

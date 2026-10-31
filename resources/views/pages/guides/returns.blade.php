@@ -12,23 +12,24 @@
 
     // Every fact below is decomposed directly from privacy-policy.blade.php's
     // 'returns' and 'complaints' accordion sections — reorganized for
-    // scannability, never reworded into a new claim. No day-count return
-    // window is stated anywhere in the app, so none is invented here either.
+    // scannability, never reworded into a new claim. The return window is
+    // 3 days from the delivery date, enforced in
+    // RefundRequestStoreRequest::withValidator().
     $steps = $isAr ? [
-        ['bi-chat-dots', 'تواصلي معنا', 'راسلينا عبر واتساب خلال فترة الإرجاع الموضحة عند إتمام الطلب.'],
+        ['bi-chat-dots', 'تواصلي معنا', 'راسلينا عبر واتساب خلال 3 أيام من تاريخ استلام الطلب.'],
         ['bi-box-seam', 'جهّزي القطعة', 'احتفظي بالمنتج بحالته الأصلية غير المستخدمة، وبتغليفه الأصلي.'],
         ['bi-clock-history', 'نستلم ونراجع', 'فريقنا يرد خلال 24 ساعة، ويقوم بمراجعة القطعة المرتجعة عند استلامها.'],
         ['bi-arrow-repeat', 'استرداد المبلغ', 'يُعاد المبلغ إلى وسيلة الدفع الأصلية بعد التحقق من حالة المنتج، بعد خصم رسوم المعالجة.'],
     ] : [
-        ['bi-chat-dots', 'Contact us', 'Message us on WhatsApp or email within the return period stated at checkout.'],
+        ['bi-chat-dots', 'Contact us', 'Message us on WhatsApp or email within 3 days of receiving your order.'],
         ['bi-box-seam', 'Pack it up', "Keep the item in its original, unused condition, with its original packaging."],
         ['bi-clock-history', 'We review it', "We acknowledge every message within 24 hours, and review the item once we receive it."],
         ['bi-arrow-repeat', 'Refund issued', "Refunded to your original payment method once it's received and inspected, minus the handling fee."],
     ];
 
     $eligible = $isAr
-        ? ['منتجات بحالتها الأصلية غير المستخدمة', 'مع الاحتفاظ بالتغليف الأصلي', 'خلال فترة الإرجاع الموضحة عند إتمام الطلب']
-        : ['Items in original, unused condition', 'With original packaging kept', 'Within the return period stated at checkout'];
+        ? ['منتجات بحالتها الأصلية غير المستخدمة', 'مع الاحتفاظ بالتغليف الأصلي', 'خلال 3 أيام من تاريخ استلام الطلب']
+        : ['Items in original, unused condition', 'With original packaging kept', 'Within 3 days of receiving your order'];
 
     $notEligible = $isAr
         ? ['المنتجات القابلة للتلف (كالزهور الطبيعية)', 'المنتجات المخصصة أو المُصنّعة حسب الطلب']

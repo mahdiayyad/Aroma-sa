@@ -54,17 +54,29 @@ class AddressRequest extends FormRequest
             // required_if: ConvertEmptyStringsToNull turns an omitted field
             // into null, and without 'nullable' the 'string' rule would fail
             // on that null instead of being skipped when method isn't manual.
+            // district/building_number are Saudi National Address concepts,
+            // not universal — only required for a manual SA address.
             'country'          => ['required_if:method,manual', 'nullable', 'string', 'size:2'],
             'city'             => ['required_if:method,manual', 'nullable', 'string', 'max:100'],
-            'district'         => ['required_if:method,manual', 'nullable', 'string', 'max:100'],
+            'district'         => [Rule::requiredIf(fn () => $this->isManualSaudiAddress()), 'nullable', 'string', 'max:100'],
             'street_address'   => ['required_if:method,manual', 'nullable', 'string', 'max:255'],
-            'building_number'  => ['required_if:method,manual', 'nullable', 'string', 'max:20'],
+            'building_number'  => [Rule::requiredIf(fn () => $this->isManualSaudiAddress()), 'nullable', 'string', 'max:20'],
             'apartment_number' => ['nullable', 'string', 'max:20'],
             'postal_code'      => ['nullable', 'string', 'max:10'],
             'additional_notes' => ['nullable', 'string', 'max:500'],
 
             'is_default'      => ['boolean'],
         ];
+    }
+
+    /** True when the address is manual AND its country is Saudi Arabia (or left unset, defaulting to SA). */
+    private function isManualSaudiAddress(): bool
+    {
+        if ($this->input('method') !== Address::METHOD_MANUAL) {
+            return false;
+        }
+
+        return strtoupper((string) ($this->input('country') ?: 'SA')) === 'SA';
     }
 
     public function withValidator(Validator $validator): void
@@ -94,17 +106,25 @@ class AddressRequest extends FormRequest
      */
     public function messages(): array
     {
-        $labels = [
+        $requiredIfLabels = [
             'country' => __('location.manual.country'),
             'city' => __('location.manual.city'),
-            'district' => __('location.manual.district'),
             'street_address' => __('location.manual.street'),
+        ];
+        // district/building_number use Rule::requiredIf() (a Saudi-only
+        // condition), which resolves to the "required" rule name, not
+        // "required_if".
+        $requiredLabels = [
+            'district' => __('location.manual.district'),
             'building_number' => __('location.manual.building_number'),
         ];
 
         $messages = [];
-        foreach ($labels as $field => $label) {
+        foreach ($requiredIfLabels as $field => $label) {
             $messages["{$field}.required_if"] = __('validation.required', ['attribute' => $label]);
+        }
+        foreach ($requiredLabels as $field => $label) {
+            $messages["{$field}.required"] = __('validation.required', ['attribute' => $label]);
         }
 
         return $messages;

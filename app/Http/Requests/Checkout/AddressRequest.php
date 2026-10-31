@@ -56,12 +56,15 @@ class AddressRequest extends FormRequest
             'billing_address.latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'billing_address.longitude' => ['nullable', 'numeric', 'between:-180,180'],
 
-            // Full Address (method=manual) fields.
+            // Full Address (method=manual) fields. district/building_number
+            // are Saudi National Address concepts, not universal — only
+            // required for a manual SA address; an international one only
+            // needs country/city/street (see AddressResolver::resolveManual()).
             'billing_address.country' => ['required_if:billing_address.method,manual', 'nullable', 'string', 'size:2'],
             'billing_address.city' => ['required_if:billing_address.method,manual', 'nullable', 'string', 'max:100'],
-            'billing_address.district' => ['required_if:billing_address.method,manual', 'nullable', 'string', 'max:100'],
+            'billing_address.district' => [Rule::requiredIf(fn () => $this->isManualSaudiAddress('billing_address')), 'nullable', 'string', 'max:100'],
             'billing_address.street_address' => ['required_if:billing_address.method,manual', 'nullable', 'string', 'max:255'],
-            'billing_address.building_number' => ['required_if:billing_address.method,manual', 'nullable', 'string', 'max:20'],
+            'billing_address.building_number' => [Rule::requiredIf(fn () => $this->isManualSaudiAddress('billing_address')), 'nullable', 'string', 'max:20'],
             'billing_address.apartment_number' => ['nullable', 'string', 'max:20'],
             'billing_address.postal_code' => ['nullable', 'string', 'max:10'],
             'billing_address.additional_notes' => ['nullable', 'string', 'max:500'],
@@ -77,9 +80,9 @@ class AddressRequest extends FormRequest
 
             'shipping_address.country' => ['required_if:shipping_address.method,manual', 'nullable', 'string', 'size:2'],
             'shipping_address.city' => ['required_if:shipping_address.method,manual', 'nullable', 'string', 'max:100'],
-            'shipping_address.district' => ['required_if:shipping_address.method,manual', 'nullable', 'string', 'max:100'],
+            'shipping_address.district' => [Rule::requiredIf(fn () => $this->isManualSaudiAddress('shipping_address')), 'nullable', 'string', 'max:100'],
             'shipping_address.street_address' => ['required_if:shipping_address.method,manual', 'nullable', 'string', 'max:255'],
-            'shipping_address.building_number' => ['required_if:shipping_address.method,manual', 'nullable', 'string', 'max:20'],
+            'shipping_address.building_number' => [Rule::requiredIf(fn () => $this->isManualSaudiAddress('shipping_address')), 'nullable', 'string', 'max:20'],
             'shipping_address.apartment_number' => ['nullable', 'string', 'max:20'],
             'shipping_address.postal_code' => ['nullable', 'string', 'max:10'],
             'shipping_address.additional_notes' => ['nullable', 'string', 'max:500'],
@@ -100,6 +103,16 @@ class AddressRequest extends FormRequest
             $sameAsBilling = $this->has('use_shipping_for_billing') ? $this->boolean('use_shipping_for_billing') : true;
             $this->requireOneLocationMethod($validator, 'shipping_address', ! $sameAsBilling);
         });
+    }
+
+    /** True when $prefix is a manual address AND its country is Saudi Arabia (or left unset, defaulting to SA). */
+    private function isManualSaudiAddress(string $prefix): bool
+    {
+        if ($this->input("{$prefix}.method") !== Address::METHOD_MANUAL) {
+            return false;
+        }
+
+        return strtoupper((string) ($this->input("{$prefix}.country") ?: 'SA')) === 'SA';
     }
 
     private function requireOneLocationMethod(Validator $validator, string $prefix, bool $required): void
@@ -133,16 +146,24 @@ class AddressRequest extends FormRequest
         // Laravel's default required_if template ("...required when :other
         // is :value") would otherwise surface the raw internal field name
         // ("billing address.method") and enum value ("manual") verbatim.
-        $labels = [
+        $requiredIfLabels = [
             'country' => __('location.manual.country'),
             'city' => __('location.manual.city'),
-            'district' => __('location.manual.district'),
             'street_address' => __('location.manual.street'),
+        ];
+        // district/building_number use Rule::requiredIf() (a Saudi-only
+        // condition, not a plain method===manual check), which resolves to
+        // the "required" rule name, not "required_if".
+        $requiredLabels = [
+            'district' => __('location.manual.district'),
             'building_number' => __('location.manual.building_number'),
         ];
         foreach (['billing_address', 'shipping_address'] as $prefix) {
-            foreach ($labels as $field => $label) {
+            foreach ($requiredIfLabels as $field => $label) {
                 $messages["{$prefix}.{$field}.required_if"] = __('validation.required', ['attribute' => $label]);
+            }
+            foreach ($requiredLabels as $field => $label) {
+                $messages["{$prefix}.{$field}.required"] = __('validation.required', ['attribute' => $label]);
             }
         }
 

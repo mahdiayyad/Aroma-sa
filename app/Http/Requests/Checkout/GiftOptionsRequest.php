@@ -85,9 +85,11 @@ class GiftOptionsRequest extends FormRequest
             // gift at all.
             'recipient.country'          => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'size:2'],
             'recipient.city'             => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:100'],
-            'recipient.district'         => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:100'],
+            // district/building_number are Saudi National Address concepts,
+            // not universal — only required for a manual SA recipient address.
+            'recipient.district'         => [Rule::requiredIf($this->isManualSaudiGiftAddress($isGift)), 'nullable', 'string', 'max:100'],
             'recipient.street_address'   => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:255'],
-            'recipient.building_number'  => [Rule::requiredIf($isGift && $this->input('recipient.method') === Address::METHOD_MANUAL), 'nullable', 'string', 'max:20'],
+            'recipient.building_number'  => [Rule::requiredIf($this->isManualSaudiGiftAddress($isGift)), 'nullable', 'string', 'max:20'],
             'recipient.apartment_number' => ['nullable', 'string', 'max:20'],
             'recipient.postal_code'      => ['nullable', 'string', 'max:10'],
             'recipient.additional_notes' => ['nullable', 'string', 'max:500'],
@@ -108,6 +110,16 @@ class GiftOptionsRequest extends FormRequest
             'gift_media_url'     => ['nullable', 'url', 'max:500'],
             'gift_signature_data' => ['nullable', 'string', 'starts_with:data:image/png;base64,'],
         ];
+    }
+
+    /** True when it's a gift, the recipient address is manual, AND its country is Saudi Arabia (or left unset, defaulting to SA). */
+    private function isManualSaudiGiftAddress(bool $isGift): bool
+    {
+        if (! $isGift || $this->input('recipient.method') !== Address::METHOD_MANUAL) {
+            return false;
+        }
+
+        return strtoupper((string) ($this->input('recipient.country') ?: 'SA')) === 'SA';
     }
 
     public function withValidator(Validator $validator): void

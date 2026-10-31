@@ -194,7 +194,9 @@
                                        value="standard" {{ old('shipping_method', 'standard') === 'standard' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="shipping-standard">
                                     <strong>{{ __('checkout.shipping_methods.standard') }}</strong>
-                                    <div class="small text-aroma-muted">{{ __('checkout.shipping_days.standard') }}</div>
+                                    @if ($isInternational)
+                                        <div class="small text-aroma-muted">{{ __('checkout.shipping_days.international') }}</div>
+                                    @endif
                                 </label>
                             </div>
                         </div>

@@ -209,6 +209,15 @@ html.is-safari[lang="ar"] .admin-body { font-family: "IBM Plex Sans Arabic", "Ta
   padding: .1rem .3rem; border-radius: 3px;
   background: rgba(255,255,255,.92); color: var(--admin-brand);
 }
+.admin-image-make-primary {
+  position: absolute; inset-inline: 4px; bottom: 4px;
+  width: calc(100% - 8px); text-align: center; font-size: .7rem;
+  padding: .1rem .3rem; border: none; border-radius: 3px;
+  background: rgba(255,255,255,.92); color: var(--admin-brand);
+  cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  transition: filter var(--admin-transition, .15s ease);
+}
+.admin-image-make-primary:hover { filter: brightness(.95); }
 .admin-image-remove {
   position: absolute; top: -7px; inset-inline-end: -7px;
   width: 22px; height: 22px; padding: 0; border-radius: 999px;

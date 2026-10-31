@@ -95,7 +95,7 @@ class CheckoutController extends Controller
         }
 
         $rows = $this->cart->rows();
-        $totals = $this->checkout->calculateTotals();
+        $totals = $this->checkout->calculateTotals(session('checkout.shipping_address'));
 
         return view('checkout.review', [
             'items' => $rows,
@@ -426,7 +426,7 @@ class CheckoutController extends Controller
      */
     private function totalsWithGiftExtras(): array
     {
-        $totals = $this->checkout->calculateTotals();
+        $totals = $this->checkout->calculateTotals(session('checkout.shipping_address'));
         $totals['gift_wrap_fee'] = (float) session('checkout.gift.wrap_fee', 0);
         $totals['greeting_card_fee'] = (float) session('checkout.gift.card_fee', 0);
         $totals['total_amount'] += $totals['gift_wrap_fee'] + $totals['greeting_card_fee'];
@@ -494,6 +494,10 @@ class CheckoutController extends Controller
             // Tamara's pre-checkout eligibility for this customer + amount;
             // false greys the option out (fail-open on any doubt).
             'tamaraEligible' => $this->tamaraEligible((float) $totals['total_amount'], $emailPrefill),
+            // No specific duration is shown for domestic — only an estimate
+            // for international, which is actually meaningful at 20 business
+            // days vs. Aramex's usual few-day domestic delivery.
+            'isInternational' => strtoupper((string) session('checkout.shipping_address.country', 'SA')) !== 'SA',
         ]);
     }
 

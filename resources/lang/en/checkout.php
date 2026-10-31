@@ -124,7 +124,9 @@ return [
         'standard' => 'Standard Shipping',
     ],
     'shipping_days' => [
-        'standard' => '3-5 business days',
+        // Domestic deliberately shows no duration — Aramex can't commit to
+        // one, and an estimate here has previously been inaccurate.
+        'international' => 'Delivery within 20 business days',
     ],
     'saved_addresses' => 'Saved Addresses',
 
