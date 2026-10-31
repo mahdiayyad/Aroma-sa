@@ -243,6 +243,25 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   box-shadow: 0 0 0 3px rgba(201, 179, 154, 0.5);
 }
 
+/* Desktop hover-magnify pane (public/js/product-zoom.js sets background-image
+   and background-position on mousemove; nothing here touches #galleryMainImg
+   itself, so the existing slide-transition script above is untouched).
+   Hidden entirely on touch devices — they get the lightbox's pinch/double-tap
+   zoom instead (see .aroma-lightbox-stage below). */
+.aroma-gallery-zoom-pane {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: 200%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+.aroma-gallery-main.is-zooming .aroma-gallery-zoom-pane { opacity: 1; }
+@media (hover: none), (pointer: coarse) {
+  .aroma-gallery-zoom-pane { display: none; }
+}
+
 /* Caption — currently always empty/hidden (.is-empty below): it only ever
    had content for the packaging/thank-you-card shots the gallery used to
    append after a product's own photos, which no longer happens (gallery is
@@ -369,6 +388,12 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
      order under RTL, which left the chevrons pointing the wrong way once
      the buttons swapped sides. Same fix as .aroma-topbar-line. */
   direction: ltr;
+  /* Mobile pinch/double-tap zoom (public/js/product-zoom.js) scales #lightboxImg
+     via CSS transform — this clips it to the stage instead of spilling past
+     the modal, and hands touch-gesture handling to the JS instead of fighting
+     the browser's own native viewport pinch-zoom. */
+  overflow: hidden;
+  touch-action: none;
 }
 .aroma-lightbox-stage img {
   max-width: 100%;
@@ -377,6 +402,7 @@ html[lang="ar"] .aroma-product-title { font-family: var(--aroma-heading-ar); fon
   height: auto;
   object-fit: contain;
   border-radius: var(--aroma-radius-sm);
+  transition: transform 0.15s ease;
 }
 .aroma-lightbox-close {
   position: absolute;
