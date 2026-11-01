@@ -213,6 +213,7 @@ class CheckoutService extends BaseService
                 'promo_code' => $promoCodeText,
                 'tax_amount' => $totals['tax_amount'],
                 'shipping_cost' => $totals['shipping_cost'],
+                'shipping_method' => 'aramex',
                 'total_amount' => $totals['total_amount'],
                 'customer_notes' => $details['customer_notes'] ?? null,
 
