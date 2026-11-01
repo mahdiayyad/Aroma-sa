@@ -38,6 +38,13 @@
                         <span class="aroma-badge-discount">-{{ $product->discountPercent() }}%</span>
                     @endif
                     <img id="galleryMainImg" src="{{ $first['url'] }}" alt="{{ $first['alt'] }}">
+                    {{-- Desktop hover-magnify pane (public/js/product-zoom.js) — sits
+                         between the image and the caption/button in DOM order so it
+                         naturally paints above the image but below both without any
+                         z-index needed. Reads the main image's src fresh on every
+                         mousemove, so it stays in sync across thumbnail switches with
+                         no changes to the slide-transition script above. --}}
+                    <div class="aroma-gallery-zoom-pane" id="galleryZoomPane" aria-hidden="true"></div>
                     <figcaption class="aroma-gallery-caption {{ $first['label'] === '' ? 'is-empty' : '' }}" id="galleryCaption">{{ $first['label'] }}</figcaption>
                     {{-- Maximize — opens the same image full-size and uncropped
                          (object-fit:contain, unlike this cover-cropped main
@@ -500,5 +507,6 @@
     })();
 </script>
 <script src="{{ \App\Support\Assets::versioned('js/reviews.js') }}"></script>
+<script src="{{ \App\Support\Assets::versioned('js/product-zoom.js') }}"></script>
 @endpush
 @endsection

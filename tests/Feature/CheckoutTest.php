@@ -230,6 +230,46 @@ class CheckoutTest extends TestCase
             ->assertSee(__('checkout.agree_terms_link')); // ...via a real, translated label
     }
 
+    public function test_payment_page_offers_aramex_as_the_only_shipping_method(): void
+    {
+        $this->seedCart();
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
+        $this->completeGiftStep();
+
+        foreach (['en', 'ar'] as $locale) {
+            $this->withSession(['locale' => $locale])->get(route('checkout.payment'))
+                ->assertOk()
+                ->assertSee('value="aramex"', false)
+                ->assertDontSee('value="standard"', false);
+        }
+
+        $this->assertSame('أرامكس', trans('checkout.shipping_methods.aramex', [], 'ar'));
+        $this->assertSame('Aramex', trans('checkout.shipping_methods.aramex', [], 'en'));
+        // The old label is gone (an unknown key comes back as the key itself).
+        $this->assertSame('checkout.shipping_methods.standard', trans('checkout.shipping_methods.standard', [], 'ar'));
+    }
+
+    public function test_an_order_records_aramex_as_its_shipping_method(): void
+    {
+        config(['services.moyasar.secret_key' => 'sk_test']);
+        Http::fake([
+            'api.moyasar.com/*' => Http::response([
+                'id' => 'inv_123', 'url' => 'https://moyasar.test/pay/inv_123', 'token' => 'tok_123',
+            ], 200),
+        ]);
+
+        $this->seedCart(1);
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
+        $this->completeGiftStep();
+
+        $this->post(route('checkout.payment.store'), [
+            'gateway' => 'moyasar', 'method' => 'mada', 'shipping_method' => 'aramex',
+            'terms_accepted' => '1', 'email' => 'sara@example.com',
+        ])->assertRedirect('https://moyasar.test/pay/inv_123');
+
+        $this->assertSame('aramex', Order::first()->shipping_method);
+    }
+
     public function test_the_terms_page_itself_still_renders_standalone(): void
     {
         // The footer links here directly — a legitimate "leave checkout to

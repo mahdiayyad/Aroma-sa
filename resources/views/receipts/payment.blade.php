@@ -126,7 +126,7 @@
                 @endforeach
                 <br>
                 <div class="label">{{ __('receipts.shipping') }}</div>
-                {{ in_array($order->shipping_method, [null, '', 'standard'], true) ? __('receipts.shipping_standard') : ucfirst((string) $order->shipping_method) }}
+                {{ in_array($order->shipping_method, [null, '', 'standard'], true) ? __('receipts.shipping_standard') : ($order->shipping_method === 'aramex' ? __('checkout.shipping_methods.aramex') : ucfirst((string) $order->shipping_method)) }}
             </td>
             <td class="cell" style="width: 62%;">
                 <table class="items">

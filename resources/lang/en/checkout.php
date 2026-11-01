@@ -121,7 +121,7 @@ return [
     'placeholder' => 'Payment form for :gateway will be shown here',
     'payment_gateway_placeholder' => 'Payment form placeholder',
     'shipping_methods' => [
-        'standard' => 'Standard Shipping',
+        'aramex' => 'Aramex',
     ],
     'shipping_days' => [
         // Domestic deliberately shows no duration — Aramex can't commit to
