@@ -119,7 +119,7 @@ return [
     'placeholder' => 'نموذج الدفع لـ :gateway سيتم عرضه هنا',
     'payment_gateway_placeholder' => 'نموذج الدفع',
     'shipping_methods' => [
-        'standard' => 'الشحن العادي',
+        'aramex' => 'أرامكس',
     ],
     'shipping_days' => [
         // Domestic deliberately shows no duration — Aramex can't commit to

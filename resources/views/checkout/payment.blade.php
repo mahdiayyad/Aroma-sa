@@ -190,10 +190,10 @@
 
                         <div class="d-flex gap-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="shipping_method" id="shipping-standard"
-                                       value="standard" {{ old('shipping_method', 'standard') === 'standard' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="shipping-standard">
-                                    <strong>{{ __('checkout.shipping_methods.standard') }}</strong>
+                                <input class="form-check-input" type="radio" name="shipping_method" id="shipping-aramex"
+                                       value="aramex" checked>
+                                <label class="form-check-label" for="shipping-aramex">
+                                    <strong>{{ __('checkout.shipping_methods.aramex') }}</strong>
                                     @if ($isInternational)
                                         <div class="small text-aroma-muted">{{ __('checkout.shipping_days.international') }}</div>
                                     @endif
