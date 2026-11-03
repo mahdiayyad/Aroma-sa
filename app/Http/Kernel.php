@@ -59,6 +59,7 @@ class Kernel extends HttpKernel
      */
     protected $routeMiddleware = [
         'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
+        'admin.password_current' => \App\Http\Middleware\EnsureAdminPasswordIsCurrent::class,
         'not_admin' => \App\Http\Middleware\BlockAdminShopping::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,

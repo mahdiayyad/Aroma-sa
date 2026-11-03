@@ -46,15 +46,18 @@ class MakeAdminCommand extends Command
         }
 
         User::create([
-            'name'              => $this->option('name'),
-            'email'             => $email,
-            'password'          => Hash::make($password),
-            'email_verified_at' => now(),
-            'is_active'         => true,
-            'role'              => $role,
+            'name'                 => $this->option('name'),
+            'email'                => $email,
+            'password'             => Hash::make($password),
+            'email_verified_at'    => now(),
+            'is_active'            => true,
+            'role'                 => $role,
+            // A password only I set and relay to them is a shared secret
+            // until they pick their own — force that on first login.
+            'must_change_password' => true,
         ]);
 
-        $this->info("Created new {$role}: {$email}");
+        $this->info("Created new {$role}: {$email} (must change password on first login)");
 
         return self::SUCCESS;
     }
