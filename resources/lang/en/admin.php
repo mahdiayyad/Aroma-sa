@@ -31,6 +31,19 @@ return [
         'submit'   => 'Sign in',
     ],
 
+    'change_password' => [
+        'title'            => 'Change password',
+        'nav_label'        => 'Change password',
+        'subtitle'         => 'Change your password',
+        'forced_subtitle'  => 'Set your own password to continue',
+        'current'          => 'Current password',
+        'new'              => 'New password',
+        'confirm'          => 'Confirm new password',
+        'submit'           => 'Update password',
+        'wrong_current'    => 'Your current password is incorrect.',
+        'changed'          => 'Password updated.',
+    ],
+
     'common' => [
         'create'  => 'Create',
         'edit'    => 'Edit',

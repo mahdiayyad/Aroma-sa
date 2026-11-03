@@ -41,6 +41,10 @@ class User extends Authenticatable
         // either field, so this doesn't widen what a shopper can self-set.
         'is_active',
         'loyalty_points',
+        // Set only by aroma:make-admin (on first creation) and the admin
+        // force-password flow (Admin\Auth\ForcePasswordController) — never
+        // written from a customer-facing request.
+        'must_change_password',
     ];
 
     public const ROLE_CUSTOMER = 'customer';
@@ -58,6 +62,7 @@ class User extends Authenticatable
         'dob'               => 'date',
         'loyalty_points'    => 'integer',
         'is_active'         => 'boolean',
+        'must_change_password' => 'boolean',
     ];
 
     /* Relationships ------------------------------------------------------- */

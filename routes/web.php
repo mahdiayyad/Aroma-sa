@@ -9,6 +9,7 @@ use App\Http\Controllers\Account\PhoneChangeController;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\ReferralController;
 use App\Http\Controllers\Account\RefundRequestController;
+use App\Http\Controllers\Admin\Auth\ForcePasswordController as AdminForcePasswordController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
@@ -253,6 +254,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('logout', [AdminLoginController::class, 'logout'])->name('logout');
 
     Route::middleware(['auth', 'admin'])->group(function () {
+        // Reachable even while must_change_password is set — see
+        // EnsureAdminPasswordIsCurrent, which wraps everything below instead.
+        Route::get('password/change', [AdminForcePasswordController::class, 'show'])->name('password.change');
+        Route::put('password/change', [AdminForcePasswordController::class, 'update'])->name('password.update');
+    });
+
+    Route::middleware(['auth', 'admin', 'admin.password_current'])->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         // "View store" (sidebar/topbar): opens the storefront in a new tab without

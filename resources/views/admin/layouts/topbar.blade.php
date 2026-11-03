@@ -40,6 +40,11 @@
                     </a>
                 </li>
                 <li>
+                    <a class="dropdown-item" href="{{ route('admin.password.change') }}">
+                        <i class="bi bi-shield-lock me-2"></i>{{ __('admin.change_password.nav_label') }}
+                    </a>
+                </li>
+                <li>
                     <form method="post" action="{{ route('admin.logout') }}">
                         @csrf
                         <button type="submit" class="dropdown-item text-danger">
