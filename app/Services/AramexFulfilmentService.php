@@ -34,6 +34,9 @@ class AramexFulfilmentService
 
     private const QUOTE_CACHE_MINUTES = 10;
 
+    /** A failed quote is remembered briefly so a down carrier costs one wait, not one per checkout step. */
+    private const QUOTE_FAILURE_CACHE_MINUTES = 2;
+
     private const MAX_HISTORY = 200;
 
     /** @var AramexService */
@@ -87,9 +90,9 @@ class AramexFulfilmentService
             'payment_type' => AramexService::PAYMENT_PREPAID,
         ]);
 
-        if ($result['success']) {
-            Cache::put($key, $result, now()->addMinutes(self::QUOTE_CACHE_MINUTES));
-        }
+        Cache::put($key, $result, now()->addMinutes(
+            $result['success'] ? self::QUOTE_CACHE_MINUTES : self::QUOTE_FAILURE_CACHE_MINUTES
+        ));
 
         return $result;
     }

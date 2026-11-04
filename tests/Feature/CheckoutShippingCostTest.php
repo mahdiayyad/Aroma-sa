@@ -7,6 +7,7 @@ namespace Tests\Feature;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\MocksLocationLookup;
 use Tests\TestCase;
@@ -108,6 +109,31 @@ class CheckoutShippingCostTest extends TestCase
 
         $order = $this->placeOrder();
 
+        $this->assertEquals(19.0, (float) $order->shipping_cost);
+    }
+
+    public function test_a_down_carrier_is_asked_once_not_on_every_checkout_step(): void
+    {
+        // Each step that shows totals re-quotes the cart. When Aramex hangs,
+        // that used to cost a full timeout per step; a failed quote is now
+        // remembered briefly, and the flat rate covers it meanwhile.
+        config(['aroma.shipping.domestic_flat_rate' => 19.0]);
+        $calls = 0;
+        Http::fake(['*/CalculateRate' => function () use (&$calls) {
+            $calls++;
+
+            throw new ConnectionException('Connection timed out after 5000 milliseconds');
+        }]);
+
+        $this->seedCart(1);
+        $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
+        $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
+
+        $this->get(route('checkout.order-review'))->assertOk();
+        $this->get(route('checkout.payment'))->assertOk();
+        $order = $this->placeOrder();
+
+        $this->assertSame(1, $calls);
         $this->assertEquals(19.0, (float) $order->shipping_cost);
     }
 

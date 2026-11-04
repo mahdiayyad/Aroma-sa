@@ -78,6 +78,11 @@ return [
         'version'              => env('ARAMEX_API_VERSION', 'v1.0'),
         'source'               => (int) env('ARAMEX_SOURCE', 0),
         'timeout'              => (int) env('ARAMEX_TIMEOUT', 25),
+        // Checkout waits on the shopper's screen, so its rate quote gets a
+        // much tighter limit than shipment creation; the flat rate covers it.
+        'quote_timeout'        => (int) env('ARAMEX_QUOTE_TIMEOUT', 6),
+        // Give up on an unreachable host quickly instead of waiting out `timeout`.
+        'connect_timeout'      => (int) env('ARAMEX_CONNECT_TIMEOUT', 5),
         'currency'             => env('ARAMEX_CURRENCY', 'SAR'),
 
         // Shared secret Aramex must send (X-Aramex-Token header or ?token=)
