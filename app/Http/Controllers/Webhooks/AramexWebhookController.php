@@ -15,15 +15,15 @@ use Throwable;
 /**
  * Aramex push tracking updates (server-to-server).
  *
- * Authentication: the shared ARAMEX_WEBHOOK_SECRET, sent as the
- * X-Aramex-Token header, a Bearer token, or ?token=. With no secret
- * configured every request is rejected.
+ * Authentication: the shared ARAMEX_WEBHOOK_SECRET, sent as the x-api-key
+ * header (Aramex's WebHook API spec), X-Aramex-Token, a Bearer token, or
+ * ?token=. With no secret configured every request is rejected.
  *
- * Payload: Aramex configures push notifications per account, so the field
- * names of its tracking API are accepted in any letter case — WaybillNumber
- * (or AWB / ShipmentNumber), UpdateCode, UpdateDescription, UpdateDateTime,
- * UpdateLocation, Comments — as a single update, a list of updates, or a
- * TrackingResults [{Key, Value: [...]}] wrapper.
+ * Payload: Aramex's spec is {"Key": "<AWB>", "Value": {WaybillNumber,
+ * UpdateCode, UpdateDateTime, UpdateLocation, Comments, ProblemCode,
+ * OrderNumber}}. Field names are matched in any letter case, and a list of
+ * those, a bare update, or a TrackingResults [{Key, Value: [...]}] wrapper
+ * are accepted too.
  *
  * Once authenticated it always answers 200, like the payment webhooks: a
  * non-2xx only triggers redelivery, and failures are already logged.
@@ -106,7 +106,10 @@ class AramexWebhookController extends Controller
     private function authenticated(Request $request): bool
     {
         $secret = (string) config('services.aramex.webhook_secret', '');
-        $token = (string) ($request->header('X-Aramex-Token') ?: $request->bearerToken() ?: $request->query('token', ''));
+        $token = (string) ($request->header('x-api-key')
+            ?: $request->header('X-Aramex-Token')
+            ?: $request->bearerToken()
+            ?: $request->query('token', ''));
 
         return $secret !== '' && $token !== '' && hash_equals($secret, $token);
     }
@@ -122,14 +125,8 @@ class AramexWebhookController extends Controller
 
         if (is_array($tracking)) {
             foreach ($tracking as $result) {
-                if (! is_array($result)) {
-                    continue;
-                }
-                $key = $this->text($this->value($result, ['key']));
-                foreach ((array) $this->value($result, ['value']) as $update) {
-                    if (is_array($update)) {
-                        $this->collect($byAwb, $update, $key);
-                    }
+                if (is_array($result)) {
+                    $this->collectKeyValue($byAwb, $result);
                 }
             }
 
@@ -144,12 +141,37 @@ class AramexWebhookController extends Controller
         }
 
         foreach ($updates as $update) {
-            if (is_array($update)) {
+            if (! is_array($update)) {
+                continue;
+            }
+            if (is_array($this->value($update, ['value']))) {
+                $this->collectKeyValue($byAwb, $update);
+            } else {
                 $this->collect($byAwb, $update, null);
             }
         }
 
         return $byAwb;
+    }
+
+    /**
+     * {Key: AWB, Value: update} as Aramex pushes it, or {Key, Value: [updates]}
+     * as TrackShipments returns it.
+     *
+     * @param array<string,array<int,array<string,?string>>> $byAwb
+     * @param array<mixed> $result
+     */
+    private function collectKeyValue(array &$byAwb, array $result): void
+    {
+        $key = $this->text($this->value($result, ['key']));
+        $value = (array) $this->value($result, ['value']);
+        $updates = $this->isList($value) ? $value : [$value];
+
+        foreach ($updates as $update) {
+            if (is_array($update)) {
+                $this->collect($byAwb, $update, $key);
+            }
+        }
     }
 
     /**

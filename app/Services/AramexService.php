@@ -131,7 +131,9 @@ class AramexService
      *        consignee: name, phone, email?, line1, line2?, line3?, city, country_code, post_code?, state?
      *        weight_kg (> 0), pieces (default 1), description?, customs_value? (international only),
      *        payment_type ('P' | 'C', default 'P'), product_group?, product_type?,
-     *        shipping_date? (CarbonInterface, default now)
+     *        shipping_date? (CarbonInterface, default now),
+     *        address_short_code? (Saudi National Address short code, Saudi consignees only),
+     *        items? list of reference, description, quantity, weight_kg, customs_value?, mpid?
      *
      * @return array{success:bool,awb?:string,product_group?:string,product_type?:string,label_url?:string|null,label_pdf?:string|null,errors?:array<int,string>}
      */
@@ -193,7 +195,8 @@ class AramexService
             'ProductType' => $product['type'],
             'PaymentType' => $paymentType,
             'PaymentOptions' => $paymentType === self::PAYMENT_PREPAID ? ($this->config['payment_options'] ?? null) : null,
-            'Items' => [],
+            'Items' => $this->items((array) ($orderData['items'] ?? []), $currency),
+            'AdditionalProperties' => $this->additionalProperties($orderData, $consignee),
         ]);
 
         if ($product['group'] === 'EXP' && is_numeric($orderData['customs_value'] ?? null)) {
@@ -581,6 +584,75 @@ class AramexService
             'AdditionalProperties' => null,
             'ContainsDangerousGoods' => false,
         ], $values);
+    }
+
+    /**
+     * The Saudi National Address goes once per shipment, as an extra property
+     * alongside (never instead of) City / StateOrProvinceCode / PostCode.
+     * Aramex wants exactly 8 uppercase letters/digits with no spaces.
+     *
+     * @param array<string,mixed> $orderData
+     * @param array<string,mixed> $consignee
+     * @return array<int,array<string,string>>|null
+     */
+    private function additionalProperties(array $orderData, array $consignee): ?array
+    {
+        $code = strtoupper((string) preg_replace('/\s+/', '', (string) ($orderData['address_short_code'] ?? '')));
+
+        if (strtoupper((string) ($consignee['country_code'] ?? '')) !== 'SA' || preg_match('/^[A-Z0-9]{8}$/', $code) !== 1) {
+            return null;
+        }
+
+        return [[
+            'CategoryName' => 'ShipmentProfile',
+            'Name' => 'AddressShortCode',
+            'Value' => $code,
+        ]];
+    }
+
+    /**
+     * Item lines with the full member set from Aramex's samples. MPID/NSPID/
+     * SPID are the EU product identifiers (merchant SKU, manufacturer part
+     * number, GTIN/EAN); only the merchant SKU is known here.
+     *
+     * @param array<int,array<string,mixed>> $items
+     * @return array<int,array<string,mixed>>
+     */
+    private function items(array $items, string $currency): array
+    {
+        $lines = [];
+
+        foreach ($items as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $lines[] = [
+                'PackageType' => 'Box',
+                'Quantity' => max(1, (int) ($item['quantity'] ?? 1)),
+                'Weight' => $this->weight(max(0.001, (float) ($item['weight_kg'] ?? 0))),
+                'Comments' => null,
+                'Reference' => Str::limit((string) ($item['reference'] ?? ''), 50, ''),
+                'PiecesDimensions' => null,
+                'CommodityCode' => null,
+                'GoodsDescription' => Str::limit((string) ($item['description'] ?? ''), 100, '') ?: null,
+                'CountryOfOrigin' => strtoupper((string) ($this->config['goods_origin_country'] ?? 'SA')),
+                'CustomsValue' => is_numeric($item['customs_value'] ?? null)
+                    ? ['CurrencyCode' => $currency, 'Value' => round((float) $item['customs_value'], 2)]
+                    : null,
+                'ContainerNumber' => null,
+                'Reference1' => null,
+                'Reference2' => null,
+                'Reference3' => null,
+                'Reference4' => null,
+                'Reference5' => null,
+                'MPID' => Str::limit((string) ($item['mpid'] ?? ''), 50, ''),
+                'NSPID' => '',
+                'SPID' => '',
+            ];
+        }
+
+        return $lines;
     }
 
     /** Plain text of an HTML error page, for logs. */

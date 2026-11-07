@@ -1,0 +1,11 @@
+{
+	"Key": "46285244865",
+	"Value": {
+		"UpdateCode": "SH005",
+		"WaybillNumber": "46285244865",
+		"UpdateDateTime": "2020-10-11T09:58:00Z",
+		"Comments": "Delivered to  Consignee",
+		"UpdateLocation": "Jeddah, Saudi Arabia",
+		"ProblemCode": ""
+	}
+}

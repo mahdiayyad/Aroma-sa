@@ -42,8 +42,8 @@ class AppServiceProvider extends ServiceProvider
 
         $baseUrl = (string) config('services.aramex.base_url', '');
 
-        if (stripos($baseUrl, 'sbx') !== false || stripos($baseUrl, 'sandbox') !== false) {
-            Log::critical('Aramex is configured against a sandbox URL in production', ['base_url' => $baseUrl]);
+        if (preg_match('/sbx|sandbox|\.uat\./i', $baseUrl) === 1) {
+            Log::critical('Aramex is configured against a sandbox/UAT URL in production', ['base_url' => $baseUrl]);
         }
     }
 }

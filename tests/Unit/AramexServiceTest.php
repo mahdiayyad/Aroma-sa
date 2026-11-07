@@ -320,6 +320,67 @@ class AramexServiceTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_the_national_address_short_code_goes_in_additional_properties(): void
+    {
+        Http::fake(['*/CreateShipments' => Http::response(['HasErrors' => false, 'Shipments' => [['ID' => '1', 'HasErrors' => false]]])]);
+
+        (new AramexService())->createShipment($this->orderData(['address_short_code' => ' jfna 7257 ']));
+
+        Http::assertSent(function (Request $request) {
+            $details = $request['Shipments'][0]['Details'];
+
+            return $details['AdditionalProperties'] === [[
+                'CategoryName' => 'ShipmentProfile',
+                'Name' => 'AddressShortCode',
+                'Value' => 'JFNA7257',
+            ]]
+                // Never a replacement for the normal address fields.
+                && $request['Shipments'][0]['Consignee']['PartyAddress']['City'] === 'Jeddah';
+        });
+    }
+
+    public function test_no_short_code_is_sent_when_it_is_invalid_or_not_saudi(): void
+    {
+        Http::fake(['*/CreateShipments' => Http::response(['HasErrors' => false, 'Shipments' => [['ID' => '1', 'HasErrors' => false]]])]);
+        $service = new AramexService();
+
+        $service->createShipment($this->orderData(['address_short_code' => 'ABC123']));
+        $service->createShipment($this->orderData(['address_short_code' => 'JFNA7257', 'consignee' => ['country_code' => 'AE', 'city' => 'Dubai']]));
+        $service->createShipment($this->orderData());
+
+        $this->assertSame(3, Http::recorded()->count());
+        Http::assertSent(function (Request $request) {
+            return $request['Shipments'][0]['Details']['AdditionalProperties'] === null;
+        });
+        $this->assertCount(0, Http::recorded(function (Request $request) {
+            return $request['Shipments'][0]['Details']['AdditionalProperties'] !== null;
+        }));
+    }
+
+    public function test_items_carry_the_sku_as_the_eu_merchant_product_identifier(): void
+    {
+        Http::fake(['*/CreateShipments' => Http::response(['HasErrors' => false, 'Shipments' => [['ID' => '1', 'HasErrors' => false]]])]);
+
+        (new AramexService())->createShipment($this->orderData([
+            'consignee' => ['country_code' => 'FR', 'city' => 'Paris'],
+            'items' => [['reference' => 'ABY-1', 'description' => 'Noir Abaya', 'quantity' => 2, 'weight_kg' => 2, 'customs_value' => 400, 'mpid' => 'ABY-1']],
+        ]));
+
+        Http::assertSent(function (Request $request) {
+            $item = $request['Shipments'][0]['Details']['Items'][0];
+
+            return $item['MPID'] === 'ABY-1'
+                && $item['NSPID'] === ''
+                && $item['SPID'] === ''
+                && $item['Reference'] === 'ABY-1'
+                && $item['GoodsDescription'] === 'Noir Abaya'
+                && $item['Quantity'] === 2
+                && $item['Weight'] == ['Unit' => 'KG', 'Value' => 2]
+                && $item['CustomsValue'] == ['CurrencyCode' => 'SAR', 'Value' => 400]
+                && $item['CountryOfOrigin'] === 'SA';
+        });
+    }
+
     public function test_label_file_contents_as_a_byte_array_are_decoded(): void
     {
         $pdf = "%PDF-1.4\nlabel";

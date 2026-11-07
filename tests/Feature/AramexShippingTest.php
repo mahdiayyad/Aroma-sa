@@ -144,6 +144,44 @@ class AramexShippingTest extends TestCase
         });
     }
 
+    public function test_a_national_address_order_sends_its_short_code_and_no_items(): void
+    {
+        Event::fake([ShipmentStatusUpdated::class]);
+        Http::fake(['*/CreateShipments' => Http::response($this->createShipmentsResponse('440556', null))]);
+        $order = $this->order(Order::STATUS_PAID, ['location_code' => 'RAHA1234']);
+
+        $this->actingAs($this->admin())->post(route('admin.orders.aramex.ship', $order));
+
+        Http::assertSent(function (Request $request) {
+            $details = $request['Shipments'][0]['Details'];
+
+            return Str::endsWith($request->url(), '/CreateShipments')
+                && $details['AdditionalProperties'][0]['Value'] === 'RAHA1234'
+                && $details['Items'] === [];
+        });
+    }
+
+    public function test_an_international_order_sends_item_lines_with_the_sku(): void
+    {
+        Event::fake([ShipmentStatusUpdated::class]);
+        Http::fake(['*/CreateShipments' => Http::response($this->createShipmentsResponse('440557', null))]);
+        $order = $this->order(Order::STATUS_PAID, ['country' => 'FR', 'city' => 'Paris', 'location_code' => null]);
+        $order->items()->update(['product_data' => ['name' => ['en' => 'Noir Abaya', 'ar' => 'عباية'], 'sku' => 'ABY-1']]);
+
+        $this->actingAs($this->admin())->post(route('admin.orders.aramex.ship', $order));
+
+        Http::assertSent(function (Request $request) {
+            $details = $request['Shipments'][0]['Details'];
+
+            return Str::endsWith($request->url(), '/CreateShipments')
+                && $details['ProductGroup'] === 'EXP'
+                && $details['AdditionalProperties'] === null
+                && $details['Items'][0]['MPID'] === 'ABY-1'
+                && $details['Items'][0]['GoodsDescription'] === 'Noir Abaya'
+                && $details['Items'][0]['Quantity'] === 2;
+        });
+    }
+
     public function test_the_order_page_shows_the_shipment_and_the_label_downloads(): void
     {
         Http::fake([
