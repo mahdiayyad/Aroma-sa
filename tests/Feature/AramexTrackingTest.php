@@ -168,6 +168,84 @@ class AramexTrackingTest extends TestCase
         $this->assertSame(Order::STATUS_SHIPPED, $shipment->order->fresh()->status);
     }
 
+    /** The exact shape and header from Aramex's WebHook API specification. */
+    public function test_the_documented_aramex_payload_with_an_api_key_header_is_applied(): void
+    {
+        $shipment = $this->shipment('46285244865');
+
+        $this->postJson(route('shipping.webhook.aramex'), [
+            'Key' => '46285244865',
+            'Value' => [
+                'UpdateCode' => 'SH005',
+                'WaybillNumber' => '46285244865',
+                'UpdateDateTime' => '2020-10-11T09:58:00Z',
+                'Comments' => 'Delivered to  Consignee',
+                'UpdateLocation' => 'Jeddah, Saudi Arabia',
+                'ProblemCode' => '',
+                'OrderNumber' => '',
+            ],
+        ], ['x-api-key' => self::SECRET])
+            ->assertOk()
+            ->assertJson(['received' => 1, 'updated' => 1]);
+
+        $shipment->refresh();
+        $this->assertSame(AramexShipment::STATUS_DELIVERED, $shipment->shipping_status);
+        $this->assertSame(Order::STATUS_DELIVERED, $shipment->order->status);
+        // No description is pushed, so Aramex's own one for the code is used.
+        $this->assertSame('Delivered', $shipment->status_description);
+        $this->assertSame('Delivered to  Consignee', $shipment->history[0]['comment']);
+        $this->assertSame('Jeddah, Saudi Arabia', $shipment->history[0]['location']);
+    }
+
+    public function test_a_wrong_api_key_is_rejected(): void
+    {
+        $shipment = $this->shipment('46285244865');
+
+        $this->postJson(route('shipping.webhook.aramex'), [
+            'Key' => '46285244865',
+            'Value' => ['UpdateCode' => 'SH005', 'WaybillNumber' => '46285244865', 'UpdateDateTime' => '2020-10-11T09:58:00Z'],
+        ], ['x-api-key' => 'not-the-secret'])->assertStatus(401);
+
+        $this->assertSame(AramexShipment::STATUS_CREATED, $shipment->fresh()->shipping_status);
+    }
+
+    public function test_the_waybill_falls_back_to_the_key_when_the_update_omits_it(): void
+    {
+        $shipment = $this->shipment('46285244865');
+
+        $this->postJson(route('shipping.webhook.aramex'), [
+            'Key' => '46285244865',
+            'Value' => ['UpdateCode' => 'SH003', 'UpdateDateTime' => '2026-10-20T08:00:00Z'],
+        ], ['x-api-key' => self::SECRET])->assertOk();
+
+        $this->assertSame(AramexShipment::STATUS_OUT_FOR_DELIVERY, $shipment->fresh()->shipping_status);
+    }
+
+    public function test_an_informational_update_keeps_the_current_status(): void
+    {
+        $shipment = $this->shipment();
+
+        $this->push($this->update('SH003', 'Out for Delivery', '2026-10-20T08:00:00Z'))->assertOk();
+        $this->push($this->update('SH271', 'SMS Sent to Consignee', '2026-10-20T08:05:00Z'))->assertOk();
+
+        $shipment->refresh();
+        $this->assertSame(AramexShipment::STATUS_OUT_FOR_DELIVERY, $shipment->shipping_status);
+        $this->assertSame('SH271', $shipment->status_code);
+    }
+
+    public function test_official_codes_classify_without_a_description(): void
+    {
+        $service = app(\App\Services\AramexFulfilmentService::class);
+
+        $this->assertSame(AramexShipment::STATUS_DELIVERED, $service->classify('SH597', ''));
+        $this->assertSame(AramexShipment::STATUS_RETURNED, $service->classify('SH407', ''));
+        $this->assertSame(AramexShipment::STATUS_EXCEPTION, $service->classify('SH294', ''));
+        $this->assertSame(AramexShipment::STATUS_IN_TRANSIT, $service->classify('SH022', ''));
+        // Ambiguous in Aramex's sheet ("Picked Up From Shipper" / "Collected by
+        // Consignee"), so never treated as delivered.
+        $this->assertNotSame(AramexShipment::STATUS_DELIVERED, $service->classify('SH006', 'Picked Up From Shipper'));
+    }
+
     public function test_the_tracking_results_shape_and_wcf_dates_are_understood(): void
     {
         $shipment = $this->shipment();

@@ -164,6 +164,8 @@ class AramexFulfilmentService
             'description' => config('services.aramex.description_of_goods'),
             'customs_value' => (float) $order->subtotal,
             'payment_type' => AramexService::PAYMENT_PREPAID,
+            'address_short_code' => (string) (((array) $order->shipping_address)['location_code'] ?? ''),
+            'items' => $consignee['country_code'] === 'SA' ? [] : $this->customsItems($order),
         ]);
 
         if (! $result['success']) {
@@ -297,7 +299,7 @@ class AramexFulfilmentService
                 $attributes['last_event_at'] = $newestAt->copy()->setTimezone((string) config('app.timezone'));
                 $attributes['status_code'] = $newest['code'];
                 $attributes['status_description'] = $newest['description'];
-                $attributes['shipping_status'] = $this->classify((string) $newest['code'], (string) $newest['description']);
+                $attributes['shipping_status'] = $this->classify((string) $newest['code'], (string) $newest['description'], $previous);
             }
 
             $locked->update($attributes);
@@ -326,15 +328,16 @@ class AramexFulfilmentService
         return true;
     }
 
-    /** Map an Aramex UpdateCode / description to an internal shipping status. */
-    public function classify(string $code, string $description): string
+    /**
+     * Map an Aramex UpdateCode / description to an internal shipping status.
+     * An update that says nothing about where the parcel is (an SMS notice,
+     * a "situation update") keeps $current instead of resetting it.
+     */
+    public function classify(string $code, string $description, ?string $current = null): string
     {
-        $codes = array_change_key_case((array) config('services.aramex.status_codes', []), CASE_UPPER);
-        $mapped = $codes[strtoupper(trim($code))] ?? null;
-        $known = [
-            AramexShipment::STATUS_IN_TRANSIT, AramexShipment::STATUS_OUT_FOR_DELIVERY,
-            AramexShipment::STATUS_DELIVERED, AramexShipment::STATUS_RETURNED, AramexShipment::STATUS_EXCEPTION,
-        ];
+        $mapped = self::codeInfo($code)['status'] ?? null;
+        $moving = [AramexShipment::STATUS_IN_TRANSIT, AramexShipment::STATUS_OUT_FOR_DELIVERY, AramexShipment::STATUS_EXCEPTION];
+        $known = array_merge($moving, [AramexShipment::STATUS_DELIVERED, AramexShipment::STATUS_RETURNED]);
         if (is_string($mapped) && in_array($mapped, $known, true)) {
             return $mapped;
         }
@@ -355,7 +358,20 @@ class AramexFulfilmentService
             return AramexShipment::STATUS_DELIVERED;
         }
 
-        return AramexShipment::STATUS_IN_TRANSIT;
+        return in_array($current, $moving, true) ? $current : AramexShipment::STATUS_IN_TRANSIT;
+    }
+
+    /**
+     * Aramex's own status and description for an UpdateCode (config/aramex_tracking.php).
+     *
+     * @return array{status:?string,description:?string}|null
+     */
+    public static function codeInfo(string $code): ?array
+    {
+        $codes = array_change_key_case((array) config('aramex_tracking.codes', []), CASE_UPPER);
+        $info = $codes[strtoupper(trim($code))] ?? null;
+
+        return is_array($info) ? ['status' => $info['status'] ?? null, 'description' => $info['description'] ?? null] : null;
     }
 
     /**
@@ -535,6 +551,39 @@ class AramexFulfilmentService
         ];
     }
 
+    /**
+     * Per-line items for an international shipment. The SKU goes out as the
+     * merchant product identifier (MPID), which the EU requires on low-value
+     * B2C imports from 1 November 2026.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function customsItems(Order $order): array
+    {
+        $perItem = (float) config('services.aramex.default_item_weight_kg', 1.0);
+        $items = [];
+
+        foreach ($order->items as $item) {
+            $data = (array) $item->product_data;
+            $name = $data['name'] ?? '';
+            if (is_array($name)) {
+                $name = $name['en'] ?? reset($name) ?: '';
+            }
+            $quantity = max(1, (int) $item->quantity);
+
+            $items[] = [
+                'reference' => (string) ($data['sku'] ?? ''),
+                'description' => (string) $name,
+                'quantity' => $quantity,
+                'weight_kg' => round($quantity * ($perItem > 0 ? $perItem : 1.0), 3),
+                'customs_value' => (float) $item->line_total,
+                'mpid' => (string) ($data['sku'] ?? ''),
+            ];
+        }
+
+        return $items;
+    }
+
     private function storeLabel(AramexShipment $shipment, ?string $pdf, ?string $url): bool
     {
         $bytes = $pdf ?? ($url !== null ? $this->downloadLabel($url) : null);
@@ -568,7 +617,10 @@ class AramexFulfilmentService
             }
         }
 
-        if (($parts['scheme'] ?? '') !== 'https' || ! $allowed) {
+        // Aramex's UAT server is plain http, so its label links are too.
+        $schemes = stripos((string) config('services.aramex.base_url'), 'http://') === 0 ? ['https', 'http'] : ['https'];
+
+        if (! in_array($parts['scheme'] ?? '', $schemes, true) || ! $allowed) {
             Log::warning('Aramex label URL rejected', ['host' => $host]);
 
             return null;
@@ -598,9 +650,15 @@ class AramexFulfilmentService
             return $value === '' ? null : mb_substr($value, 0, 255);
         };
 
+        $code = $text($event['code'] ?? null);
+        // The push webhook sends only the code (plus Comments), not a description.
+        $description = $text($event['description'] ?? null)
+            ?? ($code !== null ? $text(self::codeInfo($code)['description'] ?? null) : null)
+            ?? $text($event['comment'] ?? null);
+
         return [
-            'code' => $text($event['code'] ?? null),
-            'description' => (string) $text($event['description'] ?? null),
+            'code' => $code,
+            'description' => (string) $description,
             'location' => $text($event['location'] ?? null),
             'comment' => $text($event['comment'] ?? null),
             'occurred_at' => $occurredAt->toIso8601String(),

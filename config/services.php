@@ -112,13 +112,6 @@ return [
             'product_type'  => env('ARAMEX_INTERNATIONAL_PRODUCT_TYPE', 'EPX'),
         ],
 
-        // Aramex tracking UpdateCode => internal shipping status. Codes not
-        // listed here are classified from their description instead.
-        'status_codes' => [
-            'SH005' => 'delivered',
-            'SH003' => 'out_for_delivery',
-        ],
-
         'shipper' => [
             'name'         => env('ARAMEX_SHIPPER_NAME', 'Aroma'),
             'company'      => env('ARAMEX_SHIPPER_COMPANY', 'Aroma Gift Center'),

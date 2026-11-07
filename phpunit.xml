@@ -34,5 +34,10 @@
              the real Tawked API. Tests that need it set a fake key + Http::fake(). -->
         <server name="TAWKED_API_KEY" value=""/>
         <server name="TAWKED_DEV_CODE" value=""/>
+        <!-- Never call the real Aramex account from tests; tests that need it set config themselves. -->
+        <server name="ARAMEX_USERNAME" value=""/>
+        <server name="ARAMEX_PASSWORD" value=""/>
+        <server name="ARAMEX_ACCOUNT_PIN" value=""/>
+        <server name="ARAMEX_WEBHOOK_SECRET" value=""/>
     </php>
 </phpunit>

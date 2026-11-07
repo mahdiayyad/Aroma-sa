@@ -30,6 +30,17 @@ class AppServiceProviderTest extends TestCase
         });
     }
 
+    public function test_it_logs_critical_when_production_is_pointed_at_the_uat_url(): void
+    {
+        Log::spy();
+        app()->instance('env', 'production');
+        config(['services.aramex.base_url' => 'http://ws.uat.aramex.net/shippingapi']);
+
+        (new AppServiceProvider(app()))->boot();
+
+        Log::shouldHaveReceived('critical')->once();
+    }
+
     public function test_it_does_not_log_when_production_is_pointed_at_the_real_url(): void
     {
         Log::spy();
