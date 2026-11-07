@@ -103,7 +103,7 @@ class AramexService
                 'NumberOfPieces' => max(1, (int) ($packageDetails['pieces'] ?? 1)),
             ]),
             'PreferredCurrencyCode' => $currency,
-        ]);
+        ], '', (int) ($this->config['quote_timeout'] ?? 6));
 
         if (! $response['success']) {
             return $response;
@@ -368,12 +368,13 @@ class AramexService
      * @param array<string,mixed> $payload
      * @return array{success:bool,body?:array<string,mixed>,errors?:array<int,string>}
      */
-    private function request(string $path, array $payload, string $reference = ''): array
+    private function request(string $path, array $payload, string $reference = '', ?int $timeout = null): array
     {
         $url = rtrim((string) ($this->config['base_url'] ?? ''), '/').$path;
 
         try {
-            $response = Http::timeout((int) ($this->config['timeout'] ?? 25))
+            $response = Http::timeout($timeout ?? (int) ($this->config['timeout'] ?? 25))
+                ->withOptions(['connect_timeout' => (int) ($this->config['connect_timeout'] ?? 5)])
                 ->acceptJson()
                 ->asJson()
                 ->post($url, $payload);
