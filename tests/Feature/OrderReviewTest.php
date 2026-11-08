@@ -39,6 +39,18 @@ class OrderReviewTest extends TestCase
         $this->post(route('checkout.address.store'), ['billing_address' => $this->validBilling]);
     }
 
+    public function test_an_international_order_sees_the_international_delivery_estimate(): void
+    {
+        $this->seedCartAndAddress();
+        $this->post(route('checkout.gift-options.store'), ['is_gift' => '0']);
+        session(['checkout.shipping_address' => array_merge(session('checkout.shipping_address'), ['country' => 'AE'])]);
+
+        $this->get(route('checkout.order-review'))
+            ->assertOk()
+            ->assertSee(__('checkout.shipping_days.international'))
+            ->assertDontSee(__('delivery.notice'));
+    }
+
     public function test_the_order_review_page_renders_for_a_non_gift_order(): void
     {
         $this->seedCartAndAddress();

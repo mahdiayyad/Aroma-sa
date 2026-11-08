@@ -52,6 +52,7 @@ class CatalogService extends BaseService
             // like a real carousel rather than a half-empty stage.
             'featuredProducts' => $this->products->featured(10),
             'newArrivals'      => $this->products->newArrivals(8),
+            'topDiscount'      => $this->products->topDiscounted(),
         ];
     }
 

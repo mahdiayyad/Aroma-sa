@@ -51,7 +51,7 @@ class SitemapController extends Controller
             }
         }
 
-        foreach (['terms' => '0.3', 'about' => '0.5', 'privacy-policy' => '0.3', 'contact' => '0.5'] as $routeName => $priority) {
+        foreach (['terms' => '0.3', 'about' => '0.5', 'privacy-policy' => '0.3', 'contact' => '0.5', 'faq' => '0.5'] as $routeName => $priority) {
             $urls->push([
                 'loc' => route($routeName),
                 'lastmod' => now()->toAtomString(),

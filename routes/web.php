@@ -190,6 +190,7 @@ Route::get('order/{order}/confirmation', [CheckoutController::class, 'confirmati
 Route::view('terms', 'pages.terms')->name('terms');
 Route::view('about', 'pages.about')->name('about');
 Route::view('privacy-policy', 'pages.privacy-policy')->name('privacy-policy');
+Route::view('faq', 'pages.faq')->name('faq');
 
 /* Customer Guide ------------------------------------------------------------ */
 Route::view('guides', 'pages.guides.index')->name('guides.index');

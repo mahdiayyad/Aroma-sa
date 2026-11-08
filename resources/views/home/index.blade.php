@@ -207,6 +207,21 @@
          zone (the cards already sit on white; now the section does too,
          instead of looking like white cards floating on a beige page). --}}
     <div class="aroma-white-band">
+        {{-- Biggest live discount. The percentage is computed from real
+             compare-at prices on in-stock products (same maths as the card
+             badges), and the whole banner disappears when nothing is on sale. --}}
+        @if ($topDiscount)
+            <section class="container aroma-section">
+                <div class="aroma-promo-panel p-4 p-md-5 text-center aroma-reveal">
+                    <div class="aroma-promo-content">
+                        <h2 class="aroma-section-title">{{ __('storefront.offer_banner.headline', ['percent' => $topDiscount->discountPercent()]) }}</h2>
+                        <p class="text-aroma-muted mb-3">{{ __('storefront.offer_banner.body') }}</p>
+                        <a href="{{ route('category.show', [app()->getLocale(), $topDiscount->category->slug, 'on_sale' => 1]) }}" class="btn btn-aroma-light">{{ __('storefront.offer_banner.cta') }}</a>
+                    </div>
+                </div>
+            </section>
+        @endif
+
         <section class="container aroma-section" id="categories">
             <h2 class="aroma-section-title aroma-reveal">{{ __('storefront.sections.categories') }}</h2>
             <div class="row g-4" data-reveal-group="categories">
@@ -315,10 +330,14 @@
                     </button>
                 </div>
 
-                <div class="aroma-showcase-caption" aria-live="polite">
-                    <a class="aroma-showcase-caption-link" href="#">
-                        <span class="aroma-showcase-caption-name"></span>
-                        <span class="aroma-showcase-caption-price"></span>
+                {{-- Rendered server-side for the same product the script starts
+                     centered on, so the section isn't text-empty before JS runs
+                     or to anything that doesn't run it (search engines, previews). --}}
+                @php($initialCenter = $featuredProducts->get((int) floor(($featuredProducts->count() - 1) / 2)))
+                <div class="aroma-showcase-caption is-visible" aria-live="polite">
+                    <a class="aroma-showcase-caption-link" href="{{ route('product.show', [$locale, $initialCenter->slug]) }}">
+                        <span class="aroma-showcase-caption-name">{{ $initialCenter->name }}</span>
+                        <span class="aroma-showcase-caption-price">{{ $initialCenter->priceLabel() }}</span>
                     </a>
                 </div>
             </section>

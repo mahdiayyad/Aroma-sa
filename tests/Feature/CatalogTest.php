@@ -44,6 +44,17 @@ class CatalogTest extends TestCase
         $response->assertSee('Pricey One')->assertDontSee('Cheap One');
     }
 
+    public function test_on_sale_filter_keeps_only_discounted_products(): void
+    {
+        $category = Category::factory()->create();
+        Product::factory()->for($category)->create(['name' => ['en' => 'Reduced One', 'ar' => 'مخفض'], 'base_price' => 100, 'compare_at_price' => 150]);
+        Product::factory()->for($category)->create(['name' => ['en' => 'Full Price', 'ar' => 'كامل'], 'base_price' => 100, 'compare_at_price' => null]);
+
+        $this->get('/en/category/'.$category->slug.'?on_sale=1')
+            ->assertSee('Reduced One')
+            ->assertDontSee('Full Price');
+    }
+
     public function test_product_page_renders_details(): void
     {
         $brand    = Brand::factory()->create(['name' => ['en' => 'Maison Test', 'ar' => 'ميزون']]);
