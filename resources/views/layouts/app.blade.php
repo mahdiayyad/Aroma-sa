@@ -167,6 +167,8 @@
     <link href="{{ \App\Support\Assets::versioned('css/components/intl-phone.css') }}" rel="stylesheet">
 
     @stack('head')
+
+    @include('layouts.partials.marketing-pixels')
 </head>
 <body data-cart-url="{{ route('cart.index') }}"
       data-cart-label="{{ __('cart.view') }}"
@@ -178,6 +180,7 @@
       data-flash-success="{{ session('status') }}"
       data-show-password="{{ __('auth_ui.show_password') }}"
       data-hide-password="{{ __('auth_ui.hide_password') }}">
+    @include('layouts.partials.marketing-pixels-noscript')
 
     <div class="sbc-verify-seal" data-token="NmU3U1ZDbCtNMGIxb0M1V01IWVlGQT09" data-position="bottom-left"></div>
     <script src="https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js" async></script>

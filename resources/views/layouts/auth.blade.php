@@ -60,12 +60,15 @@
          silently dropped and never rendered. Matches layouts/app.blade.php's
          own @stack('head'). --}}
     @stack('head')
+
+    @include('layouts.partials.marketing-pixels')
 </head>
 <body class="aroma-auth-shell" data-flash-success="{{ session('status') }}"
       data-show-password="{{ __('auth_ui.show_password') }}"
       data-hide-password="{{ __('auth_ui.hide_password') }}"
       data-passwords-match="{{ __('auth_ui.validation.passwords_match') }}"
       data-passwords-mismatch="{{ __('auth_ui.validation.passwords_mismatch') }}">
+    @include('layouts.partials.marketing-pixels-noscript')
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
