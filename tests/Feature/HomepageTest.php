@@ -84,12 +84,12 @@ class HomepageTest extends TestCase
 
     public function test_registration_numbers_appear_in_the_footer_only_once_set(): void
     {
-        config(['aroma.contact.commercial_registration' => '', 'aroma.receipts.vat_number' => '']);
-        $this->get('/en')->assertDontSee('Commercial Registration:')->assertDontSee('VAT No.:');
+        config(['aroma.contact.freelance_document' => '', 'aroma.receipts.vat_number' => '']);
+        $this->get('/en')->assertDontSee('Freelance Document No.:')->assertDontSee('VAT No.:');
 
-        config(['aroma.contact.commercial_registration' => '2050000000', 'aroma.receipts.vat_number' => '300000000000003']);
+        config(['aroma.contact.freelance_document' => 'FL-123456789', 'aroma.receipts.vat_number' => '300000000000003']);
         $this->get('/en')
-            ->assertSee('Commercial Registration: 2050000000')
+            ->assertSee('Freelance Document No.: FL-123456789')
             ->assertSee('VAT No.: 300000000000003');
     }
 }

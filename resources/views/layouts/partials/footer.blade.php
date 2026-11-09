@@ -1,7 +1,7 @@
 @php
     $locale = app()->getLocale();
     $waDigits = preg_replace('/\D+/', '', (string) config('aroma.contact.whatsapp'));
-    $commercialRegistration = (string) config('aroma.contact.commercial_registration');
+    $freelanceDocument = (string) config('aroma.contact.freelance_document');
     $vatNumber = (string) config('aroma.receipts.vat_number');
 
     // Icon order is the display order; a network with no URL drops out
@@ -79,10 +79,10 @@
             <span><span class="footer-rights">©</span> {{ date('Y') }} {{ $brand['name'] }}. {{ __('storefront.footer.rights') }}</span>
             <span class="aroma-script">{{ __('storefront.footer.tagline') }}</span>
         </div>
-        @if ($commercialRegistration !== '' || $vatNumber !== '')
+        @if ($freelanceDocument !== '' || $vatNumber !== '')
             <div class="d-flex flex-wrap gap-3 small mt-2">
-                @if ($commercialRegistration !== '')
-                    <span>{{ __('storefront.footer.commercial_registration', ['number' => $commercialRegistration]) }}</span>
+                @if ($freelanceDocument !== '')
+                    <span>{{ __('storefront.footer.freelance_document', ['number' => $freelanceDocument]) }}</span>
                 @endif
                 @if ($vatNumber !== '')
                     <span>{{ __('storefront.footer.vat_number', ['number' => $vatNumber]) }}</span>

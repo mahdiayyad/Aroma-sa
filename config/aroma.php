@@ -135,7 +135,7 @@ return [
         'snapchat' => env('AROMA_SNAPCHAT', ''),
         'facebook' => env('AROMA_FACEBOOK', ''),
         // Shown in the footer once set, next to receipts.vat_number.
-        'commercial_registration' => env('AROMA_COMMERCIAL_REGISTRATION', ''),
+        'freelance_document' => env('AROMA_FREELANCE_DOCUMENT', ''),
     ],
 
     /*
