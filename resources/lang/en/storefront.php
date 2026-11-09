@@ -118,7 +118,7 @@ return [
         'faq'      => 'FAQ',
         'blog'     => 'Blog',
         'contact'  => 'Contact us',
-        'commercial_registration' => 'Commercial Registration: :number',
+        'freelance_document' => 'Freelance Document No.: :number',
         'vat_number' => 'VAT No.: :number',
         'rights'   => 'All rights reserved.',
         'tagline'  => 'Awaken your Senses',

@@ -119,7 +119,7 @@ return [
         'faq'      => 'الأسئلة الشائعة',
         'blog'     => 'المدونة',
         'contact'  => 'تواصل معنا',
-        'commercial_registration' => 'السجل التجاري: :number',
+        'freelance_document' => 'رقم وثيقة العمل الحر: :number',
         'vat_number' => 'الرقم الضريبي: :number',
         'rights'   => 'جميع الحقوق محفوظة.',
         'tagline'  => 'أيقظ حواسك',
