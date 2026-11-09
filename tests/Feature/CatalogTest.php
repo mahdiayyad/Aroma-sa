@@ -55,6 +55,30 @@ class CatalogTest extends TestCase
             ->assertDontSee('Full Price');
     }
 
+    public function test_sub_categories_with_products_are_offered_on_the_category_page(): void
+    {
+        $parent = Category::factory()->create();
+        $stocked = Category::factory()->create(['parent_id' => $parent->id, 'name' => ['en' => 'Everyday', 'ar' => 'يومية']]);
+        Category::factory()->create(['parent_id' => $parent->id, 'name' => ['en' => 'Empty One', 'ar' => 'فارغة']]);
+        Product::factory()->for($stocked)->create();
+
+        $this->get('/en/category/'.$parent->slug)
+            ->assertSee('Everyday')
+            ->assertDontSee('Empty One');
+
+        // Still there once inside a sub-category, with a way back to all of them.
+        $this->get('/en/category/'.$stocked->slug)
+            ->assertSee('href="'.route('category.show', ['en', $parent->slug]).'"', false)
+            ->assertSee('Everyday');
+    }
+
+    public function test_a_category_without_sub_categories_shows_no_row(): void
+    {
+        $category = Category::factory()->create();
+
+        $this->get('/en/category/'.$category->slug)->assertDontSee('aroma-subcategory-nav', false);
+    }
+
     public function test_product_page_renders_details(): void
     {
         $brand    = Brand::factory()->create(['name' => ['en' => 'Maison Test', 'ar' => 'ميزون']]);

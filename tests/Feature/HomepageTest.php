@@ -65,6 +65,14 @@ class HomepageTest extends TestCase
         $this->get('/en')->assertSee('aroma-showcase-caption-name">Featured Abaya', false);
     }
 
+    public function test_the_homepage_explains_what_sets_the_abayas_apart(): void
+    {
+        $this->get('/en')
+            ->assertSee(__('storefront.why_aroma.title', [], 'en'))
+            ->assertSee(__('storefront.why_aroma.fabric_title', [], 'en'))
+            ->assertSee(__('storefront.why_aroma.tailoring_title', [], 'en'));
+    }
+
     public function test_social_icons_without_a_url_are_hidden_instead_of_dead(): void
     {
         config(['aroma.contact.tiktok' => 'https://www.tiktok.com/@aroma', 'aroma.contact.facebook' => '']);

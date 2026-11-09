@@ -13,6 +13,12 @@ class RefundRequest extends Model
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
 
+    /** SAR, as published in the returns policy. */
+    public const RETURN_FEE = 50.0;
+
+    /** The store was at fault, so the return costs the customer nothing. */
+    public const NO_FEE_REASONS = ['damaged', 'wrong_item', 'not_as_described'];
+
     protected $guarded = ['id'];
 
     protected $casts = [

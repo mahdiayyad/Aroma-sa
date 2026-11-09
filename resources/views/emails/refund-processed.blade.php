@@ -83,9 +83,9 @@
             <li><strong>{{ __('emails.refund_processed.amount') }}:</strong> {{ number_format($refundAmount, 2) }} SAR</li>
         </ul>
 
-        @if ($shippingDeducted)
+        @if ($returnFeeDeducted)
             <div class="notice-box">
-                <p style="margin: 0;">{{ __('refund.email.shipping_deducted_notice') }}</p>
+                <p style="margin: 0;">{{ __('refund.email.return_fee_notice') }}</p>
             </div>
         @endif
 

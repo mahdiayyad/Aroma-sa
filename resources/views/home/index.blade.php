@@ -202,6 +202,29 @@
         </div>
     </section>
 
+    {{-- What makes the abayas different. The wording comes from the About
+         page, so the homepage makes no claim the brand hasn't already made. --}}
+    <section class="container aroma-section">
+        <div class="text-center mb-4 aroma-reveal">
+            <span class="aroma-eyebrow d-block mb-2">{{ __('storefront.why_aroma.eyebrow') }}</span>
+            <h2 class="aroma-section-title d-inline-block">{{ __('storefront.why_aroma.title') }}</h2>
+        </div>
+        <div class="row g-4" data-reveal-group="why-aroma">
+            @foreach (['design' => 'bi-vector-pen', 'fabric' => 'bi-gem', 'tailoring' => 'bi-scissors'] as $point => $icon)
+                <div class="col-md-4 aroma-reveal">
+                    <div class="aroma-card h-100 p-4 text-center">
+                        <i class="bi {{ $icon }} fs-1 text-aroma-brown mb-3 d-block" aria-hidden="true"></i>
+                        <h3 class="h5 mb-2">{{ __('storefront.why_aroma.'.$point.'_title') }}</h3>
+                        <p class="text-aroma-muted small mb-0">{{ __('storefront.why_aroma.'.$point.'_body') }}</p>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        <div class="text-center mt-4 pb-5">
+            <a href="{{ route('about') }}" class="btn btn-aroma-outline">{{ __('storefront.why_aroma.cta') }}</a>
+        </div>
+    </section>
+
     {{-- Categories + New arrivals share one white band — mockup-driven: the
          page isn't beige end-to-end, this stretch reads as its own white
          zone (the cards already sit on white; now the section does too,

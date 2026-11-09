@@ -23,13 +23,13 @@ class RefundProcessedMail extends Mailable
 
     public Order $order;
     public float $refundAmount;
-    public bool $shippingDeducted;
+    public bool $returnFeeDeducted;
 
-    public function __construct(Order $order, float $refundAmount, bool $shippingDeducted)
+    public function __construct(Order $order, float $refundAmount, bool $returnFeeDeducted)
     {
         $this->order = $order;
         $this->refundAmount = $refundAmount;
-        $this->shippingDeducted = $shippingDeducted;
+        $this->returnFeeDeducted = $returnFeeDeducted;
         $this->locale($order->locale ?: config('aroma.default_locale', 'ar'));
     }
 
@@ -42,7 +42,7 @@ class RefundProcessedMail extends Mailable
                 'order' => $this->order,
                 'brand' => config('aroma.brand'),
                 'refundAmount' => $this->refundAmount,
-                'shippingDeducted' => $this->shippingDeducted,
+                'returnFeeDeducted' => $this->returnFeeDeducted,
             ]);
     }
 }

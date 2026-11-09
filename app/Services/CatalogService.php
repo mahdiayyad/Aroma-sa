@@ -69,6 +69,15 @@ class CatalogService extends BaseService
         return $this->products->paginateForCategory($category, $filters);
     }
 
+    /**
+     * The sub-category row on a category page. Taken from the top-level
+     * parent so it stays the same while moving between its sub-categories.
+     */
+    public function subCategories(Category $category): Collection
+    {
+        return $this->categories->childrenWithProducts($category->parent ?: $category);
+    }
+
     public function activeBrands(): Collection
     {
         return $this->brands->active();

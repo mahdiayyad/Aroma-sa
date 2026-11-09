@@ -36,6 +36,9 @@
                 <ul class="list-unstyled small aroma-footer-links">
                     <li class="mb-2"><a href="{{ route('about') }}">{{ __('storefront.footer.about') }}</a></li>
                     <li class="mb-2"><a href="{{ route('contact') }}">{{ __('storefront.footer.contact') }}</a></li>
+                    @if ($hasBlog)
+                        <li class="mb-2"><a href="{{ route('blog.index', $locale) }}">{{ __('storefront.footer.blog') }}</a></li>
+                    @endif
                 </ul>
             </div>
 

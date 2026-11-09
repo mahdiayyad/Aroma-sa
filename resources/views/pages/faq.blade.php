@@ -32,7 +32,7 @@
         ]],
         ['title' => 'الإرجاع والاستبدال', 'items' => [
             ['q' => 'ما مدة الإرجاع وشروطه؟', 'a' => 'يمكن تقديم طلب الإرجاع خلال 3 أيام من تاريخ استلام الطلب، على أن يكون المنتج بحالته الأصلية غير المستخدمة وبتغليفه الأصلي.', 'link' => $returnsLink],
-            ['q' => 'هل توجد رسوم على الإرجاع؟', 'a' => 'نعم، تُخصم رسوم معالجة إرجاع قدرها 50 ريال سعودي من قيمة المبلغ المسترد لتغطية تكاليف معالجة الإرجاع والشحن، بصرف النظر عن سبب الإرجاع.'],
+            ['q' => 'هل توجد رسوم على الإرجاع؟', 'a' => 'لا إذا وصل المنتج تالفاً أو كان خاطئاً أو غير مطابق للوصف. في الحالات الأخرى تُخصم رسوم معالجة إرجاع قدرها 50 ريال سعودي من قيمة المبلغ المسترد لتغطية تكاليف معالجة الإرجاع والشحن.'],
             ['q' => 'كيف يعود المبلغ؟', 'a' => 'تتم إعادة المبلغ إلى وسيلة الدفع الأصلية بعد استلام المنتج المرتجع والتحقق من حالته.'],
             ['q' => 'ما المنتجات التي لا يمكن إرجاعها؟', 'a' => 'المنتجات القابلة للتلف والمنتجات المخصصة أو المُصنّعة حسب الطلب.'],
             ['q' => 'كيف أبدأ طلب إرجاع أو استبدال؟', 'a' => 'بمراسلتنا عبر واتساب أو البريد الإلكتروني خلال 3 أيام من تاريخ استلام الطلب.', 'link' => $returnsLink],
@@ -59,7 +59,7 @@
         ]],
         ['title' => 'Returns & exchanges', 'items' => [
             ['q' => 'What is the return window and what are the conditions?', 'a' => 'You may submit a return request within 3 days of receiving your order, with the product in its original, unused condition and packaging.', 'link' => $returnsLink],
-            ['q' => 'Is there a fee for returns?', 'a' => 'Yes, a return handling fee of 50 SAR is deducted from your refund to cover return processing and shipping costs, regardless of the reason for return.'],
+            ['q' => 'Is there a fee for returns?', 'a' => 'Not if the item arrived damaged, was the wrong item, or was not as described. In all other cases, a return handling fee of 50 SAR is deducted from your refund to cover return processing and shipping costs.'],
             ['q' => 'How do I get my money back?', 'a' => 'Refunds are issued to the original payment method once the returned item has been received and inspected.'],
             ['q' => "What can't be returned?", 'a' => 'Perishable items (fresh flowers) and personalized or made-to-order products.'],
             ['q' => 'How do I start a return or exchange?', 'a' => 'Message us on WhatsApp or email within 3 days of receiving your order.', 'link' => $returnsLink],

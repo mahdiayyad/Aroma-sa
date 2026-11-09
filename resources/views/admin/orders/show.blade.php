@@ -89,13 +89,13 @@
                                         <div class="fw-semibold small mb-1">{{ __('admin.tamara.refund_title') }}</div>
                                         <div class="mb-2">
                                             <label class="admin-cell-sub small" for="tamaraRefundAmount">{{ __('admin.tamara.refund_amount') }}</label>
-                                            {{-- Pre-filled with shipping already subtracted (once per order — see
-                                                 Order::suggestedRefundAmount()), but still a plain editable input:
+                                            {{-- Pre-filled with any return fee already subtracted (see
+                                                 Order::returnFee()), but still a plain editable input:
                                                  the admin can always type up to the true remaining amount. --}}
                                             <input type="number" step="0.01" min="0.01" max="{{ $tamaraRemaining }}" name="amount" id="tamaraRefundAmount"
                                                    value="{{ $order->suggestedRefundAmount($payment) }}" class="admin-input" required>
-                                            @if ($order->shipping_fee_deducted_at === null && (float) $order->shipping_cost > 0)
-                                                <div class="admin-cell-sub small mt-1">{{ __('admin.tamara.refund_shipping_deducted', ['amount' => number_format((float) $order->shipping_cost, 2)]) }}</div>
+                                            @if ($order->returnFee() > 0)
+                                                <div class="admin-cell-sub small mt-1">{{ __('admin.tamara.refund_return_fee_deducted', ['amount' => number_format($order->returnFee(), 2)]) }}</div>
                                             @endif
                                         </div>
                                         <div class="mb-2">

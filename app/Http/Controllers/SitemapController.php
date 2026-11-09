@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Response;
@@ -24,6 +25,7 @@ class SitemapController extends Controller
 
         $categories = Category::active()->get(['slug', 'updated_at']);
         $products = Product::active()->get(['slug', 'updated_at']);
+        $posts = BlogPost::published()->get(['slug', 'updated_at']);
 
         $urls = new Collection();
 
@@ -47,6 +49,22 @@ class SitemapController extends Controller
                     'loc' => route('product.show', [$locale, $product->slug]),
                     'lastmod' => $product->updated_at->toAtomString(),
                     'priority' => '0.7',
+                ]);
+            }
+
+            if ($posts->isNotEmpty()) {
+                $urls->push([
+                    'loc' => route('blog.index', $locale),
+                    'lastmod' => $posts->max('updated_at')->toAtomString(),
+                    'priority' => '0.6',
+                ]);
+            }
+
+            foreach ($posts as $post) {
+                $urls->push([
+                    'loc' => route('blog.show', [$locale, $post->slug]),
+                    'lastmod' => $post->updated_at->toAtomString(),
+                    'priority' => '0.6',
                 ]);
             }
         }

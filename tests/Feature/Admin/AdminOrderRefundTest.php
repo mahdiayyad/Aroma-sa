@@ -18,7 +18,7 @@ use Tests\TestCase;
  * Api\Admin\OrderController::refund() — the only reachable entry point for a
  * Moyasar refund today (no Blade admin UI exists for it, unlike Tamara's).
  * Covers MoyasarPaymentService::refundPayment()'s own fixes: its default
- * amount used to ignore any prior refunded_amount, and shipping is now
+ * amount used to ignore any prior refunded_amount, and any return fee is now
  * subtracted (once per order) with a customer notification either way.
  */
 class AdminOrderRefundTest extends TestCase
@@ -61,36 +61,36 @@ class AdminOrderRefundTest extends TestCase
         config(['services.moyasar.secret_key' => 'sk_test']);
     }
 
-    public function test_a_refund_with_no_amount_deducts_shipping_on_the_first_pass(): void
+    public function test_a_refund_with_no_amount_keeps_the_return_fee_on_the_first_pass(): void
     {
         Mail::fake();
         Http::fake(['api.moyasar.com/*' => Http::response(['id' => 'ref_1'], 200)]);
         // Payment amount is subtotal+shipping (100+25=125): the first refund
-        // should hand back everything except the 25 SAR shipping fee.
+        // on a delivered order should hand back all but the 50 SAR return fee.
         [$order, $payment] = $this->moyasarOrder(25.0);
+        $order->update(['delivered_at' => now()->subDay()]);
 
         Sanctum::actingAs($this->admin());
         $this->postJson('/api/admin/orders/'.$order->id.'/refund', [])->assertOk();
 
-        $this->assertEquals(100.0, (float) $payment->fresh()->refunded_amount);
+        $this->assertEquals(75.0, (float) $payment->fresh()->refunded_amount);
         $this->assertNotNull($order->fresh()->shipping_fee_deducted_at);
         Mail::assertSent(RefundProcessedMail::class, function ($mail) {
-            return $mail->refundAmount === 100.0 && $mail->shippingDeducted === true;
+            return $mail->refundAmount === 75.0 && $mail->returnFeeDeducted === true;
         });
 
         Http::assertSent(function ($request) {
             return strpos($request->url(), '/payments/pay_123/refund') !== false
-                && $request['amount'] === 10000; // halalas
+                && $request['amount'] === 7500; // halalas
         });
     }
 
-    public function test_a_second_refund_on_the_same_order_no_longer_deducts_shipping(): void
+    public function test_a_second_refund_on_the_same_order_does_not_take_the_fee_again(): void
     {
         Mail::fake();
         Http::fake(['api.moyasar.com/*' => Http::response(['id' => 'ref_2'], 200)]);
-        // Simulates right after the first refund above: 100 of 125 already
-        // refunded, shipping already marked deducted — the remaining 25
-        // should go out whole, with no further shipping deduction.
+        // Simulates right after a first refund: 100 of 125 already refunded,
+        // the fee already marked taken — the remaining 25 should go out whole.
         [$order, $payment] = $this->moyasarOrder(25.0, now()->subHour());
         $payment->update(['refunded_amount' => 100.0]);
 
@@ -99,7 +99,7 @@ class AdminOrderRefundTest extends TestCase
 
         $this->assertEquals(125.0, (float) $payment->fresh()->refunded_amount);
         Mail::assertSent(RefundProcessedMail::class, function ($mail) {
-            return $mail->refundAmount === 25.0 && $mail->shippingDeducted === false;
+            return $mail->refundAmount === 25.0 && $mail->returnFeeDeducted === false;
         });
     }
 

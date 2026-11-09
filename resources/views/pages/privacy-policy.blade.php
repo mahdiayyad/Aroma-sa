@@ -39,11 +39,11 @@
             'title' => $isAr ? 'سياسة الإرجاع' : 'Returns Policy',
             'paragraphs' => $isAr ? [
                 'نتمنى أن تكون تجربة الشراء من أروما مُرضية تماماً. يمكن تقديم طلب الإرجاع خلال 3 أيام من تاريخ استلام الطلب، على أن يكون المنتج بحالته الأصلية غير المستخدمة وبتغليفه الأصلي.',
-                'سيتم خصم رسوم معالجة إرجاع قدرها 50 ريال سعودي من قيمة المبلغ المسترد، لتغطية تكاليف معالجة الإرجاع والشحن، بصرف النظر عن سبب الإرجاع. تتم إعادة المبلغ إلى وسيلة الدفع الأصلية بعد استلام المنتج المرتجع والتحقق من حالته.',
+                'لا تُفرض أي رسوم إرجاع إذا وصل المنتج تالفاً أو كان خاطئاً أو غير مطابق للوصف. في الحالات الأخرى، يتم خصم رسوم معالجة إرجاع قدرها 50 ريال سعودي من قيمة المبلغ المسترد، لتغطية تكاليف معالجة الإرجاع والشحن. تتم إعادة المبلغ إلى وسيلة الدفع الأصلية بعد استلام المنتج المرتجع والتحقق من حالته.',
                 'لا يشمل الإرجاع المنتجات القابلة للتلف والمنتجات المخصصة أو المُصنّعة حسب الطلب.',
             ] : [
                 'We want you to love your Aroma purchase. You may submit a return request within 3 days of receiving your order, with the product in its original, unused condition and packaging.',
-                'A return handling fee of 50 SAR will be deducted from your refund to cover return processing and shipping costs, regardless of the reason for return. Refunds are issued to the original payment method once the returned item has been received and inspected.',
+                'Returns are free if the item arrived damaged, was the wrong item, or was not as described. In all other cases, a return handling fee of 50 SAR will be deducted from your refund to cover return processing and shipping costs. Refunds are issued to the original payment method once the returned item has been received and inspected.',
                 'Perishable items (fresh flowers) and personalized or made-to-order products are not eligible for return.',
             ],
             'cta' => ['route' => 'guides.returns', 'label' => $isAr ? 'اطّلعي على دليل الاستبدال والإرجاع خطوة بخطوة' : 'See our step-by-step Exchange & Returns guide'],

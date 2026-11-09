@@ -11,6 +11,7 @@ use App\Http\Controllers\Account\ReferralController;
 use App\Http\Controllers\Account\RefundRequestController;
 use App\Http\Controllers\Admin\Auth\ForcePasswordController as AdminForcePasswordController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
+use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\BrandController as AdminBrandController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
@@ -319,6 +321,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->shallow()->except('show');
         Route::resource('categories', AdminCategoryController::class)->except('show');
         Route::resource('brands', AdminBrandController::class)->except('show');
+        Route::resource('blog-posts', AdminBlogPostController::class)->except('show');
         Route::resource('gift-cards', AdminGiftCardController::class)->except('show');
         Route::resource('promo-codes', AdminPromoCodeController::class);
 
@@ -355,6 +358,8 @@ Route::prefix('{locale}')
         Route::get('/', [HomeController::class, 'index'])->name('home');
         Route::get('category/{category}', [CategoryController::class, 'show'])->name('category.show');
         Route::get('product/{product}', [ProductController::class, 'show'])->name('product.show');
+        Route::get('blog', [BlogController::class, 'index'])->name('blog.index');
+        Route::get('blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
     });
 
 /* Webhooks (unauthenticated but verified) -------------------------------- */

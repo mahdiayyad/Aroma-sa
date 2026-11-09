@@ -50,6 +50,15 @@ return [
         'support' => 'If you have any questions about this refund, please contact our support team.',
     ],
 
+    'review_request' => [
+        'subject' => 'How was your order? - :order_number',
+        'title' => 'Share your review',
+        'greeting' => 'Your order has arrived',
+        'message' => 'We hope you love it. Your review helps other customers choose, and it only takes a minute.',
+        'cta' => 'Write a review',
+        'thank_you' => 'Thank you for shopping with us.',
+    ],
+
     'footer' => [
         'contact' => 'Contact Us',
         'whatsapp' => 'WhatsApp',

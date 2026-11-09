@@ -19,6 +19,9 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a href="{{ route('home', $locale) }}">{{ __('storefront.nav.home') }}</a></li>
+            @if ($category->parent)
+                <li class="breadcrumb-item"><a href="{{ route('category.show', [$locale, $category->parent->slug]) }}">{{ $category->parent->name }}</a></li>
+            @endif
             <li class="breadcrumb-item active" aria-current="page">{{ $category->name }}</li>
         </ol>
     </nav>
@@ -31,6 +34,16 @@
         @endif
     </div>
 
+    @if ($subCategories->isNotEmpty())
+        @php($topCategory = $category->parent ?: $category)
+        <nav class="aroma-subcategory-nav" aria-label="{{ __('storefront.nav.categories') }}">
+            <a href="{{ route('category.show', [$locale, $topCategory->slug]) }}" class="aroma-filter-chip {{ $category->is($topCategory) ? 'is-active' : '' }}">{{ __('storefront.catalog.all') }}</a>
+            @foreach ($subCategories as $subCategory)
+                <a href="{{ route('category.show', [$locale, $subCategory->slug]) }}" class="aroma-filter-chip {{ $category->is($subCategory) ? 'is-active' : '' }}">{{ $subCategory->name }}</a>
+            @endforeach
+        </nav>
+    @endif
+
     <div class="row g-4 mt-1">
         {{-- Mobile filter trigger --}}
         <div class="col-12 d-lg-none">
@@ -38,7 +51,7 @@
                     data-bs-toggle="offcanvas" data-bs-target="#categoryFilters" aria-controls="categoryFilters">
                 <i class="bi bi-sliders me-2"></i>{{ __('storefront.catalog.filters') }}
                 @if ($hasActiveFilters)
-                    <span class="aroma-filter-count-badge">{{ ($hasBrandFilter ? 1 : 0) + ($hasPriceFilter ? 1 : 0) }}</span>
+                    <span class="aroma-filter-count-badge">{{ ($hasBrandFilter ? 1 : 0) + ($hasPriceFilter ? 1 : 0) + ($onSaleFilter ? 1 : 0) }}</span>
                 @endif
             </button>
         </div>

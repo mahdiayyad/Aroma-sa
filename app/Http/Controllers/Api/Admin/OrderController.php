@@ -91,9 +91,9 @@ class OrderController extends Controller
             return response()->json(['message' => 'No captured payment to refund for this order.'], 422);
         }
 
-        // No explicit amount: default to shipping already subtracted (once
-        // per order — see Order::suggestedRefundAmount()), same as the admin
-        // Blade form's pre-fill, not just the raw remaining amount.
+        // No explicit amount: default to any return fee already subtracted
+        // (see Order::returnFee()), same as the admin Blade form's pre-fill,
+        // not just the raw remaining amount.
         $amount = isset($data['amount']) ? (float) $data['amount'] : $order->suggestedRefundAmount($payment);
 
         // Tamara refunds must go back through Tamara (never Moyasar / store credit).

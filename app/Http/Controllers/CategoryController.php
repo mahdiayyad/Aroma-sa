@@ -36,6 +36,7 @@ class CategoryController extends Controller
         return view('catalog.category', [
             'category' => $model,
             'products' => $this->catalog->productsForCategory($model, $filters),
+            'subCategories' => $this->catalog->subCategories($model),
             'brands'   => $this->catalog->activeBrands(),
             'filters'  => $filters,
         ]);

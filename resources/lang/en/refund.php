@@ -37,6 +37,6 @@ return [
     ],
 
     'email' => [
-        'shipping_deducted_notice' => 'Aramex shipping fees will be deducted from the order amount when processing the refund.',
+        'return_fee_notice' => 'A return fee of 50 SAR was deducted from this refund, as set out in our returns policy.',
     ],
 ];

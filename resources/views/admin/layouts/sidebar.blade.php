@@ -6,6 +6,7 @@
     ['route' => 'admin.gift-cards.index','match' => 'admin.gift-cards.*','icon' => 'bi-postcard', 'label' => __('admin.nav.gift_cards')],
     ['route' => 'admin.promo-codes.index','match' => 'admin.promo-codes.*','icon' => 'bi-ticket-perforated', 'label' => __('admin.nav.promo_codes')],
     ['route' => 'admin.reviews.index',  'match' => 'admin.reviews.*',  'icon' => 'bi-chat-square-text', 'label' => __('admin.nav.reviews')],
+    ['route' => 'admin.blog-posts.index','match' => 'admin.blog-posts.*','icon' => 'bi-journal-text', 'label' => __('admin.nav.blog')],
     ['route' => 'admin.orders.index',   'match' => 'admin.orders.*',   'icon' => 'bi-receipt',     'label' => __('admin.nav.orders')],
     ['route' => 'admin.refund-requests.index','match' => 'admin.refund-requests.*','icon' => 'bi-arrow-return-left', 'label' => __('admin.nav.refund_requests')],
     ['route' => 'admin.customers.index','match' => 'admin.customers.*','icon' => 'bi-people',      'label' => __('admin.nav.customers')],

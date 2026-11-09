@@ -74,6 +74,24 @@ return [
         'cta'      => 'Shop the offers',
     ],
 
+    'why_aroma' => [
+        'eyebrow'         => 'Why Aroma',
+        'title'           => 'What sets our abayas apart',
+        'design_title'    => 'Heritage meets modern design',
+        'design_body'     => 'A Saudi brand designing abayas that blend Saudi heritage with contemporary design.',
+        'fabric_title'    => 'Carefully sourced fabrics',
+        'fabric_body'     => 'We source our fabrics from trusted, high-quality suppliers, so every abaya leaves a lasting impression.',
+        'tailoring_title' => 'Precise tailoring',
+        'tailoring_body'  => 'We pay close attention to every stitch and finish on every abaya.',
+        'cta'             => 'More about Aroma',
+    ],
+
+    'blog' => [
+        'title'    => 'Blog',
+        'subtitle' => 'Tips on choosing and caring for your abaya.',
+        'all'      => 'All articles',
+    ],
+
     'trust' => [
         'title'     => 'Shop with confidence',
         'payments'  => 'Secure payments with Mada, Apple Pay, Visa & Mastercard',
@@ -98,6 +116,7 @@ return [
         'terms'    => 'Terms & Conditions',
         'guides'   => 'Customer Guide',
         'faq'      => 'FAQ',
+        'blog'     => 'Blog',
         'contact'  => 'Contact us',
         'commercial_registration' => 'Commercial Registration: :number',
         'vat_number' => 'VAT No.: :number',
@@ -146,6 +165,7 @@ return [
         'empty'      => 'No products found. Please check back soon.',
         'remove_filter' => 'Remove filter',
         'on_sale'    => 'On sale',
+        'all'        => 'All',
     ],
 
     'currency' => 'SAR',
