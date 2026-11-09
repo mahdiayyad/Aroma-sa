@@ -27,10 +27,10 @@
             'id' => 'shipping',
             'title' => $isAr ? 'سياسة الشحن' : 'Shipping Policy',
             'paragraphs' => $isAr ? [
-                'يتم الشحن من خلال شركة أرامكس. قد تستغرق الشحنات الدولية مدة تصل إلى 20 يوم عمل، وقد يتطلب التوصيل وقتاً إضافياً في حال كان العميل خارج المملكة العربية السعودية.',
+                'يتم الشحن من خلال شركة أرامكس، وتظهر مدة التوصيل المتوقعة في صفحة مراجعة الطلب قبل الدفع. أما الشحنات الدولية (خارج المملكة العربية السعودية) فقد تستغرق مدة تصل إلى 20 يوم عمل، وقد يتطلب توصيلها وقتاً إضافياً.',
                 'تصل رسالة إشعار تتضمن تفاصيل تتبع الشحنة فور شحن الطلب. وقد تتسبب ظروف خارجة عن إرادتنا — كالجمارك أو الأحوال الجوية أو تعطل خدمات الشحن — في تمديد هذه المدة أحياناً، وسنحرص على إبقاء العميل على اطلاع بأي تأخير جوهري.',
             ] : [
-                'Shipping is handled through Aramex. International shipments may take up to 20 business days, and delivery may require additional time for customers located outside the Kingdom of Saudi Arabia.',
+                'Shipping is handled through Aramex, and your expected delivery time is shown on the order review page before you pay. International shipments (outside the Kingdom of Saudi Arabia) may take up to 20 business days, and delivery may require additional time.',
                 "You'll receive a notification with tracking details once your order has shipped. Delays caused by circumstances beyond our control — customs, weather, or courier disruptions — may occasionally extend this timeframe, and we'll keep you informed of any significant delay.",
             ],
         ],
@@ -39,11 +39,11 @@
             'title' => $isAr ? 'سياسة الإرجاع' : 'Returns Policy',
             'paragraphs' => $isAr ? [
                 'نتمنى أن تكون تجربة الشراء من أروما مُرضية تماماً. يمكن تقديم طلب الإرجاع خلال 3 أيام من تاريخ استلام الطلب، على أن يكون المنتج بحالته الأصلية غير المستخدمة وبتغليفه الأصلي.',
-                'سيتم خصم رسوم معالجة إرجاع قدرها 50 ريال سعودي من قيمة المبلغ المسترد، لتغطية تكاليف معالجة الإرجاع والشحن، بصرف النظر عن سبب الإرجاع. تتم إعادة المبلغ إلى وسيلة الدفع الأصلية بعد استلام المنتج المرتجع والتحقق من حالته.',
+                'لا تُفرض أي رسوم إرجاع إذا وصل المنتج تالفاً أو كان خاطئاً أو غير مطابق للوصف. في الحالات الأخرى، يتم خصم رسوم معالجة إرجاع قدرها 50 ريال سعودي من قيمة المبلغ المسترد، لتغطية تكاليف معالجة الإرجاع والشحن. تتم إعادة المبلغ إلى وسيلة الدفع الأصلية بعد استلام المنتج المرتجع والتحقق من حالته.',
                 'لا يشمل الإرجاع المنتجات القابلة للتلف والمنتجات المخصصة أو المُصنّعة حسب الطلب.',
             ] : [
                 'We want you to love your Aroma purchase. You may submit a return request within 3 days of receiving your order, with the product in its original, unused condition and packaging.',
-                'A return handling fee of 50 SAR will be deducted from your refund to cover return processing and shipping costs, regardless of the reason for return. Refunds are issued to the original payment method once the returned item has been received and inspected.',
+                'Returns are free if the item arrived damaged, was the wrong item, or was not as described. In all other cases, a return handling fee of 50 SAR will be deducted from your refund to cover return processing and shipping costs. Refunds are issued to the original payment method once the returned item has been received and inspected.',
                 'Perishable items (fresh flowers) and personalized or made-to-order products are not eligible for return.',
             ],
             'cta' => ['route' => 'guides.returns', 'label' => $isAr ? 'اطّلعي على دليل الاستبدال والإرجاع خطوة بخطوة' : 'See our step-by-step Exchange & Returns guide'],

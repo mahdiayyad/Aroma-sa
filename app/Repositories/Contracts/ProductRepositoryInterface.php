@@ -16,6 +16,9 @@ interface ProductRepositoryInterface extends RepositoryInterface
 
     public function newArrivals(int $limit = 8): Collection;
 
+    /** The in-stock product with the biggest live discount, or null when nothing is on sale. */
+    public function topDiscounted(): ?Product;
+
     public function findActiveBySlug(string $slug): ?Product;
 
     /**
@@ -27,7 +30,7 @@ interface ProductRepositoryInterface extends RepositoryInterface
 
     /**
      * Paginate active products in a category, honouring optional filters:
-     *   brand (slug), price_min, price_max, sort (newest|price_asc|price_desc).
+     *   brand (slug), price_min, price_max, on_sale, sort (newest|price_asc|price_desc).
      *
      * @param array<string,mixed> $filters
      */

@@ -64,15 +64,39 @@ return [
 
     'gifting' => [
         'headline' => 'Send something unforgettable',
-        'body'     => 'Add a personal message and choose a delivery time — we handle the rest.',
+        'body'     => 'Add a personal message — we handle the rest.',
         'cta'      => 'Explore gifts',
+    ],
+
+    'offer_banner' => [
+        'headline' => 'Up to :percent% off',
+        'body'     => 'On selected Aroma pieces.',
+        'cta'      => 'Shop the offers',
+    ],
+
+    'why_aroma' => [
+        'eyebrow'         => 'Why Aroma',
+        'title'           => 'What sets our abayas apart',
+        'design_title'    => 'Heritage meets modern design',
+        'design_body'     => 'A Saudi brand designing abayas that blend Saudi heritage with contemporary design.',
+        'fabric_title'    => 'Carefully sourced fabrics',
+        'fabric_body'     => 'We source our fabrics from trusted, high-quality suppliers, so every abaya leaves a lasting impression.',
+        'tailoring_title' => 'Precise tailoring',
+        'tailoring_body'  => 'We pay close attention to every stitch and finish on every abaya.',
+        'cta'             => 'More about Aroma',
+    ],
+
+    'blog' => [
+        'title'    => 'Blog',
+        'subtitle' => 'Tips on choosing and caring for your abaya.',
+        'all'      => 'All articles',
     ],
 
     'trust' => [
         'title'     => 'Shop with confidence',
         'payments'  => 'Secure payments with Mada, Apple Pay, Visa & Mastercard',
         'bnpl'      => 'Split your payment with Tamara',
-        'delivery'  => 'Fast delivery across the Kingdom',
+        'delivery'  => 'Delivery across the Kingdom',
         'gift_wrap' => 'Luxury gift wrapping with every order',
         'curated'   => 'Carefully selected, high-quality products',
         'offers'    => 'Exclusive offers for our valued customers',
@@ -91,7 +115,11 @@ return [
         'policies' => 'Policies & Privacy',
         'terms'    => 'Terms & Conditions',
         'guides'   => 'Customer Guide',
+        'faq'      => 'FAQ',
+        'blog'     => 'Blog',
         'contact'  => 'Contact us',
+        'commercial_registration' => 'Commercial Registration: :number',
+        'vat_number' => 'VAT No.: :number',
         'rights'   => 'All rights reserved.',
         'tagline'  => 'Awaken your Senses',
     ],
@@ -113,7 +141,7 @@ return [
         'option_required' => 'Please choose :option before adding to cart.',
         'description'  => 'Description',
         'gift_options' => 'Add gift options',
-        'gift_hint'    => 'Add a personal message and choose a delivery time at checkout.',
+        'gift_hint'    => 'Add a personal message at checkout.',
         'related'      => 'You may also like',
         'zoom_image'   => 'View full size',
         'image_of'     => 'Image :current of :total',
@@ -136,6 +164,8 @@ return [
         'results'    => ':count products',
         'empty'      => 'No products found. Please check back soon.',
         'remove_filter' => 'Remove filter',
+        'on_sale'    => 'On sale',
+        'all'        => 'All',
     ],
 
     'currency' => 'SAR',

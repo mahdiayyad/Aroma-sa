@@ -1,0 +1,44 @@
+/* ==========================================================================
+   Blog — article list and article page. Cards are the sitewide .aroma-card;
+   this only adds the cover crop and a comfortable reading width.
+   ========================================================================== */
+
+.aroma-blog-card {
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+.aroma-blog-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.aroma-blog-date {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--aroma-muted);
+  font-size: 0.78rem;
+}
+
+.aroma-blog-article {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+.aroma-blog-article-cover {
+  display: block;
+  width: 100%;
+  margin-bottom: 2rem;
+  border-radius: var(--aroma-radius-lg);
+}
+.aroma-blog-body p {
+  margin-bottom: 1.25rem;
+  line-height: 1.9;
+  white-space: pre-line;
+}
+.aroma-blog-body h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.35rem;
+}

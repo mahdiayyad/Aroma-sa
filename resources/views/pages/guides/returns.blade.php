@@ -115,8 +115,8 @@
                 <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                 <span>
                     {{ $isAr
-                        ? 'يُخصم 50 ريال سعودي رسوم إرجاع من قيمة المبلغ المسترد لتغطية تكاليف الشحن.'
-                        : 'A return handling fee of 50 SAR is deducted from your refund to cover return processing and shipping costs, regardless of the reason for return.' }}
+                        ? 'لا رسوم إذا وصل المنتج تالفاً أو كان خاطئاً أو غير مطابق للوصف. في الحالات الأخرى يُخصم 50 ريال سعودي رسوم إرجاع من قيمة المبلغ المسترد لتغطية تكاليف الشحن.'
+                        : 'Returns are free if the item arrived damaged, was the wrong item, or was not as described. In all other cases, a return handling fee of 50 SAR is deducted from your refund to cover return processing and shipping costs.' }}
                 </span>
             </div>
 

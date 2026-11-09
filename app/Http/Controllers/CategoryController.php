@@ -31,11 +31,12 @@ class CategoryController extends Controller
             throw new NotFoundHttpException();
         }
 
-        $filters = $request->only(['brand', 'price_min', 'price_max', 'sort']);
+        $filters = $request->only(['brand', 'price_min', 'price_max', 'on_sale', 'sort']);
 
         return view('catalog.category', [
             'category' => $model,
             'products' => $this->catalog->productsForCategory($model, $filters),
+            'subCategories' => $this->catalog->subCategories($model),
             'brands'   => $this->catalog->activeBrands(),
             'filters'  => $filters,
         ]);

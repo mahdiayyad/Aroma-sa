@@ -52,6 +52,7 @@ class CatalogService extends BaseService
             // like a real carousel rather than a half-empty stage.
             'featuredProducts' => $this->products->featured(10),
             'newArrivals'      => $this->products->newArrivals(8),
+            'topDiscount'      => $this->products->topDiscounted(),
         ];
     }
 
@@ -66,6 +67,15 @@ class CatalogService extends BaseService
     public function productsForCategory(Category $category, array $filters = []): LengthAwarePaginator
     {
         return $this->products->paginateForCategory($category, $filters);
+    }
+
+    /**
+     * The sub-category row on a category page. Taken from the top-level
+     * parent so it stays the same while moving between its sub-categories.
+     */
+    public function subCategories(Category $category): Collection
+    {
+        return $this->categories->childrenWithProducts($category->parent ?: $category);
     }
 
     public function activeBrands(): Collection

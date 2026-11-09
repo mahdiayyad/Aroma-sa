@@ -1,5 +1,19 @@
-@php($locale = app()->getLocale())
-@php($waDigits = preg_replace('/\D+/', '', (string) config('aroma.contact.whatsapp')))
+@php
+    $locale = app()->getLocale();
+    $waDigits = preg_replace('/\D+/', '', (string) config('aroma.contact.whatsapp'));
+    $commercialRegistration = (string) config('aroma.contact.commercial_registration');
+    $vatNumber = (string) config('aroma.receipts.vat_number');
+
+    // Icon order is the display order; a network with no URL drops out
+    // entirely rather than rendering a link that goes nowhere.
+    $socialLinks = array_filter([
+        'instagram' => config('aroma.contact.instagram'),
+        'tiktok'    => config('aroma.contact.tiktok'),
+        'whatsapp'  => $waDigits !== '' ? 'https://wa.me/'.$waDigits : '',
+        'snapchat'  => config('aroma.contact.snapchat'),
+        'facebook'  => config('aroma.contact.facebook'),
+    ]);
+@endphp
 
 <footer class="aroma-footer mt-5 pt-5 pb-4">
     <div class="container">
@@ -11,31 +25,9 @@
                     <i class="bi bi-envelope"></i>{{ config('aroma.contact.email') }}
                 </a>
                 <div class="d-flex gap-3 fs-5 aroma-footer-social">
-                    @if (config('aroma.contact.instagram'))
-                        <a href="{{ config('aroma.contact.instagram') }}" target="_blank" rel="noopener"><i class="bi bi-instagram"></i></a>
-                    @else
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                    @endif
-                    @if (config('aroma.contact.tiktok'))
-                        <a href="{{ config('aroma.contact.tiktok') }}" target="_blank" rel="noopener"><i class="bi bi-tiktok"></i></a>
-                    @else
-                        <a href="#"><i class="bi bi-tiktok"></i></a>
-                    @endif
-                    @if ($waDigits !== '')
-                        <a href="https://wa.me/{{ $waDigits }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
-                    @else
-                        <a href="#"><i class="bi bi-whatsapp"></i></a>
-                    @endif
-                    @if (config('aroma.contact.snapchat'))
-                        <a href="{{ config('aroma.contact.snapchat') }}" target="_blank" rel="noopener"><i class="bi bi-snapchat"></i></a>
-                    @else
-                        <a href="#"><i class="bi bi-snapchat"></i></a>
-                    @endif
-                    @if (config('aroma.contact.facebook'))
-                        <a href="{{ config('aroma.contact.facebook') }}" target="_blank" rel="noopener"><i class="bi bi-facebook"></i></a>
-                    @else
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                    @endif
+                    @foreach ($socialLinks as $network => $url)
+                        <a href="{{ $url }}" target="_blank" rel="noopener" aria-label="{{ ucfirst($network) }}"><i class="bi bi-{{ $network }}"></i></a>
+                    @endforeach
                 </div>
             </div>
 
@@ -44,6 +36,9 @@
                 <ul class="list-unstyled small aroma-footer-links">
                     <li class="mb-2"><a href="{{ route('about') }}">{{ __('storefront.footer.about') }}</a></li>
                     <li class="mb-2"><a href="{{ route('contact') }}">{{ __('storefront.footer.contact') }}</a></li>
+                    @if ($hasBlog)
+                        <li class="mb-2"><a href="{{ route('blog.index', $locale) }}">{{ __('storefront.footer.blog') }}</a></li>
+                    @endif
                 </ul>
             </div>
 
@@ -54,6 +49,7 @@
                     <li class="mb-2"><a href="{{ route('privacy-policy') }}">{{ __('storefront.footer.policies') }}</a></li>
                     <li class="mb-2"><a href="{{ route('terms') }}">{{ __('storefront.footer.terms') }}</a></li>
                     <li class="mb-2"><a href="{{ route('guides.index') }}">{{ __('storefront.footer.guides') }}</a></li>
+                    <li class="mb-2"><a href="{{ route('faq') }}">{{ __('storefront.footer.faq') }}</a></li>
                 </ul>
             </div>
 
@@ -83,6 +79,16 @@
             <span><span class="footer-rights">©</span> {{ date('Y') }} {{ $brand['name'] }}. {{ __('storefront.footer.rights') }}</span>
             <span class="aroma-script">{{ __('storefront.footer.tagline') }}</span>
         </div>
+        @if ($commercialRegistration !== '' || $vatNumber !== '')
+            <div class="d-flex flex-wrap gap-3 small mt-2">
+                @if ($commercialRegistration !== '')
+                    <span>{{ __('storefront.footer.commercial_registration', ['number' => $commercialRegistration]) }}</span>
+                @endif
+                @if ($vatNumber !== '')
+                    <span>{{ __('storefront.footer.vat_number', ['number' => $vatNumber]) }}</span>
+                @endif
+            </div>
+        @endif
     </div>
 
     {{-- Closing ornamental band — the same botanical motif used sitewide,

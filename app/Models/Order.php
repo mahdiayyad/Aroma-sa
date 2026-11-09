@@ -106,10 +106,7 @@ class Order extends Model
 
     /**
      * The amount a refund on $payment should default to — the remaining
-     * captured amount, minus this order's Aramex shipping cost, but only the
-     * FIRST time: once shipping_fee_deducted_at is set (by the refund
-     * service once a refund actually completes), later partial refunds on
-     * the same order get the plain remaining amount, never deducted twice.
+     * captured amount, minus any return fee still due (see returnFee()).
      * The admin UI pre-fills this but the field stays editable — this is a
      * suggestion, not an enforced amount.
      */
@@ -117,11 +114,47 @@ class Order extends Model
     {
         $remaining = round((float) $payment->amount - (float) $payment->refunded_amount, 2);
 
-        if ($this->shipping_fee_deducted_at !== null || (float) $this->shipping_cost <= 0) {
-            return max(0.0, $remaining);
+        return max(0.0, round($remaining - $this->returnFee(), 2));
+    }
+
+    /**
+     * The return fee still due on this order. Only an order that reached the
+     * customer can be returned, the fee is waived when the customer's return
+     * request says the store was at fault, and it's taken once:
+     * shipping_fee_deducted_at (named for the earlier rule of deducting
+     * shipping) marks it done, so later partial refunds go out whole.
+     */
+    public function returnFee(): float
+    {
+        if ($this->shipping_fee_deducted_at !== null || $this->delivered_at === null) {
+            return 0.0;
         }
 
-        return max(0.0, round($remaining - (float) $this->shipping_cost, 2));
+        $reason = $this->refundRequests()
+            ->where('status', '!=', RefundRequest::STATUS_REJECTED)
+            ->latest('id')
+            ->value('reason');
+
+        return in_array($reason, RefundRequest::NO_FEE_REASONS, true) ? 0.0 : RefundRequest::RETURN_FEE;
+    }
+
+    /**
+     * Call once a refund has completed and $payment is up to date. Records
+     * the fee as taken, unless the admin handed back so much that it can't
+     * have been kept. Returns whether it was taken.
+     */
+    public function recordReturnFee(Payment $payment): bool
+    {
+        $fee = $this->returnFee();
+        $stillHeld = round((float) $payment->amount - (float) $payment->refunded_amount, 2);
+
+        if ($fee <= 0 || $stillHeld < $fee) {
+            return false;
+        }
+
+        $this->update(['shipping_fee_deducted_at' => now()]);
+
+        return true;
     }
 
     public function isPaid(): bool

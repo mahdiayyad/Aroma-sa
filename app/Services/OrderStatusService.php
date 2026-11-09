@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Mail\ReviewRequestMail;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductReview;
 use App\Services\Payment\TamaraOrderOperations;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
+use Throwable;
 
 /**
  * The single authority on order-status transitions. Both the admin API and any
@@ -100,6 +106,36 @@ class OrderStatusService
             $this->notes[] = $note;
         }
 
+        if ($to === Order::STATUS_DELIVERED) {
+            $this->requestReview($order);
+        }
+
         return $order;
+    }
+
+    /**
+     * Asks the customer to review what just arrived, leaving out anything
+     * they've already reviewed. Guest orders are skipped because the review
+     * form needs an account. Never throws, like the gateway calls above: a
+     * mail outage must not block the status change.
+     */
+    private function requestReview(Order $order): void
+    {
+        if (! $order->user_id || ! $order->customer_email) {
+            return;
+        }
+
+        try {
+            $products = Product::active()
+                ->whereIn('id', $order->items()->pluck('product_id'))
+                ->whereNotIn('id', ProductReview::withTrashed()->where('user_id', $order->user_id)->pluck('product_id'))
+                ->get();
+
+            if ($products->isNotEmpty()) {
+                Mail::to($order->customer_email)->send(new ReviewRequestMail($order, $products));
+            }
+        } catch (Throwable $e) {
+            Log::error('Review-request email failed to send', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+        }
     }
 }

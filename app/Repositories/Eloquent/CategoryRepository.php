@@ -35,6 +35,14 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
             ->get();
     }
 
+    public function childrenWithProducts(Category $parent): Collection
+    {
+        return $parent->children()
+            ->active()
+            ->whereHas('products', fn ($q) => $q->active())
+            ->get();
+    }
+
     public function findActiveBySlug(string $slug): ?Category
     {
         return $this->model->newQuery()

@@ -315,12 +315,12 @@ class TamaraOperationsTest extends TestCase
         $this->assertEquals(100, $payment->fresh()->refunded_amount);
     }
 
-    public function test_the_first_refund_on_an_order_with_shipping_marks_it_deducted_and_emails_the_customer(): void
+    public function test_the_first_refund_on_a_delivered_order_records_the_return_fee_and_emails_the_customer(): void
     {
         Event::fake(); // irrelevant here, just keeps other listeners quiet
         Mail::fake();
         [$order, $payment] = $this->tamaraOrder(Order::STATUS_DELIVERED, Payment::STATUS_CAPTURED);
-        $order->update(['shipping_cost' => 25.0]);
+        $order->update(['delivered_at' => now()->subDay()]);
         Http::fake(['*tamara.co/payments/simplified-refund/*' => Http::response(
             ['status' => 'partially_refunded', 'refund_id' => 'r1', 'refunded_amount' => ['amount' => 40, 'currency' => 'SAR']], 200
         )]);
@@ -329,15 +329,15 @@ class TamaraOperationsTest extends TestCase
 
         $this->assertNotNull($order->fresh()->shipping_fee_deducted_at);
         Mail::assertSent(RefundProcessedMail::class, function ($mail) use ($order) {
-            return $mail->order->is($order) && $mail->refundAmount === 40.0 && $mail->shippingDeducted === true;
+            return $mail->order->is($order) && $mail->refundAmount === 40.0 && $mail->returnFeeDeducted === true;
         });
     }
 
-    public function test_a_second_refund_on_the_same_order_does_not_deduct_shipping_again(): void
+    public function test_a_second_refund_on_the_same_order_does_not_take_the_fee_again(): void
     {
         Mail::fake();
         [$order, $payment] = $this->tamaraOrder(Order::STATUS_DELIVERED, Payment::STATUS_CAPTURED);
-        $order->update(['shipping_cost' => 25.0, 'shipping_fee_deducted_at' => now()->subHour()]);
+        $order->update(['delivered_at' => now()->subDay(), 'shipping_fee_deducted_at' => now()->subHour()]);
         Http::fake(['*tamara.co/payments/simplified-refund/*' => Http::response(
             ['status' => 'fully_refunded', 'refund_id' => 'r2', 'refunded_amount' => ['amount' => 60, 'currency' => 'SAR']], 200
         )]);
@@ -345,14 +345,15 @@ class TamaraOperationsTest extends TestCase
         app(TamaraOrderOperations::class)->refund($order, 60.0, 'rest');
 
         Mail::assertSent(RefundProcessedMail::class, function ($mail) {
-            return $mail->shippingDeducted === false;
+            return $mail->returnFeeDeducted === false;
         });
     }
 
-    public function test_an_order_with_no_shipping_cost_never_shows_the_shipping_deducted_notice(): void
+    public function test_giving_the_whole_payment_back_never_claims_a_fee_was_kept(): void
     {
         Mail::fake();
         [$order, $payment] = $this->tamaraOrder(Order::STATUS_DELIVERED, Payment::STATUS_CAPTURED);
+        $order->update(['delivered_at' => now()->subDay()]);
         Http::fake(['*tamara.co/payments/simplified-refund/*' => Http::response(
             ['status' => 'fully_refunded', 'refund_id' => 'r3', 'refunded_amount' => ['amount' => 100, 'currency' => 'SAR']], 200
         )]);
@@ -361,7 +362,7 @@ class TamaraOperationsTest extends TestCase
 
         $this->assertNull($order->fresh()->shipping_fee_deducted_at);
         Mail::assertSent(RefundProcessedMail::class, function ($mail) {
-            return $mail->shippingDeducted === false;
+            return $mail->returnFeeDeducted === false;
         });
     }
 

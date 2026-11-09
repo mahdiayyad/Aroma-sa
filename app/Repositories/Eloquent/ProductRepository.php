@@ -43,6 +43,21 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             ->get();
     }
 
+    public function topDiscounted(): ?Product
+    {
+        // Ranked in PHP so the figure always matches the card badges, which
+        // round through Product::discountPercent().
+        return $this->model->newQuery()
+            ->active()
+            ->whereColumn('compare_at_price', '>', 'base_price')
+            ->whereHas('category', fn ($q) => $q->active())
+            ->with(['category', 'variants'])
+            ->get()
+            ->filter(fn (Product $product) => $product->inStock())
+            ->sortByDesc(fn (Product $product) => $product->discountPercent())
+            ->first();
+    }
+
     public function findActiveBySlug(string $slug): ?Product
     {
         return $this->model->newQuery()
@@ -111,6 +126,10 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
 
         if (($max = Arr::get($filters, 'price_max')) !== null && $max !== '') {
             $query->where('base_price', '<=', (float) $max);
+        }
+
+        if (Arr::get($filters, 'on_sale')) {
+            $query->whereColumn('compare_at_price', '>', 'base_price');
         }
 
         switch (Arr::get($filters, 'sort')) {

@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Contracts\ChatAssistant;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Models\BlogPost;
 use App\Services\Ai\GeminiAssistant;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
@@ -47,6 +48,11 @@ class AromaServiceProvider extends ServiceProvider
         // (e.g. Apple, today) never sits on the page failing on click.
         View::composer('auth.partials.social', function ($view) {
             $view->with('socialProviders', SocialAuthController::configuredProviders());
+        });
+
+        // The footer only links the blog once there's something to read.
+        View::composer('layouts.partials.footer', function ($view) {
+            $view->with('hasBlog', BlogPost::published()->exists());
         });
 
         // Usage in Blade: @price($product->price)

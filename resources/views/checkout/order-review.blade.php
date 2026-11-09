@@ -89,11 +89,13 @@
                 </div>
             </div>
 
-            {{-- Delivery notice (delivery scheduling was removed from checkout —
-                 every order ships on the same fixed timeline). --}}
+            {{-- Delivery notice (delivery scheduling was removed from checkout).
+                 Orders leaving Saudi Arabia get the same estimate the payment
+                 step shows them, not the domestic one. --}}
+            @php($isDomestic = in_array(strtoupper((string) ($shipping['country'] ?? '')), ['', 'SA'], true))
             <div class="aroma-alert aroma-alert-info mb-4" role="status">
                 <i class="bi bi-truck me-2"></i>
-                {{ __('delivery.notice') }}
+                {{ $isDomestic ? __('delivery.notice') : __('checkout.shipping_days.international') }}
             </div>
         </div>
 

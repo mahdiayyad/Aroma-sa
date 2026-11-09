@@ -532,9 +532,8 @@ class MoyasarPaymentService implements PaymentGateway
     }
 
     /**
-     * Marks the order's shipping fee as deducted (only the first time any
-     * refund on it actually completes — see Order::suggestedRefundAmount())
-     * and emails the customer. Never throws: a notification failure must not
+     * Records any return fee as taken (see Order::recordReturnFee()) and
+     * emails the customer. Never throws: a notification failure must not
      * undo a refund that already succeeded on Moyasar's side.
      */
     private function notifyCustomerOfRefund(Payment $payment, float $refundedNow): void
@@ -545,14 +544,10 @@ class MoyasarPaymentService implements PaymentGateway
             return;
         }
 
-        $shippingDeducted = $order->shipping_fee_deducted_at === null && (float) $order->shipping_cost > 0;
-
-        if ($shippingDeducted) {
-            $order->update(['shipping_fee_deducted_at' => now()]);
-        }
+        $returnFeeDeducted = $order->recordReturnFee($payment);
 
         try {
-            Mail::to($order->customer_email)->send(new RefundProcessedMail($order, $refundedNow, $shippingDeducted));
+            Mail::to($order->customer_email)->send(new RefundProcessedMail($order, $refundedNow, $returnFeeDeducted));
         } catch (Throwable $e) {
             Log::error('Refund-processed email failed to send', ['order_id' => $order->id, 'error' => $e->getMessage()]);
         }

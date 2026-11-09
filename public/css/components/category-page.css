@@ -99,6 +99,20 @@
   background: var(--aroma-emerald-deep);
   color: var(--aroma-white);
 }
+.aroma-subcategory-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.aroma-subcategory-nav .aroma-filter-chip {
+  padding: 0.45rem 0.95rem;
+  font-size: 0.85rem;
+}
+.aroma-subcategory-nav .aroma-filter-chip.is-active {
+  background: var(--aroma-emerald-deep);
+  color: var(--aroma-white);
+}
 .aroma-filter-chip-clear {
   background: transparent;
   border: 1px solid var(--aroma-border-strong);

@@ -11,13 +11,17 @@
 @php($locale = app()->getLocale())
 @php($hasBrandFilter = !empty($filters['brand']))
 @php($hasPriceFilter = !empty($filters['price_min']) || !empty($filters['price_max']))
-@php($hasActiveFilters = $hasBrandFilter || $hasPriceFilter)
+@php($onSaleFilter = !empty($filters['on_sale']))
+@php($hasActiveFilters = $hasBrandFilter || $hasPriceFilter || $onSaleFilter)
 @php($activeBrand = $hasBrandFilter ? $brands->firstWhere('slug', $filters['brand']) : null)
 <div class="container mt-4">
     {{-- Breadcrumb --}}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb small">
             <li class="breadcrumb-item"><a href="{{ route('home', $locale) }}">{{ __('storefront.nav.home') }}</a></li>
+            @if ($category->parent)
+                <li class="breadcrumb-item"><a href="{{ route('category.show', [$locale, $category->parent->slug]) }}">{{ $category->parent->name }}</a></li>
+            @endif
             <li class="breadcrumb-item active" aria-current="page">{{ $category->name }}</li>
         </ol>
     </nav>
@@ -30,6 +34,16 @@
         @endif
     </div>
 
+    @if ($subCategories->isNotEmpty())
+        @php($topCategory = $category->parent ?: $category)
+        <nav class="aroma-subcategory-nav" aria-label="{{ __('storefront.nav.categories') }}">
+            <a href="{{ route('category.show', [$locale, $topCategory->slug]) }}" class="aroma-filter-chip {{ $category->is($topCategory) ? 'is-active' : '' }}">{{ __('storefront.catalog.all') }}</a>
+            @foreach ($subCategories as $subCategory)
+                <a href="{{ route('category.show', [$locale, $subCategory->slug]) }}" class="aroma-filter-chip {{ $category->is($subCategory) ? 'is-active' : '' }}">{{ $subCategory->name }}</a>
+            @endforeach
+        </nav>
+    @endif
+
     <div class="row g-4 mt-1">
         {{-- Mobile filter trigger --}}
         <div class="col-12 d-lg-none">
@@ -37,7 +51,7 @@
                     data-bs-toggle="offcanvas" data-bs-target="#categoryFilters" aria-controls="categoryFilters">
                 <i class="bi bi-sliders me-2"></i>{{ __('storefront.catalog.filters') }}
                 @if ($hasActiveFilters)
-                    <span class="aroma-filter-count-badge">{{ ($hasBrandFilter ? 1 : 0) + ($hasPriceFilter ? 1 : 0) }}</span>
+                    <span class="aroma-filter-count-badge">{{ ($hasBrandFilter ? 1 : 0) + ($hasPriceFilter ? 1 : 0) + ($onSaleFilter ? 1 : 0) }}</span>
                 @endif
             </button>
         </div>
@@ -50,6 +64,10 @@
             </div>
             <div class="offcanvas-body">
                 <form method="get" class="aroma-filter-panel">
+                    @if ($onSaleFilter)
+                        <input type="hidden" name="on_sale" value="1">
+                    @endif
+
                     {{-- Brands --}}
                     <div class="aroma-filter-group">
                         <label class="aroma-filter-label">{{ __('storefront.catalog.brands') }}</label>
@@ -107,6 +125,11 @@
                     <p class="text-aroma-muted small mb-0">{{ __('storefront.catalog.results', ['count' => $products->total()]) }}</p>
                     @if ($hasActiveFilters)
                         <div class="aroma-filter-chips">
+                            @if ($onSaleFilter)
+                                <a href="{{ request()->fullUrlWithoutQuery(['on_sale']) }}" class="aroma-filter-chip" title="{{ __('storefront.catalog.remove_filter') }}">
+                                    {{ __('storefront.catalog.on_sale') }} <i class="bi bi-x" aria-hidden="true"></i>
+                                </a>
+                            @endif
                             @if ($activeBrand)
                                 <a href="{{ request()->fullUrlWithoutQuery(['brand']) }}" class="aroma-filter-chip" title="{{ __('storefront.catalog.remove_filter') }}">
                                     {{ $activeBrand->name }} <i class="bi bi-x" aria-hidden="true"></i>
@@ -135,6 +158,9 @@
                     <input type="hidden" name="brand" value="{{ $filters['brand'] ?? '' }}">
                     <input type="hidden" name="price_min" value="{{ $filters['price_min'] ?? '' }}">
                     <input type="hidden" name="price_max" value="{{ $filters['price_max'] ?? '' }}">
+                    @if ($onSaleFilter)
+                        <input type="hidden" name="on_sale" value="1">
+                    @endif
                     <label for="catalogSort" class="visually-hidden">{{ __('storefront.catalog.sort') }}</label>
                     <select name="sort" id="catalogSort" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="newest" {{ ($filters['sort'] ?? '') === 'newest' ? 'selected' : '' }}>{{ __('storefront.catalog.sort_newest') }}</option>
