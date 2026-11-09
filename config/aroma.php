@@ -139,6 +139,16 @@ return [
     ],
 
     /*
+    | Ad pixels --------------------------------------------------------------
+    | Public IDs (they appear in the page source). Blank one in .env to turn
+    | that pixel off. See App\Support\MarketingPixels for when they load.
+    */
+    'marketing' => [
+        'meta_pixel_id' => env('META_PIXEL_ID', '1127879479647421'),
+        'tiktok_pixel_id' => env('TIKTOK_PIXEL_ID', 'DBO7FMBC77UBQ4PDOUTG'),
+    ],
+
+    /*
     | Referral & reward points -----------------------------------------------
     | The single source of truth for the points<->SAR conversion and referral
     | bonus amounts — RewardPointService/ReferralService read this rather
