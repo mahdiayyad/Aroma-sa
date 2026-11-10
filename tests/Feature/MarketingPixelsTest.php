@@ -98,6 +98,20 @@ class MarketingPixelsTest extends TestCase
         $this->assertPixelsAbsent($this->get(route('admin.login'))->assertOk()->getContent());
     }
 
+    public function test_gtm_loads_only_with_a_valid_container_id(): void
+    {
+        $this->inProduction();
+        $this->assertStringNotContainsString('googletagmanager.com', $this->get('/en')->getContent());
+
+        config(['aroma.marketing.gtm_container_id' => 'GTM-AB12CD3']);
+        $html = $this->get('/en')->assertOk()->getContent();
+        $this->assertStringContainsString("'dataLayer',\"GTM-AB12CD3\"", $html);
+        $this->assertStringContainsString('googletagmanager.com/ns.html?id=GTM-AB12CD3', $html);
+
+        config(['aroma.marketing.gtm_container_id' => 'GTM-1"><script>alert(1)</script>']);
+        $this->assertStringNotContainsString('googletagmanager.com', $this->get('/en')->getContent());
+    }
+
     public function test_a_blank_id_turns_that_pixel_off(): void
     {
         $this->inProduction();

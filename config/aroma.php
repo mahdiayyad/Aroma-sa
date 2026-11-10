@@ -146,6 +146,11 @@ return [
     'marketing' => [
         'meta_pixel_id' => env('META_PIXEL_ID', '1127879479647421'),
         'tiktok_pixel_id' => env('TIKTOK_PIXEL_ID', 'DBO7FMBC77UBQ4PDOUTG'),
+        // Optional. When set (GTM-XXXXXXX) the container loads and receives the
+        // dataLayer e-commerce events. Meta/TikTok events are sent by the site
+        // itself (public/js/aroma-tracking.js) — don't add Meta/TikTok tags for
+        // the same events in GTM, or they'll be counted twice.
+        'gtm_container_id' => env('GTM_CONTAINER_ID'),
     ],
 
     /*

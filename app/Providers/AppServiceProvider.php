@@ -14,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        // One instance per request: events pushed by a controller are read
+        // back by the layout when the page renders.
+        $this->app->singleton(\App\Services\TrackingService::class);
     }
 
     /**

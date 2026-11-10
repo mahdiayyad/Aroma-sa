@@ -26,6 +26,7 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'purchase_tracked_at' => 'datetime',
         'shipping_fee_deducted_at' => 'datetime',
         // Gifting
         'is_gift' => 'boolean',

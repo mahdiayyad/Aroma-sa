@@ -113,7 +113,7 @@
         <div class="col-lg-8 order-lg-1">
             <h2 class="aroma-section-title">{{ __('checkout.payment') }}</h2>
 
-            <form method="POST" action="{{ route('checkout.payment.store') }}" id="paymentForm" class="needs-validation">
+            <form method="POST" action="{{ route('checkout.payment.store') }}" id="paymentForm" class="needs-validation" data-track-submit="add_payment_info">
                 @csrf
 
                 {{-- Payment method --}}
