@@ -214,5 +214,6 @@
     <script src="{{ \App\Support\Assets::versioned('js/intl-phone.js') }}"></script>
     <script src="{{ \App\Support\Assets::versioned('js/assistant.js') }}" defer></script>
     @stack('scripts')
+    @include('layouts.partials.tracking')
 </body>
 </html>

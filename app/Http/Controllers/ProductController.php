@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Services\CatalogService;
+use App\Services\TrackingService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -15,9 +16,13 @@ class ProductController extends Controller
     /** @var CatalogService */
     private $catalog;
 
-    public function __construct(CatalogService $catalog)
+    /** @var TrackingService */
+    private $tracking;
+
+    public function __construct(CatalogService $catalog, TrackingService $tracking)
     {
         $this->catalog = $catalog;
+        $this->tracking = $tracking;
     }
 
     public function show(string $locale, string $product): View
@@ -30,6 +35,8 @@ class ProductController extends Controller
 
         $productSchema = $model->toSchemaOrgArray();
         $productSchema['offers']['url'] = route('product.show', [$locale, $model->slug]);
+
+        $this->tracking->push($this->tracking->viewItem($model));
 
         $user = auth()->user();
 

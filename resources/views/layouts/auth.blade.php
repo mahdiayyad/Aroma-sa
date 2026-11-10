@@ -117,5 +117,6 @@
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@24.8.2/build/js/intlTelInputWithUtils.min.js"></script>
     <script src="{{ asset('js/intl-phone.js') }}"></script>
     @stack('scripts')
+    @include('layouts.partials.tracking')
 </body>
 </html>

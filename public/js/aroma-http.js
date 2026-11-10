@@ -69,7 +69,15 @@
     function finish(res) {
         return res.json()
             .catch(function () { return {}; })
-            .then(function (data) { return res.ok ? data : Promise.reject(data); });
+            .then(function (data) {
+                // Cart/wishlist responses carry their e-commerce events
+                // (add_to_cart, …) — fired only for a request that succeeded.
+                if (res.ok && data && data.tracking && window.AromaTracking) {
+                    window.AromaTracking.dispatch(data.tracking);
+                }
+
+                return res.ok ? data : Promise.reject(data);
+            });
     }
 
     window.AromaHttp = { post: post, token: token, refresh: refresh };

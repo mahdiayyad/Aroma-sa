@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Services\TrackingService;
 use Illuminate\Http\Request;
 
 class WishlistController extends Controller
@@ -22,7 +23,7 @@ class WishlistController extends Controller
     }
 
     /** Add/remove a product from the wishlist (idempotent toggle). */
-    public function toggle(Request $request, Product $product)
+    public function toggle(Request $request, Product $product, TrackingService $tracking)
     {
         $user = $request->user();
 
@@ -38,6 +39,9 @@ class WishlistController extends Controller
             $message = __('account.flash.wishlist_added');
         }
 
+        // Removing from the wishlist has no standard event, so only adds are tracked.
+        $trackingEvent = $active ? $tracking->addToWishlist($product) : null;
+
         // Live toggle: the storefront posts via fetch and updates the heart +
         // header count without a reload. Non-JS clients still get the redirect.
         if ($request->expectsJson()) {
@@ -45,8 +49,11 @@ class WishlistController extends Controller
                 'active'  => $active,
                 'count'   => $user->wishlistItems()->count(),
                 'message' => $message,
+                'tracking' => $tracking->forJson([$trackingEvent]),
             ]);
         }
+
+        $tracking->flash($trackingEvent);
 
         return back()->with('status', $message);
     }

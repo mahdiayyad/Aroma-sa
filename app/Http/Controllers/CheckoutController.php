@@ -18,6 +18,7 @@ use App\Services\CheckoutService;
 use App\Services\Payment\PaymentGatewayManager;
 use App\Services\Payment\TamaraPaymentService;
 use App\Services\PromoCodeService;
+use App\Services\TrackingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,19 +33,22 @@ class CheckoutController extends Controller
     private PaymentGatewayManager $gateways;
     private AddressResolver $addressResolver;
     private PromoCodeService $promoCodes;
+    private TrackingService $tracking;
 
     public function __construct(
         CartService $cart,
         CheckoutService $checkout,
         PaymentGatewayManager $gateways,
         AddressResolver $addressResolver,
-        PromoCodeService $promoCodes
+        PromoCodeService $promoCodes,
+        TrackingService $tracking
     ) {
         $this->cart = $cart;
         $this->checkout = $checkout;
         $this->gateways = $gateways;
         $this->addressResolver = $addressResolver;
         $this->promoCodes = $promoCodes;
+        $this->tracking = $tracking;
     }
 
     /**
@@ -96,6 +100,7 @@ class CheckoutController extends Controller
 
         $rows = $this->cart->rows();
         $totals = $this->checkout->calculateTotals(session('checkout.shipping_address'));
+        $this->tracking->beginCheckout($rows, session('checkout.promo.code'));
 
         return view('checkout.review', [
             'items' => $rows,
@@ -120,6 +125,9 @@ class CheckoutController extends Controller
         if (auth()->check()) {
             return redirect()->route('checkout.address');
         }
+
+        // No-op if the cart page's checkout button already started this checkout.
+        $this->tracking->beginCheckout($this->cart->rows(), session('checkout.promo.code'));
 
         return view('checkout.auth-choice');
     }
@@ -165,6 +173,8 @@ class CheckoutController extends Controller
         // auth-choice, so that's their true predecessor — hardcoding this to
         // checkout.review always would silently skip auth-choice for guests.
         $backRoute = $user ? route('checkout.review') : route('checkout.start');
+
+        $this->tracking->beginCheckout($this->cart->rows(), session('checkout.promo.code'));
 
         return view('checkout.address', [
             'addresses' => $addresses,
@@ -454,6 +464,7 @@ class CheckoutController extends Controller
             $pendingOrder = Order::find($pendingOrderId);
 
             if ($pendingOrder && $pendingOrder->isPaid()) {
+                $this->tracking->queuePurchase($pendingOrder);
                 $this->cart->clear();
                 session()->forget([
                     'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',
@@ -479,6 +490,13 @@ class CheckoutController extends Controller
 
         $totals = $this->totalsWithGiftExtras();
         $user = auth()->user();
+
+        // Fired by the page when the payment form is actually submitted.
+        $this->tracking->defer('add_payment_info', $this->tracking->addPaymentInfo(
+            $this->cart->rows(),
+            $totals,
+            session('checkout.promo.code')
+        ));
 
         // The address step no longer collects an email (the payment step
         // below is the single place that does, for guest and logged-in
@@ -719,6 +737,7 @@ class CheckoutController extends Controller
             // cart/checkout-session state gets consumed (see the comment in
             // storePayment()). Also covers the case where an async webhook
             // already marked the order paid before this browser returned.
+            $this->tracking->queuePurchase($order->fresh());
             $this->cart->clear();
             session()->forget([
                 'checkout.billing_address', 'checkout.shipping_address', 'checkout.customer_notes',

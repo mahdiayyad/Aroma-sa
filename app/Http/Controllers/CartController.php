@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Services\CartService;
 use App\Services\CatalogService;
+use App\Services\TrackingService;
 use App\Support\Formatting\Money;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,14 +21,20 @@ class CartController extends Controller
     /** @var CatalogService */
     private $catalog;
 
-    public function __construct(CartService $cart, CatalogService $catalog)
+    /** @var TrackingService */
+    private $tracking;
+
+    public function __construct(CartService $cart, CatalogService $catalog, TrackingService $tracking)
     {
         $this->cart = $cart;
         $this->catalog = $catalog;
+        $this->tracking = $tracking;
     }
 
     public function index()
     {
+        $this->tracking->push($this->tracking->viewCart($this->cart->rows()));
+
         return view('cart.index', [
             'rows'     => $this->cart->rows(),
             'subtotal' => $this->cart->subtotalLabel(),
@@ -48,12 +55,19 @@ class CartController extends Controller
         $product = Product::active()->with('options.values')->findOrFail((int) $data['product_id']);
         $options = $this->validatedOptions($product, $data['options'] ?? []);
 
+        $before = $this->cart->rows();
         $rowId = $this->cart->add(
             (int) $data['product_id'],
             isset($data['variant_id']) ? (int) $data['variant_id'] : null,
             (int) ($data['qty'] ?? 1),
             $options
         );
+
+        // What was actually added — the stock cap can make it less than asked.
+        $added = $this->cart->rows()[$rowId] ?? null;
+        $trackingEvent = $added
+            ? $this->tracking->cartChange($added, (int) $added['qty'] - (int) ($before[$rowId]['qty'] ?? 0))
+            : null;
 
         // Live add-to-cart: the storefront submits these via fetch and expects
         // JSON so it can open the confirmation modal and update the header count
@@ -87,8 +101,11 @@ class CartController extends Controller
                 ] : null,
                 // "Make your gift perfect" add-ons shown beneath the added item.
                 'suggestions' => $this->suggestions($product),
+                'tracking' => $this->tracking->forJson([$trackingEvent]),
             ]);
         }
+
+        $this->tracking->flash($trackingEvent);
 
         return back()->with('status', __('cart.flash.added'));
     }
@@ -97,13 +114,17 @@ class CartController extends Controller
     {
         $data = $request->validate(['qty' => ['required', 'integer', 'min:0', 'max:99']]);
 
+        $before = $this->cart->rows()[$rowId] ?? null;
         $this->cart->update($rowId, (int) $data['qty']);
+        $row = $this->cart->rows()[$rowId] ?? null;
+
+        $trackingEvent = $before
+            ? $this->tracking->cartChange($row ?? $before, (int) ($row['qty'] ?? 0) - (int) $before['qty'])
+            : null;
 
         // Live cart: the cart page patches quantities via fetch and expects JSON
         // so the line total, subtotal and header count update without a reload.
         if ($request->expectsJson()) {
-            $row = $this->cart->rows()[$rowId] ?? null;
-
             return response()->json([
                 'count'      => $this->cart->count(),
                 'removed'    => $row === null,
@@ -111,15 +132,21 @@ class CartController extends Controller
                 'line_total' => $row ? Money::format($row['unit_price'] * $row['qty']) : null,
                 'subtotal'   => $this->cart->subtotalLabel(),
                 'subtotal_amount' => $this->cart->subtotal(),
+                'tracking'   => $this->tracking->forJson([$trackingEvent]),
             ]);
         }
+
+        $this->tracking->flash($trackingEvent);
 
         return back()->with('status', __('cart.flash.updated'));
     }
 
     public function remove(Request $request, string $rowId)
     {
+        $before = $this->cart->rows()[$rowId] ?? null;
         $this->cart->remove($rowId);
+
+        $trackingEvent = $before ? $this->tracking->cartChange($before, -(int) $before['qty']) : null;
 
         // Live cart: the delete button removes the row via fetch and expects
         // JSON so the row can disappear without a reload.
@@ -129,15 +156,23 @@ class CartController extends Controller
                 'message'  => __('cart.flash.removed'),
                 'subtotal' => $this->cart->subtotalLabel(),
                 'subtotal_amount' => $this->cart->subtotal(),
+                'tracking' => $this->tracking->forJson([$trackingEvent]),
             ]);
         }
+
+        $this->tracking->flash($trackingEvent);
 
         return back()->with('status', __('cart.flash.removed'));
     }
 
     public function clear(): RedirectResponse
     {
+        $rows = $this->cart->rows();
         $this->cart->clear();
+
+        foreach ($rows as $row) {
+            $this->tracking->flash($this->tracking->cartChange($row, -(int) $row['qty']));
+        }
 
         return back()->with('status', __('cart.flash.cleared'));
     }
